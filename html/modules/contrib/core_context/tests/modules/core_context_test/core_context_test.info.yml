@@ -1,0 +1,9 @@
+name: 'Core Context test'
+core: 8.x
+type: module
+package: Testing
+
+# Information added by Drupal.org packaging script on 2019-09-25
+version: '8.x-1.0-alpha2'
+project: 'core_context'
+datestamp: 1569433986

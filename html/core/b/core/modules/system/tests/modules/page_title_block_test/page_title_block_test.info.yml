@@ -1,0 +1,6 @@
+name: Page Title Block Test
+type: module
+description: 'Test the Page Title Block.'
+package: Testing
+version: VERSION
+core: 8.x

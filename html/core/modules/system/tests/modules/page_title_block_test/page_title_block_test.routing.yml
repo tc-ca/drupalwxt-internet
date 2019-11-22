@@ -1,0 +1,7 @@
+page_title_block_test.test:
+  path: '/page-title-block-test-page'
+  defaults:
+    _title: 'Test page'
+    _controller: '\Drupal\page_title_block_test\Controller\PageBlockTitleTestController::testPage'
+  requirements:
+    _access: 'TRUE'

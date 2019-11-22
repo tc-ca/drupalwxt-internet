@@ -1,0 +1,11 @@
+openplus.admin_config_openplus:
+  title: OpenPlus
+  parent: system.admin_config
+  route_name: openplus.admin_config_openplus
+
+openplus_settings.admin_config_openplus:
+  title: OpenPlus module settings
+  description: 'Settings specific to OpenPlus module.'
+  parent: openplus.admin_config_openplus
+  route_name: openplus_settings.admin_config_openplus
+  weight: -10

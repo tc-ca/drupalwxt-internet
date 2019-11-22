@@ -1,0 +1,16 @@
+services:
+  wxt_core.hooks:
+    class: '\Drupal\wxt_core\Commands\Hooks'
+    arguments:
+      - '@extension.list.profile'
+      - '%install_profile%'
+      - '@string_translation'
+    tags:
+      - { name: drush.command }
+
+  wxt_core.commands:
+    class: \Drupal\wxt_core\Commands\WxTCoreCommands
+    arguments:
+      - '@wxt.update_manager'
+    tags:
+      - { name: drush.command }

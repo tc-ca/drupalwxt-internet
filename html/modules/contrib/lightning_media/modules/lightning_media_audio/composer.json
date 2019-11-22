@@ -1,0 +1,6 @@
+{
+    "name": "drupal/lightning_media_audio",
+    "type": "drupal-module",
+    "description": "Audio support for Lightning Media.",
+    "license": "GPL-2.0-or-later"
+}

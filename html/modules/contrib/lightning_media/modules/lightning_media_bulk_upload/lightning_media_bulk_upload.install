@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Contains installation and update functions for Lightning Media Bulk Upload.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function lightning_media_bulk_upload_install() {
+  user_role_grant_permissions('media_creator', ['dropzone upload files']);
+}

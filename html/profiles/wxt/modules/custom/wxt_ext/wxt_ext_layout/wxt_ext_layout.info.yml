@@ -1,0 +1,13 @@
+name: 'WxT Extend Layout'
+description: 'Provides custom and responsive panel layouts.'
+type: module
+core: 8.x
+package: WxT
+
+# Required modules
+dependencies:
+  - bootstrap_layouts:bootstrap_layouts
+  - core_context:core_context
+  - layout_library:layout_library
+  - lightning_layout:lightning_layout
+  - page_manager_ui:page_manager_ui

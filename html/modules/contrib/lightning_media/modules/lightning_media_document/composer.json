@@ -1,0 +1,6 @@
+{
+    "name": "drupal/lightning_media_document",
+    "type": "drupal-module",
+    "description": "Locally hosted document support for Lightning Media.",
+    "license": "GPL-2.0-or-later"
+}

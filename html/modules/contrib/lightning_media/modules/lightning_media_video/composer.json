@@ -1,0 +1,11 @@
+{
+    "name": "drupal/lightning_media_video",
+    "type": "drupal-module",
+    "description": "Video support for Lightning Media.",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Drupal\\Tests\\lightning_media_video\\": "tests/src"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+name: 'WxT Extend Blog'
+description: 'Provides customizations / defaults for the blog content type.'
+type: module
+core: 8.x
+package: WxT
+
+# Required modules
+dependencies:
+  - blog:blog
+  - bootstrap_layouts:bootstrap_layouts
+  - config_rewrite:config_rewrite
+  - views_bootstrap:views_bootstrap
+  - wxt_ext_migration:wxt_ext_migration
+  - wxt_ext_taxonomy:wxt_ext_taxonomy
+  - wxt_ext_translation:wxt_ext_translation

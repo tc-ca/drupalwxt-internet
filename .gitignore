@@ -1,0 +1,34 @@
+# Drupal
+test-results
+scripts/local
+scripts/drupal
+files_private/
+html/sites/dv13.dd
+
+# Composer files
+composer.lock
+
+# Ignore Development Files
+compass_app_log.txt
+*.DS_Store
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*.sass-cache
+
+# Node
+node_modules/
+bower_components/
+
+# PhpStorm
+.idea
+
+# SASS
+.sass-cache
+*.sass-cache*
+**/sass/*.css

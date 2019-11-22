@@ -1,0 +1,7 @@
+name: OpenPlus Module
+description: Custom site glue code
+package: Custom
+type: module
+version: 1.0
+core: 8.x
+configure: openplus_settings.admin_config_openplus

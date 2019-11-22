@@ -1,0 +1,6 @@
+{
+    "name": "drupal/lightning_media_slideshow",
+    "type": "drupal-module",
+    "description": "Provides the ability to create slideshows and carousels of media items.",
+    "license": "GPL-2.0-or-later"
+}

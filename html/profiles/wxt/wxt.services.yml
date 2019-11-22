@@ -1,0 +1,5 @@
+services:
+  wxt.form_helper:
+    class: '\Drupal\wxt\FormHelper'
+    arguments:
+      - '@element_info'

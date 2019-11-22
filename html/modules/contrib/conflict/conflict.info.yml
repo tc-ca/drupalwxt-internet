@@ -1,0 +1,10 @@
+name: Conflict
+description: Fieldwise conflict prevention and resolution.
+type: module
+# core: 8.x
+
+# Information added by Drupal.org packaging script on 2018-12-19
+version: '8.x-2.0-alpha1'
+core: '8.x'
+project: 'conflict'
+datestamp: 1545233606

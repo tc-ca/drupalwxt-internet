@@ -1,0 +1,11 @@
+name: 'WxT Extend User'
+description: 'Provides default user roles, users, and permissions.'
+type: module
+core: 8.x
+package: WxT
+
+# Required modules
+dependencies:
+  - config_rewrite:config_rewrite
+  - drupal:shortcut
+  - wxt_ext_translation:wxt_ext_translation

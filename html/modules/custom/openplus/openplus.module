@@ -1,0 +1,68 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Url;
+use Drupal\user\UserInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  switch ($form_id) {
+    case 'node_property_form':
+      openplus_add_cancel($form);
+      openplus_hide_tags($form);
+    break;
+    case 'node_migration_mi_form':
+      // hide some info on migration source edit
+      $form['revision_log']['#access'] = FALSE;
+      $form['revision_information']['#access'] = FALSE;
+      unset($form['actions']['delete']);
+      unset($form['advanced']);
+      unset($form['meta']);
+    break;
+  }
+}
+
+function openplus_add_cancel(&$form) {
+  $form['actions']['submit_cancel'] = array (
+    '#type' => 'submit',
+    '#weight' => 999,
+    '#value' => t('Cancel'),
+    '#submit' => array('openplus_cancel_callback'),
+    '#limit_validation_errors' => [],
+  );
+}
+
+function openplus_hide_tags(&$form) {
+  // Get the current user
+  $user = \Drupal::currentUser()->getRoles();
+  if (!in_array("administrator", $user)) {
+    $form['revision_log']['#access'] = FALSE;
+    $form['revision_information']['#access'] = FALSE;
+    //$form['moderation_state']['#access'] = FALSE;
+  }
+  //vdpm($form);
+}
+
+function openplus_cancel_callback(array &$form, \Drupal\Core\Form\FormStateInterface &$form_state) {
+// Apparently, the cancel button just uses the destination param without us forcing it
+/*
+  $destination = \Drupal::request()->query->get('destination');
+  if (!empty($destination)) {
+    $path = \Drupal::service('path.alias_manager')->getPathByAlias($destination);
+    $node_path = explode('/', $path);
+    if (isset($node_path[2]) && is_numeric($node_path[2])) {
+      $form_state->setRedirect('entity.node.canonical', array('node' => $node_path[2]));
+    }
+  }
+*/
+}
+
+/*
+function openplus_entity_type_alter(array &$entity_types) {
+  $node_type = $entity_types['node'];
+  $default_handler_class = $node_type->getHandlerClasses()['form']['default'];
+  $node_type->setFormClass('migration_source',  $default_handler_class);
+}
+*/

@@ -1,0 +1,14 @@
+openplus.admin_config_openplus:
+  path: '/admin/config/openplus'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'OpenPlus'
+  requirements:
+    _permission: 'administer site configuration'
+openplus_settings.admin_config_openplus:
+  path: '/admin/config/openplus/openplus'
+  defaults:
+    _title: 'OpenPlus module settings'
+    _form: '\Drupal\openplus\Form\OpenplusSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

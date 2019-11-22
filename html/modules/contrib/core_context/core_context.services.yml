@@ -1,0 +1,14 @@
+services:
+  core_context.entity:
+    class: 'Drupal\core_context\EntityRouteProvider'
+    arguments:
+      - '@current_route_match'
+      - '@entity_type.manager'
+      - '@entity_display.repository'
+    tags:
+      - { name: context_provider }
+
+  core_context.route_subscriber:
+    class: 'Drupal\core_context\Routing\RouteSubscriber'
+    tags:
+      - { name: event_subscriber }
