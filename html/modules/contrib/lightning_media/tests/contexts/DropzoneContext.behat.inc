@@ -3,30 +3,26 @@
 namespace Acquia\LightningExtension\Context;
 
 use Behat\Gherkin\Node\PyStringNode;
-use Drupal\DrupalExtension\Context\DrupalSubContextBase;
-use Drupal\DrupalExtension\Context\MinkContext;
+use Behat\MinkExtension\Context\RawMinkContext;
+use Drupal\DrupalDriverManager;
+use Drupal\DrupalExtension\Context\DrupalSubContextInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * Contains step definitions for interacting with DropzoneJS widgets.
+ *
+ * @internal
+ *   This is an internal part of Lightning Media's testing system and may be
+ *   changed or removed at any time without warning. It should not be extended,
+ *   instantiated, or used in any way by external code! If you need to use this
+ *   functionality, you should copy the relevant code into your own project.
  */
-final class DropzoneContext extends DrupalSubContextBase {
+final class DropzoneContext extends RawMinkContext implements DrupalSubContextInterface {
 
   /**
-   * Attaches a file to a dropzone.
-   *
-   * @param string $file
-   *   The file to attach, relative to the file directory configured for Mink.
-   *
-   * @When I attach the file :file to the dropzone
+   * {@inheritdoc}
    */
-  public function attachFileToDropzone($file) {
-    $this->getSession()
-      ->executeScript('Dropzone.instances[0].hiddenFileInput.name = "file"');
-
-    $this->getContext(MinkContext::class)->attachFileToField('file', $file);
-
-    // @todo: React when the upload actually completes.
-    sleep(3);
+  public function __construct(DrupalDriverManager $drupal) {
   }
 
   /**
@@ -38,22 +34,30 @@ final class DropzoneContext extends DrupalSubContextBase {
    * @When I upload the following files:
    */
   public function uploadMultiple(PyStringNode $files) {
-    $assert = $this->assertSession();
+    $page = $this->getSession()->getPage();
 
     $this->visitPath('/admin/content/media');
-    $assert->elementExists('named', ['link', 'Bulk upload'])->click();
+    $page->clickLink('Bulk upload');
     // Wait for the dropzone to be initialized.
     sleep(3);
 
     $files = $files->getStrings();
 
     foreach ($files as $file) {
-      $this->attachFileToDropzone($file);
+      $file = __DIR__ . '/../files/' . $file;
+      Assert::fileExists($file);
+
+      $session = $this->getSession();
+      $session->executeScript('Dropzone.instances[0].hiddenFileInput.name = "file"');
+      $page->attachFileToField('file', $file);
+
+      // @todo: React when the upload actually completes.
+      sleep(3);
     }
-    $assert->elementExists('named', ['button', 'Continue'])->press();
+    $page->pressButton('Continue');
 
     for ($i = 0; $i < count($files); $i++) {
-      $assert->elementExists('named', ['button', 'Save'])->press();
+      $page->pressButton('Save');
     }
   }
 

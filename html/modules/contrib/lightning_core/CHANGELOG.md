@@ -1,3 +1,7 @@
+## 4.8.0
+* Fixed an incompatibility between Lightning Page and Lightning Workflow
+  3.14 and later.
+
 ## 4.7.0
 * Lightning Core now includes the Redirect module as a soft dependency.
 * The base installation profile, if available, is now displayed on the

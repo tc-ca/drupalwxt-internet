@@ -11,8 +11,7 @@ use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Tests that OAuth and JSON:API are working together to authenticate, and
- * authorize interaction with entities.
+ * Tests that OAuth and JSON:API authenticate and authorize entity operations.
  *
  * @group lightning_api
  * @group headless
@@ -93,7 +92,7 @@ class ApiTest extends BrowserTestBase {
   /**
    * Creates a user account with privileged API access.
    *
-   * @see ::createUser() for parameter documentation.
+   * @see ::createUser()
    *
    * @return string
    *   The user's access token.
@@ -256,8 +255,7 @@ class ApiTest extends BrowserTestBase {
   }
 
   /**
-   * Tests that authenticated and anonymous requests cannot get unauthorized
-   * data.
+   * Tests access to unauthorized data is denied, regardless of authentication.
    */
   public function testForbidden() {
     $this->createContentType(['type' => 'page']);
@@ -295,14 +293,15 @@ class ApiTest extends BrowserTestBase {
    * @param string $method
    *   The RESTful verb.
    * @param string $token
-   *   A valid OAuth token to send as an Authorization header with the request.
+   *   (optional) A valid OAuth token to send as an Authorization header with
+   *   the request.
    * @param array $data
-   *   Additional json data to send with the request.
+   *   (optional) Additional JSON data to send with the request.
    *
    * @return \Psr\Http\Message\ResponseInterface
    *   The response from the request.
    */
-  private function request($endpoint, $method = 'get', $token = NULL, $data = NULL) {
+  private function request($endpoint, $method = 'get', $token = NULL, array $data = NULL) {
     $options = NULL;
     if ($token) {
       $options = [

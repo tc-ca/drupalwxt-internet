@@ -4,7 +4,6 @@ namespace Drupal\Tests\lightning_core;
 
 use Drupal\block\Entity\Block;
 use Drupal\node\Entity\NodeType;
-use Drupal\search_api\Entity\Index;
 use Drupal\user\Entity\Role;
 
 /**
@@ -13,6 +12,8 @@ use Drupal\user\Entity\Role;
 final class FixtureContext extends FixtureBase {
 
   /**
+   * Performs set-up tasks before a test scenario.
+   *
    * @BeforeScenario
    */
   public function setUp() {
@@ -56,40 +57,11 @@ final class FixtureContext extends FixtureBase {
       'name' => 'Test',
     ]);
     $this->save($node_type);
-
-    $this->installModule('views');
-
-    if ($this->installModule('lightning_search')) {
-      /** @var \Drupal\search_api\IndexInterface $index */
-      $index = Index::load('content');
-      $dependencies = $index->getDependencies();
-      $dependencies['enforced']['module'][] = 'lightning_search';
-      $index->set('dependencies', $dependencies)->save();
-    }
-
-    /** @var \Drupal\block\BlockInterface $block */
-    if (!Block::load('seven_search')) {
-      $block = Block::create([
-        'id' => 'seven_search',
-        'theme' => 'seven',
-        'region' => 'content',
-        'plugin' => 'views_exposed_filter_block:search-page',
-      ])
-        ->setVisibilityConfig('request_path', [
-          'pages' => '/search',
-        ]);
-      $this->save($block);
-    }
-
-    $this->config('views.view.search')
-      ->set('display.default.display_options.cache', [
-        'type' => 'none',
-        'options' => [],
-      ])
-      ->save();
   }
 
   /**
+   * Performs tear-down tasks after a test scenario.
+   *
    * @AfterScenario
    */
   public function tearDown() {

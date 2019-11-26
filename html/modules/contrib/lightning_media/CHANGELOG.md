@@ -1,3 +1,12 @@
+## 3.14.0
+There are no user-facing changes in this version.
+
+## 3.13.0
+* Added support for Drupal core 8.8.x.
+* Updated Entity Embed to 1.0.
+* Updated Views Infinite Scroll to 1.6.
+* Updated Entity Browser to 2.2.
+
 ## 3.12.0
 * Fixed an improperly namespaced dependency in Lightning Media
   Video's info file.

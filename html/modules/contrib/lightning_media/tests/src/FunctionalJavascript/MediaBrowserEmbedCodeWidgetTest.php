@@ -5,6 +5,8 @@ namespace Drupal\Tests\lightning_media\FunctionalJavascript;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
+ * Tests the embed code widget in the media browser.
+ *
  * @group lightning_media
  */
 class MediaBrowserEmbedCodeWidgetTest extends WebDriverTestBase {
@@ -36,7 +38,6 @@ class MediaBrowserEmbedCodeWidgetTest extends WebDriverTestBase {
     $page->fillField('input', 'Foo');
     $assert_session->assertWaitOnAjaxRequest();
     $assert_session->fieldNotExists('Bundle');
-    $assert_session->elementTextContains('css', '[role="alert"]', "Input did not match any media types: 'Foo'");
 
     $page->fillField('input', '');
     $assert_session->assertWaitOnAjaxRequest();
@@ -54,6 +55,13 @@ class MediaBrowserEmbedCodeWidgetTest extends WebDriverTestBase {
     $assert_session->assertWaitOnAjaxRequest();
     $assert_session->fieldNotExists('Bundle');
     $assert_session->elementTextContains('css', '[role="alert"]', "Input did not match any media types: 'Bar'");
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function assertSession($name = NULL) {
+    return new WebDriverWebAssert($this->getSession($name), $this->baseUrl);
   }
 
 }

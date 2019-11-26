@@ -7,13 +7,17 @@ use Drupal\Tests\lightning_scheduler\Traits\SchedulerUiTrait;
 use Drupal\Tests\Traits\Core\CronRunTrait;
 
 /**
+ * Tests Lightning Scheduler's transition handling.
+ *
  * @group lightning
  * @group lightning_workflow
  * @group lightning_scheduler
  */
 class TransitionTest extends WebDriverTestBase {
 
-  use CronRunTrait;
+  use CronRunTrait {
+    cronRun as traitCronRun;
+  }
   use SchedulerUiTrait;
 
   /**
@@ -55,6 +59,9 @@ class TransitionTest extends WebDriverTestBase {
     $this->getSession()->getPage()->fillField('Title', $this->randomString());
   }
 
+  /**
+   * Tests automatically publishing a transition scheduled in the past.
+   */
   public function testPublishInPast() {
     $assert_session = $this->assertSession();
 
@@ -67,6 +74,8 @@ class TransitionTest extends WebDriverTestBase {
   }
 
   /**
+   * Tests that invalid transitions are skipped at processing time.
+   *
    * @depends testPublishInPast
    */
   public function testSkipInvalidTransition() {
@@ -84,6 +93,9 @@ class TransitionTest extends WebDriverTestBase {
     $assert_session->elementNotExists('css', '.scheduled-transition');
   }
 
+  /**
+   * Tests that completed transitions are deleted.
+   */
   public function testClearCompletedTransitions() {
     $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
@@ -104,6 +116,9 @@ class TransitionTest extends WebDriverTestBase {
     $assert_session->pageTextContains('Current state Archived');
   }
 
+  /**
+   * Tests automatically publishing a pending revision.
+   */
   public function testPublishPendingRevision() {
     $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
@@ -124,6 +139,58 @@ class TransitionTest extends WebDriverTestBase {
     $this->cronRun();
     $this->drupalGet('/node');
     $assert_session->linkExists('MC Hammer');
+  }
+
+  /**
+   * Tests automatically publishing, and then unpublishing, in the future.
+   */
+  public function testScheduledPublishAndUnpublishInFuture() {
+    $assert_session = $this->assertSession();
+    $page = $this->getSession()->getPage();
+
+    $account = $this->drupalCreateUser([
+      'administer nodes',
+      'create page content',
+      'edit own page content',
+      'schedule editorial transition archive',
+      'schedule editorial transition publish',
+      'use editorial transition archive',
+      'use editorial transition create_new_draft',
+      'use editorial transition publish',
+      'use editorial transition review',
+      'view latest version',
+      'view own unpublished content',
+    ]);
+    $this->drupalLogin($account);
+
+    $this->drupalGet('/node/add/page');
+    $page->fillField('Title', 'Schedule This');
+
+    $now = time();
+    $this->createTransition('Published', $now + 10);
+    $this->createTransition('Archived', $now + 20);
+    $page->pressButton('Save');
+
+    $this->cronRun($now + 12);
+    $this->cronRun($now + 22);
+
+    $assert_session->elementExists('named', ['link', 'edit-form'])->click();
+    $assert_session->pageTextContains('Current state Archived');
+    $assert_session->elementNotExists('css', '.scheduled-transition');
+  }
+
+  /**
+   * Runs cron, forcing Drupal to use a particular request time.
+   *
+   * @param int $time
+   *   The request time at which cron will think it is being run.
+   */
+  protected function cronRun($time = NULL) {
+    if (isset($time)) {
+      $this->container->get('state')
+        ->set('lightning_scheduler.request_time', $time);
+    }
+    $this->traitCronRun();
   }
 
 }

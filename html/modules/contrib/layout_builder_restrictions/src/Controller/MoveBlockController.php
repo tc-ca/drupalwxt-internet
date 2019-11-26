@@ -40,11 +40,10 @@ class MoveBlockController extends MoveBlockControllerCore {
   public function build(SectionStorageInterface $section_storage, $delta_from, $delta_to, $region_to, $block_uuid, $preceding_block_uuid = NULL) {
     // Retrieve defined Layout Builder Restrictions plugins.
     $layout_builder_restrictions_manager = \Drupal::service('plugin.manager.layout_builder_restriction');
-    $restriction_definitions = $layout_builder_restrictions_manager->getDefinitions();
-    foreach ($restriction_definitions as $restriction_definition) {
-      // @todo: respect ordering of plugins (see #3045266)
-      $plugin_instance = $layout_builder_restrictions_manager->createInstance($restriction_definition['id']);
-      $block_status = $plugin_instance->blockAllowedinContext($section_storage, $delta_from, $delta_to, $region_to, $block_uuid, $preceding_block_uuid);
+    $restriction_plugins = $layout_builder_restrictions_manager->getSortedPlugins();
+    foreach (array_keys($restriction_plugins) as $id) {
+      $plugin = $layout_builder_restrictions_manager->createInstance($id);
+      $block_status = $plugin->blockAllowedinContext($section_storage, $delta_from, $delta_to, $region_to, $block_uuid, $preceding_block_uuid);
       if ($block_status !== TRUE) {
         return $this->restrictLayout($section_storage, $block_status);
       }

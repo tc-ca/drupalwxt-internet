@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\lightning_media\FunctionalJavascript;
 
-use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
-use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
  * @group lightning_media

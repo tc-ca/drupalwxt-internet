@@ -48,62 +48,53 @@ class PathautoPatternTest extends BrowserTestBase {
 
   /**
    * Tests media types that ship with Lightning.
-   *
-   * @param string $bundle
-   *   Media bundle.
-   * @param mixed $source_value
-   *   (optional) The source field value.
-   *
-   * @dataProvider providerMediaPattern
    */
-  public function testMediaPattern($bundle, $source_value = NULL) {
-    /** @var \Drupal\media\MediaInterface $media */
-    $media = Media::create([
-      'bundle' => $bundle,
-      'name' => 'Foo Bar',
-    ]);
+  public function testMediaPattern() {
+    $assert_session = $this->assertSession();
 
-    if ($source_value) {
-      $source_field = $media->getSource()
-        ->getSourceFieldDefinition($media->bundle->entity)
-        ->getName();
-
-      $media->set($source_field, $source_value);
-    }
-    $this->assertSame(SAVED_NEW, $media->setPublished()->save());
-
-    $this->drupalGet('/media/' . strtolower($media->bundle()) . '/' . $media->id());
-    $assert = $this->assertSession();
-    $assert->statusCodeEquals(200);
-    $assert->pageTextContains('Foo Bar');
-  }
-
-  /**
-   * Data provider for ::testMediaPattern().
-   *
-   * @return array
-   *   The test data.
-   */
-  public function providerMediaPattern() {
-    return [
-      ['document'],
-      ['image'],
-      ['video'],
-      ['tweet', 'https://twitter.com/50NerdsofGrey/status/757319527151636480'],
-      ['instagram', 'https://www.instagram.com/p/BmIh_AFDBzX'],
+    // This could be done with the data provider pattern, but there's no real
+    // benefit to that in this case, and this is significantly faster.
+    $media = [
+      'document' => NULL,
+      'image' => NULL,
+      'video' => NULL,
+      'tweet' => 'https://twitter.com/50NerdsofGrey/status/757319527151636480',
+      'instagram' => 'https://www.instagram.com/p/BmIh_AFDBzX',
     ];
+    foreach ($media as $type => $source_value) {
+      /** @var \Drupal\media\MediaInterface $media */
+      $media_item = Media::create([
+        'bundle' => $type,
+        'name' => $this->randomString(),
+      ]);
+
+      if ($source_value) {
+        $source_field = $media_item->getSource()
+          ->getSourceFieldDefinition($media_item->bundle->entity)
+          ->getName();
+
+        $media_item->set($source_field, $source_value);
+      }
+      $media_item->setPublished()->save();
+
+      $this->drupalGet($media_item->toUrl());
+      $assert_session->statusCodeEquals(200);
+      $assert_session->pageTextContains($media_item->label());
+      $assert_session->addressEquals('/media/' . strtolower($media_item->bundle()) . '/' . $media_item->id());
+    }
   }
 
   /**
    * Tests a new media type.
    */
   public function testNewMediaTypePattern() {
+    /** @var \Drupal\media\MediaInterface $media */
     $media = Media::create([
       'bundle' => $this->createMediaType('test')->id(),
       'name' => 'Foo Bar',
     ]);
+    $media->setPublished()->save();
 
-    $this->assertSame(SAVED_NEW, $media->setPublished()->save());
     $this->drupalGet("/media/{$media->bundle()}/{$media->id()}");
 
     $assert = $this->assertSession();

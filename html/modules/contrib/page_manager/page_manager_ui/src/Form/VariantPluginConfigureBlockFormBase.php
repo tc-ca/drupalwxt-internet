@@ -13,8 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\ContextAwarePluginAssignmentTrait;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
-use Drupal\page_manager\PageVariantInterface;
-use Drupal\user\SharedTempStoreFactory;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -27,7 +26,7 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
   /**
    * Tempstore factory.
    *
-   * @var \Drupal\user\SharedTempStoreFactory
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
    */
   protected $tempstore;
 
@@ -48,7 +47,7 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
   /**
    * Constructs a new VariantPluginConfigureBlockFormBase.
    *
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore
    *   The tempstore factory.
    */
   public function __construct(SharedTempStoreFactory $tempstore) {
@@ -60,7 +59,7 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('user.shared_tempstore')
+      $container->get('tempstore.shared')
     );
   }
 
@@ -68,6 +67,7 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
    * Get the tempstore id.
    *
    * @return string
+   *   The temp store id.
    */
   protected function getTempstoreId() {
     return 'page_manager.block_display';
@@ -76,7 +76,8 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
   /**
    * Get the tempstore.
    *
-   * @return \Drupal\user\SharedTempStore
+   * @return \Drupal\Core\TempStore\SharedTempStore
+   *   The shared temp store.
    */
   protected function getTempstore() {
     return $this->tempstore->get($this->getTempstoreId());
@@ -209,6 +210,7 @@ abstract class VariantPluginConfigureBlockFormBase extends FormBase {
    * Gets the variant plugin for this page variant entity.
    *
    * @return \Drupal\ctools\Plugin\BlockVariantInterface
+   *   The variant plugin.
    */
   protected function getVariantPlugin() {
     return $this->variantPlugin;

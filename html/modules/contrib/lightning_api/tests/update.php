@@ -1,9 +1,14 @@
 <?php
 
-use Drupal\node\Entity\NodeType;
+/**
+ * @file
+ * Prepares a code base to run database updates for testing.
+ *
+ * Forcibly uninstalls Lightning Dev, switches the installation profile from
+ * Standard to Minimal, and deletes defunct config objects.
+ */
 
-// Forcibly uninstall Lightning Dev, switch the installation profile from
-// Standard to Minimal, and delete defunct config objects.
+use Drupal\node\Entity\NodeType;
 
 $config_factory = Drupal::configFactory();
 

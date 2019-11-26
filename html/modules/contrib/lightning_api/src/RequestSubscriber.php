@@ -10,6 +10,9 @@ use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * Subscribes to request-related events.
+ */
 class RequestSubscriber implements EventSubscriberInterface {
 
   use MessengerTrait;
@@ -36,6 +39,8 @@ class RequestSubscriber implements EventSubscriberInterface {
    *   The current route match service.
    * @param \Drupal\lightning_api\OAuthKey $key
    *   The OAuth keys service.
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
+   *   The string translation service.
    */
   public function __construct(RouteMatchInterface $route_match, OAuthKey $key, TranslationInterface $translation) {
     $this->routeMatch = $route_match;
@@ -52,6 +57,9 @@ class RequestSubscriber implements EventSubscriberInterface {
     ];
   }
 
+  /**
+   * Reacts when a request begins.
+   */
   public function onRequest() {
     if ($this->routeMatch->getRouteName() == 'oauth2_token.settings' && $this->key->exists() == FALSE) {
       $warning = $this->t('You may wish to <a href=":generate_keys">generate a key pair</a> for OAuth authentication.', [

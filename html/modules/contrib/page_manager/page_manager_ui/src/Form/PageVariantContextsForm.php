@@ -32,7 +32,7 @@ class PageVariantContextsForm extends ManageContext {
     /** @var $page_variant \Drupal\page_manager\Entity\PageVariant */
     $page_variant = $cached_values['page_variant'];
     $context = $form_state->getValue('context');
-    $content = $this->formBuilder->getForm($this->getContextClass(), $context, $this->getTempstoreId(), $this->machine_name, $page_variant->id());
+    $content = $this->formBuilder->getForm($this->getContextClass($cached_values), $context, $this->getTempstoreId(), $this->machine_name, $page_variant->id());
     $content['#attached']['library'][] = 'core/drupal.dialog.ajax';
     list(, $route_parameters) = $this->getContextOperationsRouteInfo($cached_values, $this->machine_name, $context);
     $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = $this->url($this->getContextAddRoute($cached_values), $route_parameters, ['query' => [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]]);

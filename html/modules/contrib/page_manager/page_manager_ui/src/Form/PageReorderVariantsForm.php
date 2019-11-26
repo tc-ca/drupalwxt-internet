@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\page_manager\Entity\PageVariant;
 use Drupal\page_manager\PageInterface;
-use Drupal\user\SharedTempStoreFactory;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,14 +22,14 @@ class PageReorderVariantsForm extends FormBase {
   /**
    * Tempstore factory.
    *
-   * @var \Drupal\user\SharedTempStoreFactory
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
    */
   protected $tempstore;
 
   /**
    * Constructs a new DisplayVariantAddForm.
    *
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore
    *   The tempstore factory.
    */
   public function __construct(SharedTempStoreFactory $tempstore) {
@@ -41,7 +41,7 @@ class PageReorderVariantsForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('user.shared_tempstore')
+      $container->get('tempstore.shared')
     );
   }
 
@@ -49,6 +49,7 @@ class PageReorderVariantsForm extends FormBase {
    * Get the tempstore id.
    *
    * @return string
+   *   The tempstore id.
    */
   protected function getTempstoreId() {
     return 'page_manager.page';

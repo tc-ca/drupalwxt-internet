@@ -6,9 +6,9 @@
  */
 
 use Drupal\content_moderation\Plugin\WorkflowType\ContentModerationInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\lightning_core\Element;
 use Drupal\lightning_core\OverrideHelper as Override;

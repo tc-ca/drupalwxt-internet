@@ -1,3 +1,20 @@
+## 2.4.0
+* Fixed an incompatibility between Lightning Landing Page and Lightning
+  Workflow 3.14 and later.
+
+## 2.3.0
+There are no user-facing changes in this version.
+
+## 2.2.0
+* Added support for Drupal core 8.8.x.
+* Updated Background Image Formatter to 1.10.
+* Layout Builder Symmetric Translations will only be installed if the
+  site is using the Language module. (Issue #3066811)
+* Fixed a PHP warning that can occur after a cache clear. (Issue #3068755)
+* Lightning Layout now allows CTools 3.0 or later.
+* Lightning Layout now includes the Layout Builder Styles module as 
+  a dependency.
+
 ## 2.1.0
 * Added the Layout Builder Symmetric Translations module to provide basic
   translation support for landing pages.

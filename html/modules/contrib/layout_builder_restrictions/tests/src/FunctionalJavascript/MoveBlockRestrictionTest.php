@@ -6,6 +6,8 @@ use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\Tests\contextual\FunctionalJavascript\ContextualLinkClickTrait;
+use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
+use Drupal\layout_library\Entity\Layout;
 
 /**
  * Tests moving blocks via the form.
@@ -15,6 +17,7 @@ use Drupal\Tests\contextual\FunctionalJavascript\ContextualLinkClickTrait;
 class MoveBlockRestrictionTest extends WebDriverTestBase {
 
   use ContextualLinkClickTrait;
+  use ContentTypeCreationTrait;
 
   /**
    * Path prefix for the field UI for the test bundle.
@@ -32,6 +35,7 @@ class MoveBlockRestrictionTest extends WebDriverTestBase {
     'contextual',
     'node',
     'layout_builder',
+    'layout_library',
     'layout_builder_restrictions',
   ];
 
@@ -46,6 +50,7 @@ class MoveBlockRestrictionTest extends WebDriverTestBase {
     $this->createContentType(['type' => 'bundle_with_section_field']);
 
     $this->drupalLogin($this->drupalCreateUser([
+      'access administration pages',
       'configure any layout',
       'administer blocks',
       'administer node display',
@@ -54,6 +59,14 @@ class MoveBlockRestrictionTest extends WebDriverTestBase {
       'create and edit custom blocks',
     ]));
 
+    $layout = Layout::create([
+      'id' => 'alpha',
+      'label' => 'Alpha',
+      'targetEntityType' => 'node',
+      'targetBundle' => 'bundle_with_section_field',
+    ]);
+    $layout->save();
+
     // Enable Layout Builder.
     $this->drupalPostForm(
       static::FIELD_UI_PREFIX . '/display/default',
@@ -61,6 +74,74 @@ class MoveBlockRestrictionTest extends WebDriverTestBase {
       'Save'
     );
     $this->getSession()->resizeWindow(1200, 2000);
+  }
+
+  /**
+   * Move a plugin block in the Layout Library.
+   */
+  public function testLayoutLibraryMovePluginBlock() {
+    $page = $this->getSession()->getPage();
+    $assert_session = $this->assertSession();
+
+    $this->drupalPlaceBlock('local_actions_block');
+    $this->drupalPlaceBlock('local_tasks_block');
+
+    // Add a layout to the library.
+    $this->drupalGet('admin/structure/layouts');
+    $page->clickLink('Edit layout');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('Add section');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('One column');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->pressButton('Add section');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('Add block');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('Powered by Drupal');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->fillField('settings[label]', 'Powered by Drupal');
+    $page->checkField('settings[label_display]');
+    $page->pressButton('Add block');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('Add block');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->clickLink('Site branding');
+    $assert_session->assertWaitOnAjaxRequest();
+    $page->fillField('settings[label]', 'Site branding');
+    $page->checkField('settings[label_display]');
+    $page->pressButton('Add block');
+    $assert_session->assertWaitOnAjaxRequest();
+
+    $page->pressButton('Save layout');
+    $assert_session->assertWaitOnAjaxRequest();
+
+    // Two blocks have been saved to the Layout, in the order
+    // Powered by Drupal, Site branding.
+    // Change the order & save.
+    $this->drupalGet('admin/structure/layouts');
+    $page->clickLink('Edit layout');
+    $assert_session->assertWaitOnAjaxRequest();
+
+    // Move the body block into the first region above existing block.
+    $this->openMoveForm(0, 'content', 'block-system-powered-by-block', ['Powered by Drupal (current)', 'Site branding']);
+    $page->selectFieldOption('Region', '0:content');
+    $this->assertBlockTable(['Powered by Drupal (current)', 'Site branding']);
+    $this->moveBlockWithKeyboard('up', 'Site branding', ['Site branding*', 'Powered by Drupal (current)']);
+    $page->pressButton('Move');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $page->pressButton('Save layout');
+    $assert_session->assertWaitOnAjaxRequest();
+
+    // Confirm the order has successfully changed.
+    $this->drupalGet('admin/structure/layouts');
+    $page->clickLink('Edit layout');
+    $assert_session->assertWaitOnAjaxRequest();
+    $expected_block_order = [
+      '.block-system-branding-block',
+      '.block-system-powered-by-block',
+    ];
+    $this->assertRegionBlocksOrder(0, 'content', $expected_block_order);
   }
 
   /**

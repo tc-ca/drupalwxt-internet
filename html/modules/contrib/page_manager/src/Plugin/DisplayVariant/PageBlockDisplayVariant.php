@@ -202,6 +202,11 @@ class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizar
     unset($build['#block_plugin']);
     if ($content !== NULL && !Element::isEmpty($content)) {
       $build['content'] = $content;
+
+      // Add contextual links but prevent duplicating the Views block displays
+      // contextual links.
+      $add_contextual_links = !empty($content['#contextual_links']) && empty($content['#views_contextual_links']);
+      $build['#contextual_links'] = $add_contextual_links ? $content['#contextual_links'] : [];
     }
     else {
       // Abort rendering: render as the empty string and ensure this block is
@@ -213,6 +218,7 @@ class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizar
         '#cache' => $build['#cache'],
       ];
     }
+
     // If $content is not empty, then it contains cacheability metadata, and
     // we must merge it with the existing cacheability metadata. This allows
     // blocks to be empty, yet still bubble cacheability metadata, to indicate
@@ -222,6 +228,7 @@ class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizar
         ->merge(CacheableMetadata::createFromRenderArray($content))
         ->applyTo($build);
     }
+
     return $build;
   }
 

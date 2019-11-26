@@ -18,26 +18,30 @@ use Drupal\page_manager_ui\Wizard\PageVariantAddWizard;
  */
 function page_manager_ui_entity_type_build(array &$entity_types) {
   /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-  $entity_types['page']
-    ->setListBuilderClass(PageListBuilder::class)
-    ->setFormClass('delete', PageDeleteForm::class)
-    ->setLinkTemplate('collection', '/admin/structure/page_manager')
-    ->setLinkTemplate('add-form', '/admin/structure/page_manager/add')
-    ->setLinkTemplate('edit-form', '/admin/structure/page_manager/manage/{machine_name}/{step}')
-    ->setLinkTemplate('delete-form', '/admin/structure/page_manager/manage/{page}/delete')
-    ->setLinkTemplate('enable', '/admin/structure/page_manager/manage/{page}/enable')
-    ->setLinkTemplate('disable', '/admin/structure/page_manager/manage/{page}/disable')
-    ->setHandlerClass('wizard', [
-      'add' => PageAddWizard::class,
-      'edit' => PageEditWizard::class,
+  if (isset($entity_types['page'])) {
+    $entity_types['page']
+      ->setListBuilderClass(PageListBuilder::class)
+      ->setFormClass('delete', PageDeleteForm::class)
+      ->setLinkTemplate('collection', '/admin/structure/page_manager')
+      ->setLinkTemplate('add-form', '/admin/structure/page_manager/add')
+      ->setLinkTemplate('edit-form', '/admin/structure/page_manager/manage/{machine_name}/{step}')
+      ->setLinkTemplate('delete-form', '/admin/structure/page_manager/manage/{page}/delete')
+      ->setLinkTemplate('enable', '/admin/structure/page_manager/manage/{page}/enable')
+      ->setLinkTemplate('disable', '/admin/structure/page_manager/manage/{page}/disable')
+      ->setHandlerClass('wizard', [
+        'add' => PageAddWizard::class,
+        'edit' => PageEditWizard::class,
     ]);
+  }
 
-   $entity_types['page_variant']
-     // The edit-form template is required by config_translation.
-     ->setLinkTemplate('edit-form', '/admin/structure/page_manager/manage/{machine_name}/{step}')
-     ->setHandlerClass('wizard', [
-       'add_variant' => PageVariantAddWizard::class,
-     ]);
+  if (isset($entity_types['page_variant'])) {
+    $entity_types['page_variant']
+      // The edit-form template is required by config_translation.
+      ->setLinkTemplate('edit-form', '/admin/structure/page_manager/manage/{machine_name}/{step}')
+      ->setHandlerClass('wizard', [
+        'add_variant' => PageVariantAddWizard::class,
+    ]);
+  }
 }
 
 /**

@@ -64,4 +64,19 @@ interface LayoutBuilderRestrictionInterface extends PluginInspectionInterface {
    */
   public function blockAllowedinContext(SectionStorageInterface $section_storage, $delta_from, $delta_to, $region_to, $block_uuid, $preceding_block_uuid = NULL);
 
+  /**
+   * Returns an array of allowed inline blocks in a given context.
+   *
+   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
+   *   The section storage.
+   * @param int $delta
+   *   The delta of the section to splice.
+   * @param string $region
+   *   The region the block is going in.
+   *
+   * @return array
+   *   An array of allowed inline block types.
+   */
+  public function inlineBlocksAllowedinContext(SectionStorageInterface $section_storage, $delta, $region);
+
 }

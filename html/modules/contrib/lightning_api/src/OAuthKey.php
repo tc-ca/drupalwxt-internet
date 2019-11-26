@@ -6,6 +6,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\lightning_api\Exception\KeyGenerationException;
 
+/**
+ * Defines a service to generate key pairs for oAuth.
+ */
 class OAuthKey {
 
   /**
@@ -82,7 +85,8 @@ class OAuthKey {
    * @return string
    *   The final path of the written key.
    *
-   * @throws \RuntimeException if an I/O error occurred while writing the key.
+   * @throws \RuntimeException
+   *   If an I/O error occurred while writing the key.
    */
   public function write($destination, $key) {
     $destination = rtrim($destination, '/');

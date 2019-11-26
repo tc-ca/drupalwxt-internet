@@ -118,7 +118,7 @@ class PageManagerAdminTest extends WebTestBase {
       'variant_settings[status_code]' => 200,
     ];
     $this->drupalPostForm(NULL, $edit, 'Finish');
-    $this->assertRaw(new FormattableMarkup('Saved the %label Page.', ['%label' => 'Foo']));
+    $this->assertRaw(new FormattableMarkup('The page %label has been added.', ['%label' => 'Foo']));
     // We've gone from the add wizard to the edit wizard.
     $this->drupalGet('admin/structure/page_manager/manage/foo/general');
 
@@ -298,7 +298,16 @@ class PageManagerAdminTest extends WebTestBase {
     $this->assertResponse(200);
     // Tests that the content region has no content at all.
     $elements = $this->xpath('//div[@class=:region]', [':region' => 'region region-content']);
-    $this->assertIdentical(0, $elements[0]->count());
+    // From Drupal 8.7, fallback area for messages is added by default.
+    // @see https://www.drupal.org/node/3002643
+    if (version_compare(\Drupal::VERSION, '8.7', '<')) {
+      $this->assertIdentical(0, $elements[0]->count());
+    }
+    else {
+      $this->assertIdentical(1, $elements[0]->count());
+      $status_messages_placeholder = $elements[0]->children()[0];
+      $this->assertTrue(isset($status_messages_placeholder['data-drupal-messages-fallback']));
+    }
   }
 
   /**
@@ -359,7 +368,7 @@ class PageManagerAdminTest extends WebTestBase {
 
     // We're now on the content step, but we don't need to add any blocks.
     $this->drupalPostForm(NULL, [], 'Finish');
-    $this->assertRaw(new FormattableMarkup('Saved the %label Page.', ['%label' => 'Second']));
+    $this->assertRaw(new FormattableMarkup('The page %label has been added.', ['%label' => 'Second']));
 
     // Visit both pages, make sure that they do not interfere with each other.
     $this->drupalGet('admin/foo');

@@ -94,7 +94,7 @@ class PageParametersTest extends WebTestBase {
 
     // Finish the wizard.
     $this->drupalPostForm(NULL, [], 'Finish');
-    $this->assertRaw(new FormattableMarkup('Saved the %label Page.', ['%label' => 'Foo']));
+    $this->assertRaw(new FormattableMarkup('The page %label has been added.', ['%label' => 'Foo']));
 
     // Check that the node's title is visible at the page.
     $this->drupalGet('admin/foo/' . $node->id());

@@ -120,8 +120,17 @@ function lightning_layout_update_8009() {
 }
 
 /**
- * Installs the layout_builder_st module.
+ * Installs the layout_builder_st module if needed.
  */
 function lightning_layout_update_8010() {
-  Drupal::service('module_installer')->install(['layout_builder_st']);
+  if (Drupal::moduleHandler()->moduleExists('language')) {
+    Drupal::service('module_installer')->install(['layout_builder_st']);
+  }
+}
+
+/**
+ * Installs the layout_builder_styles module.
+ */
+function lightning_layout_update_8011() {
+  Drupal::service('module_installer')->install(['layout_builder_styles']);
 }

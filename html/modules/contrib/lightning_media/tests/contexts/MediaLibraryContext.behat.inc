@@ -2,9 +2,18 @@
 
 namespace Acquia\LightningExtension\Context;
 
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Drupal\DrupalExtension\Context\DrupalSubContextBase;
-use Drupal\DrupalExtension\Context\MinkContext;
 
+/**
+ * Contains step definitions to interact with the administrative media library.
+ *
+ * @internal
+ *   This is an internal part of Lightning Media's testing system and may be
+ *   changed or removed at any time without warning. It should not be extended,
+ *   instantiated, or used in any way by external code! If you need to use this
+ *   functionality, you should copy the relevant code into your own project.
+ */
 final class MediaLibraryContext extends DrupalSubContextBase {
 
   /**
@@ -63,9 +72,14 @@ final class MediaLibraryContext extends DrupalSubContextBase {
    * @When I visit the media library
    */
   public function visitLibrary() {
-    /** @var \Drupal\DrupalExtension\Context\MinkContext $context */
-    $context = $this->getContext(MinkContext::class);
-    $context->assertAtPath('/admin/content/media-table');
+    $this->visitPath('/admin/content/media-table');
+
+    try {
+      $this->assertSession()->statusCodeEquals(200);
+    }
+    catch (UnsupportedDriverActionException $e) {
+      // Not a critically important assertion, so just swallow the exception.
+    }
   }
 
   /**
@@ -126,13 +140,15 @@ final class MediaLibraryContext extends DrupalSubContextBase {
    * @Then I should be able to select and delete media
    */
   public function assertDelete() {
+    $page = $this->getSession()->getPage();
     $assert = $this->assertSession();
 
-    $assert->fieldExists('Action')->selectOption('Delete media');
-    $assert->fieldExists('media_bulk_form[0]')->check();
-    $assert->fieldExists('media_bulk_form[1]')->check();
-    $assert->elementExists('named', ['button', 'Apply to selected items'])->press();
-    $assert->elementExists('named', ['button', 'Delete'])->press();
+    $page->selectFieldOption('Action', 'Delete media');
+    $page->checkField('media_bulk_form[0]');
+    $page->checkField('media_bulk_form[1]');
+    $page->pressButton('Apply to selected items');
+    $page->pressButton('Delete');
+
     $assert->pageTextContains('Deleted 2 items.');
     array_walk($this->media, [$assert, 'pageTextNotContains']);
   }

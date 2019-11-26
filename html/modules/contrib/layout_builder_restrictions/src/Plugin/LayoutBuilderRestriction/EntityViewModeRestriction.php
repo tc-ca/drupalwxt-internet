@@ -3,10 +3,13 @@
 namespace Drupal\layout_builder_restrictions\Plugin\LayoutBuilderRestriction;
 
 use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\layout_builder_restrictions\Plugin\LayoutBuilderRestrictionBase;
 use Drupal\layout_builder\OverridesSectionStorageInterface;
 use Drupal\layout_builder\SectionStorageInterface;
 use Drupal\layout_builder_restrictions\Traits\PluginHelperTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * EntityViewModeRestriction Plugin.
@@ -21,6 +24,55 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
   use PluginHelperTrait;
 
   /**
+   * Module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Database connection service.
+   *
+   * @var Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
+   * Constructs a Drupal\Component\Plugin\PluginBase object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param Drupal\Core\Database\Connection $connection
+   *   The database connection.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, Connection $connection) {
+    $this->configuration = $configuration;
+    $this->pluginId = $plugin_id;
+    $this->pluginDefinition = $plugin_definition;
+    $this->moduleHandler = $module_handler;
+    $this->database = $connection;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('module_handler'),
+      $container->get('database')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function alterBlockDefinitions(array $definitions, array $context) {
@@ -30,24 +82,18 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
       if ($default instanceof ThirdPartySettingsInterface) {
         $third_party_settings = $default->getThirdPartySetting('layout_builder_restrictions', 'entity_view_mode_restriction', []);
         $allowed_blocks = (isset($third_party_settings['allowed_blocks'])) ? $third_party_settings['allowed_blocks'] : [];
-        // Generate inline-block restrictions based on block type restrictions.
-        if (isset($allowed_blocks['Custom block types'])) {
-          foreach ($allowed_blocks['Custom block types'] as $delta => $id) {
-            $allowed_blocks['Inline blocks'][$delta] = "inline_block:" . $id;
-          }
-        }
       }
       else {
         $allowed_blocks = [];
       }
       // Filter blocks from entity-specific SectionStorage (i.e., UI).
-      $content_block_types_by_uuid = self::getBlockTypeByUuid();
+      $content_block_types_by_uuid = $this->getBlockTypeByUuid();
       if (!empty($allowed_blocks)) {
         foreach ($definitions as $delta => $definition) {
           $original_delta = $delta;
           $category = (string) $definition['category'];
           // Custom blocks get special treatment.
-          if ($category == 'Custom') {
+          if ($definition['provider'] == 'block_content') {
             // 'Custom block types' are disregarded if 'Custom blocks'
             // restrictions are enabled.
             if (isset($allowed_blocks['Custom blocks'])) {
@@ -98,19 +144,12 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
    */
   public function blockAllowedinContext(SectionStorageInterface $section_storage, $delta_from, $delta_to, $region_to, $block_uuid, $preceding_block_uuid = NULL) {
     $has_restrictions = FALSE;
-    $contexts = $section_storage->getContexts();
-    if ($section_storage instanceof OverridesSectionStorageInterface) {
-      $entity = $contexts['entity']->getContextValue();
-      $view_mode = $contexts['view_mode']->getContextValue();
-      $entity_type = $entity->getEntityTypeId();
-      $bundle = $entity->bundle();
-    }
-    else {
-      $entity = $contexts['display']->getContextValue();
-      $view_mode = $entity->getMode();
-      $bundle = $entity->getTargetBundle();
-      $entity_type = $entity->getTargetEntityTypeId();
-    }
+
+    $view_display = $this->getValuefromSectionStorage([$section_storage], 'view_display');
+    $third_party_settings = $view_display->getThirdPartySetting('layout_builder_restrictions', 'entity_view_mode_restriction', []);
+    $allowed_blocks = (isset($third_party_settings['allowed_blocks'])) ? $third_party_settings['allowed_blocks'] : [];
+    $bundle = $this->getValuefromSectionStorage([$section_storage], 'bundle');
+
     // Get "from" section and layout id. (not needed?)
     $section_from = $section_storage->getSection($delta_from);
     $layout_id_from = $section_from->getLayoutId();
@@ -123,10 +162,6 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
     $component = $section_from->getComponent($block_uuid)->toArray();
     $block_id = $component['configuration']['id'];
     $block_id_parts = explode(':', $block_id);
-    $context = $entity_type . "." . $bundle . "." . $view_mode;
-    $storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
-    $view_display = $storage->load($context);
-    $third_party_settings = $view_display->getThirdPartySetting('layout_builder_restrictions', 'entity_view_mode_restriction', []);
 
     // Load the plugin definition.
     if ($definition = $this->blockManager()->getDefinition($block_id)) {
@@ -166,7 +201,7 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
         // Edge case: Restrict by block type if no custom block restrictions.
         if ($category == 'Custom blocks' && !isset($allowed_blocks['Custom blocks'])) {
           $has_restrictions = FALSE;
-          $content_block_types_by_uuid = self::getBlockTypeByUuid();
+          $content_block_types_by_uuid = $this->getBlockTypeByUuid();
           $block_bundle = $content_block_types_by_uuid[end($block_id_parts)];
           if (!empty($allowed_blocks['Custom block types']) && in_array($block_bundle, $allowed_blocks['Custom block types'])) {
             // There are block type restrictions AND
@@ -195,17 +230,38 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function inlineBlocksAllowedinContext(SectionStorageInterface $section_storage, $delta, $region) {
+    $view_display = $this->getValuefromSectionStorage([$section_storage], 'view_display');
+    $third_party_settings = $view_display->getThirdPartySetting('layout_builder_restrictions', 'entity_view_mode_restriction', []);
+    $allowed_blocks = (isset($third_party_settings['allowed_blocks'])) ? $third_party_settings['allowed_blocks'] : [];
+
+    // Check if allowed inline blocks are defined in config.
+    if (isset($allowed_blocks['Inline blocks'])) {
+      return $allowed_blocks['Inline blocks'];
+    }
+    // If not, then allow all inline blocks.
+    else {
+      return $this->getInlineBlockPlugins();
+    }
+  }
+
+  /**
    * Helper function to retrieve uuid->type keyed block array.
    *
    * @return str[]
    *   A key-value array of uuid-block type.
    */
-  private static function getBlockTypeByUuid() {
-    // Pre-load all reusable blocks by UUID to retrieve block type.
-    $query = \Drupal::database()->select('block_content', 'b')
-      ->fields('b', ['uuid', 'type']);
-    $results = $query->execute();
-    return $results->fetchAllKeyed(0, 1);
+  private function getBlockTypeByUuid() {
+    if ($this->moduleHandler->moduleExists('block_content')) {
+      // Pre-load all reusable blocks by UUID to retrieve block type.
+      $query = $this->database->select('block_content', 'b')
+        ->fields('b', ['uuid', 'type']);
+      $results = $query->execute();
+      return $results->fetchAllKeyed(0, 1);
+    }
+    return [];
   }
 
 }

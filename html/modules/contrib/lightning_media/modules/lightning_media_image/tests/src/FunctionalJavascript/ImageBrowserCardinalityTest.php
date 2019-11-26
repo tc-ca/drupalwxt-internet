@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\lightning_media_image\FunctionalJavascript;
 
-use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Element\DocumentElement;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\entity_browser\Element\EntityBrowserElement;
 use Drupal\field\Entity\FieldConfig;
@@ -10,17 +10,18 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\media\Entity\Media;
-use Drupal\Tests\lightning_media_image\Traits\ImageBrowserTrait;
-use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
+use Drupal\Tests\lightning_media\FunctionalJavascript\WebDriverWebAssert;
+use Drupal\Tests\lightning_media\Traits\EntityBrowserTrait;
 
 /**
+ * Tests that the image browser handles field cardinality correctly.
+ *
  * @group lightning_media
  * @group lightning_media_image
  */
 class ImageBrowserCardinalityTest extends WebDriverTestBase {
 
-  use ContentTypeCreationTrait;
-  use ImageBrowserTrait;
+  use EntityBrowserTrait;
 
   /**
    * {@inheritdoc}
@@ -32,32 +33,24 @@ class ImageBrowserCardinalityTest extends WebDriverTestBase {
   ];
 
   /**
-   * The content type created during the test.
-   *
-   * @var \Drupal\node\NodeTypeInterface
-   */
-  private $nodeType;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
 
-    $this->nodeType = $this->createContentType();
+    $this->createContentType(['type' => 'page']);
 
-    /** @var \Drupal\field\FieldStorageConfigInterface $field_storage */
     $field_storage = FieldStorageConfig::create([
       'field_name' => 'field_multi_image',
       'entity_type' => 'node',
       'type' => 'image',
       'cardinality' => 3,
     ]);
-    $this->assertSame(SAVED_NEW, $field_storage->save());
+    $field_storage->save();
 
     FieldConfig::create([
       'field_storage' => $field_storage,
-      'bundle' => $this->nodeType->id(),
+      'bundle' => 'page',
       'label' => 'Multi-Image',
     ])->save();
 
@@ -67,15 +60,15 @@ class ImageBrowserCardinalityTest extends WebDriverTestBase {
       'type' => 'image',
       'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
     ]);
-    $this->assertSame(SAVED_NEW, $field_storage->save());
+    $field_storage->save();
 
     FieldConfig::create([
       'field_storage' => $field_storage,
-      'bundle' => $this->nodeType->id(),
+      'bundle' => 'page',
       'label' => 'Unlimited Images',
     ])->save();
 
-    lightning_media_entity_get_form_display('node', $this->nodeType->id())
+    lightning_media_entity_get_form_display('node', 'page')
       ->setComponent('field_multi_image', [
         'type' => 'entity_browser_file',
         'settings' => [
@@ -120,12 +113,12 @@ class ImageBrowserCardinalityTest extends WebDriverTestBase {
         'image' => $file->id(),
         'field_media_in_library' => TRUE,
       ]);
-      $this->assertSame(SAVED_NEW, $media->save());
+      $media->save();
     }
 
-    $account = $this->createUser([
+    $account = $this->drupalCreateUser([
       'access media overview',
-      'create ' . $this->nodeType->id() . ' content',
+      'create page content',
       'access image_browser entity browser pages',
     ]);
     $this->drupalLogin($account);
@@ -141,65 +134,75 @@ class ImageBrowserCardinalityTest extends WebDriverTestBase {
   }
 
   /**
-   * Tests that multiple cardinality is enforced in the image browser.
+   * Tests that cardinality is enforced in the image browser.
    */
-  public function testMultipleCardinality() {
-    $this->drupalGet('/node/add/' . $this->nodeType->id());
-    $session = $this->getSession();
-    $page = $session->getPage();
+  public function testCardinality() {
+    $assert_session = $this->assertSession();
+    $page = $this->getSession()->getPage();
+
+    $this->drupalGet('/node/add/page');
 
     $this->openImageBrowser('Multi-Image');
-    $items = $page->findAll('css', '[data-selectable]');
+    $items = $this->waitForItems();
     $this->assertGreaterThanOrEqual(4, count($items));
-    $this->select($items[0]);
-    $this->select($items[1]);
-
-    $this->assertSession()->buttonExists('Select')->press();
-    $session->switchToIFrame(NULL);
-    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->selectItem($items[0]);
+    $this->selectItem($items[1]);
+    $page->pressButton('Select');
+    $this->waitForEntityBrowserToClose();
+    // Wait for the selected items to actually appear on the page.
+    $assert_session->waitForElement('css', '[data-drupal-selector="edit-field-multi-image-current"] [data-entity-id]');
 
     $this->openImageBrowser('Multi-Image');
-    $this->select($items[2]);
-
-    $disabled = $page->findAll('css', '[data-selectable].disabled');
+    $items = $this->waitForItems();
+    $this->assertGreaterThanOrEqual(4, count($items));
+    $this->selectItem($items[2]);
+    $disabled = $page->waitFor(10, function (DocumentElement $page) {
+      return $page->findAll('css', '[data-selectable].disabled');
+    });
     $this->assertGreaterThanOrEqual(3, count($disabled));
-  }
 
-  /**
-   * Tests that the image browser respects unlimited cardinality.
-   */
-  public function testUnlimitedCardinality() {
-    $this->drupalGet('/node/add/' . $this->nodeType->id());
-    $session = $this->getSession();
-    $page = $session->getPage();
-
-    $this->openImageBrowser('Unlimited Images');
-    $items = $page->findAll('css', '[data-selectable]');
-    $this->assertGreaterThanOrEqual(4, count($items));
-    $this->select($items[0]);
-    $this->select($items[1]);
-    $this->select($items[2]);
-
-    $this->assertSession()->buttonExists('Select')->press();
+    // Close the image browser without selecting anything.
     $this->getSession()->switchToIFrame(NULL);
-    $this->assertSession()->assertWaitOnAjaxRequest();
+    $assert_session->elementExists('css', '.ui-dialog')->pressButton('Close');
 
     $this->openImageBrowser('Unlimited Images');
-    $this->select($items[3]);
+    $items = $this->waitForItems();
+    $this->assertGreaterThanOrEqual(4, count($items));
+    $this->selectItem($items[0]);
+    $this->selectItem($items[1]);
+    $this->selectItem($items[2]);
+    $page->pressButton('Select');
+    $this->waitForEntityBrowserToClose();
+    // Wait for the selected items to actually appear on the page.
+    $assert_session->waitForElement('css', '[data-drupal-selector="edit-field-unlimited-images-current"] [data-entity-id]');
 
-    $disabled = $page->findAll('css', '[data-selectable].disabled');
-    $this->assertEmpty($disabled);
+    $this->openImageBrowser('Unlimited Images');
+    $items = $this->waitForItems();
+    $this->assertGreaterThanOrEqual(4, count($items));
+    $this->selectItem($items[3]);
+    $assert_session->elementsCount('css', '[data-selectable].disabled', 0);
   }
 
   /**
-   * Selects an item in the image browser.
+   * Opens a modal image browser.
    *
-   * @param \Behat\Mink\Element\NodeElement $element
-   *   The item to select.
+   * @param string $label
+   *   The label of the image field.
    */
-  private function select(NodeElement $element) {
-    $element->click();
-    $this->assertSession()->fieldExists('Select this item', $element)->check();
+  private function openImageBrowser($label) {
+    $this->assertSession()
+      ->elementExists('css', "details > summary:contains($label)")
+      ->getParent()
+      ->pressButton('Select Image(s)');
+
+    $this->waitForEntityBrowser('image_browser');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function assertSession($name = NULL) {
+    return new WebDriverWebAssert($this->getSession($name), $this->baseUrl);
   }
 
 }

@@ -1,6 +1,6 @@
 name: 'Banner block'
 package: Lightning
-# core: 8.x
+core: 8.x
 type: module
 description: 'Provides a block type which contains a single large image and optional link.'
 dependencies:
@@ -11,8 +11,7 @@ dependencies:
   - lightning_layout:lightning_layout
   - token:token
 
-# Information added by Drupal.org packaging script on 2019-06-25
-version: '8.x-2.1'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2019-11-15
+version: '8.x-2.4'
 project: 'lightning_layout'
-datestamp: 1561486387
+datestamp: 1573853916

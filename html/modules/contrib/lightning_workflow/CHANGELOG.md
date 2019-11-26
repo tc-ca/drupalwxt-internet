@@ -1,7 +1,23 @@
+## 3.14.0
+* Made Lightning Workflow compatible any installation profile.
+  (Issue #3089223)
+* Fixed a bug where Lightning Scheduler's JavaScript libraries were not
+  properly declared as external. (Issue #3089153)
+
+## 3.13.0
+There are no user-facing changes in this version.
+
+## 3.12.0
+* Hotfixed a bug that could prevent tests from running under SimpleTest. There
+  are no user-facing changes in this version.
+
+## 3.11.0
+* Added support for Drupal core 8.8.x.
+
 ## 3.10.0
 * Changes to internal testing infrastructure, but nothing that should 
   affect users of Lightning Workflow.
-  
+
 ## 3.9.0
 * Added the Autosave Form and Conflict modules as soft dependencies to
   Lightning Workflow. (Issue #3060244)

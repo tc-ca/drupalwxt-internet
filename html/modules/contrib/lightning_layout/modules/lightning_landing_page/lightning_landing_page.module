@@ -5,8 +5,10 @@
  * Contains landing page functionality for Lightning.
  */
 
+use Drupal\content_moderation\Plugin\WorkflowType\ContentModerationInterface;
+use Drupal\Core\Plugin\ObjectWithPluginCollectionInterface;
 use Drupal\node\Entity\NodeType;
-use Drupal\workflows\Entity\Workflow;
+use Drupal\workflows\WorkflowInterface;
 
 /**
  * Implements hook_modules_installed().
@@ -41,18 +43,35 @@ function lightning_landing_page_modules_installed(array $modules) {
     lightning_search_node_type_insert($node_type);
   }
 
-  if (in_array('lightning_workflow', $modules, TRUE)) {
-    $workflow = Workflow::load('editorial');
-    /** @var \Drupal\content_moderation\Plugin\WorkflowType\ContentModerationInterface $plugin */
-    $plugin = $workflow->getTypePlugin();
-    $plugin->addEntityTypeAndBundle('node', $node_type->id());
-    $workflow->save();
-  }
-
   if (in_array('menu_ui', $modules, TRUE)) {
     $node_type
       ->setThirdPartySetting('menu_ui', 'available_menus', ['main'])
       ->setThirdPartySetting('menu_ui', 'parent', 'main:')
       ->save();
+  }
+}
+
+/**
+ * Implements hook_ENITY_TYPE_presave().
+ */
+function lightning_landing_page_workflow_presave(WorkflowInterface $workflow) {
+  if (Drupal::isConfigSyncing()) {
+    return;
+  }
+  elseif ($workflow->isNew() && $workflow->id() === 'editorial' && Drupal::moduleHandler()->moduleExists('lightning_workflow')) {
+    $type_plugin = $workflow->getTypePlugin();
+
+    if ($type_plugin instanceof ContentModerationInterface) {
+      $type_plugin->addEntityTypeAndBundle('node', 'landing_page');
+
+      // Since this hook is invoked _after_ Workflow::preSave(), we need to
+      // ensure that the stored settings for the type plugin will be up-to-date
+      // with the changes we've made here.
+      if ($workflow instanceof ObjectWithPluginCollectionInterface) {
+        foreach ($workflow->getPluginCollections() as $key => $plugin_collection) {
+          $workflow->set($key, $plugin_collection->getConfiguration());
+        }
+      }
+    }
   }
 }

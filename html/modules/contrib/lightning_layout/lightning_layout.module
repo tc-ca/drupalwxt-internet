@@ -5,13 +5,13 @@
  * Contains layout functionality for Lightning.
  */
 
+use Drupal\block_content\BlockContentInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\block_content\BlockContentInterface;
 
 /**
  * Implements hook_modules_installed().
@@ -48,12 +48,14 @@ function lightning_layout_block_content_delete(BlockContentInterface $block_cont
 function lightning_layout_block_alter(array &$blocks) {
   $allow = Drupal::config('lightning_layout.settings')->get('entity_blocks');
 
-  // Suppress all entity_block derivatives for entity types that are not
-  // explicitly allowed.
-  $plugins = preg_grep('/^entity_block:/', array_keys($blocks));
-  foreach ($plugins as $plugin_id) {
-    if (!in_array(substr($plugin_id, 13), $allow)) {
-      unset($blocks[$plugin_id]);
+  if ($allow) {
+    // Suppress all entity_block derivatives for entity types that are not
+    // explicitly allowed.
+    $plugins = preg_grep('/^entity_block:/', array_keys($blocks));
+    foreach ($plugins as $plugin_id) {
+      if (!in_array(substr($plugin_id, 13), $allow, TRUE)) {
+        unset($blocks[$plugin_id]);
+      }
     }
   }
 }

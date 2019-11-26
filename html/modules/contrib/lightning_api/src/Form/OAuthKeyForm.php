@@ -10,6 +10,9 @@ use Drupal\lightning_api\Exception\KeyGenerationException;
 use Drupal\lightning_api\OAuthKey;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Provides a form for generating oAuth key pairs.
+ */
 class OAuthKeyForm extends ConfigFormBase {
 
   /**
@@ -26,7 +29,7 @@ class OAuthKeyForm extends ConfigFormBase {
    *   The config factory service.
    * @param \Drupal\lightning_api\OAuthKey $key
    *   The OAuth keys service.
-   * @param TranslationInterface $translation
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $translation
    *   The string translation service.
    */
   public function __construct(ConfigFactoryInterface $config_factory, OAuthKey $key, TranslationInterface $translation) {
@@ -133,7 +136,7 @@ class OAuthKeyForm extends ConfigFormBase {
    *
    * @param array $element
    *   The form element being validated.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
   public function validateDestinationExists(array &$element, FormStateInterface $form_state) {
@@ -152,7 +155,7 @@ class OAuthKeyForm extends ConfigFormBase {
    *
    * @param array $element
    *   The form element being validated.
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
   public function validateKeyFileName(array &$element, FormStateInterface $form_state) {

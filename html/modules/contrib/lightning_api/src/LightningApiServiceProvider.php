@@ -5,6 +5,9 @@ namespace Drupal\lightning_api;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
 
+/**
+ * Modifies container services at compile time.
+ */
 class LightningApiServiceProvider extends ServiceProviderBase {
 
   /**

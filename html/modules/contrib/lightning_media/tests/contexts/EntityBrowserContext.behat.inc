@@ -4,6 +4,8 @@ namespace Acquia\LightningExtension\Context;
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Element\DocumentElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
@@ -12,6 +14,12 @@ use Webmozart\Assert\Assert;
 
 /**
  * Contains step definitions for interacting with entity browser instances.
+ *
+ * @internal
+ *   This is an internal part of Lightning Media's testing system and may be
+ *   changed or removed at any time without warning. It should not be extended,
+ *   instantiated, or used in any way by external code! If you need to use this
+ *   functionality, you should copy the relevant code into your own project.
  */
 final class EntityBrowserContext extends DrupalSubContextBase {
 
@@ -164,8 +172,10 @@ END;
       ->click();
 
     $frame = "window.entity_browser_iframe_$id";
-    $this->awaitExpression($frame);
-    $this->awaitExpression("$frame.document.readyState === 'complete'");
+
+    $session = $this->getSession();
+    Assert::true($session->wait(10000, $frame));
+    Assert::true($session->wait(10000, "$frame.document.readyState === 'complete'"));
   }
 
   /**
@@ -271,17 +281,27 @@ END;
    *
    * @param string $id
    *   The entity browser ID.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   If the entity browser iframe does not appear after 30 seconds.
    */
   private function switchJs($id) {
-    $this->assertSession()
-      ->elementExists('named', ['button', 'Add media'])
-      ->press();
+    $session = $this->getSession();
+    $page = $session->getPage();
 
-    $iframe_id = $this
-      ->awaitElement('iframe[name="entity_browser_iframe_' . $id . '"]', 30)
-      ->getAttribute('id');
+    $page->pressButton('Add media');
+    $selector = 'iframe[name="entity_browser_iframe_' . $id . '"]';
 
-    $this->getSession()->switchToIFrame($iframe_id);
+    $frame = $page->waitFor(30, function (DocumentElement $page) use ($selector) {
+      return $page->find('css', $selector);
+    });
+
+    if ($page) {
+      $session->switchToIFrame($frame->getAttribute('id'));
+    }
+    else {
+      throw new ElementNotFoundException($session->getDriver(), 'frame', 'css', $selector);
+    }
   }
 
   /**

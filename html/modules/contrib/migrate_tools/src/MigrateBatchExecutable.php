@@ -141,11 +141,11 @@ class MigrateBatchExecutable extends MigrateExecutable {
           // For dependent migrations will need to be migrate all items.
           $dependent_options = $options;
           $dependent_options['limit'] = 0;
-          $operations += $this->batchOperations($required_migrations, $operation, [
+          $operations = array_merge($operations, $this->batchOperations($required_migrations, $operation, [
             'limit' => 0,
             'update' => $options['update'],
             'force' => $options['force'],
-          ]);
+          ]));
         }
       }
 

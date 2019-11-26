@@ -10,7 +10,7 @@ Source: https://www.drupal.org/files/issues/2019-03-05/2815221-116.patch
 
 
 Enter drupal/core patch #1356276 description here
-Source: https://www.drupal.org/files/issues/2018-10-12/1356276-531.patch 
+Source: https://www.drupal.org/files/issues/2018-10-12/1356276-531.patch
 
 
 Enter drupal/core patch #1838234 description here
@@ -103,10 +103,6 @@ Source: https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.pat
 
 Enter drupal/core patch #2938129 description here
 Source: https://www.drupal.org/files/issues/2019-01-18/2938129-pagetitle-11.patch
-
-
-Enter drupal/core patch #2981889 description here
-Source: https://www.drupal.org/files/issues/2019-08-21/d8_entity_validation.patch
 
 
 Enter drupal/core patch #3017710 description here

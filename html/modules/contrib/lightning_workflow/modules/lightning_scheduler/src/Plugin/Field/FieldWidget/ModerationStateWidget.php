@@ -112,11 +112,16 @@ class ModerationStateWidget extends BaseModerationStateWidget {
 
     // The latest revision, if there is one, is the canonical source of truth
     // regarding scheduled transitions.
-    $latest_revision = $this->moderationInformation
-      ->getLatestRevision(
-        $entity->getEntityTypeId(),
-        $entity->id()
-      ) ?: $entity;
+    if ($entity->isNew()) {
+      $latest_revision = $entity;
+    }
+    else {
+      $latest_revision = $this->moderationInformation
+        ->getLatestRevision(
+          $entity->getEntityTypeId(),
+          $entity->id()
+        ) ?: $entity;
+    }
 
     $transition_set = new TransitionSet(
       $latest_revision->get('scheduled_transition_date'),

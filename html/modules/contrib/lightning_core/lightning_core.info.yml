@@ -15,7 +15,7 @@ components:
   - lightning_roles
   - lightning_search
 
-# Information added by Drupal.org packaging script on 2019-09-27
-version: '8.x-4.7'
+# Information added by Drupal.org packaging script on 2019-11-15
+version: '8.x-4.8'
 project: 'lightning_core'
-datestamp: 1569615492
+datestamp: 1573851787

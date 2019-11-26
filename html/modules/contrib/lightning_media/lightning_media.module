@@ -5,6 +5,7 @@
  * Core media asset support for Lightning.
  */
 
+use Drupal\ckeditor\Ajax\AddStyleSheetCommand;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
@@ -12,7 +13,6 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup as Plural;
-use Drupal\ckeditor\Ajax\AddStyleSheetCommand;
 use Drupal\entity_browser\Element\EntityBrowserElement;
 use Drupal\entity_browser\Entity\EntityBrowser;
 use Drupal\file\FileInterface;
@@ -21,11 +21,11 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\image\Plugin\Field\FieldWidget\ImageWidget;
 use Drupal\image\Plugin\ImageEffect\ResizeImageEffect;
 use Drupal\lightning_core\BundleEntityStorage;
+use Drupal\lightning_core\OverrideHelper as Override;
 use Drupal\lightning_media\Exception\IndeterminateBundleException;
+use Drupal\lightning_media\Form\MediaForm;
 use Drupal\lightning_media\ImageWidgetHelper;
 use Drupal\lightning_media\MediaHelper;
-use Drupal\lightning_core\OverrideHelper as Override;
-use Drupal\lightning_media\Form\MediaForm;
 use Drupal\media\Entity\MediaType;
 use Drupal\media\MediaInterface;
 use Drupal\media\MediaTypeInterface;

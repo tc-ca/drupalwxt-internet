@@ -1,3 +1,42 @@
+## v3.0.2
+
+Features/Updates:
+
+- Update Drupal Core to 8.7.10
+- Update Lightning [4.0.5](https://github.com/acquia/lightning/releases/tag/4.0.5); includes:
+  - Updated Lightning API to 4.2
+  - Updated Lightning Core to 4.7
+  - Updated Lightning Layout to 2.1
+  - Updated Lightning Media to 3.12
+  - Updated Search API to to 1.15
+  - Updated Entity Browser to 2.2
+  - Addition of Conflict, AutoSave Form, and Redirect
+- Update WxT Bootstrap and Bootstrap base theme
+- Update CTools, Linkit, Field Group, Migrate Tools and Page Manager
+- Fix for issue with conflict and page manager
+- Issue with Site Installation via browser install
+- Add link field to entity form display
+- Check for missing schema layout builder
+- Update admin toolbar to latest release
+- Update paragraphs to latest release
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
 ## v3.0.1
 
 Features/Updates:

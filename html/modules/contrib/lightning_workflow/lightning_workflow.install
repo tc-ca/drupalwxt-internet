@@ -8,25 +8,6 @@
 use Drupal\node\Entity\NodeType;
 
 /**
- * Implements hook_requirements().
- */
-function lightning_workflow_requirements($phase) {
-  $requirements = [];
-
-  if ($phase == 'install') {
-    if ($phase == 'install' && \Drupal::installProfile() === 'standard') {
-      $requirements['editorial_workflow_exists'] = [
-        'title' => t('Lightning Workflow'),
-        'description' => t('Lightning Workflow cannot be installed with the Standard profile because they both provide the editorial workflow.'),
-        'severity' => REQUIREMENT_ERROR,
-      ];
-    }
-  }
-
-  return $requirements;
-}
-
-/**
  * Implements hook_install().
  */
 function lightning_workflow_install() {

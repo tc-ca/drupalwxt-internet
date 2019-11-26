@@ -53,14 +53,25 @@ the entity type's defaults, and individual content item overrides (note: you
 must check "Allow each content item to have its layout customized" to support
 overrides).
 
+Depending on the use case, Layout Builder Restrictions can be used in conjunction with [Block Blacklist](https://drupal.org/project/block_blacklist), and/or with block type permissions (introduced in Drupal 8.8; see https://www.drupal.org/node/3041203).
+
 CHOOSE WHICH RESTRICTIONS ARE ACTIVE
------------------------------------
+------------------------------------
 
 Layout Builder Restrictions provides a plugin architecture so that different
 restriction methodologies can be used. The module provides a single restriction
 plugin, which restricts blocks and layouts per entity (and per view mode). If
 additional plugins have been added, site builders can control which plugins are
 active at `/admin/config/content/layout-builder-restrictions`
+
+### Disambiguation: block types, individual custom blocks, and inline blocks
+This module provides separate restrictions for "CUSTOM BLOCK TYPES", "CUSTOM BLOCKS", and "INLINE BLOCKS."
+
+Restrictions for "CUSTOM BLOCK TYPES" will prevent *any* individual blocks of a restricted type, created through the block library, from being placed.
+
+If, on the other hand, the "CUSTOM BLOCKS" restriction section is used -- i.e., restrictions are placed on *specific instances* of blocks -- this restriction will take precedence over those defined in "CUSTOM BLOCK TYPES." For most site configurations, you will likely use either block type-level restrictions or individual block restrictions, but not both.
+
+Separately, the "INLINE BLOCKS" section regulates which block types are restricted from being created inline (i.e., on the `Layout` tab of a Layout Builder-enabled entity).
 
 ADD NEW RESTRICTIONS VIA PLUGIN (DEVELOPERS)
 --------------------------------------------

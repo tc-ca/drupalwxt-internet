@@ -18,6 +18,7 @@
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
   "require": {
-    "drupal/ctools": "~3"
+    "drupal/core": "~8.5",
+    "drupal/ctools": "~3.1"
   }
 }

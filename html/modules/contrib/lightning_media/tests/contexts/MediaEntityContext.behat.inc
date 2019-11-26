@@ -13,6 +13,12 @@ use Drupal\Tests\lightning_media\FixtureContext;
 
 /**
  * Contains step definitions for interacting with media entities.
+ *
+ * @internal
+ *   This is an internal part of Lightning Media's testing system and may be
+ *   changed or removed at any time without warning. It should not be extended,
+ *   instantiated, or used in any way by external code! If you need to use this
+ *   functionality, you should copy the relevant code into your own project.
  */
 final class MediaEntityContext extends DrupalSubContextBase {
 
@@ -206,7 +212,7 @@ final class MediaEntityContext extends DrupalSubContextBase {
 
     $form = $assert_session->elementExists('css', '.entity-embed-dialog');
     foreach (current($options) as $field => $value) {
-      $assert_session->fieldExists($field, $form)->setValue($value);
+      $form->fillField($field, $value);
     }
 
     $assert_session->elementExists('css', 'body > .ui-dialog .ui-dialog-buttonpane button.button--primary')

@@ -49,9 +49,9 @@ class EntityBrowserWidgetContext extends ArgumentDefaultPluginBase {
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
-    $options['context_key'] = ['default' => ''];
-    $options['fallback'] = ['default' => ''];
-    $options['multiple'] = ['default' => 'and'];
+    $options['context_key'] = ['default' => 'target_bundles'];
+    $options['fallback'] = ['default' => 'all'];
+    $options['multiple'] = ['default' => 'or'];
     return $options;
   }
 
@@ -63,7 +63,7 @@ class EntityBrowserWidgetContext extends ArgumentDefaultPluginBase {
     $form['context_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Context key'),
-      '#description' => $this->t('The key within the widget context. If the corresponding value is an array its values will be joined with an AND.'),
+      '#description' => $this->t('The key within the widget context.'),
       '#default_value' => $this->options['context_key'],
     ];
     $form['fallback'] = [
@@ -75,11 +75,11 @@ class EntityBrowserWidgetContext extends ArgumentDefaultPluginBase {
     $form['multiple'] = [
       '#type' => 'radios',
       '#title' => $this->t('Multiple values'),
-      '#description' => $this->t('Conjunction to use when handling multiple values.'),
+      '#description' => $this->t('Conjunction to use when handling multiple values. NOTE: for multiple values to work, at the bottom of this form expand the "More" fieldset and and check "Allow multiple values".'),
       '#default_value' => $this->options['multiple'],
       '#options' => [
-        'and' => $this->t('AND'),
         'or' => $this->t('OR'),
+        'and' => $this->t('AND'),
       ],
     ];
   }
@@ -108,9 +108,9 @@ class EntityBrowserWidgetContext extends ArgumentDefaultPluginBase {
             $argument = $value;
           }
           // If the context value is an array, test that it can be imploded.
-          else if (is_array($value)) {
+          elseif (is_array($value)) {
             $non_scalar = array_filter($value, function ($item) {
-              return ! is_scalar($item);
+              return !is_scalar($item);
             });
             if (empty($non_scalar)) {
               $conjunction = ($this->options['multiple'] == 'and') ? ',' : '+';

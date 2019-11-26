@@ -7,13 +7,17 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\node\Entity\Node;
+use Drupal\Tests\lightning_media\Traits\EntityBrowserTrait;
 use Drupal\Tests\media\Traits\MediaTypeCreationTrait;
 
 /**
+ * Tests media type disambiguation in the media browser.
+ *
  * @group lightning_media
  */
 class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
 
+  use EntityBrowserTrait;
   use MediaTypeCreationTrait;
 
   /**
@@ -90,20 +94,12 @@ class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
     ]);
     $this->drupalLogin($account);
 
-    $session = $this->getSession();
-    $page = $session->getPage();
-    $assert_session = $this->assertSession();
+    $page = $this->getSession()->getPage();
 
     $this->drupalGet('/node/add/article');
     $page->fillField('Title', 'Foo');
     $page->pressButton('Add media');
-    $assert_session->assertWaitOnAjaxRequest();
-
-    $session->switchToIFrame('entity_browser_iframe_media_browser');
-    // Assert that we are actually in the frame. If we are still in the
-    // top-level window, window.frameElement will be null.
-    // @see https://developer.mozilla.org/en-US/docs/Web/API/Window/frameElement
-    $this->assertJsCondition('window.frameElement !== null');
+    $this->waitForEntityBrowser('media_browser');
   }
 
   /**
@@ -114,18 +110,18 @@ class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
     $page = $session->getPage();
     $assert_session = $this->assertSession();
 
-    $page->attachFileToField('input_file', __DIR__ . '/../../files/test.jpg');
-    $this->assertNotEmpty($assert_session->waitForField('Bundle'));
-    $page->selectFieldOption('Bundle', 'Picture');
-    $this->assertNotEmpty($assert_session->waitForField('Name'));
-    $page->fillField('Name', 'Bar');
+    // This is necessary, it seems, in order for automatic file uploads to work
+    // correctly.
+    $assert_session->assertWaitOnAjaxRequest();
+
+    $assert_session->waitForField('input_file')->attachFile(__DIR__ . '/../../files/test.jpg');
+    $assert_session->waitForField('Bundle')->selectOption('Picture');
+    $assert_session->waitForField('Name')->setValue('Bar');
     $page->fillField('Alternative text', 'Baz');
     $page->pressButton('Place');
-    $assert_session->assertWaitOnAjaxRequest();
-    sleep(1);
+    $this->waitForEntityBrowserToClose();
 
-    $session->switchToIFrame();
-    $this->assertNotEmpty($assert_session->waitForButton('Remove'));
+    $assert_session->waitForButton('Remove');
     $page->pressButton('Save');
 
     // Assert the correct entities are created.
@@ -148,20 +144,16 @@ class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
     $session = $this->getSession();
     $page = $session->getPage();
 
-    $page->clickLink('Create embed');
+    $assert_session->waitForLink('Create embed')->click();
     $video_url = 'https://www.youtube.com/watch?v=zQ1_IbFFbzA';
-    $page->fillField('input', $video_url);
-    $assert_session->assertWaitOnAjaxRequest();
-    // There are 2 AJAX requests, wait for the second one with sleep.
-    sleep(1);
-    $page->selectFieldOption('Bundle', 'Advertisement');
-    $assert_session->assertWaitOnAjaxRequest();
-    $assert_session->fieldExists('Video Url');
+    $assert_session->waitForField('input')->setValue($video_url);
+    $assert_session->waitForField('Bundle')->selectOption('Advertisement');
+    $assert_session->waitForField('Video Url');
     $page->fillField('Name', 'Bar');
     $page->pressButton('Place');
-    $session->switchToIFrame();
-    $assert_session->assertWaitOnAjaxRequest();
-    $assert_session->buttonExists('Remove');
+    $this->waitForEntityBrowserToClose();
+
+    $assert_session->waitForButton('Remove');
     $page->pressButton('Save');
 
     // Assert the correct entities are created.
@@ -171,6 +163,13 @@ class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
     $this->assertSame('advertisement', $node->field_media->entity->bundle());
     $this->assertSame('Bar', $node->field_media->entity->label());
     $this->assertSame($video_url, $node->field_media->entity->field_media_video_embed_field->value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function assertSession($name = NULL) {
+    return new WebDriverWebAssert($this->getSession($name), $this->baseUrl);
   }
 
 }

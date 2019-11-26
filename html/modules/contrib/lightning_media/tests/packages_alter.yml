@@ -1,4 +1,0 @@
----
-drupal/lightning_layout:
-  version: '*@stable'
-  version_dev: '1.x-dev || 2.x-dev'

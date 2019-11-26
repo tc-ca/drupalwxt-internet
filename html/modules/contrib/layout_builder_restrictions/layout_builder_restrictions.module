@@ -20,23 +20,6 @@ function layout_builder_restrictions_plugin_filter_block__layout_builder_alter(a
     $plugin = $layout_builder_restrictions_manager->createInstance($id);
     $definitions = $plugin->alterBlockDefinitions($definitions, $extra);
   }
-
-  // Invoke deprecated API hook for restricting blocks.
-  // @todo: remove after 5 September 2019; see #3033213
-  $keys = \Drupal::moduleHandler()->invokeAll('layout_builder_restrictions_allowed_block_keys');
-  \Drupal::moduleHandler()->alter('layout_builder_restrictions_allowed_block_keys', $keys);
-  if (!empty($keys)) {
-    @trigger_error('hook_layout_builder_restrictions_allowed_block_keys and hook_layout_builder_restrictions_allowed_block_keys_alter is deprecated together with Drupal 8.6.0. Please use hook_plugin_filter_TYPE__CONSUMER_alter and more specifically hook_plugin_filter_block__layout_builder_alter instead.', E_USER_DEPRECATED);
-    foreach ($definitions as $delta => $definition) {
-      if (!in_array((string) $definition['category'], $keys)) {
-        unset($definitions[$delta]);
-      }
-    }
-  }
-
-  // Allow hook implementations to modify the allowed blocks.
-  \Drupal::moduleHandler()->alter('layout_builder_restrictions_chooser_result', $definitions);
-
 }
 
 /**
@@ -52,22 +35,6 @@ function layout_builder_restrictions_plugin_filter_layout__layout_builder_alter(
     $plugin = $layout_builder_restrictions_manager->createInstance($id);
     $definitions = $plugin->alterSectionDefinitions($definitions, $extra);
   }
-
-  // Invoke deprecated API hook for restricting layouts.
-  // @todo: remove after 5 September 2019; see #3033213
-  $keys = \Drupal::moduleHandler()->invokeAll('layout_builder_restrictions_allowed_layouts');
-  \Drupal::moduleHandler()->alter('layout_builder_restrictions_allowed_layouts', $keys);
-  if (!empty($keys)) {
-    @trigger_error('hook_layout_builder_restrictions_allowed_layouts and hook_layout_builder_restrictions_allowed_layouts_alter is deprecated together with Drupal 8.6.0. Please use hook_plugin_filter_TYPE__CONSUMER_alter and more specifically hook_plugin_filter_layout__layout_builder_alter instead.', E_USER_DEPRECATED);
-    foreach ($definitions as $delta => $definition) {
-      if (!in_array($delta, $keys)) {
-        unset($definitions[$delta]);
-      }
-    }
-  }
-
-  // Allow hook implementations to audit available layouts.
-  \Drupal::moduleHandler()->alter('layout_builder_restrictions_allowed_layouts', $definitions);
 
 }
 

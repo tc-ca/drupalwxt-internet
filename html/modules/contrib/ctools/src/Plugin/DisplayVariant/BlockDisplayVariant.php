@@ -4,25 +4,22 @@ namespace Drupal\ctools\Plugin\DisplayVariant;
 
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Block\BlockManager;
-use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Display\VariantBase;
 use Drupal\Core\Display\ContextAwareVariantInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Utility\Token;
 use Drupal\ctools\Form\AjaxFormTrait;
 use Drupal\ctools\Plugin\BlockVariantInterface;
 use Drupal\ctools\Plugin\BlockVariantTrait;
-use Drupal\ctools\VariantTitleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a base class for a display variant that simply contains blocks.
  */
-abstract class BlockDisplayVariant extends VariantBase implements VariantTitleInterface, ContextAwareVariantInterface, ContainerFactoryPluginInterface, BlockVariantInterface, RefinableCacheableDependencyInterface {
+abstract class BlockDisplayVariant extends VariantBase implements ContextAwareVariantInterface, ContainerFactoryPluginInterface, BlockVariantInterface {
 
   use AjaxFormTrait;
   use BlockVariantTrait;
@@ -222,13 +219,6 @@ abstract class BlockDisplayVariant extends VariantBase implements VariantTitleIn
     }
 
     return $vars;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getTitle() {
-    return $this->label();
   }
 
 }

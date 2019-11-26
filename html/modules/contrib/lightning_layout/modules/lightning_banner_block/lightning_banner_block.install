@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Contains installation and update hooks.
+ */
+
+/**
+ * Updates the bg_image_important formatter setting.
+ */
+function lightning_banner_block_update_8001() {
+  $display = Drupal::configFactory()
+    ->getEditable('core.entity_view_display.block_content.banner.default');
+
+  $component = $display->get('content.field_banner_image');
+  if ($component && $component['type'] === 'bg_image_formatter') {
+    $display
+      ->set('content.field_banner_image.settings.css_settings.bg_image_important', (int) $component['settings']['css_settings']['bg_image_important'])
+      ->save(TRUE);
+  }
+}

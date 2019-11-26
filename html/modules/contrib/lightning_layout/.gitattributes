@@ -1,0 +1,10 @@
+/acquia-pipelines.yml export-ignore
+/behat.yml export-ignore
+/grumphp.yml export-ignore
+/hooks export-ignore
+/logs export-ignore
+/*.sh export-ignore
+/phpunit.xml export-ignore
+/settings.local.php export-ignore
+/.travis.yml export-ignore
+/tests/fixtures export-ignore

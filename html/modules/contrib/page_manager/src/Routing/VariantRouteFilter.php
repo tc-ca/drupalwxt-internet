@@ -124,6 +124,7 @@ class VariantRouteFilter implements FilterInterface {
    */
   protected function getVariantRouteName(array $routes, Request $request) {
     // Store the unaltered request attributes.
+    $request = clone $request;
     $original_attributes = $request->attributes->all();
     foreach ($routes as $name => $route) {
       if (!$page_variant_id = $route->getDefault('page_manager_page_variant')) {
