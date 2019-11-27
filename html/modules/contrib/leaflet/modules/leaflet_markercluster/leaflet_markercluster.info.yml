@@ -1,0 +1,12 @@
+name: Leaflet Markercluster
+type: module
+description: Extends Leaflet with the Markercluster library.
+core: 8.x
+package: Leaflet
+dependencies:
+  - leaflet:leaflet
+
+# Information added by Drupal.org packaging script on 2019-11-27
+version: '8.x-1.23'
+project: 'leaflet'
+datestamp: 1574825604
