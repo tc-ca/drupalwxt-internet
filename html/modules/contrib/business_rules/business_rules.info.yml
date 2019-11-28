@@ -1,0 +1,14 @@
+name: Business Rules
+type: module
+description: Business Rules
+# core: 8.x
+package: Workflow
+
+dependencies:
+  - dbug:dbug
+
+# Information added by Drupal.org packaging script on 2019-08-13
+version: '8.x-1.0-beta8'
+core: '8.x'
+project: 'business_rules'
+datestamp: 1565732586
