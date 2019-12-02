@@ -1,0 +1,14 @@
+{
+  "name": "drupal/entity_field_condition",
+  "type": "drupal-module",
+  "description": "Provides a Condition plugin that checks to see if a particular entity bundle has a field with a specific value.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/entity_field_condition",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/entity_field_condition",
+    "source": "http://cgit.drupalcode.org/entity_field_condition"
+  },
+  "require": { }
+}

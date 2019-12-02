@@ -1,0 +1,13 @@
+name: Entity Field Condition
+type: module
+description: Provides Condition plugins that check to see if a particular entity type has a field with a specific value.
+# core: 8.x
+package: Other
+dependencies:
+  - node
+
+# Information added by Drupal.org packaging script on 2016-12-02
+version: '8.x-1.1'
+core: '8.x'
+project: 'entity_field_condition'
+datestamp: 1480718591
