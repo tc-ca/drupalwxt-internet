@@ -15,8 +15,8 @@ use Drupal\Core\Url;
  */
 function openplus_migrate_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
-    $build['migrate_info'] = views_embed_view('migation_information', 'block_1', $entity->id());
-    unset($build['actions']);
+    $build['page_info'] = views_embed_view('page_information', 'block_1', $entity->id());
+    //unset($build['actions']);
   }
 }
 
