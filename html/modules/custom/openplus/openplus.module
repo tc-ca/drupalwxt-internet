@@ -7,6 +7,11 @@ use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Drupal\Core\Entity\EntityInterface;
 
+function openplus_preprocess_page(&$variables) {
+  $variables['#attached']['library'][] =
+    'openplus/data-tables';
+}
+
 function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
     case 'node_property_form':
