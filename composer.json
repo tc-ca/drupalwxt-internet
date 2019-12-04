@@ -142,7 +142,10 @@
         "drupal/moderation_note": "^1.0@beta",
         "drupal/business_rules": "^1.0@beta",
         "drupal/entity_field_condition": "^1.1",
-        "drupal/cshs": "^1.0@beta"
+        "drupal/cshs": "^1.0@beta",
+        "drupal/datatables": "^1.0@RC",
+        "drupal/captcha": "^1.0@beta",
+        "drupal/recaptcha": "^2.4"
     },
     "autoload": {
         "classmap": [
