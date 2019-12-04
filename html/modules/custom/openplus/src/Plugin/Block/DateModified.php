@@ -108,12 +108,12 @@ class DateModified extends BlockBase implements ContainerFactoryPluginInterface 
 
     // Node context.
     if (is_object($node)) {
-      if ($node->hasField('field_date_published') && $node->get('field_date_published')->isEmpty()) {
-        $time = $node->getChangedTime();
-      }
-      else {
+      if ($node->hasField('field_date_published') && !$node->get('field_date_published')->isEmpty()) {
         $value = $node->get('field_date_published')->getValue();
         $time = strtotime($value[0]['value']);
+      }
+      else {
+        $time = $node->getChangedTime();
       }
     }
 
