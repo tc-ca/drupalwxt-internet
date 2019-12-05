@@ -1,0 +1,11 @@
+type: module
+name: 'Config Delete Test'
+description: 'Config Delete Test module.'
+package: 'Testing'
+core: 8.x
+hidden: true
+
+# Information added by Drupal.org packaging script on 2019-12-03
+version: '8.x-1.13'
+project: 'config_delete'
+datestamp: 1575376386

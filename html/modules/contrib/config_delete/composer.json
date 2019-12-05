@@ -1,0 +1,20 @@
+{
+    "name": "drupal/config_delete",
+    "description": "Delete configuration items from the UI.",
+    "type": "drupal-module",
+    "homepage": "https://www.drupal.org/project/config_delete",
+    "authors": [
+        {
+            "name": "Goran Nikolovski",
+            "email": "goran@gorannikolovski.com",
+            "homepage": "https://gorannikolovski.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/config_delete",
+        "email": "goran@gorannikolovski.com"
+    },
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev"
+}
