@@ -48,7 +48,7 @@ class FromOrg extends BlockBase {
     if (is_object($node)) {
       if ($node->hasField('field_show_org')) {
         $value = $node->get('field_show_org')->getValue();
-        if ($value[0]['value']) {
+        if (isset($value[0]['value']) && $value[0]['value']) {
           $url = Url::fromRoute('<front>');
           $link = Link::fromTextAndUrl($this->t($org), $url)->toRenderable();
           $build['from_org_block']['#markup'] = '<p class="gc-byline"><strong>' . t('From: ') . render($link) . '</strong></p>'; 
