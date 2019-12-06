@@ -102,7 +102,7 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
       }
 
       $content = $block->build();
-      $is_content_empty = Element::isEmpty($content);
+      $is_content_empty = !$content || Element::isEmpty($content) || ($event->inPreview() && $this->containsForm($content));
       $is_placeholder_ready = $event->inPreview() && $block instanceof PreviewFallbackInterface;
       // If the content is empty and no placeholder is available, return.
       if ($is_content_empty && !$is_placeholder_ready) {
@@ -117,7 +117,7 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
         '#base_plugin_id' => $block->getBaseId(),
         '#derivative_plugin_id' => $block->getDerivativeId(),
         '#weight' => $event->getComponent()->getWeight(),
-        'content' => $content,
+        'content' => !$is_content_empty ? $content : [],
       ];
 
       if ($block instanceof PreviewFallbackInterface) {
@@ -136,6 +136,21 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
       }
       $event->setBuild($build);
     }
+  }
+
+  /**
+   */
+  protected function containsForm(array $content) {
+    if (isset($content['#type']) && $content['#type'] === 'form') {
+      return TRUE;
+    }
+
+    foreach (Element::children($content) as $key) {
+      if ($this->containsForm($content[$key])) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
 }

@@ -1,0 +1,42 @@
+diff --git a/core/modules/layout_builder/src/EventSubscriber/BlockComponentRenderArray.php b/core/modules/layout_builder/src/EventSubscriber/BlockComponentRenderArray.php
+index cbb09c4f4f..1cb54b4545 100644
+--- a/core/modules/layout_builder/src/EventSubscriber/BlockComponentRenderArray.php
++++ b/core/modules/layout_builder/src/EventSubscriber/BlockComponentRenderArray.php
+@@ -102,7 +102,7 @@ public function onBuildRender(SectionComponentBuildRenderArrayEvent $event) {
+       }
+ 
+       $content = $block->build();
+-      $is_content_empty = Element::isEmpty($content);
++      $is_content_empty = !$content || Element::isEmpty($content) || ($event->inPreview() && $this->containsForm($content));
+       $is_placeholder_ready = $event->inPreview() && $block instanceof PreviewFallbackInterface;
+       // If the content is empty and no placeholder is available, return.
+       if ($is_content_empty && !$is_placeholder_ready) {
+@@ -118,7 +118,7 @@ public function onBuildRender(SectionComponentBuildRenderArrayEvent $event) {
+         '#derivative_plugin_id' => $block->getDerivativeId(),
+         '#weight' => $event->getComponent()->getWeight(),
+         '#attributes' => ['class' => ['layout-builder-block']],
+-        'content' => $content,
++        'content' => !$is_content_empty ? $content : [],
+       ];
+ 
+       if ($block instanceof PreviewFallbackInterface) {
+@@ -139,4 +139,19 @@ public function onBuildRender(SectionComponentBuildRenderArrayEvent $event) {
+     }
+   }
+ 
++  /**
++   */
++  protected function containsForm(array $content) {
++    if (isset($content['#type']) && $content['#type'] === 'form') {
++      return TRUE;
++    }
++
++    foreach (Element::children($content) as $key) {
++      if ($this->containsForm($content[$key])) {
++        return TRUE;
++      }
++    }
++    return FALSE;
++  }
++
+ }
