@@ -141,7 +141,7 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
   /**
    */
   protected function containsForm(array $content) {
-    if (isset($content['#type']) && $content['#type'] === 'form') {
+    if (isset($content['#type']) && $content['#type'] === 'form' || $content['#type'] === 'webform') {
       return TRUE;
     }
 
