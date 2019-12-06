@@ -3,13 +3,9 @@
 namespace Drupal\openplus\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Datetime\DateFormatter;
-use Drupal\Core\Datetime\Entity\DateFormat;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
 
 /**
  * Provides a course variant right side Block.
@@ -45,7 +41,7 @@ class FromOrg extends BlockBase {
   public function build() {
     $node = $this->getContextValue('node');
     $config = \Drupal::config('openplus.settings');
-    $settings = $config->get('openplus_settings');
+    $org = $config->get('org_name');
     $build = [];
 
     // Node context.
@@ -54,7 +50,7 @@ class FromOrg extends BlockBase {
         $value = $node->get('field_show_org')->getValue();
         if ($value[0]['value']) {
           $url = Url::fromRoute('<front>');
-          $link = Link::fromTextAndUrl($this->t($settings['org_name']), $url)->toRenderable();
+          $link = Link::fromTextAndUrl($this->t($org), $url)->toRenderable();
           $build['from_org_block']['#markup'] = '<p class="gc-byline"><strong>' . t('From: ') . render($link) . '</strong></p>'; 
         }
       }

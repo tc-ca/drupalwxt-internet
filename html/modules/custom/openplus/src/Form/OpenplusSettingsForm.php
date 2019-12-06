@@ -37,7 +37,7 @@ class OpenplusSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Organization name'),
       '#description' => $this->t('Organization name to show on by-line (under the H1).'),
       '#required' => TRUE,
-      '#default_value' => is_null($config['org_name']) ? 'DrupalWxT' : $config['org_name'],
+      '#default_value' => is_null($config->get('org_name')) ? 'DrupalWxT' : $config->get('org_name'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -47,9 +47,9 @@ class OpenplusSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValues();
+    $value = $form_state->getValue('org_name');
     $this->config('openplus.settings')
-      ->set('openplus_settings', $values)
+      ->set('org_name', $value)
       ->save();
 
     parent::submitForm($form, $form_state);
