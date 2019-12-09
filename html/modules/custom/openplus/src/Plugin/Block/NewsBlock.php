@@ -28,21 +28,21 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
     $form['source_url_en'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Source url (en)'),
-      '#default_value' => is_null($config['source_url_en']) ? '' : $config['source_url_en'],
+      '#default_value' => !isset($config['source_url_en']) ? '' : $config['source_url_en'],
       '#required' => true,
     ];
 
     $form['source_url_fr'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Source url (fr)'),
-      '#default_value' => is_null($config['source_url_fr']) ? '' : $config['source_url_fr'],
+      '#default_value' => !isset($config['source_url_fr']) ? '' : $config['source_url_fr'],
       '#required' => true,
     ];
 
     $form['max_items'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Items to display'),
-      '#default_value' => is_null($config['max_items']) ? 3 : $config['max_items'],
+      '#default_value' => !isset($config['max_items']) ? 3 : $config['max_items'],
       '#attributes' => array(
         'type' => 'number',
       ),
