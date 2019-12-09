@@ -8,7 +8,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 
 /**
- * Provides a course variant right side Block.
+ * Provides the "From: Transport Canada" Block.
  *
  * @Block(
  *   id = "op_from_org",

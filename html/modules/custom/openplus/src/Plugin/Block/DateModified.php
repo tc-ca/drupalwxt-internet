@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Provides a course variant right side Block.
+ * Provides the date modified Block.
  *
  * @Block(
  *   id = "op_date_modified",
