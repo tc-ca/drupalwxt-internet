@@ -17,23 +17,27 @@ use Drupal\Core\Datetime\DrupalDateTime;
  *   category = @Translation("Openplus"),
  * )
  */
-class NewsBlock extends BlockBase {
+class NewsBlock extends BlockBase implements BlockPluginInterface {
 
   /**
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    $form = parent::blockForm($form, $form_state);
+    $config = $this->getConfiguration();
 
     $form['source_url_en'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Source url (en)'),
       '#default_value' => is_null($config['source_url_en']) ? '' : $config['source_url_en'],
+      '#required' => true,
     ];
 
     $form['source_url_fr'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Source url (fr)'),
       '#default_value' => is_null($config['source_url_fr']) ? '' : $config['source_url_fr'],
+      '#required' => true,
     ];
 
     $form['max_items'] = [
@@ -54,9 +58,12 @@ class NewsBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['source_url_en'] = $form_state->getValue('source_url_en');
-    $this->configuration['source_url_fr'] = $form_state->getValue('source_url_fr');
-    $this->configuration['max_items'] = $form_state->getValue('max_items');
+    parent::blockSubmit($form, $form_state);
+    $values = $form_state->getValues();
+
+    $this->configuration['source_url_en'] = $values['source_url_en'];
+    $this->configuration['source_url_fr'] = $values['source_url_fr'];
+    $this->configuration['max_items'] = $values['max_items'];
   }
 
 
