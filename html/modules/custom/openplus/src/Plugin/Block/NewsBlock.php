@@ -6,6 +6,9 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Render\Markup;
 
 /**
  * Provides home page news Block.
@@ -93,15 +96,18 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
     for ($i = 0; $i < $max_items; $i++) {
       $item_date = new DrupalDateTime($data[$i]->publishedDate, 'UTC');
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
-      $output[] = '<a href="' . $data[$i]->link . '">' . $data[$i]->title . '</a><br /> <small>[' . $formatted_date . ']</small>';
+      $output[] = Markup::create('<a href="' . $data[$i]->link . '">' . $data[$i]->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
+      //$url = Url::fromUri('http://www.example.com/');
+      //$link = Link::fromTextAndUrl($data[$i]->title, $url);
+      //$output[] = $link;
     }
 
     $build = [
       '#theme' => 'item_list',
-      '#list_type' => 'ul',
+      '#type' => 'ul',
       '#items' => $output, 
       '#attributes' => ['class' => 'home-news-feed'],
-      '#wrapper_attributes' => ['class' => 'home-news-block'],
+      '#allowed_tags' => ['a', 'small', 'br'],
     ];
 
     return $build;
