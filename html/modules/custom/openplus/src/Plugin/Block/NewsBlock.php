@@ -39,7 +39,7 @@ class NewsBlock extends BlockBase {
     $form['max_items'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Items to display'),
-      '#default_value' => is_null($config['max_items']) ? 0 : $config['max_items'],
+      '#default_value' => is_null($config['max_items']) ? 3 : $config['max_items'],
       '#attributes' => array(
         'type' => 'number',
       ),
@@ -68,6 +68,7 @@ class NewsBlock extends BlockBase {
 
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $uri = $this->configuration['source_url_' . $language];
+    $max_items = $this->configuration['max_items'];
 
     $headers = [
       'Accept' => 'application/json; charset=utf-8',
@@ -83,8 +84,7 @@ class NewsBlock extends BlockBase {
     $data = $response->feed->entry;
 
     $output = array();
-    for ($i = 0; $i < 3; $i++) {
-      //year-month-day hour:minutes
+    for ($i = 0; $i < $max_items; $i++) {
       $item_date = new DrupalDateTime($data[$i]->publishedDate, 'UTC');
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
       $output[] = '<a href="' . $data[$i]->link . '">' . $data[$i]->title . '</a><br /> <small>[' . $formatted_date . ']</small>';
