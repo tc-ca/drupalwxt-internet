@@ -93,21 +93,48 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
     $data = $response->feed->entry;
 
     $output = array();
-    for ($i = 0; $i < $max_items; $i++) {
-      $item_date = new DrupalDateTime($data[$i]->publishedDate, 'UTC');
+    $num_items = 0;
+
+    foreach ($data as $row) { 
+      $item_date = new DrupalDateTime($row->publishedDate, 'UTC');
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
-      $output[] = Markup::create('<a href="' . $data[$i]->link . '">' . $data[$i]->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
-      //$url = Url::fromUri('http://www.example.com/');
-      //$link = Link::fromTextAndUrl($data[$i]->title, $url);
-      //$output[] = $link;
+      if ($num_items < $max_items) {
+        $short_list[] = Markup::create('<a href="' . $row->link . '">' . $row->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
+      }
+      $full_list[] = Markup::create('<a href="' . $row->link . '">' . $row->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
     }
 
-    $build = [
+    $build['news_items'] = [
       '#theme' => 'item_list',
       '#type' => 'ul',
-      '#items' => $output, 
+      '#items' => $short_list, 
       '#attributes' => ['class' => 'home-news-feed'],
       '#allowed_tags' => ['a', 'small', 'br'],
+    ];
+
+    $table['full_output'] = [
+      '#theme' => 'item_list',
+      '#type' => 'ul',
+      '#items' => $full_list, 
+      '#attributes' => ['class' => 'home-news-feed'],
+      '#allowed_tags' => ['a', 'small', 'br'],
+    ];
+
+    // @TODO translate
+    $markup = '<p class="text-right"><strong><a href="#news" title="News modal content" class="wb-lbx" onclick="ga(\'send\', \'event\', \'News\', \'click\', \'nwsfd-eng\','1')">All news</a></strong></p>';
+    $markup .= '<section class="mfp-hide modal-dialog modal-content overlay-def" id="news">';
+    $markup .= ' <header class="modal-header"><h2 class="modal-title">Transport Canada news</h2></header>';
+    $markup .= '<div class="modal-body">' . render($table) . '</div>';
+    $markup .= '<div class="modal-footer">
+      <ul class="list-inline mrgn-bttm-0">
+        <li> <a href="https://www.canada.ca/en/news.html" class="btn btn-primary" role="button">GC news</a> </li>
+        <li> <a href="#" class="btn btn-default popup-modal-dismiss" role="button">Close</a> </li>
+      </ul>
+    </div></section>';
+
+    $build['more_link'] = [
+      '#type' => 'markup',
+      '#markup' => $markup,
     ];
 
     return $build;
