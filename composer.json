@@ -146,7 +146,8 @@
         "drupal/captcha": "^1.0@beta",
         "drupal/recaptcha": "^2.4",
         "drupal/entity_clone": "^1.0@beta",
-        "drupal/config_delete": "^1.13"
+        "drupal/config_delete": "^1.13",
+        "drupal/media_entity_download": "^2.0@beta"
     },
     "autoload": {
         "classmap": [
