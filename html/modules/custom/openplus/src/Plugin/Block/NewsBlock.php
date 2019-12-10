@@ -100,6 +100,7 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
       if ($num_items < $max_items) {
         $short_list[] = Markup::create('<a href="' . $row->link . '">' . $row->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
+        $num_items++;
       }
       $full_list[] = Markup::create('<a href="' . $row->link . '">' . $row->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
     }
@@ -120,17 +121,18 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
       '#allowed_tags' => ['a', 'small', 'br'],
     ];
 
-    // @TODO translate
-    $markup = '<p class="text-right"><strong><a href="#news" title="News modal content" class="wb-lbx" onclick="ga(\'send\', \'event\', \'News\', \'click\', \'nwsfd-eng\','1')">All news</a></strong></p>';
+    $news_link = ($language == 'fr') ?  'https://www.canada.ca/fr/nouvelles.html' : 'https://www.canada.ca/en/news.html';
+    $markup = '<p class="text-right"><strong><a href="#news" title="' . t('News modal content') . '" class="wb-lbx" onclick="ga(\'send\', \'event\', \'News\', \'click\', \'nwsfd-eng\',\'1\')">' . t('All news') . '</a></strong></p>';
     $markup .= '<section class="mfp-hide modal-dialog modal-content overlay-def" id="news">';
-    $markup .= ' <header class="modal-header"><h2 class="modal-title">Transport Canada news</h2></header>';
+    $markup .= ' <header class="modal-header"><h2 class="modal-title">' . t('Transport Canada news') . '</h2></header>';
     $markup .= '<div class="modal-body">' . render($table) . '</div>';
     $markup .= '<div class="modal-footer">
       <ul class="list-inline mrgn-bttm-0">
-        <li> <a href="https://www.canada.ca/en/news.html" class="btn btn-primary" role="button">GC news</a> </li>
-        <li> <a href="#" class="btn btn-default popup-modal-dismiss" role="button">Close</a> </li>
+        <li> <a href="' . $news_link . '" class="btn btn-primary" role="button">' . t('GC news') . '</a> </li>
+        <li> <a href="#" class="btn btn-default popup-modal-dismiss" role="button">' . t('Close') . '</a> </li>
       </ul>
     </div></section>';
+
 
     $build['more_link'] = [
       '#type' => 'markup',
