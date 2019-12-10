@@ -39,7 +39,6 @@ class DownloadLinkFieldFormatter extends LinkFormatter {
     $parent = $items->getParent()->getValue()->id();
 
     foreach ($items as $delta => $item) {
-
       $route_parameters = ['media' => $parent];
       if ($delta > 0) {
         $route_parameters['query']['delta'] = $delta;
@@ -47,17 +46,15 @@ class DownloadLinkFieldFormatter extends LinkFormatter {
 
       $url = Url::fromRoute('media_entity_download.download', $route_parameters);
 
-
-      // @todo: replace with DI when this issue is fixed: https://www.drupal.org/node/2053415
-      $filename = \Drupal::entityTypeManager()
-        ->getStorage('file')
-        ->load($item->getValue()['target_id'])
-        ->getFilename();
+      $medianame = \Drupal::entityTypeManager()
+        ->getStorage('media')
+        ->load($route_parameters['media'])
+        ->label();
 
       $elements[$delta] = [
         '#type' => 'link',
         '#url' => $url,
-        '#title' => $filename
+        '#title' => $medianame
       ];
     }
 

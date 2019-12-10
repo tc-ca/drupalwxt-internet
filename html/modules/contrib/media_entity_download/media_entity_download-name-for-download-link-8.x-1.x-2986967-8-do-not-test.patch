@@ -1,0 +1,35 @@
+diff --git a/src/Plugin/Field/FieldFormatter/DownloadLinkFieldFormatter.php b/src/Plugin/Field/FieldFormatter/DownloadLinkFieldFormatter.php
+index ad3a2f82..b00f8e24 100644
+--- a/src/Plugin/Field/FieldFormatter/DownloadLinkFieldFormatter.php
++++ b/src/Plugin/Field/FieldFormatter/DownloadLinkFieldFormatter.php
+@@ -9,6 +9,7 @@
+ use Drupal\Core\Field\FieldDefinitionInterface;
+ use Drupal\link\Plugin\Field\FieldFormatter\LinkFormatter;
+ use Drupal\Core\Url;
++use function kint;
+ 
+ /**
+  * Plugin implementation of the 'media_entity_download_download_link' formatter.
+@@ -47,17 +48,15 @@ public function viewElements(FieldItemListInterface $items, $langcode) {
+ 
+       $url = Url::fromRoute('media_entity_download.download', $route_parameters);
+ 
+-
+-      // @todo: replace with DI when this issue is fixed: https://www.drupal.org/node/2053415
+-      $filename = \Drupal::entityTypeManager()
+-        ->getStorage('file')
+-        ->load($item->getValue()['target_id'])
+-        ->getFilename();
++      $medianame = \Drupal::entityTypeManager()
++        ->getStorage('media')
++        ->load($route_parameters['media'])
++        ->label();
+ 
+       $elements[$delta] = [
+         '#type' => 'link',
+         '#url' => $url,
+-        '#title' => $filename
++        '#title' => $medianame
+       ];
+     }
+ 
