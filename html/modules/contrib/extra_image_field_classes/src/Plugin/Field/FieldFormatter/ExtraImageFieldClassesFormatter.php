@@ -51,9 +51,11 @@ class ExtraImageFieldClassesFormatter extends ImageFormatter {
    */
   public function settingsSummary() {
     $summary = parent::settingsSummary();
-    $summary[] = t('Image Class: !class', array(
-      '!class' => $this->getSetting('extra_image_field_classes'),
+
+    $summary[] = t('Image Class: @class', array(
+      '@class' => $this->getSetting('extra_image_field_classes'),
     ));
+
     return $summary;
   }
 
