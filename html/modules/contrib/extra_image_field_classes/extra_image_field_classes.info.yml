@@ -1,0 +1,14 @@
+name: Extra Image Field Classes
+description: This module allows to add extra classes on image field
+# core: 8.x
+package: others
+type: module
+# version: 1.0
+dependencies:
+    - image
+
+# Information added by Drupal.org packaging script on 2016-02-21
+version: '8.x-1.0'
+core: '8.x'
+project: 'extra_image_field_classes'
+datestamp: 1456055641
