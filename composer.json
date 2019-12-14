@@ -150,7 +150,8 @@
         "drupal/media_entity_download": "^2.0@beta",
         "drupal/extra_image_field_classes": "^1.0",
         "drupal/custom_search": "^1.0@beta",
-        "drupal/facets": "^1.4"
+        "drupal/facets": "^1.4",
+        "drupal/features": "^3.8"
     },
     "autoload": {
         "classmap": [
