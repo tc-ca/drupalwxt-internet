@@ -148,7 +148,9 @@
         "drupal/entity_clone": "^1.0@beta",
         "drupal/config_delete": "^1.13",
         "drupal/media_entity_download": "^2.0@beta",
-        "drupal/extra_image_field_classes": "^1.0"
+        "drupal/extra_image_field_classes": "^1.0",
+        "drupal/custom_search": "^1.0@beta",
+        "drupal/facets": "^1.4"
     },
     "autoload": {
         "classmap": [
