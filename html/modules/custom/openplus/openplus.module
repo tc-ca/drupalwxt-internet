@@ -82,3 +82,13 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
   }
 }
 
+/**
+ * Implements hook_entity_type_alter().
+ */
+function openplus_entity_type_alter(array &$entity_types) {
+  foreach ($entity_types as $entity_type) {
+    $constraints = $entity_type->getConstraints();
+    unset($constraints['EntityUntranslatableFields']);
+    $entity_type->setConstraints($constraints);
+  }
+}
