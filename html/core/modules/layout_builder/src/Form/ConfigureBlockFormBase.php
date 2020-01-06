@@ -19,6 +19,8 @@ use Drupal\Core\Plugin\PluginWithFormsInterface;
 use Drupal\layout_builder\Context\LayoutBuilderContextTrait;
 use Drupal\layout_builder\Controller\LayoutRebuildTrait;
 use Drupal\layout_builder\LayoutTempstoreRepositoryInterface;
+use Drupal\layout_builder\Plugin\Block\FieldBlock;
+use Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage;
 use Drupal\layout_builder\SectionComponent;
 use Drupal\layout_builder\SectionStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -173,6 +175,16 @@ abstract class ConfigureBlockFormBase extends FormBase implements BaseFormIdInte
     $form['settings'] = [];
     $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
     $form['settings'] = $this->getPluginForm($this->block)->buildConfigurationForm($form['settings'], $subform_state);
+
+    // If this a field block with more than one item, expose the form fields
+    // for displaying a subset of those items.
+    if ($this->block instanceof FieldBlock && $this->sectionStorage instanceof OverridesSectionStorage) {
+      $field_name = $this->block->getFieldName();
+      $field_values_count = $this->sectionStorage->fieldValuesCount($field_name);
+      if ($field_values_count > 1) {
+        $form['settings']['multivalue_wrapper']['#access'] = TRUE;
+      }
+    }
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
