@@ -1,0 +1,36 @@
+mini_layouts.mini_layout.*:
+  type: config_entity
+  label: 'Mini Layout'
+  mapping:
+    id:
+      type: string
+      label: 'Machine Name'
+    admin_label:
+      type: string
+      label: 'Admin Label'
+    category:
+      type: string
+      label: 'Category'
+    required_context:
+      type: sequence
+      label: 'Required Contexts'
+      sequence:
+        - type: mapping
+          label: 'Required Context'
+          mapping:
+            machine_name:
+              type: string
+              label: 'Machine-readable name'
+            label:
+              type: label
+              label: 'Label of the context'
+            type:
+              type: string
+              label: 'Context type'
+            required:
+              type: boolean
+              label: 'Required'
+    sections:
+      type: sequence
+      sequence:
+        type: layout_builder.section

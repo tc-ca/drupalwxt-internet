@@ -1,0 +1,8 @@
+mini_layouts.edit:
+  route_name: entity.mini_layout.edit_form
+  title: 'Edit'
+  base_route: entity.mini_layout.edit_form
+mini_layouts.layout:
+  route_name: layout_builder.mini_layout.view
+  title: 'Layout'
+  base_route: entity.mini_layout.edit_form

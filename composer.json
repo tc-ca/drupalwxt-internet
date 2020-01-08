@@ -152,7 +152,8 @@
         "drupal/custom_search": "^1.0@beta",
         "drupal/facets": "^1.4",
         "drupal/features": "^3.8",
-        "drupal/module_filter": "^3.1"
+        "drupal/module_filter": "^3.1",
+        "drupal/mini_layouts": "^1.0@alpha"
     },
     "autoload": {
         "classmap": [

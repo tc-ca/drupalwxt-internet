@@ -1,0 +1,6 @@
+mini_layouts.new:
+  route_name: entity.mini_layout.add_form
+  title: 'New Mini Layout'
+  weight: 1
+  appears_on:
+    - entity.mini_layout.collection
