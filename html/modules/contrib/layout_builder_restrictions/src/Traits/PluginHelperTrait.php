@@ -2,6 +2,7 @@
 
 namespace Drupal\layout_builder_restrictions\Traits;
 
+use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\layout_builder\Context\LayoutBuilderContextTrait;
 use Drupal\layout_builder\Entity\LayoutEntityDisplayInterface;
@@ -107,12 +108,19 @@ trait PluginHelperTrait {
     if ($requested_value == 'contexts') {
       return $contexts;
     }
-
     if ($section_storage instanceof OverridesSectionStorageInterface) {
       $entity = $contexts['entity']->getContextValue();
       $view_mode = $contexts['view_mode']->getContextValue();
       $entity_type = $entity->getEntityTypeId();
       $bundle = $entity->bundle();
+    }
+    elseif (isset($contexts['entity']) && $contexts['entity']->getContextValue() instanceof ConfigEntityBase) {
+      $entity = $view_display = $contexts['entity']->getContextValue();
+      $entity_type = $entity->getEntityTypeId();
+      $bundle = $entity->bundle();
+    }
+    elseif (get_class($section_storage) == 'Drupal\mini_layouts\Plugin\SectionStorage\MiniLayoutSectionStorage') {
+      $view_display = $contexts['display']->getContextValue();
     }
     elseif (isset($contexts['display'])) {
       $entity = $contexts['display']->getContextValue();
@@ -146,8 +154,9 @@ trait PluginHelperTrait {
     if ($requested_value == 'storage') {
       return $storage;
     }
-
-    $view_display = $storage->load($context);
+    if (!$view_display) {
+      $view_display = $storage->load($context);
+    }
     if ($requested_value == 'view_display') {
       return $view_display;
     }
