@@ -153,7 +153,8 @@
         "drupal/facets": "^1.4",
         "drupal/features": "^3.8",
         "drupal/module_filter": "^3.1",
-        "drupal/mini_layouts": "^1.0@alpha"
+        "drupal/mini_layouts": "^1.0@alpha",
+        "drupal/node_authlink": "^1.3"
     },
     "autoload": {
         "classmap": [
