@@ -1,0 +1,12 @@
+name: Language Tokens
+type: module
+description: "Provides tokens about the language settings (current interface language, language name, ...)."
+# core: 8.x
+dependencies:
+  - drupal:token
+
+# Information added by Drupal.org packaging script on 2018-08-08
+version: '8.x-1.0'
+core: '8.x'
+project: 'token_language'
+datestamp: 1533709384

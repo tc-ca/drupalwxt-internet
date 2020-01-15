@@ -498,6 +498,11 @@ class CustomSearchBlockForm extends FormBase {
       $route = $form_state->getValue('paths');
       $route = str_replace('[current_path]', \Drupal::service('path.current')->getPath(), $route);
       $route = str_replace('[key]', $keys, $route);
+ 
+      // Replace tokens
+      $token = \Drupal::token();
+      $route = $token->replace($route);
+
       if (strpos($route, '[types]') !== FALSE) {
         $route = str_replace('[types]', (isset($types) && count($types)) ? implode($config['paths']['separator'], $types) : '', $route);
       }

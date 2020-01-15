@@ -17,6 +17,13 @@ function openplus_preprocess_page(&$variables) {
 
 function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
+    case 'custom_search_block_form':
+      $form['actions']['submit']['#id'] = 'wb-srch-sub';
+      $form['actions']['submit']['#name'] = 'op';
+      $form['actions']['submit']['#value'] = '';
+      $form['actions']['submit']['#attributes']['class'][] = 'btn-primary';
+      //$form['actions']['submit']['#submit'][] = 'openplus_search_submit';
+    break;
     case 'node_property_form':
       openplus_add_cancel($form);
       openplus_hide_tags($form);
@@ -30,6 +37,10 @@ function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_
       unset($form['meta']);
     break;
   }
+}
+
+function openplus_search_submit(array $form, FormStateInterface $form_state){
+ 
 }
 
 function openplus_add_cancel(&$form) {
