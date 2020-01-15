@@ -1,0 +1,12 @@
+# Schema for the theme setting configuration file of the Transport Canada theme.
+
+transport_canada.settings:
+  type: theme_settings
+  label: 'Transport Canada settings'
+  mapping:
+    cdn_provider:
+      type: string
+      label: 'CDN Provider'
+    breadcrumb_home:
+      type: integer
+      label: 'Breadcrumb Home'
