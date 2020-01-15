@@ -1,5 +1,0 @@
-openplus_migrate.import_action:
-  route_name: entity.migration_group.import_form 
-  title: 'Import migration'
-  appears_on:
-    - entity.migration_group.list
