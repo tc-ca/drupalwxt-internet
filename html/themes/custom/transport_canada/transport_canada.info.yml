@@ -24,6 +24,6 @@ regions:
   page_top: 'Page top'
   page_bottom: 'Page bottom'
 
-libraries-extend:
-  wxt_bootstrap/framework:
-    - 'transport_canada/framework'
+
+libraries:
+  - 'transport_canada/global-styling'
