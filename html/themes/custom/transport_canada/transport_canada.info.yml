@@ -25,5 +25,5 @@ regions:
   page_bottom: 'Page bottom'
 
 libraries-extend:
-  bootstrap/framework:
+  wxt_bootstrap/framework:
     - 'transport_canada/framework'
