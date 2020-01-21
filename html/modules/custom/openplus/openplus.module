@@ -10,6 +10,13 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Routing\RouteMatchInterface;
 
+function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->getEntityTypeId() == 'node') {
+    $build['page_info'] = views_embed_view('page_information', 'block_1', $entity->id());
+    //unset($build['actions']);
+  }
+}
+
 function openplus_preprocess_page(&$variables) {
   $variables['#attached']['library'][] =
     'openplus/data-tables';
@@ -101,5 +108,16 @@ function openplus_entity_type_alter(array &$entity_types) {
     $constraints = $entity_type->getConstraints();
     unset($constraints['EntityUntranslatableFields']);
     $entity_type->setConstraints($constraints);
+  }
+}
+
+/**
+ * Implements hook_webform_element_ELEMENT_TYPE_alter().
+ */
+function openplus_webform_element_webform_time_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+  // change time format to 24h for French
+  $lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  if ($lang == 'fr') {
+    $element['#time_format'] = 'H:i';
   }
 }
