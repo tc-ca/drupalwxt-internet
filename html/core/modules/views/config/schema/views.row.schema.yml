@@ -14,6 +14,9 @@ views.row.fields:
     default_field_elements:
       type: boolean
       label: 'Provide default field wrapper elements'
+    set_active_class:
+      type: boolean
+      label: 'Set the active class on links'
     inline:
       type: sequence
       label: 'Inline'

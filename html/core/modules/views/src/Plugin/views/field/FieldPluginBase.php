@@ -1164,7 +1164,13 @@ abstract class FieldPluginBase extends HandlerBase implements FieldHandlerInterf
       $tokens = NULL;
       if ($this instanceof MultiItemsFieldHandlerInterface) {
         $items = [];
+        $set_active_class = !empty($this->view->rowPlugin->options['set_active_class']);
         foreach ($raw_items as $count => $item) {
+          // Setting the active class on a link is now an opt-in feature, so
+          // we need to check if the feature is activated for this view.
+          if ($set_active_class && isset($item['rendered']['#url'])) {
+            $item['rendered']['#url']->setOption('set_active_class', TRUE);
+          }
           $value = $this->render_item($count, $item);
           if (is_array($value)) {
             $value = (string) $this->getRenderer()->render($value);
@@ -1402,6 +1408,7 @@ abstract class FieldPluginBase extends HandlerBase implements FieldHandlerInterf
       'fragment' => NULL,
       'language' => NULL,
       'query' => [],
+      'set_active_class' => !empty($this->view->rowPlugin->options['set_active_class']),
     ];
 
     $alter += [

@@ -36,6 +36,7 @@ class Fields extends RowPluginBase {
     $options['separator'] = ['default' => ''];
     $options['hide_empty'] = ['default' => FALSE];
     $options['default_field_elements'] = ['default' => TRUE];
+    $options['set_active_class'] = ['default' => FALSE];
     return $options;
   }
 
@@ -55,6 +56,13 @@ class Fields extends RowPluginBase {
       '#title' => $this->t('Provide default field wrapper elements'),
       '#default_value' => $this->options['default_field_elements'],
       '#description' => $this->t('If not checked, fields that are not configured to customize their HTML elements will get no wrappers at all for their field, label and field + label wrappers. You can use this to quickly reduce the amount of markup the view provides by default, at the cost of making it more difficult to apply CSS.'),
+    ];
+
+    $form['set_active_class'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Set the active class on links'),
+      '#default_value' => $this->options['set_active_class'],
+      '#description' => $this->t('If checked, if the fields link to the current page, an "is-active" class will be added on active links.'),
     ];
 
     $form['inline'] = [
