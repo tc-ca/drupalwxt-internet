@@ -46,10 +46,10 @@ function template_preprocess_op_webform_composite_contact(array &$variables) {
  * @see \Drupal\webform\WebformSubmissionForm::prepareElements()
  * @see hook_webform_element_ELEMENT_TYPE_alter()
  */
-function openplus_webform_element_address_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+//function openplus_webform_element_address_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
   // Code here acts on all elements included in a webform.
   /** @var \Drupal\webform\WebformSubmissionForm $form_object */
-  $form_object = $form_state->getFormObject();
+  //$form_object = $form_state->getFormObject();
   // Add custom data attributes to all elements.
   //$element['#attributes']['data-custom'] = '{custom data goes here}';
-}
+//}
