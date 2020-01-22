@@ -1,0 +1,42 @@
+{#
+/**
+ * @file
+ * Default theme implementation of a contact composite webform element.
+ *
+ * Available variables:
+ * - content: The contact webform element to be output.
+ * - flexbox: Determines if Flexbox layout should be applied to the composite
+ *   element.
+ *
+ * @see template_preprocess_webform_composite_contact()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if flexbox %}
+
+  {% if content.name or content.company %}
+    <div class="webform-flexbox">
+      {% if content.first_name %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.first_name }}</div></div>
+      {% endif %}
+      {% if content.last_name %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.last_name }}</div></div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if content.email or content.phone %}
+    <div class="webform-flexbox">
+      {% if content.email %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.email }}</div></div>
+      {% endif %}
+      {% if content.phone %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.phone }}</div></div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+{% else %}
+  {{ content }}
+{% endif %}

@@ -1,0 +1,7 @@
+openplus_webform:
+  version: 8.7.1 
+  css:
+    theme:
+      css/openplus_webform.css: {}
+  dependencies:
+    - webform/webform.composite
