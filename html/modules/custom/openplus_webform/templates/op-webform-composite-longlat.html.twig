@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Default theme implementation of a longitude/latitude composite webform element.
+ *
+ * Available variables:
+ * - content: The contact webform element to be output.
+ * - flexbox: Determines if Flexbox layout should be applied to the composite
+ *   element.
+ *
+ * @see template_preprocess_webform_composite_longlat()
+ *
+ * @ingroup themeable
+ */
+#}
+  <div class="row">
+    <div class="col-md-6">
+      {% if content.long_deg %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.long_deg }}</div></div>
+      {% endif %}
+      {% if content.long_min %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.long_min }}</div></div>
+      {% endif %}
+      {% if content.long_sec %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.long_sec }}</div></div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      {% if content.lat_deg %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.lat_deg }}</div></div>
+      {% endif %}
+      {% if content.lat_min %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.lat_min }}</div></div>
+      {% endif %}
+      {% if content.lat_sec %}
+        <div class="webform-flex webform-flex--1"><div class="webform-flex--container">{{ content.lat_sec }}</div></div>
+      {% endif %}
+    </div>
+  </div>
