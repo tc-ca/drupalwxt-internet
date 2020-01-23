@@ -23,63 +23,45 @@ class OpLongLat extends WebformCompositeBase {
    */
   public static function getCompositeElements(array $element) {
     $elements = [];
-    $elements['wrapper'] = [
-      '#type' => 'container',
-      '#attributes' => [ 
-        'class' => ['row'],
-      ],
-    ];
-    $elements['wrapper']['long'] = [
-      '#type' => 'container',
-      '#attributes' => [ 
-        'class' => ['col-md-6'],
-      ],
-    ];
-    $elements['wrapper']['long']['long_title'] = [
+    $elements['long_title'] = [
       '#title' => t('N Longitude'),
       '#type' => 'item',
     ];
-    $elements['wrapper']['long']['long_deg'] = [
+    $elements['long_deg'] = [
       '#type' => 'textfield',
       '#title' => t('Deg:'),
       '#size' => 14,
       '#maxlength' => 14,
     ];
-    $elements['wrapper']['long']['long_min'] = [
+    $elements['long_min'] = [
       '#type' => 'textfield',
       '#title' => t('Min:'),
       '#size' => 14,
       '#maxlength' => 14,
     ];
-    $elements['wrapper']['long']['long_sec'] = [
+    $elements['long_sec'] = [
       '#type' => 'textfield',
       '#title' => t('Sec:'),
       '#size' => 14,
       '#maxlength' => 14,
     ];
-    $elements['wrapper']['lat'] = [
-      '#type' => 'container',
-      '#attributes' => [ 
-        'class' => ['col-md-6'],
-      ],
-    ];
-    $elements['wrapper']['lat']['lat_title'] = [
+    $elements['lat_title'] = [
       '#title' => t('W Latitude'),
       '#type' => 'item',
     ];
-    $elements['wrapper']['lat']['lat_deg'] = [
+    $elements['lat_deg'] = [
       '#type' => 'textfield',
       '#title' => t('Deg:'),
       '#size' => 14,
       '#maxlength' => 14,
     ];
-    $elements['wrapper']['lat']['lat_min'] = [
+    $elements['lat_min'] = [
       '#type' => 'textfield',
       '#title' => t('Min:'),
       '#size' => 14,
       '#maxlength' => 14,
     ];
-    $elements['wrapper']['lat']['lat_sec'] = [
+    $elements['lat_sec'] = [
       '#type' => 'textfield',
       '#title' => t('Sec:'),
       '#size' => 14,
