@@ -46,7 +46,7 @@ class TaxonomyManagerHelper {
   public static function massAddTerms($input, $vid, $parents, array &$term_names_too_long = []) {
     $new_terms = [];
     $terms = explode("\n", str_replace("\r", '', $input));
-    $parents = count($parents) ? $parents : 0;
+    $parents = !empty($parents) ? $parents : 0;
 
     // Stores the current lineage of newly inserted terms.
     $last_parents = [];
