@@ -3,7 +3,7 @@ Composer Project template for Drupal
 
 [![Build Status][ci-badge]][ci]
 
-Drupal WxT codebase for `<site-name>`.
+Drupal WxT codebase for Transport Canada.
 
 ## Requirements
 
