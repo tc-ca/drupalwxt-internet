@@ -27,6 +27,8 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "id" = "id",
  *     "label" = "label",
  *     "description" = "description",
+ *     "languages" = "languages",
+ *     "content_types" = "content_types",
  *     "html" = "html",
  *     "image" = "image",
  *     "weight" = "weight"
@@ -72,6 +74,36 @@ class CkeditorTemplates extends ConfigEntityBase implements CkeditorTemplatesUiI
     }
     return '';
   }
+
+  /**
+   * Get Template languages.
+   *
+   * @var array 
+   */
+  public function getLanguages() {
+    if (isset($this->languages)) {
+      return $this->languages;
+    }
+    return [];
+  }
+
+  /**
+   * Get Template content types.
+   *
+   * @var array 
+   */
+  public function getContentTypes() {
+    if (isset($this->content_types)) {
+      return $this->content_types;
+    }
+    return [];
+  }
+
+  /**
+   * Get Teamplate html.
+
+  /**
+   * Get Teamplate html.
 
   /**
    * Get Teamplate html.

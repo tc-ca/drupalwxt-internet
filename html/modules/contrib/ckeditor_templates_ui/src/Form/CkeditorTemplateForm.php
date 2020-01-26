@@ -5,6 +5,7 @@ namespace Drupal\ckeditor_templates_ui\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\Language;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -57,6 +58,33 @@ class CkeditorTemplateForm extends EntityForm {
       '#title' => $this->t('Description'),
       '#default_value' => $template->getDescription(),
       '#description' => $this->t('Your Template description'),
+    ];
+
+    $languages = \Drupal::languageManager()->getLanguages();
+    $language_options = [];
+    foreach ($languages as $langcode => $language) {
+      $language_options[$langcode] = $language->getName();
+    }
+
+    $form['languages'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Languages'),
+      '#options' => $language_options,
+      '#default_value' => $template->getLanguages(),
+      '#description' => $this->t('Limit the availability of this template to selected languages. Nothing selected will make this template always available.'),
+    ];
+
+    $node_types = \Drupal\node\Entity\NodeType::loadMultiple();
+    $content_type_options = [];
+    foreach ($node_types as $node_type) {
+      $content_type_options[$node_type->id()] = $node_type->label();
+    }
+    $form['content_types'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Content-types'),
+      '#options' => $content_type_options,
+      '#default_value' => $template->getContentTypes(),
+      '#description' => $this->t('Limit the availability of this template to selected content-types. Nothing selected will make this template always available.'),
     ];
     $image = $template->get('image');
     if ($image) {

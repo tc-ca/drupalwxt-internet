@@ -55,21 +55,49 @@ function ckeditor_templates_ui_js_settings_alter(array &$settings, AttachedAsset
     $i = 0;
     $templates = [];
     foreach ($ckeditor_templates as $value) {
-      $templates[$i]['title'] = $value->label;
-      $templates[$i]['description'] = $value->description;
-      if ($value->image) {
-        // The CKEditor Templates plugin requires a "imagesPath" parameter
-        // that cannot evaluate to false, is the same for all templates and
-        // is used to create the image path. This makes it inconvenient for us.
-        // For things to work out all url-s must start with "/".
-        $templates[$i]['image'] = file_create_url($value->image);
-        $templates[$i]['image'] = file_url_transform_relative($templates[$i]['image']);
-        // Remove leading "/" since it will be added separately
-        // by the "imagesPath" parameter.
-        $templates[$i]['image'] = substr($templates[$i]['image'], 1);
+      $enabled = TRUE;
+      $languages = array_filter($value->languages);
+      $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+      if (!empty($languages) && !in_array($current_language, $languages)) {
+        $enabled = FALSE;
       }
-      $templates[$i]['html'] = $value->html['value'];
-      $i++;
+
+      $content_types = array_filter($value->content_types);
+      $node = \Drupal::routeMatch()->getParameter('node');
+      $type = NULL;
+      if ($node instanceof \Drupal\node\NodeInterface) {
+        $type = $node->type->entity->id();
+      }
+      else {
+        $route_match = \Drupal::routeMatch();
+        // check if we are on node add 
+        if ($route_match->getRouteName() == 'node.add') {
+          $current_path = \Drupal::service('path.current')->getPath();
+          $args = array_filter(explode('/', $current_path));
+          $type = array_pop($args);
+        }
+      }
+      if (!empty($content_types) && !empty($type) && !in_array($type, $content_types)) {
+        $enabled = FALSE;
+      }
+
+      if ($enabled) {
+        $templates[$i]['title'] = $value->label;
+        $templates[$i]['description'] = $value->description;
+        if ($value->image) {
+          // The CKEditor Templates plugin requires a "imagesPath" parameter
+          // that cannot evaluate to false, is the same for all templates and
+          // is used to create the image path. This makes it inconvenient for us.
+          // For things to work out all url-s must start with "/".
+          $templates[$i]['image'] = file_create_url($value->image);
+          $templates[$i]['image'] = file_url_transform_relative($templates[$i]['image']);
+          // Remove leading "/" since it will be added separately
+          // by the "imagesPath" parameter.
+          $templates[$i]['image'] = substr($templates[$i]['image'], 1);
+        }
+        $templates[$i]['html'] = $value->html['value'];
+        $i++;
+      }
     }
     $settings['ckeditor_templates_ui']['templates'] = $templates;
   }
