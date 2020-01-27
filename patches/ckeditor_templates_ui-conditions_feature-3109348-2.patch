@@ -1,0 +1,204 @@
+diff --git a/ckeditor_templates_ui.install b/ckeditor_templates_ui.install
+new file mode 100644
+index 0000000..307a48e
+--- /dev/null
++++ b/ckeditor_templates_ui.install
+@@ -0,0 +1,17 @@
++<?php
++
++/**
++ * 
++ * Adds language and content-type fields to config entity 
++ */
++function ckeditor_templates_ui_update_8001(&$sandbox) {
++
++  $query = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->getQuery();
++  $templates_ids = $query->execute();
++  $ckeditor_templates = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->loadMultipleOverrideFree($templates_ids);
++  foreach ($ckeditor_templates as $template) {
++    $template->set('languages', []);
++    $template->set('content_types', []);
++    $template->save();
++  }
++}
+diff --git a/ckeditor_templates_ui.module b/ckeditor_templates_ui.module
+index 15095fc..b97755d 100644
+--- a/ckeditor_templates_ui.module
++++ b/ckeditor_templates_ui.module
+@@ -55,21 +55,49 @@ function ckeditor_templates_ui_js_settings_alter(array &$settings, AttachedAsset
+     $i = 0;
+     $templates = [];
+     foreach ($ckeditor_templates as $value) {
+-      $templates[$i]['title'] = $value->label;
+-      $templates[$i]['description'] = $value->description;
+-      if ($value->image) {
+-        // The CKEditor Templates plugin requires a "imagesPath" parameter
+-        // that cannot evaluate to false, is the same for all templates and
+-        // is used to create the image path. This makes it inconvenient for us.
+-        // For things to work out all url-s must start with "/".
+-        $templates[$i]['image'] = file_create_url($value->image);
+-        $templates[$i]['image'] = file_url_transform_relative($templates[$i]['image']);
+-        // Remove leading "/" since it will be added separately
+-        // by the "imagesPath" parameter.
+-        $templates[$i]['image'] = substr($templates[$i]['image'], 1);
++      $enabled = TRUE;
++      $languages = !empty($value->languages) ? array_filter($value->languages) : NULL;
++      $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
++      if (!empty($languages) && !in_array($current_language, $languages)) {
++        $enabled = FALSE;
++      }
++
++      $content_types = !empty($value->content_types) ? array_filter($value->content_types) : NULL;
++      $node = \Drupal::routeMatch()->getParameter('node');
++      $type = NULL;
++      if ($node instanceof \Drupal\node\NodeInterface) {
++        $type = $node->type->entity->id();
++      }
++      else {
++        $route_match = \Drupal::routeMatch();
++        // check if we are on node add 
++        if ($route_match->getRouteName() == 'node.add') {
++          $current_path = \Drupal::service('path.current')->getPath();
++          $args = array_filter(explode('/', $current_path));
++          $type = array_pop($args);
++        }
++      }
++      if (!empty($content_types) && !empty($type) && !in_array($type, $content_types)) {
++        $enabled = FALSE;
++      }
++
++      if ($enabled) {
++        $templates[$i]['title'] = $value->label;
++        $templates[$i]['description'] = $value->description;
++        if ($value->image) {
++          // The CKEditor Templates plugin requires a "imagesPath" parameter
++          // that cannot evaluate to false, is the same for all templates and
++          // is used to create the image path. This makes it inconvenient for us.
++          // For things to work out all url-s must start with "/".
++          $templates[$i]['image'] = file_create_url($value->image);
++          $templates[$i]['image'] = file_url_transform_relative($templates[$i]['image']);
++          // Remove leading "/" since it will be added separately
++          // by the "imagesPath" parameter.
++          $templates[$i]['image'] = substr($templates[$i]['image'], 1);
++        }
++        $templates[$i]['html'] = $value->html['value'];
++        $i++;
+       }
+-      $templates[$i]['html'] = $value->html['value'];
+-      $i++;
+     }
+     $settings['ckeditor_templates_ui']['templates'] = $templates;
+   }
+diff --git a/config/schema/ckeditor_templates_ui.schema.yml b/config/schema/ckeditor_templates_ui.schema.yml
+index 949b0ad..413c999 100644
+--- a/config/schema/ckeditor_templates_ui.schema.yml
++++ b/config/schema/ckeditor_templates_ui.schema.yml
+@@ -14,6 +14,12 @@ ckeditor_templates_ui.ckeditor_template.*:
+     description:
+       type: label
+       label: 'Description'
++    content_types:
++      type: array 
++      label: 'Content types'
++    languages:
++      type: array 
++      label: 'Languages'
+     html:
+       mapping:
+         value:
+diff --git a/src/Entity/CkeditorTemplates.php b/src/Entity/CkeditorTemplates.php
+index 98de357..d25531d 100644
+--- a/src/Entity/CkeditorTemplates.php
++++ b/src/Entity/CkeditorTemplates.php
+@@ -27,6 +27,8 @@ use Drupal\Core\Entity\EntityStorageInterface;
+  *     "id" = "id",
+  *     "label" = "label",
+  *     "description" = "description",
++ *     "languages" = "languages",
++ *     "content_types" = "content_types",
+  *     "html" = "html",
+  *     "image" = "image",
+  *     "weight" = "weight"
+@@ -73,6 +75,36 @@ class CkeditorTemplates extends ConfigEntityBase implements CkeditorTemplatesUiI
+     return '';
+   }
+ 
++  /**
++   * Get Template languages.
++   *
++   * @var array 
++   */
++  public function getLanguages() {
++    if (isset($this->languages)) {
++      return $this->languages;
++    }
++    return [];
++  }
++
++  /**
++   * Get Template content types.
++   *
++   * @var array 
++   */
++  public function getContentTypes() {
++    if (isset($this->content_types)) {
++      return $this->content_types;
++    }
++    return [];
++  }
++
++  /**
++   * Get Teamplate html.
++
++  /**
++   * Get Teamplate html.
++
+   /**
+    * Get Teamplate html.
+    *
+diff --git a/src/Form/CkeditorTemplateForm.php b/src/Form/CkeditorTemplateForm.php
+index c9d7263..f01b922 100644
+--- a/src/Form/CkeditorTemplateForm.php
++++ b/src/Form/CkeditorTemplateForm.php
+@@ -5,6 +5,7 @@ namespace Drupal\ckeditor_templates_ui\Form;
+ use Drupal\Core\Entity\EntityForm;
+ use Drupal\Core\Entity\EntityTypeManagerInterface;
+ use Drupal\Core\Form\FormStateInterface;
++use Drupal\Core\Language\Language;
+ use Symfony\Component\DependencyInjection\ContainerInterface;
+ 
+ /**
+@@ -58,6 +59,33 @@ class CkeditorTemplateForm extends EntityForm {
+       '#default_value' => $template->getDescription(),
+       '#description' => $this->t('Your Template description'),
+     ];
++
++    $languages = \Drupal::languageManager()->getLanguages();
++    $language_options = [];
++    foreach ($languages as $langcode => $language) {
++      $language_options[$langcode] = $language->getName();
++    }
++
++    $form['languages'] = [
++      '#type' => 'checkboxes',
++      '#title' => $this->t('Languages'),
++      '#options' => $language_options,
++      '#default_value' => $template->getLanguages(),
++      '#description' => $this->t('Limit the availability of this template to selected languages. Nothing selected will make this template always available.'),
++    ];
++
++    $node_types = \Drupal\node\Entity\NodeType::loadMultiple();
++    $content_type_options = [];
++    foreach ($node_types as $node_type) {
++      $content_type_options[$node_type->id()] = $node_type->label();
++    }
++    $form['content_types'] = [
++      '#type' => 'checkboxes',
++      '#title' => $this->t('Content-types'),
++      '#options' => $content_type_options,
++      '#default_value' => $template->getContentTypes(),
++      '#description' => $this->t('Limit the availability of this template to selected content-types. Nothing selected will make this template always available.'),
++    ];
+     $image = $template->get('image');
+     if ($image) {
+       $image_markup = '<div class="form-item image-preview" style="max-width: 200px; max-height: 200px;">';
