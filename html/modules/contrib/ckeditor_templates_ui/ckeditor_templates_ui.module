@@ -56,13 +56,13 @@ function ckeditor_templates_ui_js_settings_alter(array &$settings, AttachedAsset
     $templates = [];
     foreach ($ckeditor_templates as $value) {
       $enabled = TRUE;
-      $languages = array_filter($value->languages);
+      $languages = !empty($value->languages) ? array_filter($value->languages) : NULL;
       $current_language = \Drupal::languageManager()->getCurrentLanguage()->getId();
       if (!empty($languages) && !in_array($current_language, $languages)) {
         $enabled = FALSE;
       }
 
-      $content_types = array_filter($value->content_types);
+      $content_types = !empty($value->content_types) ? array_filter($value->content_types) : NULL;
       $node = \Drupal::routeMatch()->getParameter('node');
       $type = NULL;
       if ($node instanceof \Drupal\node\NodeInterface) {

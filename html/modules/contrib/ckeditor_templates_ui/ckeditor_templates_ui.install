@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * 
+ * Adds language and content-type fields to config entity 
+ */
+function ckeditor_templates_ui_update_8001(&$sandbox) {
+
+  $query = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->getQuery();
+  $templates_ids = $query->execute();
+  $ckeditor_templates = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->loadMultipleOverrideFree($templates_ids);
+  foreach ($ckeditor_templates as $template) {
+    $template->set('languages', []);
+    $template->set('content_types', []);
+    $template->save();
+  }
+}
