@@ -40,6 +40,16 @@ class OpenplusSettingsForm extends ConfigFormBase {
       '#default_value' => is_null($config->get('org_name')) ? 'DrupalWxT' : $config->get('org_name'),
     ];
 
+    $form['drone_default_contacts'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Drone default contacts'),
+      '#description' => $this->t('Comma separated list of emails to send drone the form to in case of a problem.'),
+      '#required' => TRUE,
+      '#multiple' => TRUE,
+      '#default_value' => is_null($config->get('drone_default_contacts')) ? NULL : $config->get('drone_default_contacts'),
+
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -47,9 +57,11 @@ class OpenplusSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $value = $form_state->getValue('org_name');
+    $org_value = $form_state->getValue('org_name');
+    $drone_value = $form_state->getValue('drone_default_contacts');
     $this->config('openplus.settings')
-      ->set('org_name', $value)
+      ->set('org_name', $org_value)
+      ->set('drone_default_contacts', $drone_value)
       ->save();
 
     parent::submitForm($form, $form_state);
