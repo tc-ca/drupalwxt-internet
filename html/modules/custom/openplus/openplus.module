@@ -89,13 +89,15 @@ function openplus_cancel_callback(array &$form, \Drupal\Core\Form\FormStateInter
 function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
   if (!empty($breadcrumb)) {
     $links = $breadcrumb->getLinks();
+    array_shift($links);
+
     $node = $route_match->getParameter('node');
     $new_links = [];
     $title = 'Home';
     $lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $url = Url::fromUri('https://www.canada.ca/' . $lang . '.html');
     $new_links[] = Link::fromTextAndUrl(t($title), $url);
-    //$new_links[] = Link::fromTextAndUrl(t('Transport Canada'), Url::fromRoute('<front>'));
+    $new_links[] = Link::fromTextAndUrl(t('Transport Canada'), Url::fromRoute('<front>'));
 
     $breadcrumb = new Breadcrumb();
     $breadcrumb->setLinks(array_merge($new_links, $links));
