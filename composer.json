@@ -159,7 +159,8 @@
         "drupal/taxonomy_manager": "^1.0@alpha",
         "drupal/link_class": "^1.4",
         "drupal/administerusersbyrole": "^3.0@beta",
-        "drupal/allowed_formats": "^1.2"
+        "drupal/allowed_formats": "^1.2",
+        "drupal/bulk_update_fields": "^2.0@alpha"
     },
     "autoload": {
         "classmap": [
