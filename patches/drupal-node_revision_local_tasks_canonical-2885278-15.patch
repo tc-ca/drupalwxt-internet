@@ -1,0 +1,41 @@
+diff --git a/core/modules/node/node.module b/core/modules/node/node.module
+index b50967b1cd..a92ea3d4db 100644
+--- a/core/modules/node/node.module
++++ b/core/modules/node/node.module
+@@ -12,6 +12,8 @@
+ use Drupal\Component\Utility\Xss;
+ use Drupal\Core\Access\AccessResult;
+ use Drupal\Core\Cache\Cache;
++use Drupal\Core\Cache\CacheableMetadata;
++use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
+ use Drupal\Core\Database\Query\AlterableInterface;
+ use Drupal\Core\Database\Query\SelectInterface;
+ use Drupal\Core\Database\StatementInterface;
+@@ -1461,3 +1463,27 @@ function node_comment_delete($comment) {
+ function node_config_translation_info_alter(&$info) {
+   $info['node_type']['class'] = 'Drupal\node\ConfigTranslation\NodeTypeMapper';
+ }
++
++/**
++ * Implements hook_menu_local_tasks_alter().
++ */
++function node_menu_local_tasks_alter(&$local_tasks, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
++  if ($route_name === 'entity.node.revision') {
++    // Show the same local tasks on node revision pages as the ones displayed
++    // on node canonical pages.
++    $node_canonical_local_tasks = \Drupal::service('plugin.manager.menu.local_task')
++      ->getLocalTasks('entity.node.canonical');
++    $local_tasks['tabs'][0] = $node_canonical_local_tasks['tabs'];
++
++    // Mark the version history local task as active when viewing a node
++    // revision.
++    foreach ($local_tasks['tabs'][0] as $route_name => &$tab) {
++      $tab['#active'] = $route_name === 'entity.node.version_history';
++
++    }
++
++    $cacheability = CacheableMetadata::createFromObject($cacheability)
++      ->merge($node_canonical_local_tasks['cacheability']);
++  }
++}
++
