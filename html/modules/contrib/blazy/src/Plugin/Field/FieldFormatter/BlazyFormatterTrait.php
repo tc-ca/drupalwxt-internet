@@ -2,115 +2,107 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Template\Attribute;
-use Drupal\Component\Utility\Xss;
-use Drupal\blazy\BlazyGrid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * A Trait common for blazy image and file ER formatters.
+ * A Trait common for all blazy formatters.
  */
 trait BlazyFormatterTrait {
 
   /**
-   * {@inheritdoc}
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyFormatterManager
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $build = [];
-    $files = $this->getEntitiesToView($items, $langcode);
+  protected $formatter;
 
-    // Early opt-out if the field is empty.
-    if (empty($files)) {
-      return $build;
-    }
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $blazyManager;
 
-    // Collects specific settings to this formatter.
-    $settings              = $this->buildSettings();
-    $settings['blazy']     = TRUE;
-    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
-    $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
-
-    // Build the settings.
-    $build = ['settings' => $settings];
-
-    // Modifies settings.
-    $this->blazyManager->buildSettings($build, $items);
-
-    // Build the elements.
-    $this->buildElements($build, $files);
-
-    // Updates settings.
-    $settings = $build['settings'];
-    unset($build['settings']);
-
-    // Supports Blazy multi-breakpoint images if provided.
-    $this->blazyManager->isBlazy($settings, $build[0]['#build']);
-
-    // Build grid if provided.
-    if (empty($settings['_grid'])) {
-      $build['#blazy'] = $settings;
-    }
-    else {
-      $build = BlazyGrid::build($build, $settings);
-    }
-
-    $build['#attached'] = $this->blazyManager->attach($settings);
-    return $build;
+  /**
+   * Returns the blazy formatter manager.
+   */
+  public function formatter() {
+    return $this->formatter;
   }
 
   /**
-   * Build the Blazy elements.
+   * Returns the blazy manager.
    */
-  public function buildElements(array &$build, $files) {
-    $settings = $build['settings'];
-    $item_id  = $settings['item_id'];
-    $is_media = method_exists($this, 'getMediaItem');
+  public function blazyManager() {
+    return $this->blazyManager;
+  }
 
-    if (!empty($settings['caption'])) {
-      $settings['caption_attributes']['class'][] = $item_id . '__caption';
+  /**
+   * Returns the blazy admin service.
+   */
+  public function admin() {
+    return \Drupal::service('blazy.admin.formatter');
+  }
+
+  /**
+   * Injects DI services.
+   */
+  protected static function injectServices($instance, ContainerInterface $container, $type = '') {
+    $instance->formatter = $instance->blazyManager = $container->get('blazy.formatter');
+
+    // Provides optional services.
+    if ($type == 'image' || $type == 'entity') {
+      $instance->imageFactory = isset($instance->imageFactory) ? $instance->imageFactory : $container->get('image.factory');
+      if ($type == 'entity') {
+        $instance->loggerFactory = isset($instance->loggerFactory) ? $instance->loggerFactory : $container->get('logger.factory');
+        $instance->blazyEntity = isset($instance->blazyEntity) ? $instance->blazyEntity : $container->get('blazy.entity');
+        $instance->blazyOembed = isset($instance->blazyOembed) ? $instance->blazyOembed : $instance->blazyEntity->oembed();
+      }
     }
 
-    foreach ($files as $delta => $file) {
-      /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $item = $file->_referringItem;
+    return $instance;
+  }
 
-      $settings['delta']     = $delta;
-      $settings['file_tags'] = $file->getCacheTags();
-      $settings['type']      = 'image';
-      $settings['uri']       = $file->getFileUri();
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    return $this->admin()->getSettingsSummary($this->getScopedFormElements());
+  }
 
-      $box['item']     = $item;
-      $box['settings'] = $settings;
+  /**
+   * Builds the settings.
+   */
+  public function buildSettings() {
+    $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+    $settings['blazy'] = TRUE;
+    $settings['item_id'] = $settings['lazy'] = 'blazy';
+    $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
+    $settings['third_party'] = $this->getThirdPartySettings();
+    return $settings;
+  }
 
-      // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
-      if ($is_media) {
-        /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
-        // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
-        if (!empty($this->getImageItem($item, $delta))) {
-          $box['item'] = $this->getImageItem($item)['item'];
-          $box['settings'] = array_merge($settings, $this->getImageItem($item)['settings']);
-        }
+  /**
+   * Defines the common scope for both front and admin.
+   */
+  public function getCommonFieldDefinition() {
+    $field = $this->fieldDefinition;
+    return [
+      'namespace'        => 'blazy',
+      'current_view_mode' => $this->viewMode,
+      'field_name'        => $field->getName(),
+      'field_type'        => $field->getType(),
+      'entity_type'       => $field->getTargetEntityTypeId(),
+      'plugin_id'         => $this->getPluginId(),
+      'target_type'       => $this->getFieldSetting('target_type'),
+    ];
+  }
 
-        $this->getMediaItem($box, $file);
-      }
-
-      // Build caption if so configured.
-      if (!empty($settings['caption'])) {
-        foreach ($settings['caption'] as $caption) {
-          $box['captions'][$caption]['content'] = empty($box['item']->{$caption}) ? [] : ['#markup' => Xss::filterAdmin($box['item']->{$caption})];
-          $box['captions'][$caption]['tag'] = $caption == 'title' ? 'h2' : 'div';
-          if (!isset($box['captions'][$caption]['attributes'])) {
-            $class = $caption == 'alt' ? 'description' : $caption;
-            $box['captions'][$caption]['attributes'] = new Attribute();
-            $box['captions'][$caption]['attributes']->addClass($item_id . '__' . $class);
-          }
-        }
-      }
-
-      // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->blazyManager->getImage($box);
-      unset($box);
-    }
+  /**
+   * Defines the common scope for the form elements.
+   */
+  public function getCommonScopedFormElements() {
+    return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
   }
 
 }

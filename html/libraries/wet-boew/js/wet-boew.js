@@ -1,11 +1,11 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.30 - 2019-02-11
+ * v4.0.32 - 2019-11-13
  *
  *//*! Modernizr (Custom Build) | MIT & BSD */
 /* Modernizr (Custom Build) | MIT & BSD
- * Build: http://modernizr.com/download/#-elem_details-elem_progress_meter-mathml-cors-load-mq-css3-input-inputtypes-svg-cssclasses-csstransitions-fontface-backgroundsize-borderimage-teststyles-testprops-testallprops-hasevents-prefixes-domprefixes
+ * Build: https://modernizr.com/download/#-elem_details-elem_progress_meter-mathml-cors-load-mq-css3-input-inputtypes-svg-cssclasses-csstransitions-fontface-backgroundsize-borderimage-teststyles-testprops-testallprops-hasevents-prefixes-domprefixes
  */
 ;window.Modernizr=function(e,t,n){function L(e){f.cssText=e}function A(e,t){return L(p.join(e+";")+(t||""))}function O(e,t){return typeof e===t}function M(e,t){return!!~(""+e).indexOf(t)}function _(e,t){for(var r in e){var i=e[r];if(!M(i,"-")&&f[i]!==n)return t=="pfx"?i:!0}return!1}function D(e,t,r){for(var i in e){var s=t[e[i]];if(s!==n)return r===!1?e[i]:O(s,"function")?s.bind(r||t):s}return!1}function P(e,t,n){var r=e.charAt(0).toUpperCase()+e.slice(1),i=(e+" "+v.join(r+" ")+r).split(" ");return O(t,"string")||O(t,"undefined")?_(i,t):(i=(e+" "+m.join(r+" ")+r).split(" "),D(i,t,n))}function H(){i.input=function(n){for(var r=0,i=n.length;r<i;r++)w[n[r]]=n[r]in l;return w.list&&(w.list=!!t.createElement("datalist")&&!!e.HTMLDataListElement),w}("autocomplete autofocus list placeholder max min multiple pattern required step".split(" ")),i.inputtypes=function(e){for(var r=0,i,s,u,a=e.length;r<a;r++)l.setAttribute("type",s=e[r]),i=l.type!=="text",i&&(l.value=c,l.style.cssText="position:absolute;visibility:hidden;",/^range$/.test(s)&&l.style.WebkitAppearance!==n?(o.appendChild(l),u=t.defaultView,i=u.getComputedStyle&&u.getComputedStyle(l,null).WebkitAppearance!=="textfield"&&l.offsetHeight!==0,o.removeChild(l)):/^(search|tel)$/.test(s)||(/^(url|email)$/.test(s)?i=l.checkValidity&&l.checkValidity()===!1:i=l.value!=c)),b[e[r]]=!!i;return b}("search tel url email datetime date month week time datetime-local number range color".split(" "))}var r="2.8.3",i={},s=!0,o=t.documentElement,u="modernizr",a=t.createElement(u),f=a.style,l=t.createElement("input"),c=":)",h={}.toString,p=" -webkit- -moz- -o- -ms- ".split(" "),d="Webkit Moz O ms",v=d.split(" "),m=d.toLowerCase().split(" "),g={svg:"http://www.w3.org/2000/svg"},y={},b={},w={},E=[],S=E.slice,x,T=function(e,n,r,i){var s,a,f,l,c=t.createElement("div"),h=t.body,p=h||t.createElement("body");if(parseInt(r,10))while(r--)f=t.createElement("div"),f.id=i?i[r]:u+(r+1),c.appendChild(f);return s=["&#173;",'<style id="s',u,'">',e,"</style>"].join(""),c.id=u,(h?c:p).innerHTML+=s,p.appendChild(c),h||(p.style.background="",p.style.overflow="hidden",l=o.style.overflow,o.style.overflow="hidden",o.appendChild(p)),a=n(c,e),h?c.parentNode.removeChild(c):(p.parentNode.removeChild(p),o.style.overflow=l),!!a},N=function(t){var n=e.matchMedia||e.msMatchMedia;if(n)return n(t)&&n(t).matches||!1;var r;return T("@media "+t+" { #"+u+" { position: absolute; } }",function(t){r=(e.getComputedStyle?getComputedStyle(t,null):t.currentStyle)["position"]=="absolute"}),r},C={}.hasOwnProperty,k;!O(C,"undefined")&&!O(C.call,"undefined")?k=function(e,t){return C.call(e,t)}:k=function(e,t){return t in e&&O(e.constructor.prototype[t],"undefined")},Function.prototype.bind||(Function.prototype.bind=function(t){var n=this;if(typeof n!="function")throw new TypeError;var r=S.call(arguments,1),i=function(){if(this instanceof i){var e=function(){};e.prototype=n.prototype;var s=new e,o=n.apply(s,r.concat(S.call(arguments)));return Object(o)===o?o:s}return n.apply(t,r.concat(S.call(arguments)))};return i}),y.backgroundsize=function(){return P("backgroundSize")},y.borderimage=function(){return P("borderImage")},y.csstransitions=function(){return P("transition")},y.fontface=function(){var e;return T('@font-face {font-family:"font";src:url("https://")}',function(n,r){var i=t.getElementById("smodernizr"),s=i.sheet||i.styleSheet,o=s?s.cssRules&&s.cssRules[0]?s.cssRules[0].cssText:s.cssText||"":"";e=/src/i.test(o)&&o.indexOf(r.split(" ")[0])===0}),e},y.svg=function(){return!!t.createElementNS&&!!t.createElementNS(g.svg,"svg").createSVGRect};for(var B in y)k(y,B)&&(x=B.toLowerCase(),i[x]=y[B](),E.push((i[x]?"":"no-")+x));return i.input||H(),i.addTest=function(e,t){if(typeof e=="object")for(var r in e)k(e,r)&&i.addTest(r,e[r]);else{e=e.toLowerCase();if(i[e]!==n)return i;t=typeof t=="function"?t():t,typeof s!="undefined"&&s&&(o.className+=" "+(t?"":"no-")+e),i[e]=t}return i},L(""),a=l=null,i._version=r,i._prefixes=p,i._domPrefixes=m,i._cssomPrefixes=v,i.mq=N,i.testProp=function(e){return _([e])},i.testAllProps=P,i.testStyles=T,o.className=o.className.replace(/(^|\s)no-js(\s|$)/,"$1$2")+(s?" js "+E.join(" "):""),i}(this,this.document),function(e,t,n){function r(e){return"[object Function]"==d.call(e)}function i(e){return"string"==typeof e}function s(){}function o(e){return!e||"loaded"==e||"complete"==e||"uninitialized"==e}function u(){var e=v.shift();m=1,e?e.t?h(function(){("c"==e.t?k.injectCss:k.injectJs)(e.s,0,e.a,e.x,e.e,1)},0):(e(),u()):m=0}function a(e,n,r,i,s,a,f){function l(t){if(!d&&o(c.readyState)&&(w.r=d=1,!m&&u(),c.onload=c.onreadystatechange=null,t)){"img"!=e&&h(function(){b.removeChild(c)},50);for(var r in T[n])T[n].hasOwnProperty(r)&&T[n][r].onload()}}var f=f||k.errorTimeout,c=t.createElement(e),d=0,g=0,w={t:r,s:n,e:s,a:a,x:f};1===T[n]&&(g=1,T[n]=[]),"object"==e?c.data=n:(c.src=n,c.type=e),c.width=c.height="0",c.onerror=c.onload=c.onreadystatechange=function(){l.call(this,g)},v.splice(i,0,w),"img"!=e&&(g||2===T[n]?(b.insertBefore(c,y?null:p),h(l,f)):T[n].push(c))}function f(e,t,n,r,s){return m=0,t=t||"j",i(e)?a("c"==t?E:w,e,t,this.i++,n,r,s):(v.splice(this.i++,0,e),1==v.length&&u()),this}function l(){var e=k;return e.loader={load:f,i:0},e}var c=t.documentElement,h=e.setTimeout,p=t.getElementsByTagName("script")[0],d={}.toString,v=[],m=0,g="MozAppearance"in c.style,y=g&&!!t.createRange().compareNode,b=y?c:p.parentNode,c=e.opera&&"[object Opera]"==d.call(e.opera),c=!!t.attachEvent&&!c,w=g?"object":c?"script":"img",E=c?"script":w,S=Array.isArray||function(e){return"[object Array]"==d.call(e)},x=[],T={},N={timeout:function(e,t){return t.length&&(e.timeout=t[0]),e}},C,k;k=function(e){function t(e){var e=e.split("!"),t=x.length,n=e.pop(),r=e.length,n={url:n,origUrl:n,prefixes:e},i,s,o;for(s=0;s<r;s++)o=e[s].split("="),(i=N[o.shift()])&&(n=i(n,o));for(s=0;s<t;s++)n=x[s](n);return n}function o(e,i,s,o,u){var a=t(e),f=a.autoCallback;a.url.split(".").pop().split("?").shift(),a.bypass||(i&&(i=r(i)?i:i[e]||i[o]||i[e.split("/").pop().split("?")[0]]),a.instead?a.instead(e,i,s,o,u):(T[a.url]?a.noexec=!0:T[a.url]=1,s.load(a.url,a.forceCSS||!a.forceJS&&"css"==a.url.split(".").pop().split("?").shift()?"c":n,a.noexec,a.attrs,a.timeout),(r(i)||r(f))&&s.load(function(){l(),i&&i(a.origUrl,u,o),f&&f(a.origUrl,u,o),T[a.url]=2})))}function u(e,t){function n(e,n){if(e){if(i(e))n||(f=function(){var e=[].slice.call(arguments);l.apply(this,e),c()}),o(e,f,t,0,u);else if(Object(e)===e)for(p in h=function(){var t=0,n;for(n in e)e.hasOwnProperty(n)&&t++;return t}(),e)e.hasOwnProperty(p)&&(!n&&!--h&&(r(f)?f=function(){var e=[].slice.call(arguments);l.apply(this,e),c()}:f[p]=function(e){return function(){var t=[].slice.call(arguments);e&&e.apply(this,t),c()}}(l[p])),o(e[p],f,t,p,u))}else!n&&c()}var u=!!e.test,a=e.load||e.both,f=e.callback||s,l=f,c=e.complete||s,h,p;n(u?e.yep:e.nope,!!a),a&&n(a)}var a,f,c=this.yepnope.loader;if(i(e))o(e,0,c,0);else if(S(e))for(a=0;a<e.length;a++)f=e[a],i(f)?o(f,0,c,0):S(f)?k(f):Object(f)===f&&u(f,c);else Object(e)===e&&u(e,c)},k.addPrefix=function(e,t){N[e]=t},k.addFilter=function(e){x.push(e)},k.errorTimeout=1e4,null==t.readyState&&t.addEventListener&&(t.readyState="loading",t.addEventListener("DOMContentLoaded",C=function(){t.removeEventListener("DOMContentLoaded",C,0),t.readyState="complete"},0)),e.yepnope=l(),e.yepnope.executeStack=u,e.yepnope.injectJs=function(e,n,r,i,a,f){var l=t.createElement("script"),c,d,i=i||k.errorTimeout;l.src=e;for(d in r)l.setAttribute(d,r[d]);n=f?u:n||s,l.onreadystatechange=l.onload=function(){!c&&o(l.readyState)&&(c=1,n(),l.onload=l.onreadystatechange=null)},h(function(){c||(c=1,n(1))},i),a?l.onload():p.parentNode.insertBefore(l,p)},e.yepnope.injectCss=function(e,n,r,i,o,a){var i=t.createElement("link"),f,n=a?u:n||s;i.href=e,i.rel="stylesheet",i.type="text/css";for(f in r)i.setAttribute(f,r[f]);o||(p.parentNode.insertBefore(i,p),h(n,0))}}(this,document),Modernizr.load=function(){yepnope.apply(window,[].slice.call(arguments,0))},Modernizr.addTest("details",function(){var e=document,t=e.createElement("details"),n,r,i;return"open"in t?(r=e.body||function(){var t=e.documentElement;return n=!0,t.insertBefore(e.createElement("body"),t.firstElementChild||t.firstChild)}(),t.innerHTML="<summary>a</summary>b",t.style.display="block",r.appendChild(t),i=t.offsetHeight,t.open=!0,i=i!=t.offsetHeight,r.removeChild(t),n&&r.parentNode.removeChild(r),i):!1}),Modernizr.addTest("progressbar",function(){return document.createElement("progress").max!==undefined}),Modernizr.addTest("meter",function(){return document.createElement("meter").max!==undefined}),Modernizr.addTest("mathml",function(){var e=!1;if(document.createElementNS){var t="http://www.w3.org/1998/Math/MathML",n=document.createElement("div");n.style.position="absolute";var r=n.appendChild(document.createElementNS(t,"math")).appendChild(document.createElementNS(t,"mfrac"));r.appendChild(document.createElementNS(t,"mi")).appendChild(document.createTextNode("xx")),r.appendChild(document.createElementNS(t,"mi")).appendChild(document.createTextNode("yy")),document.body.appendChild(n),e=n.offsetHeight>n.offsetWidth}return e}),Modernizr.addTest("cors",!!(window.XMLHttpRequest&&"withCredentials"in new XMLHttpRequest));
 /**
@@ -392,8 +392,8 @@ var getUrlParts = function( url ) {
 		hashString: function( str ) {
 
 			// Sources:
-			//	http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-			//	http://jsperf.com/hashing-strings
+			//	https://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+			//	https://jsperf.com/hashing-strings
 			var hash = 0,
 				chr, i;
 
@@ -648,6 +648,54 @@ wb.getData = function( element, dataName ) {
 	return dataObj;
 };
 
+/*
+ * Initiate an in-browser download from a blob
+ * @param blob: a reference to a blob object
+ * @param filename: a suggested file name to save as under
+ * @param title: (Optional) a title added to the link. Its use case is for web analytics tracking.
+*/
+wb.download = function( blob, filename, title ) {
+
+	var objectURL = URL.createObjectURL( blob ),
+		anchor = document.createElement( "a" );
+
+	filename = filename || "unnamed"; // Ensure a filename is defined
+
+	anchor.textContent = title || "";
+	anchor.download = filename;
+
+	anchor.hidden = true;
+	document.body.appendChild( anchor ); // Added to the body for the web analytic tracking use case.
+
+	if ( window.navigator.msSaveOrOpenBlob ) {
+
+		// This is for IE11 support
+		anchor.addEventListener( "click", function( ) {
+			window.navigator.msSaveOrOpenBlob( blob, filename );
+		} );
+		anchor.setAttribute( "target", "_blank" );
+	} else {
+		anchor.href = objectURL;
+	}
+
+	anchor.click();
+
+	// Clean the DOM, remove the accessory anchor at the next tick
+	setTimeout( function() {
+		document.body.removeChild( anchor );
+	}, 1 );
+
+	// Revoke the ojbect, A setTimeout is used because Blob API don't have a download complete event.
+	setTimeout( function() {
+		if ( typeof objectURL === "string" ) {
+			URL.revokeObjectURL( objectURL );
+		} else {
+			objectURL.remove();
+		}
+	}, 40000 ); // The revoking time is arbitrary
+
+};
+
 } )( jQuery, wb );
 
 ( function( wb ) {
@@ -655,7 +703,7 @@ wb.getData = function( element, dataName ) {
 "use strict";
 
 // Escapes the characters in a string for use in a jQuery selector
-// Based on http://totaldev.com/content/escaping-characters-get-valid-jquery-id
+// Based on https://totaldev.com/content/escaping-characters-get-valid-jquery-id
 wb.jqEscape = function( selector ) {
 	return selector.replace( /([;&,\.\+\*\~':"\\\!\^\/#$%@\[\]\(\)=>\|])/g, "\\$1" );
 };
@@ -1720,7 +1768,7 @@ wb.date = {
 
 /*
  * Returns a RFC4122 compliant Global Unique ID (GUID).
- * Originally from http://stackoverflow.com/a/2117523/455535
+ * Originally from https://stackoverflow.com/a/2117523/455535
  */
 wb.guid = function() {
 	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace( /[xy]/g, function( replacementChar ) {
@@ -4170,7 +4218,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Country Content
- * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by http://freegeoip.net
+ * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by https://freegeoip.net
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @nschonni
  */
@@ -4630,10 +4678,15 @@ var componentName = "wb-inview",
 							noFocus: true
 						} );
 					} else {
-						$dataInView
-							.attr( "aria-hidden", !show )
-							.toggleClass( "in", !show )
-							.toggleClass( "out", show );
+						if ( !$dataInView.attr( "data-hasPlayed" ) ) {
+							$dataInView.toggleClass( "in", !show );
+							if ( !$dataInView.hasClass( "in-only" ) ) {
+								$dataInView.toggleClass( "out", show );
+							}
+						}
+						if ( wb.isReady && viewState === "all" && $dataInView.hasClass( "in-only" ) ) {
+							$dataInView.attr( "data-hasPlayed", "true" );
+						}
 					}
 				}
 			}
@@ -4940,7 +4993,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Responsive equal height
- * @overview Sets the same height for all elements in a container that are rendered on the same baseline (row). Adapted from http://codepen.io/micahgodbolt/pen/FgqLc.
+ * @overview Sets the same height for all elements in a container that are rendered on the same baseline (row). Adapted from https://codepen.io/micahgodbolt/pen/FgqLc.
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @thomasgohard
  */
@@ -5612,20 +5665,34 @@ var componentName = "wb-feeds",
 	 * @method corsEntry
 	 */
 	corsEntry = function( xmlDoc, limit ) {
-		var arr_entry = [],
-			corsObj = {},
+		var entries = xmlDoc.getElementsByTagName( "entry" ).length,
 			limit = limit,
+			arr_entry = [],
+			corsObj = {},
 			jsonString = JSON.stringify( xmlToJson( xmlDoc ) ),
 			jsonObj = JSON.parse( jsonString ),
 			i, iCache;
-		for ( i = 0; i < limit; i++ ) {
-			iCache = jsonObj.feed.entry[ i ];
+		if ( limit > entries || limit === 0 || limit === null ) {
+			limit = entries;
+		}
+		if ( entries === 1 ) {
+			iCache = jsonObj.feed.entry;
 			corsObj = {
 				title: iCache.title[ "#text" ],
-				link: iCache.id[ "#text" ],
+				link: ( iCache.link ? iCache.link[ "@attributes" ].href : iCache.id[ "#text" ] ),
 				updated: iCache.updated[ "#text" ]
 			};
 			arr_entry.push( corsObj );
+		} else if ( entries ) {
+			for ( i = 0; i < limit; i++ ) {
+				iCache = jsonObj.feed.entry[ i ];
+				corsObj = {
+					title: iCache.title[ "#text" ],
+					link: ( iCache.link ? iCache.link[ "@attributes" ].href : iCache.id[ "#text" ] ),
+					updated: iCache.updated[ "#text" ]
+				};
+				arr_entry.push( corsObj );
+			}
 		}
 		return arr_entry;
 	},
@@ -6685,10 +6752,22 @@ var componentName = "wb-geomap",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			$elm, modeJS;
+			$elm, $map, $leg, modeJS;
 
 		if ( elm ) {
 			$elm = $( elm );
+			$map = $elm.find( ".wb-geomap-map" );
+			$leg = $elm.find( ".wb-geomap-legend" );
+
+			// Initialize the map height for the loader
+			$map.height( $map.width() * 0.8 );
+			$map.append( "<div class='geomap-progress'><span class='wb-inv'>" + wb.i18n( "load" ) + "</span></div>" );
+			$leg.append( "<div class='skeleton-lgnd-1'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div  class='skeleton-lgnd-1'><span class='skeleton-lgnd-3'></span></div>" );
+
 			modeJS = wb.getMode() + ".js";
 
 			Modernizr.load( [ {
@@ -6696,7 +6775,7 @@ var componentName = "wb-geomap",
 				// For loading multiple dependencies
 				both: [
 					"site!deps/proj4" + modeJS,
-					"site!deps/OpenLayers" + modeJS,
+					"site!deps/ol" + modeJS,
 					"site!deps/geomap-lib" + modeJS
 				],
 				complete: function() {
@@ -6836,7 +6915,8 @@ var componentName = "wb-lbx",
 		if ( !i18nText ) {
 			i18n = wb.i18n;
 			i18nText = {
-				fClose: i18n( "close" ),
+				close: i18n( "close" ),
+				oClose: i18n( "overlay-close" ),
 				tClose: i18n( "overlay-close" ) + i18n( "space" ) + i18n( "esc-key" ),
 				tLoading: i18n( "load" ),
 				gallery: {
@@ -6985,21 +7065,18 @@ var componentName = "wb-lbx",
 				hasFooter = footer.length,
 				hasButton = hasFooter && $( footer ).find( ".popup-modal-dismiss" ).length !== 0,
 				closeClassFtr = "popup-modal-dismiss",
-				closeTextFtr = i18nText.fClose,
-				spanTextFtr, overlayCloseFtr;
+				closeTextFtr = i18nText.close,
+				spanTextFtr = i18nText.oClose,
+				overlayCloseFtr;
 
 			if ( !hasButton ) {
-				if ( hasFooter ) {
-					spanTextFtr = footer.innerHTML + i18nText.tClose;
-				} else {
+				if ( !hasFooter ) {
 					footer = document.createElement( "div" );
 					footer.setAttribute( "class", "modal-footer" );
-					spanTextFtr = i18nText.tClose;
 				}
-				spanTextFtr = spanTextFtr.replace( "'", "&#39;" );
 
 				overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary pull-left " + closeClassFtr +
-					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
+					"' title='" + spanTextFtr + "'>" +
 					closeTextFtr +
 					"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
 
@@ -8031,6 +8108,47 @@ var componentName = "wb-mltmd",
 
 			// Only initialize the i18nText once
 			if ( !i18nText ) {
+
+				// YT workaround for when played inside a modal dialog, like with lightbox
+				//
+				// the issue is when the iFrame is moved, it reloads and then it doesn't emit the right event to
+				// adjust the WET multimedia controller to represent its current state.
+				//
+				// This needs to be executed only once, that is why it is in the i18nText conditional
+				window.addEventListener( "message", function( e ) {
+					var data, frames, i, i_len, i_cache;
+
+					// Ensure we don't conflict with other postMessage listener
+					try {
+						data = JSON.parse( e.data );
+
+						// Only for a specific YT message
+						if ( data.event && data.event === "infoDelivery" && data.info && data.info.playerState ) {
+
+							// Find the iFrame and evaluate if it needs to be reposted
+							frames = document.getElementsByTagName( "iframe" );
+
+							i_len = frames.length;
+							for ( i = 0; i < i_len; i++ ) {
+								i_cache = frames[ i ];
+								if ( i_cache.dataset.L2 && i_cache.contentWindow === e.source  ) {
+
+									// Prepare the event data and emulate the YT object for our event management need
+									youTubeEvents.call( i_cache, {
+										target: i_cache.parentElement.parentElement.object,
+										data: data.info.playerState
+									} );
+									break;
+								}
+							}
+						}
+					} catch ( err ) { }
+				} );
+
+				//
+				// END YT workaround
+				//
+
 				i18n = wb.i18n;
 				i18nText = {
 					play: i18n( "mmp-play" ),
@@ -8306,7 +8424,7 @@ var componentName = "wb-mltmd",
 
 		// added &#160; (non-breaking space) to prevent caption space from collapsing
 		// Used .html() instead of .append for performance purposes
-		// http://jsperf.com/jquery-append-vs-html-list-performance/2
+		// https://jsperf.com/jquery-append-vs-html-list-performance/2
 		area.html( "&#160;" );
 
 		for ( i = 0; i < captionsLength; i += 1 ) {
@@ -8456,7 +8574,8 @@ var componentName = "wb-mltmd",
 			$media = $( media ),
 			timeline = function() {
 				$media.trigger( "timeupdate" );
-			};
+			},
+			$mltmPlayerElm;
 
 		switch ( event.data ) {
 		case null:
@@ -8473,6 +8592,12 @@ var componentName = "wb-mltmd",
 			media.timeline = clearInterval( media.timeline );
 			break;
 		case 1:
+			if ( media.dataset.L2 ) {
+
+				// Reset the close caption state when iframe was reloaded
+				$mltmPlayerElm = $media.parentsUntil( selector ).parent();
+				youTubeApi.call( $mltmPlayerElm.get( 0 ), "setCaptionsVisible", $mltmPlayerElm.hasClass( captionClass ) );
+			}
 			$media
 				.trigger( "canplay" )
 				.trigger( "play" )
@@ -8633,6 +8758,22 @@ $document.on( youtubeEvent, selector, function( event, data ) {
 		data.media = $media;
 		data.ytPlayer = ytPlayer;
 
+		// Detect if the YT player reloads, like when magnific Popup show the modal, because it moves the iframe
+		// and then the iframe gets refreshed and reloaded. So the issue is that the iframe stops emitting the event
+		// needed to adjust the multimedia player controler, like the "onStateChange" event.
+		$media.on( "load", function( evt ) {
+
+			var elm = evt.currentTarget,
+				ds = elm.dataset;
+
+			// Do nothing on the first load and add a flag to indicate it is loaded a second time
+			if ( ds.L1 ) {
+				ds.L2 = true;
+			} else {
+				ds.L1 = true;
+			}
+		} );
+
 		$this.trigger( renderUIEvent, [ "youtube", data ] );
 	}
 } );
@@ -8708,7 +8849,7 @@ $document.on( "click", selector, function( event ) {
 
 	// Optimized multiple class tests to include child glyphicon because Safari was reporting the click event
 	// from the child span not the parent button, forcing us to have to check for both elements
-	// JSPerf for multiple class matching http://jsperf.com/hasclass-vs-is-stackoverflow/7
+	// JSPerf for multiple class matching https://jsperf.com/hasclass-vs-is-stackoverflow/7
 	if ( className.match( /playpause|-play|-pause|display/ ) || $target.is( "object" ) || $target.is( "video" ) ) {
 		this.player( "getPaused" ) || this.player( "getEnded" ) ? this.player( "play" ) : this.player( "pause" );
 	} else if ( className.match( /\bcc\b|-subtitles/ )  ) {
@@ -8795,6 +8936,13 @@ $document.on( "keyup", ctrls, function( event ) {
 
 $document.on( "wb-activate", selector, function() {
 	this.player( "play" );
+} );
+
+$document.on( "closed.wb-overlay", ".wb-overlay", function( event ) {
+	var mltmdPlayer = event.currentTarget.querySelector( selector );
+	if ( mltmdPlayer ) {
+		mltmdPlayer.player( "pause" );
+	}
 } );
 
 $document.on( multimediaEvents, selector, function( event, simulated ) {
@@ -9155,7 +9303,7 @@ var componentName = "wb-overlay",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			$elm, footer, closeTextFtr, overlayCloseFtr, $header, closeText, overlayClose;
+			$elm, footer, $header, closeText, overlayClose;
 
 		if ( elm ) {
 			$elm = $( elm );
@@ -9176,36 +9324,34 @@ var componentName = "wb-overlay",
 			var isPanel = ( $elm.attr( "class" ).indexOf( "wb-panel" ) > -1 ) ? true : false,
 				isPopup = ( $elm.attr( "class" ).indexOf( "wb-popup" ) > -1 ) ? true : false;
 			if ( isPanel || isPopup ) {
-				var hasFooter, closeClassFtr, spanTextFtr, buttonStyle = "";
-
 				footer = $elm.find( ".modal-footer" )[ 0 ];
-				hasFooter = ( footer && footer.length !== 0 ) ? true : false;
-				closeClassFtr = ( $elm.hasClass( "wb-panel-l" ) ? "pull-right " : "pull-left " )  + closeClass;
 
-				if ( hasFooter ) {
-					spanTextFtr = footer.innerHTML + i18nText.space + i18nText.esc;
-				} else {
-					footer = document.createElement( "div" );
-					footer.setAttribute( "class", "modal-footer" );
-					spanTextFtr = i18nText.esc;
-				}
+				var hasFooter = ( footer && footer.length !== 0 ) ? true : false,
+					hasButton = hasFooter && $( footer ).find( closeClass ).length !== 0,
+					closeClassFtr = ( $elm.hasClass( "wb-panel-l" ) ? "pull-right " : "pull-left " )  + closeClass,
+					closeTextFtr = i18nText.close,
+					spanTextFtr = i18nText.closeOverlay,
+					overlayCloseFtr;
 
-				closeTextFtr = i18nText.close;
-				spanTextFtr = spanTextFtr.replace( "'", "&#39;" );
+				if ( !hasButton ) {
+					if ( !hasFooter ) {
+						footer = document.createElement( "div" );
+						footer.setAttribute( "class", "modal-footer" );
+					}
 
-				if ( isPopup ) {
-					footer.style.border = "0";
-				}
+					if ( isPopup ) {
+						footer.style.border = "0";
+					}
 
-				overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary " + closeClassFtr +
-					"' style='" + buttonStyle +
-					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
-					closeTextFtr +
-					"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
+					overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary " + closeClassFtr +
+						"' title='" + spanTextFtr + "'>" +
+						closeTextFtr +
+						"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
 
-				$( footer ).append( overlayCloseFtr );
-				if ( !hasFooter ) {
-					$elm.append( footer );
+					$( footer ).append( overlayCloseFtr );
+					if ( !hasFooter ) {
+						$elm.append( footer );
+					}
 				}
 			}
 
@@ -9256,6 +9402,8 @@ var componentName = "wb-overlay",
 				sourceLinks[ overlayId ] = null;
 			}, 1 );
 		}
+
+		$overlay.trigger( "opened" + selector );
 	},
 
 	closeOverlay = function( overlayId, noFocus, userClosed ) {
@@ -9282,6 +9430,8 @@ var componentName = "wb-overlay",
 
 		// Delete the source link reference
 		delete sourceLinks[ overlayId ];
+
+		$overlay.trigger( "closed" + selector );
 	};
 
 $document.on( "timerpoke.wb " + initEvent + " keydown open" + selector +
@@ -10280,11 +10430,7 @@ var componentName = "wb-share",
 			},
 			blogger: {
 				name: "Blogger",
-				url: "http://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
-			},
-			delicious: {
-				name: "Delicious",
-				url: "http://delicious.com/post?url={u}&amp;title={t}"
+				url: "https://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
 			},
 			digg: {
 				name: "Digg",
@@ -10292,51 +10438,43 @@ var componentName = "wb-share",
 			},
 			diigo: {
 				name: "Diigo",
-				url: "http://www.diigo.com/post?url={u}&amp;title={t}"
+				url: "https://www.diigo.com/post?url={u}&amp;title={t}"
 			},
 			facebook: {
 				name: "Facebook",
-				url: "http://www.facebook.com/sharer.php?u={u}&amp;t={t}"
+				url: "https://www.facebook.com/sharer.php?u={u}&amp;t={t}"
 			},
 			gmail: {
 				name: "Gmail",
 				url: "https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su={t}&body={u}%0A{d}"
 			},
-			googleplus: {
-				name: "Google+",
-				url: "https://plus.google.com/share?url={u}&amp;hl=" + document.documentElement.lang
-			},
 			linkedin: {
 				name: "LinkedIn®",
-				url: "http://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
+				url: "https://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
 			},
 			myspace: {
 				name: "MySpace",
-				url: "http://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
+				url: "https://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
 			},
 			pinterest: {
 				name: "Pinterest",
-				url: "http://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
+				url: "https://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
 			},
 			reddit: {
 				name: "reddit",
-				url: "http://reddit.com/submit?url={u}&amp;title={t}"
-			},
-			stumbleupon: {
-				name: "StumbleUpon",
-				url: "http://www.stumbleupon.com/submit?url={u}&amp;title={t}"
+				url: "https://reddit.com/submit?url={u}&amp;title={t}"
 			},
 			tumblr: {
 				name: "tumblr",
-				url: "http://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
+				url: "https://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
 			},
 			twitter: {
 				name: "Twitter",
-				url: "http://twitter.com/home?status={t}%20{u}"
+				url: "https://twitter.com/intent/tweet?text={t}&url={u}"
 			},
 			yahoomail: {
 				name: "Yahoo! Mail",
-				url: "http://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
+				url: "https://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
 			}
 		}
 	},
@@ -10438,7 +10576,7 @@ var componentName = "wb-share",
 							.replace( /\{d\}/, pageDescription );
 					panel += "<li><a href='" + url + "' class='" + shareLink +
 						" " + ( siteProperties.isMailto ? "email" : key ) +
-						" btn btn-default' target='_blank'>" +
+						" btn btn-default' target='_blank' rel='noreferrer noopener'>" +
 						siteProperties.name + "</a></li>";
 				}
 
@@ -10601,7 +10739,7 @@ var componentName = "wb-tables",
 $document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Handle the draw.dt event
-$document.on( "init.dt draw.dt", selector, function( event, settings ) {
+$document.on( "draw.dt", selector, function( event, settings ) {
 	var $elm = $( event.target ),
 		pagination = $elm.next( ".bottom" ).find( "div:first-child" ),
 		paginate_buttons = $elm.next( ".bottom" ).find( ".paginate_button" ),
@@ -10631,9 +10769,16 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 		// Should be pushed upstream to DataTables
 		$elm.next( ".bottom" ).find( ".paginate_button" )
 			.attr( {
-				"role": "button",
-				"href": "javascript:;"
+				"href": "#" + $elm.context.id
 			} )
+
+			// This is required to override the datatable.js (v1.10.13) behavior to cancel the event propagation on anchor element.
+			.on( "keypress", function( evn ) {
+				if ( evn.keyCode === 13 ) {
+					window.location = evn.target.href;
+				}
+			} )
+
 			.not( ".previous, .next" )
 				.attr( "aria-pressed", "false" )
 				.html( function( index, oldHtml ) {
@@ -10643,14 +10788,13 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 					.attr( "aria-pressed", "true" );
 	}
 
-	if ( event.type === "init" ) {
-
-		// Identify that initialization has completed
-		wb.ready( $elm, componentName );
-	}
-
 	// Identify that the table has been updated
 	$elm.trigger( "wb-updated" + selector, [ settings ] );
+} );
+
+// Identify that initialization has completed
+$document.on( "init.dt", function( event ) {
+	wb.ready( $( event.target ), componentName );
 } );
 
 // Handle the draw.dt event
@@ -10661,34 +10805,80 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 	var $form = $( this ),
 		$datatable = $( "#" + $form.data( "bind-to" ) ).dataTable( { "retrieve": true } ).api();
 
-	// Lets reset the search;
-	$datatable.search( "" ).columns().search( "" );
+	// Lets reset the search
+	$datatable.search( "" ).columns().search( "" ).draw();
 
 	// Lets loop throug all options
-	var $value = "", $lastColumn = -1;
+	var $lastColumn = -1, $cbVal = "";
 	$form.find( "[name]" ).each( function() {
 		var $elm = $( this ),
+			$value = "",
+			$regex = "",
+			$isAopts = $elm.data( "aopts" ),
 			$column = parseInt( $elm.attr( "data-column" ), 10 );
 
+		// Ignore the advanced options fields
+		if ( $isAopts ) {
+			return;
+		}
+
+		// Filters based on input type
 		if ( $elm.is( "select" ) ) {
 			$value = $elm.find( "option:selected" ).val();
 		} else if ( $elm.is( ":checkbox" ) ) {
-			if ( $column !== $lastColumn && $lastColumn !== -1 ) {
-				$value = "";
+
+			// Verifies if using same checkbox list
+			if ( $column !== $lastColumn || $lastColumn === -1 ) {
+				$cbVal = "";
 			}
 			$lastColumn = $column;
 
+			// Verifies if checkbox is checked before setting value
 			if ( $elm.is( ":checked" ) ) {
-				$value += ( $value.length > 0 ) ? "|" : "";
-				$value += $elm.val();
+				var $aoptsSelector = "[data-aopts*='\"column\": \"" + $column + "\"']:checked",
+					$aopts = $( $aoptsSelector ),
+					$aoType = ( $aopts && $aopts.data( "aopts" ) ) ? $aopts.data( "aopts" ).type.toLowerCase() : "";
+
+				if ( $aoType === "both" ) {
+					$cbVal += "(?=.*\\b" + $elm.val() + "\\b)";
+				} else {
+					$cbVal += ( $cbVal.length > 0 ) ? "|" : "";
+					$cbVal += $elm.val();
+				}
+
+				$value = $cbVal;
+				$value = $value.replace( /\s/g, "\\s*" );
+
+				// Adjust regex based on advanced options
+				switch ( $aoType ) {
+				case "both":
+					$regex = "(" + $value + ").*";
+					break;
+				case "either":
+					$regex = "^(" + $value + ")$";
+					break;
+				case "and":
+					$regex = ( $value.indexOf( "|" ) > -1 ) ? "^(" + $value + "|[,\\s])(" + $value + "|[,\\s])+$" : "(" + $value + ")";
+					break;
+				case "any":
+				default:
+					$regex = "(" + $value + ")";
+					break;
+				}
 			}
 		} else {
 			$value = $elm.val();
 		}
 
 		if ( $value ) {
-			$value = $value.replace( /\s/g, "\\s*" );
-			$datatable.column( $column ).search( "(" + $value + ")", true ).draw();
+
+			// Verifies if regex was preset, if not preset use 'contains value' as default
+			if ( !$regex ) {
+				$value = $value.replace( /\s/g, "\\s*" );
+				$regex = "(" + $value + ")";
+			}
+
+			$datatable.column( $column ).search( $regex, true ).draw();
 		}
 	} );
 
@@ -10705,6 +10895,7 @@ $document.on( "click", ".wb-tables-filter [type='reset']", function( event ) {
 
 	$form.find( "select" ).prop( "selectedIndex", 0 );
 	$form.find( "input:checkbox" ).prop( "checked", false );
+	$form.find( "input:radio" ).prop( "checked", false );
 	$form.find( "input[type=date]" ).val( "" );
 
 	return false;
@@ -12141,6 +12332,16 @@ var componentName = "wb-toggle",
 		} else if ( !selector ) {
 			return $link.data( componentName + "-state" ) || data.stateOff;
 
+		// When toggling multiple <details> elements, state is "off" if any are collapsed
+		} else if ( selector === "details" && !type ) {
+			var anyCollapsed = false;
+			getElements( $link, data ).each( function() {
+				if ( !$( this ).attr( "open" ) ) {
+					anyCollapsed = true;
+				}
+			} );
+			return anyCollapsed ? data.stateOff : data.stateOn;
+
 		// Get the current on/off state of the elements specified by the selector and parent
 		} else if ( states.hasOwnProperty( selector ) ) {
 			return states[ selector ].hasOwnProperty( parent ) ?
@@ -12523,7 +12724,7 @@ $document.on( clickEvents, linkSelector, function( event ) {
 	var testHref = event.currentTarget.getAttribute( "href" );
 
 	// Same page links only
-	if ( testHref.charAt( 0 ) === "#" && !event.isDefaultPrevented() &&
+	if ( testHref.length > 1 && testHref.charAt( 0 ) === "#" && !event.isDefaultPrevented() &&
 		( $linkTarget = $( "#" + wb.jqEscape( testHref.substring( 1 ) ) ) ).length !== 0 ) {
 		wb.ignoreHashChange = true;
 		$linkTarget.trigger( setFocusEvent );

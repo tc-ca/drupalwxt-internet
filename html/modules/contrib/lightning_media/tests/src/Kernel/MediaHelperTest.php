@@ -11,6 +11,8 @@ use Drupal\Tests\media\Traits\MediaTypeCreationTrait;
 use Drupal\Tests\TestFileCreationTrait;
 
 /**
+ * Contains unit-level test coverage of MediaHelper.
+ *
  * @group lightning_media
  *
  * @coversDefaultClass \Drupal\lightning_media\MediaHelper
@@ -29,6 +31,7 @@ class MediaHelperTest extends KernelTestBase {
     'image',
     'lightning_media',
     'media',
+    'system',
     'user',
   ];
 
@@ -47,12 +50,14 @@ class MediaHelperTest extends KernelTestBase {
   }
 
   /**
-   * @covers ::prepareFileDestination
    * @covers ::getSourceField
+   * @covers ::prepareFileDestination
+   * @covers ::useFile
    */
-  public function testPrepareFileDestination() {
+  public function testUseFile() {
     $media_type = $this->createMediaType('file');
 
+    /** @var \Drupal\media\MediaInterface $media */
     $media = Media::create([
       'bundle' => $media_type->id(),
     ]);
@@ -60,17 +65,21 @@ class MediaHelperTest extends KernelTestBase {
     /** @var \Drupal\field\Entity\FieldConfig $source_field */
     $source_field = $media->getSource()->getSourceFieldDefinition($media_type);
     $source_field->setSetting('file_directory', 'wambooli')->save();
+    $field_name = $source_field->getName();
 
+    /** @var \Drupal\file\FileInterface $file */
     $file = File::create([
       'uri' => $this->generateFile('foo', 80, 10),
     ]);
     $file->save();
 
-    $media->set($source_field->getName(), $file->id());
-
     $this->assertDirectoryNotExists('public://wambooli');
-    MediaHelper::prepareFileDestination($media);
-    $this->assertDirectoryExists('public://wambooli');
+    $this->assertTrue($media->get($field_name)->isEmpty());
+
+    $file = MediaHelper::useFile($media, $file);
+
+    $this->assertSame($file->id(), $media->$field_name->target_id);
+    $this->assertFileExists($file->getFileUri());
   }
 
 }

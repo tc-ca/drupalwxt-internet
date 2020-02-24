@@ -39,7 +39,7 @@ use Symfony\Component\Routing\RouteCollection;
  *     "entity" = @ContextDefinition("entity", constraints = {
  *       "EntityHasField" = \Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage::FIELD_NAME,
  *     }),
- *     "view_mode" = @ContextDefinition("string"),
+ *     "view_mode" = @ContextDefinition("string", default_value = "default"),
  *   }
  * )
  *
@@ -351,6 +351,9 @@ class OverridesSectionStorage extends SectionStorageBase implements ContainerFac
       $contexts['layout_builder.entity'] = $contexts['entity'];
       unset($contexts['entity']);
     }
+
+    $allow_sample = TRUE;
+    \Drupal::moduleHandler()->alter('layout_builder_view_context', $contexts, $this, $allow_sample);
     return $contexts;
   }
 

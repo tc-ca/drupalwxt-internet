@@ -1,0 +1,18 @@
+uuid: 0616ee93-4ae6-4ad5-a34d-7f37047bd45c
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.webform
+id: node.webform.moderation_state
+field_name: moderation_state
+entity_type: node
+bundle: webform
+label: 'Moderation state'
+description: 'The moderation state of this piece of content.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

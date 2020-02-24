@@ -3,8 +3,9 @@
 namespace Drupal\Tests\contact_storage\Functional;
 
 use Drupal\contact\Entity\ContactForm;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Test\AssertMailTrait;
-use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\filter\Entity\FilterFormat;
 
@@ -80,7 +81,7 @@ class ContactStorageTest extends ContactStorageTestBase {
     $this->assertText('Contact form test_label has been added.');
 
     // Ensure that anonymous can submit site-wide contact form.
-    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, ['access site-wide contact form']);
+    user_role_grant_permissions(AccountInterface::ANONYMOUS_ROLE, ['access site-wide contact form']);
     $this->drupalLogout();
     $this->drupalGet('contact');
     $this->assertText('Your email address');

@@ -1,0 +1,10 @@
+uuid: 0d7467ca-295a-42a7-8504-747f4f2b1626
+langcode: fr
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: POgKQpiMR2CMc8JrO4IuW47ItKQOrt2RkIlfILtg5Kg
+id: mid-footer-fr
+label: 'Pied de page millieu'
+description: 'Pied de page millieu.'
+locked: false

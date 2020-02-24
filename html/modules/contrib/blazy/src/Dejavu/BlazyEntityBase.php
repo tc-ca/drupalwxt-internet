@@ -7,6 +7,8 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
 /**
  * Base class for entity reference formatters without field details.
+ *
+ * @see \Drupal\blazy\Dejavu\BlazyEntityMediaBase
  */
 abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
 
@@ -24,11 +26,12 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
       }
 
       $build['settings']['delta'] = $delta;
+      $build['settings']['langcode'] = $langcode;
       if ($entity->id()) {
         $this->buildElement($build, $entity, $langcode);
 
         // Add the entity to cache dependencies so to clear when it is updated.
-        $this->manager()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
+        $this->formatter()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
       }
       else {
         $this->referencedEntities = NULL;
@@ -37,11 +40,6 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
       }
 
       $depth = 0;
-    }
-
-    // Supports Blazy formatter multi-breakpoint images if available.
-    if (empty($build['settings']['vanilla'])) {
-      $this->formatter->isBlazy($build['settings'], $build['items'][0]);
     }
   }
 
@@ -52,7 +50,7 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
     $view_mode = empty($build['settings']['view_mode']) ? 'full' : $build['settings']['view_mode'];
     $delta = $build['settings']['delta'];
 
-    $build['items'][$delta] = $this->manager()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
+    $build['items'][$delta] = $this->formatter()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
   }
 
   /**
@@ -69,26 +67,42 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
   }
 
   /**
+   * Builds the settings.
+   */
+  public function buildSettings() {
+    $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+    $settings['third_party'] = $this->getThirdPartySettings();
+    return $settings;
+  }
+
+  /**
+   * Defines the common scope for both front and admin.
+   */
+  public function getCommonFieldDefinition() {
+    $field = $this->fieldDefinition;
+    return [
+      'current_view_mode' => $this->viewMode,
+      'field_name'        => $field->getName(),
+      'field_type'        => $field->getType(),
+      'entity_type'       => $field->getTargetEntityTypeId(),
+      'plugin_id'         => $this->getPluginId(),
+      'target_type'       => $this->getFieldSetting('target_type'),
+    ];
+  }
+
+  /**
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
-    $target_type = $this->getFieldSetting('target_type');
-    $views_ui    = $this->getFieldSetting('handler') == 'default';
-    $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+    $views_ui = $this->getFieldSetting('handler') == 'default';
+    $bundles = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
 
+    // @todo move common/ reusable properties somewhere.
     return [
-      'current_view_mode' => $this->viewMode,
-      'entity_type'       => $entity_type,
-      'field_type'        => $field->getType(),
-      'field_name'        => $field->getName(),
-      'plugin_id'         => $this->getPluginId(),
-      'settings'          => $this->getSettings(),
-      'target_bundles'    => $bundles,
-      'target_type'       => $target_type,
-      'view_mode'         => $this->viewMode,
-    ];
+      'settings'       => $this->getSettings(),
+      'target_bundles' => $bundles,
+      'view_mode'      => $this->viewMode,
+    ] + $this->getCommonFieldDefinition();
   }
 
 }

@@ -225,7 +225,7 @@ class EntityBrowserBlock extends BlockBase implements ContainerFactoryPluginInte
    */
   public static function updateCallback(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    if ($trigger['#op'] === 'remove') {
+    if (isset($trigger['#op']) && $trigger['#op'] === 'remove') {
       $parents = array_slice($trigger['#array_parents'], 0, -4);
       $selection = NestedArray::getValue($form, $parents);
       $id = str_replace('remove_', '', $trigger['#name']);
@@ -281,6 +281,9 @@ class EntityBrowserBlock extends BlockBase implements ContainerFactoryPluginInte
     $entities = self::loadEntitiesByIDs($this->configuration['entity_ids']);
 
     foreach ($entities as $id => $entity) {
+      if (empty($entity)) {
+        continue;
+      }
       $entity_type_id = $entity->getEntityTypeId();
       if (!isset($view_builders[$id])) {
         $view_builders[$id] = $this->entityTypeManager->getViewBuilder($entity_type_id);

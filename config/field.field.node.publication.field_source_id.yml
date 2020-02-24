@@ -1,0 +1,23 @@
+uuid: 2ebb857e-b072-49f0-b7d1-7f1e3e2e674b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_id
+    - node.type.publication
+id: node.publication.field_source_id
+field_name: field_source_id
+entity_type: node
+bundle: publication
+label: 'Source id'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

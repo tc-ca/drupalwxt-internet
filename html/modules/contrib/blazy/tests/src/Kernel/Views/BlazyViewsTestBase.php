@@ -13,6 +13,17 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
   use BlazyKernelTestTrait;
 
   /**
+   * Set to TRUE to strict check all configuration saved.
+   *
+   * Let's keep it enabled here for just in case core breaks it again related to
+   * views.view.test_blazy_entity.
+   *
+   * @var bool
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
+   */
+  protected $strictConfigSchema = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public static $modules = [
@@ -21,15 +32,16 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
     'field',
     'file',
     'image',
+    'media',
+    'breakpoint',
+    'responsive_image',
     'filter',
     'link',
     'node',
     'text',
     'options',
-    'entity_test',
+    // @todo 'entity_test',
     'views',
-    'views_test_config',
-    'views_test_data',
     'blazy',
     'blazy_test',
   ];

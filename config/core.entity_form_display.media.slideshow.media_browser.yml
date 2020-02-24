@@ -1,0 +1,71 @@
+uuid: 595b2197-2ce8-440d-8f8d-6609c67856a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.media.media_browser
+    - field.field.media.slideshow.field_media_in_library
+    - field.field.media.slideshow.slideshow_items
+    - media.type.slideshow
+  module:
+    - inline_entity_form
+    - path
+_core:
+  default_config_hash: F6j6iJKyJ4E9FDSpZg4N5Ij7JHUslCU3RZW_fJrNnqQ
+id: media.slideshow.media_browser
+targetEntityType: media
+bundle: slideshow
+mode: media_browser
+content:
+  created:
+    type: datetime_timestamp
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  name:
+    type: string_textfield
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  slideshow_items:
+    type: inline_entity_form_complex
+    weight: 1
+    settings:
+      form_mode: media_browser
+      override_labels: true
+      label_singular: Media
+      label_plural: Medias
+      allow_new: true
+      allow_existing: true
+      match_operator: CONTAINS
+    third_party_settings: {  }
+    region: content
+  status:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 100
+    region: content
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 2
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+hidden:
+  field_media_in_library: true
+  langcode: true

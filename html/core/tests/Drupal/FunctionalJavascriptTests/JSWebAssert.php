@@ -90,7 +90,7 @@ JS;
   public function waitForElementRemoved($selector, $locator, $timeout = 10000) {
     $page = $this->session->getPage();
 
-    $result = $page->waitFor($timeout / 1000, function() use ($page, $selector, $locator) {
+    $result = $page->waitFor($timeout / 1000, function () use ($page, $selector, $locator) {
       return !$page->find($selector, $locator);
     });
 

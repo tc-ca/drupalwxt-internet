@@ -159,10 +159,16 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
     ]);
     $block_content->save();
 
-    // Create a term with a custom layout.
-    $term = $this->createTerm();
     /** @var \Drupal\panelizer\PanelizerInterface $panelizer */
     $panelizer = $this->container->get('panelizer');
+
+    // Create a term that uses the default layout for its vocabulary, to ensure
+    // it does not break the migration.
+    $default_layout_term = $this->createTerm();
+    $panelizer->setPanelsDisplay($default_layout_term, 'full', '__bundle_default__');
+
+    // Create a term with a custom layout.
+    $term = $this->createTerm();
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $panels_display */
     $panels_display = $panelizer->getPanelsDisplay($term, 'full');
     $this->assertInstanceOf(PanelsDisplayVariant::class, $panels_display);
@@ -174,6 +180,10 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
       'weight' => 1,
     ]);
     $panelizer->setPanelsDisplay($term, 'full', NULL, $panels_display);
+
+    $this->drupalGet($default_layout_term->toUrl());
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
     $this->drupalGet($term->toUrl());
     $assert_session->statusCodeEquals(200);
@@ -192,6 +202,9 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
     $assert_session->checkboxNotChecked('Use Layout Builder');
     $assert_session->checkboxNotChecked('Allow each taxonomy term to have its layout customized.');
     $page->pressButton('Migrate to Layout Builder');
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('Hold your horses, cowpoke.');
+    $page->pressButton('I understand the risks and have backed up my database. Proceed!');
     $this->checkForMetaRefresh();
     $assert_session->checkboxChecked('Use Layout Builder');
     $assert_session->checkboxChecked('Allow content editors to use stored layouts');
@@ -199,6 +212,10 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each taxonomy term to have its display customized');
+
+    $this->drupalGet($default_layout_term->toUrl());
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
     $this->drupalGet($term->toUrl());
     $assert_session->statusCodeEquals(200);

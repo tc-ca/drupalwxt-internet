@@ -57,6 +57,30 @@ class AddLayoutTest extends BrowserTestBase {
 
     $session->pageTextContains('Edit layout for Archaeopteryx');
 
+    // Add three sections: a header, a two-column content area, and a footer.
+    $page->clickLink('Add section');
+    $page->clickLink('One column');
+    $page->fillField('Administrative label', 'Header');
+    $page->pressButton('Add section');
+    $session->linkExists('Configure Header');
+    $this->addSectionAfter(1);
+    $page->clickLink('Two column');
+    $page->selectFieldOption('Column widths', '67%/33%');
+    $page->fillField('Administrative label', 'Main content');
+    $page->pressButton('Add section');
+    $session->linkExists('Configure Main content');
+    $this->addSectionAfter(2);
+    $page->clickLink('One column');
+    $page->fillField('Administrative label', 'Footer');
+    $page->pressButton('Add section');
+    $session->linkExists('Configure Footer');
+
+    // Try to remove the Header section.
+    $page->clickLink('Remove Header');
+    $page->pressButton('Remove');
+    $session->statusCodeEquals(200);
+    $session->linkNotExists('Configure Header');
+
     $this->drupalGet('admin/structure/types/manage/my_little_dinosaur/display');
     $page->checkField('layout[enabled]');
     $page->checkField('layout[library]');
@@ -74,6 +98,18 @@ class AddLayoutTest extends BrowserTestBase {
 
     $this->drupalGet('node/add/my_little_dinosaur');
     $session->fieldNotExists('Layout');
+  }
+
+  /**
+   * Clicks the "Add section" button after an existing section.
+   *
+   * @param int $index
+   *   (optional) The index of the existing session. Defaults to 0.
+   */
+  private function addSectionAfter($index = 0) {
+    $add_links = $this->getSession()->getPage()->findAll('named', ['link', 'Add section']);
+    $this->assertGreaterThan($index, count($add_links));
+    $add_links[$index]->click();
   }
 
 }

@@ -19,6 +19,7 @@ class NoteMail extends PhpMail {
    * {@inheritdoc}
    */
   public function format(array $message) {
+    $message['body'] = implode("\n\n", $message['body']);
     // We have to override the parent method so that HTML is not escaped.
     $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
     return $message;

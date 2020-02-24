@@ -1,0 +1,18 @@
+uuid: dc92f060-1cae-4e2d-9847-10f217e16b13
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.page
+id: node.page.langcode
+field_name: langcode
+entity_type: node
+bundle: page
+label: Language
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: language

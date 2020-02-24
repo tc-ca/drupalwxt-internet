@@ -102,7 +102,7 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
       }
 
       $content = $block->build();
-      $is_content_empty = !$content || Element::isEmpty($content) || ($event->inPreview() && $this->containsForm($content));
+      $is_content_empty = Element::isEmpty($content);
       $is_placeholder_ready = $event->inPreview() && $block instanceof PreviewFallbackInterface;
       // If the content is empty and no placeholder is available, return.
       if ($is_content_empty && !$is_placeholder_ready) {
@@ -133,40 +133,28 @@ class BlockComponentRenderArray implements EventSubscriberInterface {
         '#base_plugin_id' => $block->getBaseId(),
         '#derivative_plugin_id' => $block->getDerivativeId(),
         '#weight' => $event->getComponent()->getWeight(),
-        'content' => !$is_content_empty ? $content : [],
+        'content' => $content,
       ];
 
-      if ($block instanceof PreviewFallbackInterface) {
-        $preview_fallback_string = $block->getPreviewFallbackString();
-      }
-      else {
-        $preview_fallback_string = $this->t('"@block" block', ['@block' => $block->label()]);
-      }
-      // @todo Use new label methods so
-      //   data-layout-content-preview-placeholder-label doesn't have to use
-      //   preview fallback in https://www.drupal.org/node/2025649.
-      $build['#attributes']['data-layout-content-preview-placeholder-label'] = $preview_fallback_string;
+      if ($event->inPreview()) {
+        if ($block instanceof PreviewFallbackInterface) {
+          $preview_fallback_string = $block->getPreviewFallbackString();
+        }
+        else {
+          $preview_fallback_string = $this->t('"@block" block', ['@block' => $block->label()]);
+        }
+        // @todo Use new label methods so
+        //   data-layout-content-preview-placeholder-label doesn't have to use
+        //   preview fallback in https://www.drupal.org/node/2025649.
+        $build['#attributes']['data-layout-content-preview-placeholder-label'] = $preview_fallback_string;
 
-      if ($is_content_empty && $is_placeholder_ready) {
-        $build['content']['#markup'] = $this->t('Placeholder for the @preview_fallback', ['@preview_fallback' => $block->getPreviewFallbackString()]);
+        if ($is_content_empty && $is_placeholder_ready) {
+          $build['content']['#markup'] = $this->t('Placeholder for the @preview_fallback', ['@preview_fallback' => $block->getPreviewFallbackString()]);
+        }
       }
+
       $event->setBuild($build);
     }
-  }
-
-  /**
-   */
-  protected function containsForm(array $content) {
-    if (isset($content['#type']) && ($content['#type'] === 'form' || $content['#type'] === 'webform')) {
-      return TRUE;
-    }
-
-    foreach (Element::children($content) as $key) {
-      if ($this->containsForm($content[$key])) {
-        return TRUE;
-      }
-    }
-    return FALSE;
   }
 
 }

@@ -26,7 +26,7 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
    */
   public function testManageEmbedFormatter() {
     // Test and create one media type.
-    $bundle = $this->createMediaType('twitter', ['bundle' => 'twitter']);
+    $bundle = $this->createMediaType('twitter', ['id' => 'twitter']);
 
     // We need to fix widget and formatter config for the default field.
     $source = $bundle->getSource();
@@ -50,8 +50,8 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
 
     // Assert that the media type has the expected values before proceeding.
     $this->drupalGet('admin/structure/media/manage/' . $bundle->id());
-    $this->assertFieldByName('label', $bundle->label());
-    $this->assertFieldByName('source', 'twitter');
+    $this->assertSession()->fieldValueEquals('label', $bundle->label());
+    $this->assertSession()->fieldValueEquals('source', 'twitter');
 
     // Add and save string_long field type settings (Embed code).
     $this->drupalGet('admin/structure/media/manage/' . $bundle->id() . '/fields/add-field');
@@ -61,33 +61,36 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
       'field_name' => 'embed_code',
     ];
     $this->drupalPostForm(NULL, $edit_conf, t('Save and continue'));
-    $this->assertText('These settings apply to the ' . $edit_conf['label'] . ' field everywhere it is used.');
+    $this->assertSession()
+        ->responseContains('These settings apply to the <em class="placeholder">' . $edit_conf['label'] . '</em> field everywhere it is used.');
     $edit = [
       'cardinality' => 'number',
       'cardinality_number' => '1',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save field settings'));
-    $this->assertText('Updated field ' . $edit_conf['label'] . ' field settings.');
+    $this->assertSession()
+        ->responseContains('Updated field <em class="placeholder">' . $edit_conf['label'] . '</em> field settings.');
 
     // Set the new string_long field type as required.
     $edit = [
       'required' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save settings'));
-    $this->assertText('Saved ' . $edit_conf['label'] . ' configuration.');
+    $this->assertSession()
+        ->responseContains('Saved <em class="placeholder">' . $edit_conf['label'] . '</em> configuration.');
 
     // Assert that the new field types configurations have been successfully
     // saved.
     $this->drupalGet('admin/structure/media/manage/' . $bundle->id() . '/fields');
     $xpath = $this->xpath('//*[@id=:id]/td', [':id' => 'field-media-twitter']);
-    $this->assertEqual((string) $xpath[0]->getText(), 'Tweet URL');
-    $this->assertEqual((string) $xpath[1]->getText(), 'field_media_twitter');
-    $this->assertEqual((string) $xpath[2]->find('css', 'a')->getText(), 'Text (plain)');
+    $this->assertEquals((string) $xpath[0]->getText(), 'Tweet URL');
+    $this->assertEquals((string) $xpath[1]->getText(), 'field_media_twitter');
+    $this->assertEquals((string) $xpath[2]->find('css', 'a')->getText(), 'Text (plain)');
 
     $xpath = $this->xpath('//*[@id=:id]/td', [':id' => 'field-embed-code']);
-    $this->assertEqual((string) $xpath[0]->getText(), 'Embed code');
-    $this->assertEqual((string) $xpath[1]->getText(), 'field_embed_code');
-    $this->assertEqual((string) $xpath[2]->find('css', 'a')->getText(), 'Text (plain, long)');
+    $this->assertEquals((string) $xpath[0]->getText(), 'Embed code');
+    $this->assertEquals((string) $xpath[1]->getText(), 'field_embed_code');
+    $this->assertEquals((string) $xpath[2]->find('css', 'a')->getText(), 'Text (plain, long)');
 
     $this->drupalGet('admin/structure/media/manage/' . $bundle->id() . '/display');
 
@@ -101,13 +104,13 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
       'fields[field_embed_code][type]' => 'twitter_embed',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertText('Your settings have been saved.');
+    $this->assertSession()->responseContains('Your settings have been saved.');
 
     // Create and save the media with a twitter media code.
     $this->drupalGet('media/add/' . $bundle->id());
 
     // Random image url from twitter.
-    $tweet_url = 'https://twitter.com/RamzyStinson/status/670650348319576064';
+    $tweet_url = 'https://twitter.com/DrupalConEur/status/1176518741208817664';
 
     // Random image from twitter.
     $tweet = '<blockquote class="twitter-tweet" lang="it"><p lang="en" dir="ltr">' .
@@ -126,15 +129,16 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
     $this->drupalGet('media/1');
 
     // Assert that the media has been successfully saved.
-    $this->assertText('Title');
+    $this->assertSession()->pageTextContains('Title');
 
     // Assert that the link url formatter exists on this page.
-    $this->assertText('Tweet URL');
-    $this->assertRaw('<a href="https://twitter.com/RamzyStinson/statuses/670650348319576064">', 'Link in embedded Tweet found.');
+    $this->assertSession()->pageTextContains('Tweet URL');
+    $this->assertSession()
+        ->responseContains('<a href="https://twitter.com/RamzyStinson/statuses/670650348319576064">', 'Link in embedded Tweet found.');
 
     // Assert that the string_long code formatter exists on this page.
-    $this->assertText('Embed code');
-    $this->assertRaw('<blockquote class="twitter-tweet', 'Embedded Tweet found.');
+    $this->assertSession()->pageTextContains('Embed code');
+    $this->assertSession()->responseContains('<blockquote class="twitter-tweet', 'Embedded Tweet found.');
   }
 
 }

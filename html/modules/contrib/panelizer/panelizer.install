@@ -51,6 +51,15 @@ function panelizer_requirements($phase) {
         'severity' => REQUIREMENT_ERROR,
       ];
     }
+    if (!array_key_exists('core_context', $available_modules)) {
+      $requirements['panelizer_core_context_not_installed'] = [
+        'title' => t('Core Context module required'),
+        'description' => t('Panelizer 5.0 requires the <a href="@url">Core Context</a> module.', [
+          '@url' => 'https://drpual.org/project/core_context',
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
   }
   return $requirements;
 }

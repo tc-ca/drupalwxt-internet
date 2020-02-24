@@ -1,0 +1,16 @@
+uuid: 684a7074-5d29-43f7-92af-005b496d60a3
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 3O2hLDkBqWHgODHLr5cVpx1nv3DEiHLWjsW4_dFf12M
+name: slideshow
+label: 'Slideshow (555x134)'
+effects:
+  7ec6e2fd-ea19-4b45-ab70-911b7f156857:
+    uuid: 7ec6e2fd-ea19-4b45-ab70-911b7f156857
+    id: image_resize
+    weight: 1
+    data:
+      width: 555
+      height: 134

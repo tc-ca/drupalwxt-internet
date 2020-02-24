@@ -1,0 +1,19 @@
+uuid: f3599a65-f7d6-4af0-95b5-4f602a1b1b4a
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - taxonomy
+id: taxonomy_term.field_home_page_link
+field_name: field_home_page_link
+entity_type: taxonomy_term
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

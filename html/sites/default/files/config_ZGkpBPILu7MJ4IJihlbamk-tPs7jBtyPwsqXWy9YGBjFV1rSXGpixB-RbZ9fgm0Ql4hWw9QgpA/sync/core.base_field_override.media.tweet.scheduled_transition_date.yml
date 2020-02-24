@@ -1,0 +1,20 @@
+uuid: a0c1b766-31a0-4dc7-a045-ba44e83b80cb
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.tweet
+  module:
+    - datetime
+id: media.tweet.scheduled_transition_date
+field_name: scheduled_transition_date
+entity_type: media
+bundle: tweet
+label: 'Scheduled transition date'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

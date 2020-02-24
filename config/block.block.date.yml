@@ -1,0 +1,39 @@
+uuid: edf3241e-fa97-401b-8c05-578431af91e9
+langcode: en
+status: true
+dependencies:
+  config:
+    - facets.facet.date
+  module:
+    - block_class
+    - facets
+    - system
+    - wxt_library
+  theme:
+    - wxt_bootstrap
+third_party_settings:
+  block_class:
+    classes: 'panel panel-primary'
+id: date
+theme: wxt_bootstrap
+region: sidebar_second
+weight: -9
+provider: null
+plugin: 'facet_block:date'
+settings:
+  id: 'facet_block:date'
+  label: Date
+  provider: facets
+  label_display: visible
+  block_id: date
+visibility:
+  panels_title:
+    id: panels_title
+    enabled: 0
+    negate: false
+    context_mapping: {  }
+  request_path:
+    id: request_path
+    pages: "/search/site/*\r\n/search/site"
+    negate: false
+    context_mapping: {  }

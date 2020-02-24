@@ -1,0 +1,36 @@
+uuid: 79b9d0c7-bb3f-47d0-bd5a-eaca2a2909bf
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+    - user
+    - wxt_library
+  theme:
+    - wxt_bootstrap
+_core:
+  default_config_hash: 8GCJO4MuQrCj0KIZ5iPdCU5Z5YaZskWJVAAA_oDzv_I
+id: user_account_block
+theme: wxt_bootstrap
+region: header
+weight: -9
+provider: null
+plugin: user_account_block
+settings:
+  id: user_account_block
+  label: 'User Account'
+  provider: wxt_library
+  label_display: '0'
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: true
+    context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      authenticated: authenticated
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

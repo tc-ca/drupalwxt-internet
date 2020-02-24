@@ -70,6 +70,7 @@ class MiniLayout extends BlockBase implements ContextAwarePluginInterface, Conta
 
     $contexts = $this->getContexts();
     $contexts['display'] = EntityContext::fromEntity($mini_layout);
+    $contexts['layout_builder.entity'] = EntityContext::fromEntity($mini_layout);
 
     // Get section storage to pass to contexts hook.
     $cacheability = new CacheableMetadata();

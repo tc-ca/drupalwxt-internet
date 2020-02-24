@@ -3,14 +3,20 @@ Composer Project template for Drupal
 
 [![Build Status][ci-badge]][ci]
 
-Drupal WxT codebase for Transport Canada.
+Drupal WxT codebase for `<site-name>`.
 
 ## Requirements
 
 * [Composer][composer]
 * [Node][node]
 
-## New Project
+## New Project (stable tag)
+
+```sh
+composer create-project drupalwxt/wxt-project:3.0.6 site-name
+```
+
+## New Project (dev)
 
 ```sh
 composer create-project drupalwxt/wxt-project:8.x-dev site-name

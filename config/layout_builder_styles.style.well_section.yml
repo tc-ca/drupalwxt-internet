@@ -1,0 +1,9 @@
+uuid: 87f7b34c-a559-4bde-958a-38b5d5d97297
+langcode: en
+status: true
+dependencies: {  }
+id: well_section
+label: 'Well - section'
+classes: well
+type: section
+block_restrictions: {  }

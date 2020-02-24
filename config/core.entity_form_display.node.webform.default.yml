@@ -1,0 +1,185 @@
+uuid: 238fe11b-c5e3-4a02-b554-f18ea9734fee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.webform.body
+    - field.field.node.webform.field_date_published
+    - field.field.node.webform.field_reference_number
+    - field.field.node.webform.field_related_links
+    - field.field.node.webform.field_show_org
+    - field.field.node.webform.field_source_url
+    - field.field.node.webform.field_team
+    - field.field.node.webform.layout_selection
+    - field.field.node.webform.webform
+    - node.type.webform
+  module:
+    - content_moderation
+    - datetime
+    - field_group
+    - link
+    - path
+    - text
+    - webform
+third_party_settings:
+  field_group:
+    group_page:
+      children:
+        - field_date_published
+        - field_team
+        - field_show_org
+        - field_source_url
+        - field_reference_number
+      parent_name: ''
+      weight: 12
+      format_type: details_sidebar
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        description: ''
+        open: false
+        required_fields: true
+        weight: -4
+      label: 'Page information'
+_core:
+  default_config_hash: A3evv2pt6d-bKCPcgjXA5VGTemXWOxG3lSXvWiRWcck
+id: node.webform.default
+targetEntityType: node
+bundle: webform
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 2
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  created:
+    type: datetime_timestamp
+    weight: 6
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_date_published:
+    weight: 11
+    settings: {  }
+    third_party_settings: {  }
+    type: datetime_default
+    region: content
+  field_reference_number:
+    weight: 15
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_related_links:
+    weight: 4
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+    region: content
+  field_show_org:
+    weight: 13
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_source_url:
+    weight: 14
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+  field_team:
+    weight: 12
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  langcode:
+    type: language_select
+    weight: 1
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  layout_selection:
+    type: options_select
+    region: content
+    weight: 26
+    settings: {  }
+    third_party_settings: {  }
+  moderation_state:
+    type: moderation_state_default
+    weight: 11
+    settings: {  }
+    region: content
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 9
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  promote:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 7
+    third_party_settings: {  }
+    region: content
+  sticky:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 8
+    third_party_settings: {  }
+    region: content
+  title:
+    type: string_textfield
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  translation:
+    weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  url_redirects:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  webform:
+    weight: 3
+    settings:
+      default_data: true
+    third_party_settings: {  }
+    type: webform_entity_reference_select
+    region: content
+hidden:
+  status: true

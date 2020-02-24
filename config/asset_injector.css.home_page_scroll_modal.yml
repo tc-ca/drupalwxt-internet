@@ -1,0 +1,26 @@
+uuid: bc9c995b-f9b8-43c0-9be5-c4f22856657f
+langcode: en
+status: true
+dependencies:
+  module:
+    - ctools
+    - wxt_library
+id: home_page_scroll_modal
+label: 'Home page scroll modal'
+code: "\t.modal-body {\r\n\toverflow-y: scroll;\r\n\tmax-height: 60vh;\r\n\t}"
+media: all
+preprocess: true
+conditions:
+  'entity_bundle:node':
+    id: 'entity_bundle:node'
+    bundles:
+      landing_page: landing_page
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'
+  panels_title:
+    id: panels_title
+    enabled: 0
+    negate: false
+    context_mapping: {  }
+conditions_require_all: true

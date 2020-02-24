@@ -16,7 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @LayoutBuilderRestriction(
  *   id = "entity_view_mode_restriction",
- *   title = @Translation("Restrict blocks/layouts per entity view mode")
+ *   title = @Translation("Entity View Mode"),
+ *   description = @Translation("Restrict blocks/layouts per entity view mode"),
  * )
  */
 class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
@@ -175,7 +176,6 @@ class EntityViewModeRestriction extends LayoutBuilderRestrictionBase {
         // Rename to match Layout Builder Restrictions naming.
         $category = "Custom blocks";
       }
-      $allowed_blocks = (isset($third_party_settings['allowed_blocks'])) ? $third_party_settings['allowed_blocks'] : [];
 
       // If the block category isn't present, there aren't restrictions.
       if (!isset($allowed_blocks[$category])) {

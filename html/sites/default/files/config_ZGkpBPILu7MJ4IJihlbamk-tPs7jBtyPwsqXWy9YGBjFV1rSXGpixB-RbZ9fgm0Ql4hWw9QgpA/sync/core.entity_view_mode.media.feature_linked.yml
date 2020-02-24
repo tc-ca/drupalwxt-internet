@@ -1,0 +1,14 @@
+uuid: 3f72db16-febf-4739-8ec1-d302bdd58f6d
+langcode: en
+status: true
+dependencies:
+  module:
+    - lightning_core
+    - media
+third_party_settings:
+  lightning_core:
+    description: 'Used on featured blocks, link above image.'
+id: media.feature_linked
+label: 'Feature linked'
+targetEntityType: media
+cache: true

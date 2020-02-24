@@ -1,0 +1,23 @@
+uuid: 1b4ca720-e05f-49f2-abaa-5b6028e8a35a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_show_org
+    - node.type.publication
+id: node.publication.field_show_org
+field_name: field_show_org
+entity_type: node
+bundle: publication
+label: 'Show organization by-line'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

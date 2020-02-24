@@ -1,0 +1,16 @@
+name: 'Transport Canada'
+mail: joel@openplus.ca
+slogan: 'Collaborative open source project led by the Government of Canada'
+page:
+  0: ''
+  1: ''
+  front: /node/22
+  403: /system/404
+  404: /system/404
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en
+_core:
+  default_config_hash: uNOHaKWnoIbi-Q7d7NTqX2PeF_cwCaM9tTmwBoM2COA
+uuid: 8975f445-3de3-4eb3-8a7b-ef19d498f588

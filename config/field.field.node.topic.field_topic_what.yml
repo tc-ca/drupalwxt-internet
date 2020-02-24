@@ -1,0 +1,31 @@
+uuid: 54bc7c85-45f6-4473-a46e-7f37000973ef
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_topic_what
+    - node.type.topic
+    - paragraphs.paragraphs_type.topic_what
+  module:
+    - entity_reference_revisions
+id: node.topic.field_topic_what
+field_name: field_topic_what
+entity_type: node
+bundle: topic
+label: 'What we are doing'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      topic_what: topic_what
+    target_bundles_drag_drop:
+      topic_what:
+        enabled: true
+        weight: 2
+field_type: entity_reference_revisions

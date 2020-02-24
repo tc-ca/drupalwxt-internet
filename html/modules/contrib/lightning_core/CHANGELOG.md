@@ -1,6 +1,19 @@
-## 4.8.0
+## 5.0.0
+* Updated Drupal core to 8.8.0.
+* Fixed all known deprecations. (Issue #3096212)
+* Updated Metatag to 1.10.
+* Updated Pathauto to 1.6.
+
+## 5.0.0-beta3
 * Fixed an incompatibility between Lightning Page and Lightning Workflow
   3.14 and later.
+
+## 5.0.0-beta2
+There are no user-facing changes in this version.
+
+## 5.0.0-beta1
+* Updated Drupal core to 8.8.0-beta1.
+* Updated Pathauto to 1.6-alpha1.
 
 ## 4.7.0
 * Lightning Core now includes the Redirect module as a soft dependency.

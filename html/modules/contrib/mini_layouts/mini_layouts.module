@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Contains mini_layouts.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function mini_layouts_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+
+    case 'help.page.mini_layouts':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Mini layouts is a spiritual successor to "Mini Panels" for Drupal 8 built on the core Layout Builder module.') . '</p>';
+      $output .= '<p>' . t('Mini layouts allows administrators to define blocks that contain other blocks arranged using a layout.') . '</p>';
+
+            // Add a link to the Drupal.org project.
+      $output .= '<p>';
+      $output .= t('Visit the <a href=":project_link">Mini Layouts project page</a> on Drupal.org for more information.',[
+        ':project_link' => 'https://www.drupal.org/project/mini_layouts'
+        ]);
+      $output .= '</p>';
+
+      return $output;
+
+    default:
+  }
+}

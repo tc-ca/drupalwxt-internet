@@ -8,7 +8,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Component\Utility\Unicode;
 
 /**
  * Handles files uploaded by Dropzone.
@@ -96,7 +95,7 @@ class UploadHandler implements UploadHandlerInterface {
     // Remove multiple consecutive non-alphabetical characters.
     $filename = preg_replace('/(_)_+|(\.)\.+|(-)-+/', '\\1\\2\\3', $filename);
     // Force lowercase to prevent issues on case-insensitive file systems.
-    $filename = Unicode::strtolower($filename);
+    $filename = strtolower($filename);
 
     // For security reasons append the txt extension. It will be removed in
     // Drupal\dropzonejs\Element::valueCallback when we will know the valid

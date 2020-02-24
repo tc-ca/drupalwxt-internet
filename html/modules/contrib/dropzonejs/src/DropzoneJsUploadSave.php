@@ -6,6 +6,7 @@ use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -74,6 +75,13 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
   protected $token;
 
   /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * Construct the DropzoneUploadSave object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -90,8 +98,10 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
    *   Config factory service.
    * @param \Drupal\Core\Utility\Token $token
    *   The token service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MimeTypeGuesserInterface $mimetype_guesser, FileSystemInterface $file_system, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer, ConfigFactoryInterface $config_factory, Token $token) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MimeTypeGuesserInterface $mimetype_guesser, FileSystemInterface $file_system, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer, ConfigFactoryInterface $config_factory, Token $token, MessengerInterface $messenger) {
     $this->entityTypeManager = $entity_type_manager;
     $this->mimeTypeGuesser = $mimetype_guesser;
     $this->fileSystem = $file_system;
@@ -99,6 +109,7 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
     $this->renderer = $renderer;
     $this->configFactory = $config_factory;
     $this->token = $token;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -129,7 +140,7 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
     // to add it here or else the file upload will fail.
     if ($renamed && !empty($extensions)) {
       $extensions .= ' txt';
-      drupal_set_message($this->t('For security reasons, your upload has been renamed to %filename.', ['%filename' => $file->getFilename()]));
+      $this->messenger->addMessage($this->t('For security reasons, your upload has been renamed to %filename.', ['%filename' => $file->getFilename()]));
     }
 
     // Validate the file.
@@ -144,20 +155,21 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
           '#items' => $errors,
         ],
       ];
-      drupal_set_message($this->renderer->renderPlain($message), 'error');
+      $this->messenger->addError($this->renderer->renderPlain($message));
       return FALSE;
     }
 
     // Prepare destination.
     if (!$this->prepareDestination($file, $destination)) {
-      drupal_set_message($this->t('The file could not be uploaded because the destination %destination is invalid.', ['%destination' => $destination]), 'error');
+      $this->messenger->addError($this->t('The file could not be uploaded because the destination %destination is invalid.', ['%destination' => $destination]));
       return FALSE;
     }
 
     // Move uploaded files from PHP's upload_tmp_dir to destination.
-    $move_result = file_unmanaged_move($uri, $file->getFileUri());
+    $move_result = $this->fileSystem->move($uri, $file->getFileUri());
     if (!$move_result) {
-      drupal_set_message($this->t('File upload error. Could not move uploaded file.'), 'error');
+      $this->messenger->addError($this->t('File upload error. Could not move uploaded file.'));
+
       $this->logger->notice('Upload error. Could not move uploaded file %file to destination %destination.', ['%file' => $file->getFilename(), '%destination' => $file->getFileUri()]);
       return FALSE;
     }
@@ -231,7 +243,7 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
     if (substr($destination, -1) != '/') {
       $destination .= '/';
     }
-    $destination = file_destination($destination . $file->getFilename(), FILE_EXISTS_RENAME);
+    $destination = $this->fileSystem->getDestinationFilename($destination . $file->getFilename(), FileSystemInterface::EXISTS_RENAME);
     $file->setFileUri($destination);
     return TRUE;
   }

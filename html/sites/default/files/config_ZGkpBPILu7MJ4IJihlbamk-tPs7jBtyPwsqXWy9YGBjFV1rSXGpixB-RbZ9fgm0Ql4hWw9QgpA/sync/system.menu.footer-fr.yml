@@ -1,0 +1,10 @@
+uuid: 1db8f986-9406-42fd-a675-9166174b46fd
+langcode: fr
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: Z8LLdOvBh4IOOj3gzLTFqSOg0zSfLlonoIkzLO3hTJ8
+id: footer-fr
+label: 'Pied de page'
+description: 'Pied de page en francais.'
+locked: false

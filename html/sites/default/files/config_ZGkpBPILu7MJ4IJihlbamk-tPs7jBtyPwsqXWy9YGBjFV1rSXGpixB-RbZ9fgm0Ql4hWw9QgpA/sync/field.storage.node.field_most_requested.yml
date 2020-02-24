@@ -1,0 +1,19 @@
+uuid: 5aaefad7-ec55-40b1-bee7-e3d04f5e8458
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - node
+id: node.field_most_requested
+field_name: field_most_requested
+entity_type: node
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

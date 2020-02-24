@@ -2,16 +2,11 @@
 
 namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\blazy\BlazyManagerInterface;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
-use Drupal\blazy\Dejavu\BlazyDefault;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
-use Drupal\blazy_test\BlazyFormatterTestInterface;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,56 +20,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
 
-  use BlazyVideoTrait;
-  use BlazyFormatterBaseTrait;
-
-  /**
-   * The logger factory.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
-  protected $loggerFactory;
-
-  /**
-   * Constructs a SlickMediaFormatter instance.
-   */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, LoggerChannelFactoryInterface $logger_factory, BlazyManagerInterface $blazy_manager, BlazyFormatterTestInterface $formatter) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->loggerFactory = $logger_factory;
-    $this->blazyManager  = $blazy_manager;
-    $this->formatter     = $formatter;
-  }
+  use BlazyFormatterTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $plugin_id,
-      $plugin_definition,
-      $configuration['field_definition'],
-      $configuration['settings'],
-      $configuration['label'],
-      $configuration['view_mode'],
-      $configuration['third_party_settings'],
-      $container->get('logger.factory'),
-      $container->get('blazy.manager'),
-      $container->get('blazy_test.formatter')
-    );
-  }
-
-  /**
-   * Returns the blazy formatter.
-   */
-  public function formatter() {
-    return $this->formatter;
-  }
-
-  /**
-   * Returns the blazy admin.
-   */
-  public function manager() {
-    return $this->formatter;
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'entity');
   }
 
   /**
@@ -82,6 +35,13 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
    */
   public function admin() {
     return \Drupal::service('blazy_test.admin');
+  }
+
+  /**
+   * Returns the slick service.
+   */
+  public function blazyEntity() {
+    return $this->blazyEntity;
   }
 
   /**
@@ -106,16 +66,13 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
     $settings = $this->buildSettings();
     $build = ['settings' => $settings];
 
-    $this->formatter->buildSettings($build, $items);
+    $this->formatter()->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $entities, $langcode);
 
-    // Alternatively use grid: BlazyGrid::build($build['items'], $settings).
-    $elements = $build['items'];
-    $elements['#attached'] = $this->formatter->attach($settings);
-
-    return $elements;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**
@@ -136,13 +93,11 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
    */
   public function getScopedFormElements() {
     $admin       = $this->admin();
-    $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
     $target_type = $this->getFieldSetting('target_type');
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
     $node        = $admin->getFieldOptions($bundles, ['entity_reference'], $target_type, 'node');
-    $stages      = $admin->getFieldOptions($bundles, ['image', 'video_embed_field'], $target_type);
+    $stages      = $admin->getFieldOptions($bundles, ['image'], $target_type);
 
     return [
       'namespace'  => 'blazy_test',

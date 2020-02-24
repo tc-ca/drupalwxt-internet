@@ -156,6 +156,7 @@ class FieldBlock extends BlockBase implements ContextAwarePluginInterface, Conta
    */
   public function build() {
     $display_settings = $this->getConfiguration()['formatter'];
+    $display_settings['third_party_settings']['layout_builder']['view_mode'] = $this->getContextValue('view_mode');
     $entity = $this->getEntity();
     try {
       $build = $entity->get($this->fieldName)->view($display_settings);
@@ -297,7 +298,7 @@ class FieldBlock extends BlockBase implements ContextAwarePluginInterface, Conta
         '#title' => $this->t('Offset (number of items to skip)'),
         '#type' => 'number',
         '#default_value' => isset($config['offset']) ? $config['offset'] : 0,
-        '#description' => $this->t('Enter 0 to start with item 1, 1 to start with item 2, etc'),
+        '#description' => $this->t('For example, set this to 3 and the first 3 items will not be displayed.'),
         '#states' => [
           'invisible' => [
             ':input[name="settings[multivalue_wrapper][display_items]"]' => ['value' => 'display_all'],

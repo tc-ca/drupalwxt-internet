@@ -14,6 +14,9 @@ services:
     arguments:
       - '@business_rules.processor'
       - '@business_rules.util'
+      - '@event_dispatcher'
+      - '@logger.factory'
+      - '@module_handler'
     calls:
       - [setContainer, ['@service_container']]
     tags:

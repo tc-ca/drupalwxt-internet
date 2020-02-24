@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -185,7 +186,7 @@ class CommentForm extends ContentEntityForm {
       if (!$comment->getOwnerId()) {
         $author = $comment->getAuthorName();
       }
-      $status = $comment->getStatus();
+      $status = $comment->isPublished() ? CommentInterface::PUBLISHED : CommentInterface::NOT_PUBLISHED;
       if (empty($comment_preview)) {
         $form['#title'] = $this->t('Edit comment %title', [
           '%title' => $comment->getSubject(),
@@ -425,7 +426,7 @@ class CommentForm extends ContentEntityForm {
       // Add a log entry.
       $logger->notice('Comment posted: %subject.', [
           '%subject' => $comment->getSubject(),
-          'link' => $this->l(t('View'), $comment->toUrl()->setOption('fragment', 'comment-' . $comment->id())),
+          'link' => Link::fromTextAndUrl(t('View'), $comment->toUrl()->setOption('fragment', 'comment-' . $comment->id()))->toString(),
         ]);
 
       // Explain the approval queue if necessary.

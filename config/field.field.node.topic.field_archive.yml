@@ -1,0 +1,23 @@
+uuid: 497d89a5-4d8f-4aea-8306-d52c39d7f0df
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_archive
+    - node.type.topic
+id: node.topic.field_archive
+field_name: field_archive
+entity_type: node
+bundle: topic
+label: 'Archive this page'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

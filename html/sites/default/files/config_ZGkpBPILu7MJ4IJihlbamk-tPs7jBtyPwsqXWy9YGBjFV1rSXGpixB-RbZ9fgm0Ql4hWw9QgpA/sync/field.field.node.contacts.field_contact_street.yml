@@ -1,0 +1,19 @@
+uuid: f51ed744-aae6-404e-80cd-e3a1c0ea5521
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_contact_street
+    - node.type.contacts
+id: node.contacts.field_contact_street
+field_name: field_contact_street
+entity_type: node
+bundle: contacts
+label: Contact_street
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

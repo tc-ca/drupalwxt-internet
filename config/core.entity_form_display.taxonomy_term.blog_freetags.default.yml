@@ -1,0 +1,51 @@
+uuid: 97bf3858-70d2-47b3-9777-e36cbcf163a2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.blog_freetags.field_test
+    - taxonomy.vocabulary.blog_freetags
+  module:
+    - path
+    - text
+id: taxonomy_term.blog_freetags.default
+targetEntityType: taxonomy_term
+bundle: blog_freetags
+mode: default
+content:
+  description:
+    type: text_textarea
+    weight: 0
+    region: content
+    settings:
+      placeholder: ''
+      rows: 5
+    third_party_settings: {  }
+  field_test:
+    weight: 31
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

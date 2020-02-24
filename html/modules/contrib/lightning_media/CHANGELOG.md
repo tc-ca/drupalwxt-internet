@@ -1,3 +1,13 @@
+## 3.16.0
+* Pinned Slick Carousel to 2.0 to ensure compatibility with Drupal 8.7.
+* Updated DropzoneJS to 2.0-alpha5.
+* Updated Entity Browser to 2.3.
+
+## 3.15.0
+* Updated Slick Entity Reference to 2.0.
+* Updated Media Entity Instagram to 2.0.
+* Updated Media Entity Twitter to 2.1.
+
 ## 3.14.0
 There are no user-facing changes in this version.
 

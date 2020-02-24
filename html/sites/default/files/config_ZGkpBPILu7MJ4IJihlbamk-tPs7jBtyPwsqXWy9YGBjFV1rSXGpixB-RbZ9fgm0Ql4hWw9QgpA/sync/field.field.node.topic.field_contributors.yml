@@ -1,0 +1,29 @@
+uuid: f9bf1903-3ac5-4bdf-b719-d440a0fd1218
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_contributors
+    - node.type.topic
+    - taxonomy.vocabulary.organization
+id: node.topic.field_contributors
+field_name: field_contributors
+entity_type: node
+bundle: topic
+label: Contributors
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      organization: organization
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

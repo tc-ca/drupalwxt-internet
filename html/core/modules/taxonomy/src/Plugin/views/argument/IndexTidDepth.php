@@ -24,14 +24,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class IndexTidDepth extends ArgumentPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var EntityRepositoryInterface
-   */
-   protected $entityRepository;
-
-  /**
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $termStorage;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
 
   /**
    * {@inheritdoc}
@@ -39,8 +39,8 @@ class IndexTidDepth extends ArgumentPluginBase implements ContainerFactoryPlugin
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityStorageInterface $termStorage, EntityRepositoryInterface $entityRepository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityRepository = $entityRepository;
     $this->termStorage = $termStorage;
+    $this->entityRepository = $entityRepository;
   }
 
   /**
@@ -51,7 +51,7 @@ class IndexTidDepth extends ArgumentPluginBase implements ContainerFactoryPlugin
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager')->getStorage('taxonomy_term'),
+      $container->get('entity_type.manager')->getStorage('taxonomy_term'),
       $container->get('entity.repository')
     );
   }

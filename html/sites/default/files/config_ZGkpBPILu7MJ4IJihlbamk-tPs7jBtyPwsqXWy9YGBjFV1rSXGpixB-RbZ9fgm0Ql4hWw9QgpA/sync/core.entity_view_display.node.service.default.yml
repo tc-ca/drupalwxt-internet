@@ -1,0 +1,88 @@
+uuid: 132e68e6-f6ca-4653-bb4a-b2357b839260
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.service.body
+    - field.field.node.service.field_archive
+    - field.field.node.service.field_archive_notify
+    - field.field.node.service.field_custom_js_css
+    - field.field.node.service.field_date_published
+    - field.field.node.service.field_mode
+    - field.field.node.service.field_reference_number
+    - field.field.node.service.field_region
+    - field.field.node.service.field_routing_symbol
+    - field.field.node.service.field_show_org
+    - field.field.node.service.field_source_id
+    - field.field.node.service.field_source_url
+    - field.field.node.service.field_team
+    - field.field.node.service.field_topics
+    - node.type.service
+  module:
+    - layout_builder
+    - layout_builder_restrictions
+    - layout_discovery
+    - layout_library
+    - text
+    - user
+third_party_settings:
+  layout_builder:
+    allow_custom: false
+    enabled: true
+    sections:
+      -
+        layout_id: layout_onecol
+        layout_settings: {  }
+        components:
+          c644e543-f312-46ba-9cb1-75d23bb88d49:
+            uuid: c644e543-f312-46ba-9cb1-75d23bb88d49
+            region: content
+            configuration:
+              label_display: '0'
+              context_mapping:
+                entity: layout_builder.entity
+              id: 'field_block:node:service:body'
+              formatter:
+                label: hidden
+                type: text_default
+                settings: {  }
+                third_party_settings: {  }
+            additional: {  }
+            weight: 0
+        third_party_settings: {  }
+  layout_library:
+    enable: false
+  layout_builder_restrictions:
+    entity_view_mode_restriction:
+      allowed_blocks: {  }
+      allowed_layouts: {  }
+id: node.service.default
+targetEntityType: node
+bundle: service
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  content_moderation_control: true
+  field_archive: true
+  field_archive_notify: true
+  field_custom_js_css: true
+  field_date_published: true
+  field_mode: true
+  field_reference_number: true
+  field_region: true
+  field_routing_symbol: true
+  field_show_org: true
+  field_source_id: true
+  field_source_url: true
+  field_team: true
+  field_topics: true
+  langcode: true
+  links: true
+  search_api_excerpt: true

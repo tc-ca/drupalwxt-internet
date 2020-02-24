@@ -8,7 +8,6 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\panelizer\LayoutBuilderMigration;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 
 /**
@@ -314,8 +313,12 @@ function panelizer_form_entity_view_display_edit_form_alter(&$form, FormStateInt
 function _panelizer_migrate_to_layout_builder(array &$form, FormStateInterface $form_state) {
   /** @var \Drupal\layout_builder\Entity\LayoutEntityDisplayInterface $display */
   $display = $form_state->getFormObject()->getEntity();
-  $batch = LayoutBuilderMigration::fromDisplay($display)->toArray();
-  batch_set($batch);
+
+  $form_state->setRedirect('panelizer.layout_builder_migration', [
+    'entity_type_id' => $display->getTargetEntityTypeId(),
+    'bundle' => $display->getTargetBundle(),
+    'view_mode' => $display->getMode(),
+  ]);
 }
 
 function panelizer_form_entity_view_display_edit_submit(&$form, FormStateInterface $form_state) {

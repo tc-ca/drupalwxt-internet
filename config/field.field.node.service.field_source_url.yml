@@ -1,0 +1,23 @@
+uuid: b9b99499-e149-4bbd-97e8-c1d604610499
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_url
+    - node.type.service
+  module:
+    - link
+id: node.service.field_source_url
+field_name: field_source_url
+entity_type: node
+bundle: service
+label: 'Source url'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 16
+  title: 0
+field_type: link

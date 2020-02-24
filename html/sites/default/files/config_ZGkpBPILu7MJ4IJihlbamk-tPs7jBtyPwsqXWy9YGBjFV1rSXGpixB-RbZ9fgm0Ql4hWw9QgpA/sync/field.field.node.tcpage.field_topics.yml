@@ -1,0 +1,29 @@
+uuid: e3362aa4-1b7b-4dac-94a0-e7a28ebf883f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_topics
+    - node.type.tcpage
+    - taxonomy.vocabulary.topics
+id: node.tcpage.field_topics
+field_name: field_topics
+entity_type: node
+bundle: tcpage
+label: Topics
+description: 'Note that the url will be formed from <em>only</em> the first topic selected.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      topics: topics
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

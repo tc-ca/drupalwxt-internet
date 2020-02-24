@@ -1,0 +1,9 @@
+uuid: caf7ddd9-67db-49d7-bd7f-53975b10ac9f
+langcode: en
+status: true
+dependencies: {  }
+id: container_fixed_block
+label: 'Container fixed - block'
+classes: container
+type: component
+block_restrictions: {  }

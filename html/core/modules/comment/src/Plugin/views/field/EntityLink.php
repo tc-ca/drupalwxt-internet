@@ -19,7 +19,7 @@ use Drupal\Core\Render\RendererInterface;
 class EntityLink extends FieldPluginBase {
 
   /**
-   * Stores the result of node_view_multiple for all rows to reuse it later.
+   * Stores the result of parent entities build for all rows to reuse it later.
    *
    * @var array
    */
@@ -111,7 +111,7 @@ class EntityLink extends FieldPluginBase {
 
     // Create comment links for the entity.
     $context = ['view_mode' => $this->options['teaser'] ? 'teaser' : 'full'];
-    $comment_links = $this->commentLinkBuilder ->buildCommentedEntityLinks($entity, $context);
+    $comment_links = $this->commentLinkBuilder->buildCommentedEntityLinks($entity, $context);
 
     return !empty($comment_links['comment__comment']) ? $this->renderer->render($comment_links['comment__comment']) : '';
   }

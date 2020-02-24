@@ -35,9 +35,9 @@ class BlazyAdminExtendedUnitTest extends UnitTestCase {
     $this->setUpUnitServices();
     $this->setUpUnitContainer();
 
-    $this->stringTranslation = $this->getMock('Drupal\Core\StringTranslation\TranslationInterface');
-    $this->entityDisplayRepository = $this->getMock('Drupal\Core\Entity\EntityDisplayRepositoryInterface');
-    $this->typedConfig = $this->getMock('Drupal\Core\Config\TypedConfigManagerInterface');
+    $this->stringTranslation = $this->createMock('Drupal\Core\StringTranslation\TranslationInterface');
+    $this->entityDisplayRepository = $this->createMock('Drupal\Core\Entity\EntityDisplayRepositoryInterface');
+    $this->typedConfig = $this->createMock('Drupal\Core\Config\TypedConfigManagerInterface');
     $this->dateFormatter = $this->getMockBuilder('Drupal\Core\Datetime\DateFormatter')
       ->disableOriginalConstructor()
       ->getMock();
@@ -47,12 +47,14 @@ class BlazyAdminExtendedUnitTest extends UnitTestCase {
     $container->set('config.typed', $this->typedConfig);
     $container->set('string_translation', $this->getStringTranslationStub());
     $container->set('date.formatter', $this->dateFormatter);
+    $container->set('blazy.manager', $this->blazyManager);
 
     \Drupal::setContainer($container);
 
     $this->blazyAdminExtended = new BlazyAdminExtended(
       $this->entityDisplayRepository,
       $this->typedConfig,
+      $this->dateFormatter,
       $this->blazyManager
     );
   }

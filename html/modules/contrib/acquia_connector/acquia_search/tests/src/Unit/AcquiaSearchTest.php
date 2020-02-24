@@ -1,30 +1,53 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\Tests\acquia_search\Unit\AcquiaSearchTest.
- */
-
 namespace Drupal\Tests\acquia_search\Unit;
 
+use Drupal\acquia_connector\CryptConnector;
 use Drupal\acquia_search\EventSubscriber\SearchSubscriber;
 use Drupal\Tests\UnitTestCase;
-use Drupal\acquia_connector\CryptConnector;
-
-if (!defined('REQUEST_TIME')) {
-  define('REQUEST_TIME', (int) $_SERVER['REQUEST_TIME']);
-}
 
 /**
+ * Class AcquiaSearchTest.
+ *
  * @coversDefaultClass \Drupal\acquia_search\EventSubscriber\SearchSubscriber
  *
  * @group Acquia search
  */
 class AcquiaSearchTest extends UnitTestCase {
+
+  /**
+   * Acquia subscription ID.
+   *
+   * @var string
+   */
   protected $id;
+
+  /**
+   * Key.
+   *
+   * @var string
+   */
   protected $key;
+
+  /**
+   * Salt.
+   *
+   * @var string
+   */
   protected $salt;
+
+  /**
+   * Derived key.
+   *
+   * @var string
+   */
   protected $derivedKey;
+
+  /**
+   * Search subscriber.
+   *
+   * @var \Drupal\acquia_search\EventSubscriber\SearchSubscriber
+   */
   protected $searchSubscriber;
 
   /**
@@ -73,7 +96,7 @@ class AcquiaSearchTest extends UnitTestCase {
    */
   public function testCalculateAuthCookie() {
     // Generate the expected hash.
-    $time = REQUEST_TIME;
+    $time = 1577635946;
     $nonce = $this->randomMachineName(32);
     $string = $time . $nonce . $this->randomMachineName();
     $hmac = hash_hmac('sha1', $time . $nonce . $string, $this->derivedKey);
@@ -82,10 +105,10 @@ class AcquiaSearchTest extends UnitTestCase {
       ->setMethods(['getDerivedKey'])
       ->getMock();
     $calculateAuthCookie->expects($this->any())
-          ->method('getDerivedKey')
-          ->willReturn($this->derivedKey);
+      ->method('getDerivedKey')
+      ->willReturn($this->derivedKey);
 
-    $authenticator = $calculateAuthCookie->calculateAuthCookie($string, $nonce, $this->derivedKey, $time);
+    $authenticator = $calculateAuthCookie->calculateAuthCookie($string, $nonce, $time, $this->derivedKey, $time);
     preg_match('/acquia_solr_hmac=([a-zA-Z0-9]{40});/', $authenticator, $matches);
     $this->assertEquals($hmac, $matches[1], 'HMAC API function generates the expected hmac hash.');
     preg_match('/acquia_solr_time=([0-9]{10});/', $authenticator, $matches);
@@ -142,12 +165,12 @@ class AcquiaSearchTest extends UnitTestCase {
     $hmac = hash_hmac('sha1', $nonce . $string, $this->derivedKey);
 
     // Pass header with an expected pragma.
-    $headers = array('pragma/hmac_digest=' . $hmac . ';');
+    $headers = ['pragma/hmac_digest=' . $hmac . ';'];
     $extracted = $this->searchSubscriber->extractHmac($headers);
     $this->assertEquals($hmac, $extracted, 'The HMAC digest was extracted from the response header.');
 
     // Pass header with a bad pragma.
-    $bad_headers1 = array('pragma/' . $this->randomMachineName());
+    $bad_headers1 = ['pragma/' . $this->randomMachineName()];
     $bad_extracted1 = $this->searchSubscriber->extractHmac($bad_headers1);
     $this->assertEquals('', $bad_extracted1, 'Empty string returned by HMAC extraction function when an invalid pragma is passed.');
 

@@ -8,6 +8,8 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 
 /**
+ * Tests presave operations on entity form displays.
+ *
  * @group lightning_media
  */
 class EntityFormDisplayPresaveTest extends KernelTestBase {
@@ -75,7 +77,7 @@ class EntityFormDisplayPresaveTest extends KernelTestBase {
     // Assert the configuration was not overridden.
     $display = EntityFormDisplay::load('node.page.default');
     $component = $display->getComponent('field_media');
-    $this->assertInternalType('array', $component);
+    $this->assertSame('array', gettype($component));
     $this->assertSame('options_select', $component['type']);
   }
 
@@ -93,7 +95,7 @@ class EntityFormDisplayPresaveTest extends KernelTestBase {
     // Assert the configuration was overridden.
     $display = EntityFormDisplay::load('node.page.default');
     $component = $display->getComponent('field_media');
-    $this->assertInternalType('array', $component);
+    $this->assertSame('array', gettype($component));
     $this->assertSame('entity_browser_entity_reference', $component['type']);
   }
 

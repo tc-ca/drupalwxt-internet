@@ -1,0 +1,20 @@
+uuid: 635bb799-c0b5-43e1-a621-66ad9fd39f56
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.tcpage
+id: node.tcpage.uid
+field_name: uid
+entity_type: node
+bundle: tcpage
+label: 'Authored by'
+description: 'The username of the content author.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: 'Drupal\node\Entity\Node::getDefaultEntityOwner'
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

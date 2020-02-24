@@ -32,6 +32,7 @@ use Drupal\user\UserInterface;
  *     "views_data" = "Drupal\moderation_note\ModerationNoteViewsData",
  *   },
  *   base_table = "moderation_note",
+ *   uri_callback = "moderation_note_uri",
  *   admin_permission = "administer moderation notes",
  *   fieldable = FALSE,
  *   entity_keys = {
@@ -65,39 +66,39 @@ class ModerationNote extends ContentEntityBase implements ModerationNoteInterfac
     $fields += static::publishedBaseFieldDefinitions($entity_type);
 
     $fields['parent'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Parent'))
-      ->setDescription(t('The parent Moderation Note if this is a reply.'))
+      ->setLabel(t('Parent note'))
+      ->setDescription(t('The parent note if this is a reply.'))
       ->setSetting('target_type', 'moderation_note');
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Authored by'))
-      ->setDescription(t('The content author.'))
+      ->setDescription(t('The note author.'))
       ->setSetting('target_type', 'user')
       ->setRequired(TRUE);
 
     $fields['entity_type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity'))
+      ->setLabel(t('Notated entity type'))
       ->setDescription(t('The entity type this note is related to.'))
       ->setSetting('max_length', EntityTypeInterface::ID_MAX_LENGTH)
       ->setRequired(TRUE);
 
     $fields['entity_id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Entity'))
+      ->setLabel(t('Notated entity ID'))
       ->setDescription(t('The entity id this note is related to.'))
       ->setRequired(TRUE);
 
     $fields['entity_field_name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity'))
+      ->setLabel(t('Notated entity field name'))
       ->setDescription(t('The field name this note is related to.'))
       ->setRequired(TRUE);
 
     $fields['entity_langcode'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity'))
+      ->setLabel(t('Notated entity langcode'))
       ->setDescription(t('The language this note is related to.'))
       ->setRequired(TRUE);
 
     $fields['entity_view_mode_id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity'))
+      ->setLabel(t('Notated entity view mode ID'))
       ->setDescription(t('The entity view mode this note is related to.'))
       ->setRequired(TRUE);
 

@@ -3,19 +3,22 @@
 namespace Drupal\Tests\autosave_form\FunctionalJavascript;
 
 use Behat\Mink\Exception\ResponseTextException;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
  * Basic functionality for autosave form tests.
  */
-abstract class AutosaveFormTestBase extends JavascriptTestBase {
+abstract class AutosaveFormTestBase extends WebDriverTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['autosave_form', 'autosave_form_test'];
+  protected static $modules = ['autosave_form', 'autosave_form_test'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
 
   /**
    * Profile to use.

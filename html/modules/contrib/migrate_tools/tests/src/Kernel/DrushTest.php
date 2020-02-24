@@ -38,10 +38,13 @@ class DrushTest extends MigrateTestBase {
     'limit' => NULL,
     'feedback' => NULL,
     'idlist' => NULL,
-    'idlist-delimiter' => ':',
+    'idlist-delimiter' => MigrateToolsCommands::DEFAULT_ID_LIST_DELIMITER,
     'update' => NULL,
     'force' => NULL,
     'execute-dependencies' => NULL,
+    'skip-progress-bar' => FALSE,
+    'continue-on-failure' => FALSE,
+    'sync' => FALSE,
   ];
 
   /**
@@ -73,7 +76,9 @@ class DrushTest extends MigrateTestBase {
     $this->installConfig('migrate_plus');
     $this->installConfig('migrate_tools_test');
     $this->installEntitySchema('taxonomy_term');
+    $this->installEntitySchema('user');
     $this->installSchema('system', ['key_value', 'key_value_expire']);
+    $this->installSchema('user', ['users_data']);
     $this->migrationPluginManager = $this->container->get('plugin.manager.migration');
     $this->logger = $this->container->get('logger.channel.migrate_tools');
     $this->commands = new MigrateToolsCommands(
@@ -90,14 +95,26 @@ class DrushTest extends MigrateTestBase {
   public function testStatus() {
     $this->executeMigration('fruit_terms');
     /** @var \Consolidation\OutputFormatters\StructuredData\RowsOfFields $result */
-    $result = $this->commands->status('fruit_terms');
+    $result = $this->commands->status('fruit_terms', [
+      'group' => NULL,
+      'tag' => NULL,
+      'names-only' => FALSE,
+    ]);
     $rows = $result->getArrayCopy();
-    $this->assertSame(1, count($rows));
+    $this->assertCount(1, $rows);
     $row = reset($rows);
     $this->assertSame('fruit_terms', $row['id']);
     $this->assertSame(3, $row['total']);
     $this->assertSame(3, $row['imported']);
     $this->assertSame('Idle', $row['status']);
+
+    // Migrate status should not display migrate_drupal migrations if no source
+    // database is defined.
+    \Drupal::service('module_installer')->uninstall(['migrate_tools_test']);
+    $this->enableModules(['migrate_drupal']);
+    \Drupal::configFactory()->getEditable('migrate_plus.migration.fruit_terms')->delete();
+    $rows = $this->commands->status();
+    $this->assertEmpty($rows);
   }
 
   /**
@@ -118,12 +135,12 @@ class DrushTest extends MigrateTestBase {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance('fruit_terms');
     $id_map = $migration->getIdMap();
-    $this->commands->import('fruit_terms', ['idlist' => 'Apple'] + $this->importBaseOptions);
+    $this->commands->import('fruit_terms', array_merge($this->importBaseOptions, ['idlist' => 'Apple']));
     $this->assertSame(1, $id_map->importedCount());
-    $this->commands->import('fruit_terms');
+    $this->commands->import('fruit_terms', $this->importBaseOptions);
     $this->assertSame(3, $id_map->importedCount());
-    $this->commands->import('fruit_terms', ['idlist' => 'Apple', 'update' => TRUE] + $this->importBaseOptions);
-    $this->assertSame(0, count($id_map->getRowsNeedingUpdate(100)));
+    $this->commands->import('fruit_terms', array_merge($this->importBaseOptions, ['idlist' => 'Apple', 'update' => TRUE]));
+    $this->assertCount(0, $id_map->getRowsNeedingUpdate(100));
   }
 
   /**
@@ -132,7 +149,7 @@ class DrushTest extends MigrateTestBase {
   public function testFailingImportThrowsException() {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('source_exception migration failed.');
-    $this->commands->import('source_exception');
+    $this->commands->import('source_exception', $this->importBaseOptions);
   }
 
   /**
@@ -148,7 +165,11 @@ class DrushTest extends MigrateTestBase {
     $id_map = $migration->getIdMap();
     $id_map->saveMessage(['name' => 'Apple'], $message);
     /** @var \Consolidation\OutputFormatters\StructuredData\RowsOfFields $result */
-    $result = $this->commands->messages('fruit_terms');
+    $result = $this->commands->messages('fruit_terms', [
+      'csv' => FALSE,
+      'idlist' => NULL,
+      'idlist-delimiter' => MigrateToolsCommands::DEFAULT_ID_LIST_DELIMITER,
+    ]);
     $rows = $result->getArrayCopy();
     $this->assertSame($message, $rows[0]['message']);
   }
@@ -159,7 +180,11 @@ class DrushTest extends MigrateTestBase {
   public function testFailingMessagesThrowsException() {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Migration does_not_exist does not exist');
-    $this->commands->messages('does_not_exist');
+    $this->commands->messages('does_not_exist', [
+      'csv' => FALSE,
+      'idlist' => NULL,
+      'idlist-delimiter' => MigrateToolsCommands::DEFAULT_ID_LIST_DELIMITER,
+    ]);
   }
 
   /**
@@ -171,7 +196,7 @@ class DrushTest extends MigrateTestBase {
     $migration = $this->migrationPluginManager->createInstance('fruit_terms');
     $id_map = $migration->getIdMap();
     $this->assertSame(3, $id_map->importedCount());
-    $this->commands->rollback('fruit_terms');
+    $this->commands->rollback('fruit_terms', $this->importBaseOptions);
     $this->assertSame(0, $id_map->importedCount());
   }
 
@@ -184,7 +209,7 @@ class DrushTest extends MigrateTestBase {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance('source_exception');
     $migration->setStatus(MigrationInterface::STATUS_IMPORTING);
-    $this->commands->rollback('source_exception');
+    $this->commands->rollback('source_exception', $this->importBaseOptions);
   }
 
   /**
@@ -196,7 +221,12 @@ class DrushTest extends MigrateTestBase {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance('fruit_terms');
     $migration->setStatus(MigrationInterface::STATUS_IMPORTING);
-    $this->assertSame('Importing', $this->commands->status('fruit_terms')->getArrayCopy()[0]['status']);
+    $status = $this->commands->status('fruit_terms', [
+      'group' => NULL,
+      'tag' => NULL,
+      'names-only' => FALSE,
+    ])->getArrayCopy()[0]['status'];
+    $this->assertSame('Importing', $status);
     $this->commands->resetStatus('fruit_terms');
     $this->assertSame(MigrationInterface::STATUS_IDLE, $migration->getStatus());
 
@@ -240,7 +270,7 @@ class DrushTest extends MigrateTestBase {
     /** @var \Consolidation\OutputFormatters\StructuredData\RowsOfFields $result */
     $result = $this->commands->fieldsSource('fruit_terms');
     $rows = $result->getArrayCopy();
-    $this->assertSame(1, count($rows));
+    $this->assertCount(1, $rows);
     $this->assertSame('name', $rows[0]['machine_name']);
     $this->assertSame('name', $rows[0]['description']);
   }

@@ -1,3 +1,8 @@
+## 2.5.0
+* Allowed Panelizer 5 to be installed alongside Lightning Layout. If you need
+  to use Panelizer to add or edit default layouts, you can require Panelizer
+  4 in your project via `composer require drupal/panelizer:^4.1`.
+
 ## 2.4.0
 * Fixed an incompatibility between Lightning Landing Page and Lightning
   Workflow 3.14 and later.

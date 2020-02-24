@@ -1,0 +1,21 @@
+uuid: 5ba382a1-7f2f-4674-b921-f3431215d8e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_transcript
+    - node.type.video
+  module:
+    - text
+id: node.video.field_transcript
+field_name: field_transcript
+entity_type: node
+bundle: video
+label: Transcript
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

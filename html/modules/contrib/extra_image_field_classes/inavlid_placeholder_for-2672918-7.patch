@@ -1,0 +1,13 @@
+diff --git a/src/Plugin/Field/FieldFormatter/ExtraImageFieldClassesFormatter.php b/src/Plugin/Field/FieldFormatter/ExtraImageFieldClassesFormatter.php
+index ca1d471..5ae9617 100644
+--- a/src/Plugin/Field/FieldFormatter/ExtraImageFieldClassesFormatter.php
++++ b/src/Plugin/Field/FieldFormatter/ExtraImageFieldClassesFormatter.php
+@@ -47,7 +47,7 @@ class ExtraImageFieldClassesFormatter extends ImageFormatter {
+    */
+   public function settingsSummary() {
+     $summary = parent::settingsSummary();
+-    $summary[] = t('Extra Image Field Classes: @class', array(
++    $summary[] = t('Extra classes for the Image Field: @class', array(
+       '@class' => $this->getSetting('extra_image_field_classes'),
+     ));
+     return $summary;

@@ -1,0 +1,17 @@
+uuid: d28ef76b-d502-41df-98e3-aad33660e876
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: XUqy1RhMSRgx7vuj38n1wVWOJhnDMI-Rvq89Nf8qFC0
+name: one_half
+label: 'One half'
+effects:
+  8e42b44e-d63f-4c51-8fe2-263b1d90f01b:
+    uuid: 8e42b44e-d63f-4c51-8fe2-263b1d90f01b
+    id: image_scale
+    weight: 1
+    data:
+      width: 600
+      height: null
+      upscale: false

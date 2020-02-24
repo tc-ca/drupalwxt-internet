@@ -16,7 +16,7 @@ use Drupal\search_api\Entity\Server;
 function lightning_search_install() {
   // Search API DB is not a hard dependency, but install it if it's available so
   // that the search index we provide will "just work" out of the box.
-  $module_data = system_rebuild_module_data();
+  $module_data = \Drupal::service('extension.list.module')->reset()->getList();
   if (isset($module_data['search_api_db'])) {
     \Drupal::service('module_installer')->install(['search_api_db']);
   }

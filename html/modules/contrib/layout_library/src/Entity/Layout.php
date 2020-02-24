@@ -135,7 +135,7 @@ class Layout extends ConfigEntityBase implements SectionListInterface {
    * @return $this
    */
   protected function setSections(array $sections) {
-    $this->layout = $sections;
+    $this->layout = array_values($sections);
     return $this;
   }
 

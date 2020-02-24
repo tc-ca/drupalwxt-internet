@@ -3,14 +3,13 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
-use Drupal\blazy\BlazyFormatterManager;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,33 +22,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter.
  * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickImageFormatter.
  * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatter.
+ * @todo remove no longer in use: ImageFactory at blazy:3.x.
  */
 abstract class BlazyFileFormatterBase extends FileFormatterBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
-
-  /**
-   * Constructs a BlazyFormatter object.
-   */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterManager $blazy_manager) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->blazyManager = $blazy_manager;
-  }
+  use BlazyFormatterTrait;
+  use BlazyFormatterViewTrait;
+  use BlazyDependenciesTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $plugin_id,
-      $plugin_definition,
-      $configuration['field_definition'],
-      $configuration['settings'],
-      $configuration['label'],
-      $configuration['view_mode'],
-      $configuration['third_party_settings'],
-      $container->get('blazy.formatter.manager')
-    );
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'image');
   }
 
   /**
@@ -57,6 +43,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
    */
   public static function defaultSettings() {
     return BlazyDefault::imageSettings() + BlazyDefault::gridSettings();
+  }
+
+  /**
+   * Build individual item if so configured such as for file ER goodness.
+   */
+  public function buildElement(array &$build, $entity) {
+    // Do nothing.
   }
 
   /**
@@ -87,30 +80,19 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
-    $target_type = $this->getFieldSetting('target_type');
-    $multiple    = $field->getFieldStorageDefinition()->isMultiple();
+    $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => ['title' => $this->t('Title'), 'alt' => $this->t('Alt')],
-      'current_view_mode' => $this->viewMode,
-      'entity_type'       => $entity_type,
-      'field_name'        => $field->getName(),
-      'field_type'        => $field->getType(),
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
-      'namespace'         => 'blazy',
-      'plugin_id'         => $this->getPluginId(),
-      'settings'          => $this->getSettings(),
       'style'             => $multiple,
-      'target_type'       => $target_type,
       'thumbnail_style'   => TRUE,
-    ];
+    ] + $this->getCommonScopedFormElements();
   }
 
   /**
@@ -139,7 +121,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
       if (empty($default_image['uuid']) && $this->fieldDefinition instanceof FieldConfigInterface) {
         $default_image = $this->fieldDefinition->getFieldStorageDefinition()->getSetting('default_image');
       }
-      if (!empty($default_image['uuid']) && $file = \Drupal::service('entity.repository')->loadEntityByUuid('file', $default_image['uuid'])) {
+      if (!empty($default_image['uuid']) && $file = $this->formatter->getEntityRepository()->loadEntityByUuid('file', $default_image['uuid'])) {
         // Clone the FieldItemList into a runtime-only object for the formatter,
         // so that the fallback image can be rendered without affecting the
         // field values in the entity being rendered.

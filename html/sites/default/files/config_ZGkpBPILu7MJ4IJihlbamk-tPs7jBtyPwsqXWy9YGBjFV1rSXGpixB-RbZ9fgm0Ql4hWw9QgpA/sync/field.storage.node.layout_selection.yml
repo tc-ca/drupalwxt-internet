@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - layout_library
+    - node
+id: node.layout_selection
+field_name: layout_selection
+entity_type: node
+type: entity_reference
+settings:
+  target_type: layout
+module: core
+locked: true
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
+uuid: cfec2018-69e3-49c6-b404-4cd7ed6d6a17

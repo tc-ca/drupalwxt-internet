@@ -1,0 +1,28 @@
+uuid: 44cfefe6-4451-4658-be0a-5301c68f0999
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.featured_block
+    - field.storage.paragraph.field_left_block
+    - paragraphs.paragraphs_type.3_column_blocks
+id: paragraph.3_column_blocks.field_left_block
+field_name: field_left_block
+entity_type: paragraph
+bundle: 3_column_blocks
+label: 'Left block'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:block_content'
+  handler_settings:
+    target_bundles:
+      featured_block: featured_block
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: featured_block
+field_type: entity_reference

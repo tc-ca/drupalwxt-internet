@@ -1,0 +1,19 @@
+uuid: 80eeeef5-81a4-4493-837e-78adb73a7d52
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_contact_hours
+    - node.type.contacts
+id: node.contacts.field_contact_hours
+field_name: field_contact_hours
+entity_type: node
+bundle: contacts
+label: Contact_hours
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

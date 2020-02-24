@@ -8,8 +8,10 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\layout_builder\Event\SectionComponentBuildRenderArrayEvent;
 use Drupal\layout_builder\LayoutBuilderEvents;
+use Drupal\layout_builder\OverridesSectionStorageInterface;
 use Drupal\layout_builder\Plugin\SectionStorage\SectionStorageBase;
 use Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface;
+use Drupal\layout_builder\SectionStorageInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -73,6 +75,33 @@ final class SectionComponentRenderArray implements EventSubscriberInterface {
     // available contexts to find the correct section storage.
     $section_storage = $this->sectionStorageManager->findByContext($event->getContexts(), $event->getCacheableMetadata());
 
+    // If the section storage is overriding another one, the contexts provided
+    // by the override should be overlaid on top of the ones provided by the
+    // underlying default.
+    $contexts = $this->getContextsFromSectionStorage($section_storage);
+    while ($section_storage instanceof OverridesSectionStorageInterface) {
+      $section_storage = $section_storage->getDefaultSectionStorage();
+      $contexts += $this->getContextsFromSectionStorage($section_storage);
+    }
+
+    // Filter out any contexts which the plugin does not recognize.
+    $contexts = array_intersect_key($contexts, $plugin->getContextDefinitions());
+
+    foreach ($contexts as $name => $context) {
+      $plugin->setContextValue($name, $context->getContextValue());
+    }
+  }
+
+  /**
+   * Extracts contexts from a section storage plugin.
+   *
+   * @param \Drupal\layout_builder\SectionStorageInterface $section_storage
+   *   The section storage plugin from which to extract contexts.
+   *
+   * @return \Drupal\Component\Plugin\Context\ContextInterface[]
+   *   The contexts extracted from the section storage.
+   */
+  private function getContextsFromSectionStorage(SectionStorageInterface $section_storage) {
     // Since we need to get the section list by prying open the section storage,
     // we can only work with instances of SectionStorageBase, since they have a
     // protected getSectionList() method. This isn't very clean, but I spoke to
@@ -84,7 +113,7 @@ final class SectionComponentRenderArray implements EventSubscriberInterface {
       $section_list = $method->invoke($section_storage);
     }
     else {
-      return;
+      return [];
     }
 
     // If the section list is an entity field, we need to get the whole entity
@@ -96,26 +125,19 @@ final class SectionComponentRenderArray implements EventSubscriberInterface {
     // If the section list still isn't an entity, then we don't have a way to
     // extract contexts from it.
     if (! ($section_list instanceof EntityInterface)) {
-      return;
+      return [];
     }
 
     // If the entity doesn't have a context handler, then we cannot get contexts
     // from it and there is nothing else to do.
     if (! $section_list->getEntityType()->hasHandlerClass('context')) {
-      return;
+      return [];
     }
 
     /** @var \Drupal\Component\Plugin\Context\ContextInterface[] $contexts */
-    $contexts = $this->entityTypeManager
+    return $this->entityTypeManager
       ->getHandler($section_list->getEntityTypeId(), 'context')
       ->getContexts($section_list);
-
-    // Filter out any contexts which the plugin does not recognize.
-    $contexts = array_intersect_key($contexts, $plugin->getContextDefinitions());
-
-    foreach ($contexts as $name => $context) {
-      $plugin->setContextValue($name, $context->getContextValue());
-    }
   }
 
 }

@@ -1,0 +1,39 @@
+uuid: 610e5170-0354-4af6-850b-3b00145d62a1
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: xF24hpnhpORt2oU3MUmjRcOlrWn3MHWmq-qT5SB9vTw
+id: reviewer
+label: Reviewer
+weight: 4
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access browse_content entity browser pages'
+  - 'access browse_content_modal entity browser pages'
+  - 'access comments'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access files overview'
+  - 'access shortcuts'
+  - 'access toolbar'
+  - 'access user contact forms'
+  - 'access user profiles'
+  - 'create content translations'
+  - 'delete all revisions'
+  - 'delete content translations'
+  - 'dropzone upload files'
+  - 'edit own comments'
+  - 'revert all revisions'
+  - 'update content translations'
+  - 'use editorial transition archive'
+  - 'use editorial transition create_new_draft'
+  - 'use editorial transition publish'
+  - 'use editorial transition review'
+  - 'use text format full_html'
+  - 'use text format rich_text'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view latest version'
+  - 'view own unpublished content'

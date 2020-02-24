@@ -1,0 +1,21 @@
+uuid: 4b452b85-8e14-44dc-b6ec-bd5aa20c11b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_archive_notify
+    - node.type.tcpage
+  module:
+    - datetime
+id: node.tcpage.field_archive_notify
+field_name: field_archive_notify
+entity_type: node
+bundle: tcpage
+label: 'Archive notify'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

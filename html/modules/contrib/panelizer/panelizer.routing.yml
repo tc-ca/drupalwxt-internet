@@ -86,3 +86,10 @@ panelizer.wizard.step.context.delete:
     tempstore_id: 'panelizer.wizard'
   requirements:
     _access: 'FALSE'
+
+panelizer.layout_builder_migration:
+  path: '/admin/panelizer/migrate/{entity_type_id}/{bundle}/{view_mode}'
+  defaults:
+    _form: '\Drupal\panelizer\Form\LayoutBuilderMigrationConfirmForm'
+  requirements:
+    _custom_access: '\Drupal\panelizer\Form\LayoutBuilderMigrationConfirmForm::access'

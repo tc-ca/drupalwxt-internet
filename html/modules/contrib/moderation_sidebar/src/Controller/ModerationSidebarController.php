@@ -2,6 +2,7 @@
 
 namespace Drupal\moderation_sidebar\Controller;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Component\Utility\Xss;
 use Drupal\content_moderation\ModerationInformation;
 use Drupal\Core\Controller\ControllerBase;
@@ -182,13 +183,19 @@ class ModerationSidebarController extends ControllerBase {
     ];
 
     if ($entity instanceof RevisionLogInterface) {
-      $user = $entity->getRevisionUser();
-      $time = (int) $entity->getRevisionCreationTime();
-      $time_pretty = $this->getPrettyTime($time);
-      $build['info']['#revision_author'] = $user->getDisplayName();
-      $build['info']['#revision_author_link'] = $user->toLink()->toRenderable();
-      $build['info']['#revision_time'] = $time;
-      $build['info']['#revision_time_pretty'] = $time_pretty;
+
+      // Entity could implement RevisionLogInterface, but not having a revision
+      // user or creation time set, i.e. taxonomy_term created before 8.7.0.
+      // @see https://www.drupal.org/node/2897789
+      if ($user = $entity->getRevisionUser()) {
+        $build['info']['#revision_author'] = $user->getDisplayName();
+        $build['info']['#revision_author_link'] = $user->toLink()->toRenderable();
+      }
+      if ($time = (int) $entity->getRevisionCreationTime()) {
+        $time_pretty = $this->getPrettyTime($time);
+        $build['info']['#revision_time'] = $time;
+        $build['info']['#revision_time_pretty'] = $time_pretty;
+      }
     }
 
     $build['actions'] = [
@@ -444,19 +451,21 @@ class ModerationSidebarController extends ControllerBase {
         }
         // Get the latest revision for the current $langcode.
         if ($storage instanceof TranslatableRevisionableStorageInterface) {
+          $latest_revision = NULL;
           $latest_revision_id = $storage->getLatestTranslationAffectedRevisionId($entity->id(), $langcode);
-          if ($latest_revision = $storage->loadRevision($latest_revision_id)) {
+          if ($latest_revision_id && $latest_revision = $storage->loadRevision($latest_revision_id)) {
             $latest_revision = $latest_revision->getTranslation($langcode);
           }
         }
         else {
-          $latest_revision = $this->moderationInformation->getLatestRevision($entity_type_id, $entity->id())->getTranslation($langcode);
+          $latest_revision = $storage->loadRevision($storage->getLatestRevisionId($entity->id()))->getTranslation($langcode);
         }
         $latest_translation = FALSE;
         $entity_has_translation = array_key_exists($langcode, $translation_languages);
 
-        // This would happen when a translation only has a draft revision.
-        if (!$entity_has_translation && $latest_revision) {
+        // This would happen when a translation only has a draft revision and
+        // make sure we do not list removed translations.
+        if (!$entity_has_translation && $latest_revision && !$latest_revision->wasDefaultRevision()) {
           $latest_translation = TRUE;
         }
 
@@ -593,7 +602,7 @@ class ModerationSidebarController extends ControllerBase {
             '#type' => 'link',
             '#url' => $tab['#link']['url'],
             '#attributes' => $attributes,
-            '#access' => $tab['#access'],
+            '#access' => isset($tab['#access']) ? $tab['#access'] : AccessResult::neutral(),
           ];
         }
       }

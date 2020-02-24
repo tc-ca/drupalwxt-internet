@@ -1,7 +1,7 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.30 - 2019-02-11
+ * v4.0.32 - 2019-11-13
  *
  *//**
  * @title WET-BOEW JQuery Helper Methods
@@ -29,6 +29,54 @@ wb.getData = function( element, dataName ) {
 	return dataObj;
 };
 
+/*
+ * Initiate an in-browser download from a blob
+ * @param blob: a reference to a blob object
+ * @param filename: a suggested file name to save as under
+ * @param title: (Optional) a title added to the link. Its use case is for web analytics tracking.
+*/
+wb.download = function( blob, filename, title ) {
+
+	var objectURL = URL.createObjectURL( blob ),
+		anchor = document.createElement( "a" );
+
+	filename = filename || "unnamed"; // Ensure a filename is defined
+
+	anchor.textContent = title || "";
+	anchor.download = filename;
+
+	anchor.hidden = true;
+	document.body.appendChild( anchor ); // Added to the body for the web analytic tracking use case.
+
+	if ( window.navigator.msSaveOrOpenBlob ) {
+
+		// This is for IE11 support
+		anchor.addEventListener( "click", function( ) {
+			window.navigator.msSaveOrOpenBlob( blob, filename );
+		} );
+		anchor.setAttribute( "target", "_blank" );
+	} else {
+		anchor.href = objectURL;
+	}
+
+	anchor.click();
+
+	// Clean the DOM, remove the accessory anchor at the next tick
+	setTimeout( function() {
+		document.body.removeChild( anchor );
+	}, 1 );
+
+	// Revoke the ojbect, A setTimeout is used because Blob API don't have a download complete event.
+	setTimeout( function() {
+		if ( typeof objectURL === "string" ) {
+			URL.revokeObjectURL( objectURL );
+		} else {
+			objectURL.remove();
+		}
+	}, 40000 ); // The revoking time is arbitrary
+
+};
+
 } )( jQuery, wb );
 
 ( function( wb ) {
@@ -36,7 +84,7 @@ wb.getData = function( element, dataName ) {
 "use strict";
 
 // Escapes the characters in a string for use in a jQuery selector
-// Based on http://totaldev.com/content/escaping-characters-get-valid-jquery-id
+// Based on https://totaldev.com/content/escaping-characters-get-valid-jquery-id
 wb.jqEscape = function( selector ) {
 	return selector.replace( /([;&,\.\+\*\~':"\\\!\^\/#$%@\[\]\(\)=>\|])/g, "\\$1" );
 };
@@ -1101,7 +1149,7 @@ wb.date = {
 
 /*
  * Returns a RFC4122 compliant Global Unique ID (GUID).
- * Originally from http://stackoverflow.com/a/2117523/455535
+ * Originally from https://stackoverflow.com/a/2117523/455535
  */
 wb.guid = function() {
 	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace( /[xy]/g, function( replacementChar ) {
@@ -3551,7 +3599,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Country Content
- * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by http://freegeoip.net
+ * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by https://freegeoip.net
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @nschonni
  */
@@ -4011,10 +4059,15 @@ var componentName = "wb-inview",
 							noFocus: true
 						} );
 					} else {
-						$dataInView
-							.attr( "aria-hidden", !show )
-							.toggleClass( "in", !show )
-							.toggleClass( "out", show );
+						if ( !$dataInView.attr( "data-hasPlayed" ) ) {
+							$dataInView.toggleClass( "in", !show );
+							if ( !$dataInView.hasClass( "in-only" ) ) {
+								$dataInView.toggleClass( "out", show );
+							}
+						}
+						if ( wb.isReady && viewState === "all" && $dataInView.hasClass( "in-only" ) ) {
+							$dataInView.attr( "data-hasPlayed", "true" );
+						}
 					}
 				}
 			}
@@ -4321,7 +4374,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Responsive equal height
- * @overview Sets the same height for all elements in a container that are rendered on the same baseline (row). Adapted from http://codepen.io/micahgodbolt/pen/FgqLc.
+ * @overview Sets the same height for all elements in a container that are rendered on the same baseline (row). Adapted from https://codepen.io/micahgodbolt/pen/FgqLc.
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @thomasgohard
  */
@@ -4993,20 +5046,34 @@ var componentName = "wb-feeds",
 	 * @method corsEntry
 	 */
 	corsEntry = function( xmlDoc, limit ) {
-		var arr_entry = [],
-			corsObj = {},
+		var entries = xmlDoc.getElementsByTagName( "entry" ).length,
 			limit = limit,
+			arr_entry = [],
+			corsObj = {},
 			jsonString = JSON.stringify( xmlToJson( xmlDoc ) ),
 			jsonObj = JSON.parse( jsonString ),
 			i, iCache;
-		for ( i = 0; i < limit; i++ ) {
-			iCache = jsonObj.feed.entry[ i ];
+		if ( limit > entries || limit === 0 || limit === null ) {
+			limit = entries;
+		}
+		if ( entries === 1 ) {
+			iCache = jsonObj.feed.entry;
 			corsObj = {
 				title: iCache.title[ "#text" ],
-				link: iCache.id[ "#text" ],
+				link: ( iCache.link ? iCache.link[ "@attributes" ].href : iCache.id[ "#text" ] ),
 				updated: iCache.updated[ "#text" ]
 			};
 			arr_entry.push( corsObj );
+		} else if ( entries ) {
+			for ( i = 0; i < limit; i++ ) {
+				iCache = jsonObj.feed.entry[ i ];
+				corsObj = {
+					title: iCache.title[ "#text" ],
+					link: ( iCache.link ? iCache.link[ "@attributes" ].href : iCache.id[ "#text" ] ),
+					updated: iCache.updated[ "#text" ]
+				};
+				arr_entry.push( corsObj );
+			}
 		}
 		return arr_entry;
 	},
@@ -6066,10 +6133,22 @@ var componentName = "wb-geomap",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			$elm, modeJS;
+			$elm, $map, $leg, modeJS;
 
 		if ( elm ) {
 			$elm = $( elm );
+			$map = $elm.find( ".wb-geomap-map" );
+			$leg = $elm.find( ".wb-geomap-legend" );
+
+			// Initialize the map height for the loader
+			$map.height( $map.width() * 0.8 );
+			$map.append( "<div class='geomap-progress'><span class='wb-inv'>" + wb.i18n( "load" ) + "</span></div>" );
+			$leg.append( "<div class='skeleton-lgnd-1'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div class='skeleton-lgnd-2'><span class='skeleton-lgnd-3'></span></div>" +
+					"<div  class='skeleton-lgnd-1'><span class='skeleton-lgnd-3'></span></div>" );
+
 			modeJS = wb.getMode() + ".js";
 
 			Modernizr.load( [ {
@@ -6077,7 +6156,7 @@ var componentName = "wb-geomap",
 				// For loading multiple dependencies
 				both: [
 					"site!deps/proj4" + modeJS,
-					"site!deps/OpenLayers" + modeJS,
+					"site!deps/ol" + modeJS,
 					"site!deps/geomap-lib" + modeJS
 				],
 				complete: function() {
@@ -6217,7 +6296,8 @@ var componentName = "wb-lbx",
 		if ( !i18nText ) {
 			i18n = wb.i18n;
 			i18nText = {
-				fClose: i18n( "close" ),
+				close: i18n( "close" ),
+				oClose: i18n( "overlay-close" ),
 				tClose: i18n( "overlay-close" ) + i18n( "space" ) + i18n( "esc-key" ),
 				tLoading: i18n( "load" ),
 				gallery: {
@@ -6366,21 +6446,18 @@ var componentName = "wb-lbx",
 				hasFooter = footer.length,
 				hasButton = hasFooter && $( footer ).find( ".popup-modal-dismiss" ).length !== 0,
 				closeClassFtr = "popup-modal-dismiss",
-				closeTextFtr = i18nText.fClose,
-				spanTextFtr, overlayCloseFtr;
+				closeTextFtr = i18nText.close,
+				spanTextFtr = i18nText.oClose,
+				overlayCloseFtr;
 
 			if ( !hasButton ) {
-				if ( hasFooter ) {
-					spanTextFtr = footer.innerHTML + i18nText.tClose;
-				} else {
+				if ( !hasFooter ) {
 					footer = document.createElement( "div" );
 					footer.setAttribute( "class", "modal-footer" );
-					spanTextFtr = i18nText.tClose;
 				}
-				spanTextFtr = spanTextFtr.replace( "'", "&#39;" );
 
 				overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary pull-left " + closeClassFtr +
-					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
+					"' title='" + spanTextFtr + "'>" +
 					closeTextFtr +
 					"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
 
@@ -7412,6 +7489,47 @@ var componentName = "wb-mltmd",
 
 			// Only initialize the i18nText once
 			if ( !i18nText ) {
+
+				// YT workaround for when played inside a modal dialog, like with lightbox
+				//
+				// the issue is when the iFrame is moved, it reloads and then it doesn't emit the right event to
+				// adjust the WET multimedia controller to represent its current state.
+				//
+				// This needs to be executed only once, that is why it is in the i18nText conditional
+				window.addEventListener( "message", function( e ) {
+					var data, frames, i, i_len, i_cache;
+
+					// Ensure we don't conflict with other postMessage listener
+					try {
+						data = JSON.parse( e.data );
+
+						// Only for a specific YT message
+						if ( data.event && data.event === "infoDelivery" && data.info && data.info.playerState ) {
+
+							// Find the iFrame and evaluate if it needs to be reposted
+							frames = document.getElementsByTagName( "iframe" );
+
+							i_len = frames.length;
+							for ( i = 0; i < i_len; i++ ) {
+								i_cache = frames[ i ];
+								if ( i_cache.dataset.L2 && i_cache.contentWindow === e.source  ) {
+
+									// Prepare the event data and emulate the YT object for our event management need
+									youTubeEvents.call( i_cache, {
+										target: i_cache.parentElement.parentElement.object,
+										data: data.info.playerState
+									} );
+									break;
+								}
+							}
+						}
+					} catch ( err ) { }
+				} );
+
+				//
+				// END YT workaround
+				//
+
 				i18n = wb.i18n;
 				i18nText = {
 					play: i18n( "mmp-play" ),
@@ -7687,7 +7805,7 @@ var componentName = "wb-mltmd",
 
 		// added &#160; (non-breaking space) to prevent caption space from collapsing
 		// Used .html() instead of .append for performance purposes
-		// http://jsperf.com/jquery-append-vs-html-list-performance/2
+		// https://jsperf.com/jquery-append-vs-html-list-performance/2
 		area.html( "&#160;" );
 
 		for ( i = 0; i < captionsLength; i += 1 ) {
@@ -7837,7 +7955,8 @@ var componentName = "wb-mltmd",
 			$media = $( media ),
 			timeline = function() {
 				$media.trigger( "timeupdate" );
-			};
+			},
+			$mltmPlayerElm;
 
 		switch ( event.data ) {
 		case null:
@@ -7854,6 +7973,12 @@ var componentName = "wb-mltmd",
 			media.timeline = clearInterval( media.timeline );
 			break;
 		case 1:
+			if ( media.dataset.L2 ) {
+
+				// Reset the close caption state when iframe was reloaded
+				$mltmPlayerElm = $media.parentsUntil( selector ).parent();
+				youTubeApi.call( $mltmPlayerElm.get( 0 ), "setCaptionsVisible", $mltmPlayerElm.hasClass( captionClass ) );
+			}
 			$media
 				.trigger( "canplay" )
 				.trigger( "play" )
@@ -8014,6 +8139,22 @@ $document.on( youtubeEvent, selector, function( event, data ) {
 		data.media = $media;
 		data.ytPlayer = ytPlayer;
 
+		// Detect if the YT player reloads, like when magnific Popup show the modal, because it moves the iframe
+		// and then the iframe gets refreshed and reloaded. So the issue is that the iframe stops emitting the event
+		// needed to adjust the multimedia player controler, like the "onStateChange" event.
+		$media.on( "load", function( evt ) {
+
+			var elm = evt.currentTarget,
+				ds = elm.dataset;
+
+			// Do nothing on the first load and add a flag to indicate it is loaded a second time
+			if ( ds.L1 ) {
+				ds.L2 = true;
+			} else {
+				ds.L1 = true;
+			}
+		} );
+
 		$this.trigger( renderUIEvent, [ "youtube", data ] );
 	}
 } );
@@ -8089,7 +8230,7 @@ $document.on( "click", selector, function( event ) {
 
 	// Optimized multiple class tests to include child glyphicon because Safari was reporting the click event
 	// from the child span not the parent button, forcing us to have to check for both elements
-	// JSPerf for multiple class matching http://jsperf.com/hasclass-vs-is-stackoverflow/7
+	// JSPerf for multiple class matching https://jsperf.com/hasclass-vs-is-stackoverflow/7
 	if ( className.match( /playpause|-play|-pause|display/ ) || $target.is( "object" ) || $target.is( "video" ) ) {
 		this.player( "getPaused" ) || this.player( "getEnded" ) ? this.player( "play" ) : this.player( "pause" );
 	} else if ( className.match( /\bcc\b|-subtitles/ )  ) {
@@ -8176,6 +8317,13 @@ $document.on( "keyup", ctrls, function( event ) {
 
 $document.on( "wb-activate", selector, function() {
 	this.player( "play" );
+} );
+
+$document.on( "closed.wb-overlay", ".wb-overlay", function( event ) {
+	var mltmdPlayer = event.currentTarget.querySelector( selector );
+	if ( mltmdPlayer ) {
+		mltmdPlayer.player( "pause" );
+	}
 } );
 
 $document.on( multimediaEvents, selector, function( event, simulated ) {
@@ -8536,7 +8684,7 @@ var componentName = "wb-overlay",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			$elm, footer, closeTextFtr, overlayCloseFtr, $header, closeText, overlayClose;
+			$elm, footer, $header, closeText, overlayClose;
 
 		if ( elm ) {
 			$elm = $( elm );
@@ -8557,36 +8705,34 @@ var componentName = "wb-overlay",
 			var isPanel = ( $elm.attr( "class" ).indexOf( "wb-panel" ) > -1 ) ? true : false,
 				isPopup = ( $elm.attr( "class" ).indexOf( "wb-popup" ) > -1 ) ? true : false;
 			if ( isPanel || isPopup ) {
-				var hasFooter, closeClassFtr, spanTextFtr, buttonStyle = "";
-
 				footer = $elm.find( ".modal-footer" )[ 0 ];
-				hasFooter = ( footer && footer.length !== 0 ) ? true : false;
-				closeClassFtr = ( $elm.hasClass( "wb-panel-l" ) ? "pull-right " : "pull-left " )  + closeClass;
 
-				if ( hasFooter ) {
-					spanTextFtr = footer.innerHTML + i18nText.space + i18nText.esc;
-				} else {
-					footer = document.createElement( "div" );
-					footer.setAttribute( "class", "modal-footer" );
-					spanTextFtr = i18nText.esc;
-				}
+				var hasFooter = ( footer && footer.length !== 0 ) ? true : false,
+					hasButton = hasFooter && $( footer ).find( closeClass ).length !== 0,
+					closeClassFtr = ( $elm.hasClass( "wb-panel-l" ) ? "pull-right " : "pull-left " )  + closeClass,
+					closeTextFtr = i18nText.close,
+					spanTextFtr = i18nText.closeOverlay,
+					overlayCloseFtr;
 
-				closeTextFtr = i18nText.close;
-				spanTextFtr = spanTextFtr.replace( "'", "&#39;" );
+				if ( !hasButton ) {
+					if ( !hasFooter ) {
+						footer = document.createElement( "div" );
+						footer.setAttribute( "class", "modal-footer" );
+					}
 
-				if ( isPopup ) {
-					footer.style.border = "0";
-				}
+					if ( isPopup ) {
+						footer.style.border = "0";
+					}
 
-				overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary " + closeClassFtr +
-					"' style='" + buttonStyle +
-					"' title='" + closeTextFtr + " " + spanTextFtr + "'>" +
-					closeTextFtr +
-					"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
+					overlayCloseFtr = "<button type='button' class='btn btn-sm btn-primary " + closeClassFtr +
+						"' title='" + spanTextFtr + "'>" +
+						closeTextFtr +
+						"<span class='wb-inv'>" + spanTextFtr + "</span></button>";
 
-				$( footer ).append( overlayCloseFtr );
-				if ( !hasFooter ) {
-					$elm.append( footer );
+					$( footer ).append( overlayCloseFtr );
+					if ( !hasFooter ) {
+						$elm.append( footer );
+					}
 				}
 			}
 
@@ -8637,6 +8783,8 @@ var componentName = "wb-overlay",
 				sourceLinks[ overlayId ] = null;
 			}, 1 );
 		}
+
+		$overlay.trigger( "opened" + selector );
 	},
 
 	closeOverlay = function( overlayId, noFocus, userClosed ) {
@@ -8663,6 +8811,8 @@ var componentName = "wb-overlay",
 
 		// Delete the source link reference
 		delete sourceLinks[ overlayId ];
+
+		$overlay.trigger( "closed" + selector );
 	};
 
 $document.on( "timerpoke.wb " + initEvent + " keydown open" + selector +
@@ -9661,11 +9811,7 @@ var componentName = "wb-share",
 			},
 			blogger: {
 				name: "Blogger",
-				url: "http://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
-			},
-			delicious: {
-				name: "Delicious",
-				url: "http://delicious.com/post?url={u}&amp;title={t}"
+				url: "https://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
 			},
 			digg: {
 				name: "Digg",
@@ -9673,51 +9819,43 @@ var componentName = "wb-share",
 			},
 			diigo: {
 				name: "Diigo",
-				url: "http://www.diigo.com/post?url={u}&amp;title={t}"
+				url: "https://www.diigo.com/post?url={u}&amp;title={t}"
 			},
 			facebook: {
 				name: "Facebook",
-				url: "http://www.facebook.com/sharer.php?u={u}&amp;t={t}"
+				url: "https://www.facebook.com/sharer.php?u={u}&amp;t={t}"
 			},
 			gmail: {
 				name: "Gmail",
 				url: "https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su={t}&body={u}%0A{d}"
 			},
-			googleplus: {
-				name: "Google+",
-				url: "https://plus.google.com/share?url={u}&amp;hl=" + document.documentElement.lang
-			},
 			linkedin: {
 				name: "LinkedIn®",
-				url: "http://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
+				url: "https://www.linkedin.com/shareArticle?mini=true&amp;url={u}&amp;title={t}&amp;ro=false&amp;summary={d}&amp;source="
 			},
 			myspace: {
 				name: "MySpace",
-				url: "http://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
+				url: "https://www.myspace.com/Modules/PostTo/Pages/?u={u}&amp;t={t}"
 			},
 			pinterest: {
 				name: "Pinterest",
-				url: "http://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
+				url: "https://www.pinterest.com/pin/create/button/?url={u}&amp;media={i}&amp;description={t}"
 			},
 			reddit: {
 				name: "reddit",
-				url: "http://reddit.com/submit?url={u}&amp;title={t}"
-			},
-			stumbleupon: {
-				name: "StumbleUpon",
-				url: "http://www.stumbleupon.com/submit?url={u}&amp;title={t}"
+				url: "https://reddit.com/submit?url={u}&amp;title={t}"
 			},
 			tumblr: {
 				name: "tumblr",
-				url: "http://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
+				url: "https://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
 			},
 			twitter: {
 				name: "Twitter",
-				url: "http://twitter.com/home?status={t}%20{u}"
+				url: "https://twitter.com/intent/tweet?text={t}&url={u}"
 			},
 			yahoomail: {
 				name: "Yahoo! Mail",
-				url: "http://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
+				url: "https://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
 			}
 		}
 	},
@@ -9819,7 +9957,7 @@ var componentName = "wb-share",
 							.replace( /\{d\}/, pageDescription );
 					panel += "<li><a href='" + url + "' class='" + shareLink +
 						" " + ( siteProperties.isMailto ? "email" : key ) +
-						" btn btn-default' target='_blank'>" +
+						" btn btn-default' target='_blank' rel='noreferrer noopener'>" +
 						siteProperties.name + "</a></li>";
 				}
 
@@ -9982,7 +10120,7 @@ var componentName = "wb-tables",
 $document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Handle the draw.dt event
-$document.on( "init.dt draw.dt", selector, function( event, settings ) {
+$document.on( "draw.dt", selector, function( event, settings ) {
 	var $elm = $( event.target ),
 		pagination = $elm.next( ".bottom" ).find( "div:first-child" ),
 		paginate_buttons = $elm.next( ".bottom" ).find( ".paginate_button" ),
@@ -10012,9 +10150,16 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 		// Should be pushed upstream to DataTables
 		$elm.next( ".bottom" ).find( ".paginate_button" )
 			.attr( {
-				"role": "button",
-				"href": "javascript:;"
+				"href": "#" + $elm.context.id
 			} )
+
+			// This is required to override the datatable.js (v1.10.13) behavior to cancel the event propagation on anchor element.
+			.on( "keypress", function( evn ) {
+				if ( evn.keyCode === 13 ) {
+					window.location = evn.target.href;
+				}
+			} )
+
 			.not( ".previous, .next" )
 				.attr( "aria-pressed", "false" )
 				.html( function( index, oldHtml ) {
@@ -10024,14 +10169,13 @@ $document.on( "init.dt draw.dt", selector, function( event, settings ) {
 					.attr( "aria-pressed", "true" );
 	}
 
-	if ( event.type === "init" ) {
-
-		// Identify that initialization has completed
-		wb.ready( $elm, componentName );
-	}
-
 	// Identify that the table has been updated
 	$elm.trigger( "wb-updated" + selector, [ settings ] );
+} );
+
+// Identify that initialization has completed
+$document.on( "init.dt", function( event ) {
+	wb.ready( $( event.target ), componentName );
 } );
 
 // Handle the draw.dt event
@@ -10042,34 +10186,80 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 	var $form = $( this ),
 		$datatable = $( "#" + $form.data( "bind-to" ) ).dataTable( { "retrieve": true } ).api();
 
-	// Lets reset the search;
-	$datatable.search( "" ).columns().search( "" );
+	// Lets reset the search
+	$datatable.search( "" ).columns().search( "" ).draw();
 
 	// Lets loop throug all options
-	var $value = "", $lastColumn = -1;
+	var $lastColumn = -1, $cbVal = "";
 	$form.find( "[name]" ).each( function() {
 		var $elm = $( this ),
+			$value = "",
+			$regex = "",
+			$isAopts = $elm.data( "aopts" ),
 			$column = parseInt( $elm.attr( "data-column" ), 10 );
 
+		// Ignore the advanced options fields
+		if ( $isAopts ) {
+			return;
+		}
+
+		// Filters based on input type
 		if ( $elm.is( "select" ) ) {
 			$value = $elm.find( "option:selected" ).val();
 		} else if ( $elm.is( ":checkbox" ) ) {
-			if ( $column !== $lastColumn && $lastColumn !== -1 ) {
-				$value = "";
+
+			// Verifies if using same checkbox list
+			if ( $column !== $lastColumn || $lastColumn === -1 ) {
+				$cbVal = "";
 			}
 			$lastColumn = $column;
 
+			// Verifies if checkbox is checked before setting value
 			if ( $elm.is( ":checked" ) ) {
-				$value += ( $value.length > 0 ) ? "|" : "";
-				$value += $elm.val();
+				var $aoptsSelector = "[data-aopts*='\"column\": \"" + $column + "\"']:checked",
+					$aopts = $( $aoptsSelector ),
+					$aoType = ( $aopts && $aopts.data( "aopts" ) ) ? $aopts.data( "aopts" ).type.toLowerCase() : "";
+
+				if ( $aoType === "both" ) {
+					$cbVal += "(?=.*\\b" + $elm.val() + "\\b)";
+				} else {
+					$cbVal += ( $cbVal.length > 0 ) ? "|" : "";
+					$cbVal += $elm.val();
+				}
+
+				$value = $cbVal;
+				$value = $value.replace( /\s/g, "\\s*" );
+
+				// Adjust regex based on advanced options
+				switch ( $aoType ) {
+				case "both":
+					$regex = "(" + $value + ").*";
+					break;
+				case "either":
+					$regex = "^(" + $value + ")$";
+					break;
+				case "and":
+					$regex = ( $value.indexOf( "|" ) > -1 ) ? "^(" + $value + "|[,\\s])(" + $value + "|[,\\s])+$" : "(" + $value + ")";
+					break;
+				case "any":
+				default:
+					$regex = "(" + $value + ")";
+					break;
+				}
 			}
 		} else {
 			$value = $elm.val();
 		}
 
 		if ( $value ) {
-			$value = $value.replace( /\s/g, "\\s*" );
-			$datatable.column( $column ).search( "(" + $value + ")", true ).draw();
+
+			// Verifies if regex was preset, if not preset use 'contains value' as default
+			if ( !$regex ) {
+				$value = $value.replace( /\s/g, "\\s*" );
+				$regex = "(" + $value + ")";
+			}
+
+			$datatable.column( $column ).search( $regex, true ).draw();
 		}
 	} );
 
@@ -10086,6 +10276,7 @@ $document.on( "click", ".wb-tables-filter [type='reset']", function( event ) {
 
 	$form.find( "select" ).prop( "selectedIndex", 0 );
 	$form.find( "input:checkbox" ).prop( "checked", false );
+	$form.find( "input:radio" ).prop( "checked", false );
 	$form.find( "input[type=date]" ).val( "" );
 
 	return false;
@@ -11522,6 +11713,16 @@ var componentName = "wb-toggle",
 		} else if ( !selector ) {
 			return $link.data( componentName + "-state" ) || data.stateOff;
 
+		// When toggling multiple <details> elements, state is "off" if any are collapsed
+		} else if ( selector === "details" && !type ) {
+			var anyCollapsed = false;
+			getElements( $link, data ).each( function() {
+				if ( !$( this ).attr( "open" ) ) {
+					anyCollapsed = true;
+				}
+			} );
+			return anyCollapsed ? data.stateOff : data.stateOn;
+
 		// Get the current on/off state of the elements specified by the selector and parent
 		} else if ( states.hasOwnProperty( selector ) ) {
 			return states[ selector ].hasOwnProperty( parent ) ?
@@ -11904,7 +12105,7 @@ $document.on( clickEvents, linkSelector, function( event ) {
 	var testHref = event.currentTarget.getAttribute( "href" );
 
 	// Same page links only
-	if ( testHref.charAt( 0 ) === "#" && !event.isDefaultPrevented() &&
+	if ( testHref.length > 1 && testHref.charAt( 0 ) === "#" && !event.isDefaultPrevented() &&
 		( $linkTarget = $( "#" + wb.jqEscape( testHref.substring( 1 ) ) ) ).length !== 0 ) {
 		wb.ignoreHashChange = true;
 		$linkTarget.trigger( setFocusEvent );

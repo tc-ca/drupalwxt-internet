@@ -1,0 +1,21 @@
+uuid: d0c3c956-bf1a-45a6-9572-de2036e31f93
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_archive_notify
+    - node.type.topic
+  module:
+    - datetime
+id: node.topic.field_archive_notify
+field_name: field_archive_notify
+entity_type: node
+bundle: topic
+label: 'Archive notify'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

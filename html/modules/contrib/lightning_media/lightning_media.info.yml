@@ -1,5 +1,6 @@
 name: 'Lightning Media'
 core: 8.x
+core_version_requirement: '^8 || ^9'
 type: module
 description: "Slick media handling for Lightning. So cool you'll make the A/C jealous."
 package: Lightning
@@ -24,7 +25,7 @@ components:
   - lightning_media_twitter
   - lightning_media_video
 
-# Information added by Drupal.org packaging script on 2019-11-15
-version: '8.x-3.14'
+# Information added by Drupal.org packaging script on 2020-02-20
+version: '8.x-3.16'
 project: 'lightning_media'
-datestamp: 1573792997
+datestamp: 1582235392

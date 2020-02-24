@@ -1,0 +1,20 @@
+uuid: ac28794f-e251-4d3f-bc2c-cb4d1e321482
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.audio_file
+id: media.audio_file.name
+field_name: name
+entity_type: media
+bundle: audio_file
+label: Name
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string

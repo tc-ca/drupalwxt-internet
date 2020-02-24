@@ -38,7 +38,7 @@ class LayoutDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
 
-    drupal_set_message($this->t('Deleted layout @label.', [
+    $this->messenger()->addMessage($this->t('Deleted layout @label.', [
       '@label' => $this->entity->label(),
     ]));
 

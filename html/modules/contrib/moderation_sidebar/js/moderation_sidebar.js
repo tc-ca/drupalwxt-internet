@@ -25,7 +25,6 @@
   // Close the sidebar if the toolbar icon is clicked and moderation
   // information is already available.
   $('.toolbar-icon-moderation-sidebar').on('click', function (e, data) {
-    $('.toolbar-item.is-active').click();
     if ($('.moderation-sidebar-container').length && (!data || !data.reload)) {
       $('#drupal-off-canvas').dialog('close');
       e.stopImmediatePropagation();

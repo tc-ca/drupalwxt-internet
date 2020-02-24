@@ -1,0 +1,29 @@
+enable:
+  tcpage: true
+  topic: true
+  service: true
+  publication: true
+grants:
+  tcpage:
+    view: view
+    update: 0
+    delete: 0
+  topic:
+    view: view
+    update: 0
+    delete: 0
+  service:
+    view: view
+    update: 0
+    delete: 0
+  publication:
+    view: view
+    update: 0
+    delete: 0
+expire:
+  tcpage: '604800'
+  topic: '0'
+  service: '0'
+  publication: '0'
+_core:
+  default_config_hash: XYlm3f0ns44UOTkGHmLGHlMZYOMpOXmt2Lw2aAK542w

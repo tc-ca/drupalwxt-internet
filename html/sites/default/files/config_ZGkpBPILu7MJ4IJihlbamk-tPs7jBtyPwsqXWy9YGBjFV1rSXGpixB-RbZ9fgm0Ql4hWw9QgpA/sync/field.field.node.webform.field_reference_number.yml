@@ -1,0 +1,19 @@
+uuid: e7bdec83-b9c4-4a89-8e9f-e6019b9d2b25
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_reference_number
+    - node.type.webform
+id: node.webform.field_reference_number
+field_name: field_reference_number
+entity_type: node
+bundle: webform
+label: 'Reference number'
+description: 'RDIMS reference number'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

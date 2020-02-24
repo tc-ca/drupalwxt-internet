@@ -29,6 +29,7 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     'user',
     'panels_ipe',
     'panelizer_test',
+    'views',
   ];
 
   /**
@@ -63,10 +64,21 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     /** @var \Drupal\panelizer\Panelizer $panelizer */
     $panelizer = $this->container->get('panelizer');
 
+    // Enable all of Panelizer's functionality for the 'full' view mode,
+    // including the ability to set up custom layouts per entity and choose from
+    // non-default layouts in the view display.
     $panelizer->setPanelizerSettings('node', 'page', 'full', [
       'enable' => TRUE,
       'allow' => TRUE,
       'custom' => TRUE,
+      'default' => 'default',
+    ]);
+    // Enable Panelizer for teasers, but don't allow per-entity customization
+    // or non-default layout choices (yet).
+    $panelizer->setPanelizerSettings('node', 'page', 'teaser', [
+      'enable' => TRUE,
+      'allow' => FALSE,
+      'custom' => FALSE,
       'default' => 'default',
     ]);
 
@@ -130,6 +142,36 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     ]);
     $panelizer->setDefaultPanelsDisplay('alpha', 'node', 'page', 'full', $alpha);
 
+    $teaser_display = $panelizer->getDefaultPanelsDisplay('default', 'node', 'page', 'teaser');
+    $teaser_display->addBlock([
+      'id' => 'block_content:alpha',
+      'label' => 'alpha teaser',
+      'region' => 'content',
+      'weight' => 1,
+    ]);
+    $teaser_display->addBlock([
+      'id' => 'context_block',
+      'region' => 'content',
+      'weight' => 2,
+    ]);
+    $configuration = $teaser_display->getConfiguration();
+    $configuration['static_context'] = [
+      'value' => [
+        'type' => 'any',
+        'label' => 'Lucky number',
+        'description' => 'A very good age to be',
+        'value' => 35,
+      ],
+      'letter' => [
+        'type' => 'string',
+        'label' => 'Letter of the day',
+        'description' => 'Ever dance with the devil in the pale moonlight?',
+        'value' => 'Tango',
+      ],
+    ];
+    $teaser_display->setConfiguration($configuration);
+    $panelizer->setDefaultPanelsDisplay('default', 'node', 'page', 'teaser', $teaser_display);
+
     $this->loginUser1();
   }
 
@@ -140,10 +182,22 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $page = $this->getSession()->getPage();
     $assert_session = $this->assertSession();
 
-    // Create a node with a custom layout.
-    $node = $this->drupalCreateNode(['type' => 'page']);
     /** @var \Drupal\panelizer\PanelizerInterface $panelizer */
     $panelizer = $this->container->get('panelizer');
+
+    // Create a node to test with.
+    $node = $this->drupalCreateNode(['type' => 'page']);
+
+    // For the first revision, explicitly use whatever layout is the default for
+    // the page node type.
+    $panelizer->setPanelsDisplay($node, 'full', '__bundle_default__');
+
+    // Get the revision URL so we can visit it later to ensure it was migrated.
+    $alpha_revision_url = Url::fromRoute('entity.node.revision', [
+      'node' => $node->id(),
+      'node_revision' => $node->getRevisionId(),
+    ]);
+
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $panels_display */
     $panels_display = $panelizer->getPanelsDisplay($node, 'full');
     $this->assertInstanceOf(PanelsDisplayVariant::class, $panels_display);
@@ -180,23 +234,28 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
       ->allRevisions()
       ->condition('nid', $node->id())
       ->count();
-    $this->assertSame('3', $revision_count_query->execute());
+    $this->assertSame('4', $revision_count_query->execute());
 
     $this->drupalGet($node->toUrl());
     $assert_session->statusCodeEquals(200);
     $assert_session->pageTextContains('charlie title');
     $assert_session->pageTextContains('charlie body');
 
-    // Ensure the previous revision looks right.
+    // Ensure the previous revisions look right.
     $this->drupalGet($beta_revision_url);
     $assert_session->statusCodeEquals(200);
     $assert_session->pageTextContains('beta title');
     $assert_session->pageTextContains('beta body');
 
+    $this->drupalGet($alpha_revision_url);
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
+
     $this->container->get('module_installer')->install(['layout_builder']);
 
     $this->drupalGet('/admin/structure/types/manage/page/display');
     $page->checkField('Full content');
+    $page->checkField('Teaser');
     $page->pressButton('Save');
 
     $page->clickLink('Full content');
@@ -206,6 +265,9 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->checkboxNotChecked('Use Layout Builder');
     $assert_session->checkboxNotChecked('Allow each content item to have its layout customized.');
     $page->pressButton('Migrate to Layout Builder');
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('Hold your horses, cowpoke.');
+    $page->pressButton('I understand the risks and have backed up my database. Proceed!');
     $this->checkForMetaRefresh();
     $assert_session->checkboxChecked('Use Layout Builder');
     $assert_session->checkboxChecked('Allow content editors to use stored layouts');
@@ -214,8 +276,26 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each content item to have its display customized');
 
+    $page->clickLink('Teaser');
+    $assert_session->checkboxChecked('Panelize this view mode');
+    $assert_session->checkboxNotChecked('Allow users to select which display to use');
+    $assert_session->fieldNotExists('Allow each content item to have its display customized');
+    $assert_session->checkboxNotChecked('Use Layout Builder');
+    $assert_session->fieldNotExists('Allow each content item to have its layout customized.');
+    $page->pressButton('Migrate to Layout Builder');
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('Hold your horses, cowpoke.');
+    $page->pressButton('I understand the risks and have backed up my database. Proceed!');
+    $this->checkForMetaRefresh();
+    $assert_session->checkboxChecked('Use Layout Builder');
+    $assert_session->checkboxNotChecked('Allow content editors to use stored layouts');
+    $assert_session->fieldNotExists('Allow each content item to have its layout customized.');
+    $assert_session->fieldNotExists('Panelize this view mode');
+    $assert_session->fieldNotExists('Allow users to select which display to use');
+    $assert_session->fieldNotExists('Allow each content item to have its display customized');
+
     // No new revisions should have been created during the migration.
-    $this->assertSame('3', $revision_count_query->execute());
+    $this->assertSame('4', $revision_count_query->execute());
 
     $this->drupalGet($node->toUrl());
     $assert_session->statusCodeEquals(200);
@@ -223,11 +303,15 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->pageTextContains('charlie body');
     $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
-    // Ensure the previous revision looks right.
+    // Ensure the previous revisions look right.
     $this->drupalGet($beta_revision_url);
     $assert_session->statusCodeEquals(200);
     $assert_session->pageTextContains('beta title');
     $assert_session->pageTextContains('beta body');
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
+
+    $this->drupalGet($alpha_revision_url);
+    $assert_session->statusCodeEquals(200);
     $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
     $node = $this->drupalCreateNode(['type' => 'page']);
@@ -251,6 +335,14 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->pageTextContains('alpha title');
     $assert_session->pageTextContains('alpha body');
     $assert_session->pageTextContains('The context value is 99, brought to you by the letter X-ray.');
+
+    // Ensure that the teaser looks correct, too.
+    $this->drupalGet('/node');
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains($node->getTitle());
+    $assert_session->pageTextContains('alpha teaser');
+    $assert_session->pageTextContains('alpha body');
+    $assert_session->pageTextContains('The context value is 35, brought to you by the letter Tango.');
   }
 
   /**

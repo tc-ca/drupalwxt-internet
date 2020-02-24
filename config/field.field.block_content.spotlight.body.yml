@@ -1,0 +1,24 @@
+uuid: de148a59-15d5-41d0-bfb9-eea6cc112e2c
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.spotlight
+    - field.storage.block_content.body
+  module:
+    - text
+_core:
+  default_config_hash: CB4Drep8qSMB9yiY9VgA6WhwwAWvZnre9e-ff1VJUeo
+id: block_content.spotlight.body
+field_name: body
+entity_type: block_content
+bundle: spotlight
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

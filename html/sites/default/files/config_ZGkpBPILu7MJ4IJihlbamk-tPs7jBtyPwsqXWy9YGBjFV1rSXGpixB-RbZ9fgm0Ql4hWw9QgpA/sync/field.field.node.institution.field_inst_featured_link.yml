@@ -1,0 +1,23 @@
+uuid: 38548f6e-a7b1-4d9e-9189-3ad68a0e6fe6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_inst_featured_link
+    - node.type.institution
+  module:
+    - link
+id: node.institution.field_inst_featured_link
+field_name: field_inst_featured_link
+entity_type: node
+bundle: institution
+label: 'Institutional featured link'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 2
+field_type: link

@@ -1,0 +1,18 @@
+uuid: e8a44d49-a875-480a-b734-0e50fb8968ab
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.tcpage
+  module:
+    - content_translation
+third_party_settings:
+  content_translation:
+    enabled: true
+    bundle_settings:
+      untranslatable_fields_hide: '1'
+id: node.tcpage
+target_entity_type_id: node
+target_bundle: tcpage
+default_langcode: site_default
+language_alterable: false

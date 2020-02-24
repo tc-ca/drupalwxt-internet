@@ -1,0 +1,21 @@
+uuid: 4fb1010d-b617-441a-b7a9-e53c6514474a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_published
+    - node.type.webform
+  module:
+    - datetime
+id: node.webform.field_date_published
+field_name: field_date_published
+entity_type: node
+bundle: webform
+label: 'Date published'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

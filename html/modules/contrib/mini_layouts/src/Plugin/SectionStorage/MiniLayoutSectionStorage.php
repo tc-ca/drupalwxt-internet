@@ -5,6 +5,7 @@ namespace Drupal\mini_layouts\Plugin\SectionStorage;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\Context;
@@ -40,6 +41,11 @@ class MiniLayoutSectionStorage extends SectionStorageBase implements ContainerFa
   protected $entityTypeManager;
 
   /**
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityBundleInfo;
+
+  /**
    * @var \Drupal\layout_builder\Entity\SampleEntityGeneratorInterface
    */
   protected $sampleEntityGenerator;
@@ -53,14 +59,16 @@ class MiniLayoutSectionStorage extends SectionStorageBase implements ContainerFa
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
+      $container->get('entity_type.bundle.info'),
       $container->get('layout_builder.sample_entity_generator')
     );
   }
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, SampleEntityGeneratorInterface $sample_entity_generator) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $entity_bundle_info, SampleEntityGeneratorInterface $sample_entity_generator) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityBundleInfo = $entity_bundle_info;
     $this->sampleEntityGenerator = $sample_entity_generator;
   }
 
@@ -215,16 +223,16 @@ class MiniLayoutSectionStorage extends SectionStorageBase implements ContainerFa
 
     foreach ($this->getMiniLayout()->required_context as $machine_name => $info) {
       if (strpos($info['type'], 'entity:') === 0) {
-        list(,$entity_type_id) = explode(':', $info['type'], 2);
+        list(,$entity_type_id, $bundle) = explode(':', $info['type'], 3);
 
-        $bundle = $entity_type_id;
-        if ($this->entityTypeManager->getDefinition($entity_type_id)->hasKey('bundle')) {
-          if ($info['bundle']) {
-            $bundle = $info['bundle'];
-          }
-          else {
-            // @todo: Select first bundle or something.
-            throw new \Exception(new TranslatableMarkup('No bundle selected for entity context.'));
+        if (!$bundle) {
+          $bundle = $entity_type_id;
+          if ($this->entityTypeManager->getDefinition($entity_type_id)->hasKey('bundle')) {
+            if (!empty($info['bundle'])) {
+              $bundle = $info['bundle'];
+            } else {
+              $bundle = key($this->entityBundleInfo->getBundleInfo($entity_type_id));
+            }
           }
         }
 
