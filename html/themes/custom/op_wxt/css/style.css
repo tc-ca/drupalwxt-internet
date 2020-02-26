@@ -2,3 +2,9 @@
  * If using a CSS pre-processor, tell it to overwrite this file. If not, place
  * your custom CSS modifications here.
  */
+.field--type-webform form .form-type-select label{
+    display: block;
+}
+.field--type-webform form .form-type-select .select-wrapper{
+    width: auto;
+}
