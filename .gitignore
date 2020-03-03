@@ -10,9 +10,6 @@ tcwww/config/
 # VS Code
 *.code-workspace
 
-# Composer files
-composer.lock
-
 # Ignore Development Files
 compass_app_log.txt
 *.DS_Store
