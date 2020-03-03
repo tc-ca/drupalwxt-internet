@@ -190,7 +190,8 @@
         "drupal/administerusersbyrole": "^3.0@beta",
         "drupal/allowed_formats": "^1.2",
         "drupal/bulk_update_fields": "^2.0@alpha",
-        "drupal/geofield": "^1.8"
+        "drupal/geofield": "^1.8",
+        "drupal/smtp": "^1.0@beta"
     },
     "autoload": {
         "classmap": [
