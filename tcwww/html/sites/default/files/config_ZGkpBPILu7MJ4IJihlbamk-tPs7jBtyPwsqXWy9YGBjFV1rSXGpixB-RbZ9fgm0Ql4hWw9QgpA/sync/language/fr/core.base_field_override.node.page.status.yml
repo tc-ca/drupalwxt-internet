@@ -1,5 +1,0 @@
-label: 'Statut de publication'
-description: 'Un booléen indiquant si le nœud est publié ou non.'
-settings:
-  on_label: Activé
-  off_label: Désactivé

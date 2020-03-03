@@ -1,8 +1,0 @@
-uuid: d1492a19-193b-44bc-9763-85f53874b399
-langcode: en
-status: true
-dependencies: {  }
-name: 'Routing symbol'
-vid: routing_symbol
-description: ''
-weight: 0

@@ -1,8 +1,0 @@
-uuid: 68bfd384-c2cb-4dde-95c7-4e6a782a3b65
-langcode: en
-status: true
-dependencies: {  }
-id: short_time
-label: 'Short with time'
-locked: false
-pattern: 'Y-m-d G:i'

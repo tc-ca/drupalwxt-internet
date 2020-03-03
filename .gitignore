@@ -4,6 +4,11 @@ scripts/local
 scripts/drupal
 files_private/
 html/sites/tcwww.dd
+tcwww/html/sites/default/files/
+tcwww/config/
+
+# VS Code
+*.code-workspace
 
 # Composer files
 composer.lock

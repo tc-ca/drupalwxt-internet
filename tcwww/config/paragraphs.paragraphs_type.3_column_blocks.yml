@@ -1,9 +1,0 @@
-uuid: cfac5f1e-97b6-4b54-9a06-a0067f35aca0
-langcode: en
-status: true
-dependencies: {  }
-id: 3_column_blocks
-label: '3 column blocks'
-icon_uuid: null
-description: ''
-behavior_plugins: {  }

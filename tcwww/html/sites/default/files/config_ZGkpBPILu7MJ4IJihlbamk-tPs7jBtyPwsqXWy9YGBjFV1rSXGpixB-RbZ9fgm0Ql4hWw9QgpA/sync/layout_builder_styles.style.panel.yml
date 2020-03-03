@@ -1,9 +1,0 @@
-uuid: b4f80428-c624-4260-a4d1-d5527bc1c34c
-langcode: en
-status: true
-dependencies: {  }
-id: panel
-label: Panel
-classes: 'panel panel-default'
-type: component
-block_restrictions: {  }
