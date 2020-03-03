@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Bootstrap Layouts: "2 Columns" template.
+ *
+ * Available layout variables:
+ * - wrapper: Wrapper element for the layout container.
+ * - attributes: Wrapper attributes for the layout container.
+ *
+ * Available region variables:
+ * - left
+ * - right
+ *
+ * Each region variable contains the following properties:
+ * - wrapper: The HTML element to use to wrap this region.
+ * - attributes: The HTML attributes to use on the wrapper for this region.
+ * - content: The content to go inside the wrapper for this region.
+ */
+#}
+<{{ wrapper }}{{ attributes }}>
+  {{ title_suffix.contextual_links }}
+
+  {% if (content.left|render is not empty) and (content.right|render is not empty) %}
+      <{{ left.wrapper }}{{ left.attributes }}>
+      {{ left.content }}
+      </{{ left.wrapper }}>
+
+      <{{ right.wrapper }}{{ right.attributes }}>
+        {{ right.content }}
+      </{{ right.wrapper }}>
+
+  {% else %}
+
+    <div class="col-md-12">
+      {% if left.content %}
+        {{ left.content }}
+      {% endif %}
+
+      {% if right.content %}
+          {{ right.content }}
+      {% endif %}
+    </div>
+
+  {% endif %}
+
+</{{ wrapper }}>

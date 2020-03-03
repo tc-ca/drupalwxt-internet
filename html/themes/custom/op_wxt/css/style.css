@@ -2,3 +2,64 @@
  * If using a CSS pre-processor, tell it to overwrite this file. If not, place
  * your custom CSS modifications here.
  */
+
+ /* Fix arrows escaping the select field */
+.field--type-webform form .form-type-select label{
+    display: block;
+}
+.field--type-webform form .form-type-select .select-wrapper{
+    width: auto;
+}
+
+/* Margin on GC Byline */
+p.gc-byline{
+    margin-bottom: 25px;
+}
+
+.field--name-field-inst-featured-link > a{
+    border: 1px solid transparent;
+    border-style: outset;
+    line-height: 1.4375;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #318000;
+    border-color: #458259;
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    margin-top: 15px;
+    padding: .58em 1em;
+    text-shadow: 1px 2px #333;
+    text-decoration: none;
+    height: auto;
+    min-height: 36px;
+    min-width: 36px;
+    white-space: normal;
+    display: inline-block;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+}
+.field--name-field-inst-featured-link > a:hover{
+    background-color: #1d4d00;
+    border-color: #305a3e;
+}
+.field--name-field-inst-featured-link > a:visited{
+    color: #fff;
+}
+.home-news-feed{
+    list-style: none;
+    padding-left: 0;
+}
+body.home > div.dialog-off-canvas-main-canvas > div > div > main > section > div.region.region-content > article > div.content > div:nth-child(1)::after{
+    content: "";
+    background-image: url(/themes/custom/op_wxt/images/CRAHQexterior-white.jpg);
+    background-repeat: no-repeat;
+    width: 110%;
+    height: 410px;
+    position: absolute;
+    top: -35px;
+    z-index: -1;
+}
