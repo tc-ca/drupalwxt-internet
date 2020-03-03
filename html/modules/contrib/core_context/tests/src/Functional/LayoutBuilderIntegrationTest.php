@@ -155,6 +155,31 @@ class LayoutBuilderIntegrationTest extends BrowserTestBase {
           ],
         ],
       ],
+      'context values in entity field and third-party entity display settings, without mapping' => [
+        'block_configuration' => [
+          'id' => 'context_block_optional',
+        ],
+        'layout_overridable' => TRUE,
+        'third_party_contexts' => [
+          'value' => [
+            'type' => 'integer',
+            'label' => 'Holy computer number',
+            'description' => 'A convenient power of two',
+            'value' => 512,
+          ],
+        ],
+        'entity_values' => [
+          'context' => [
+            [
+              'id' => 'letter',
+              'type' => 'string',
+              'label' => 'Sponsoring letter',
+              'description' => 'A letter of the NATO phonetic alphabet',
+              'value' => 'Charlie',
+            ],
+          ],
+        ],
+      ],
       'context values in block plugin configuration' => [
         'block_configuration' => [
           'id' => 'context_block',

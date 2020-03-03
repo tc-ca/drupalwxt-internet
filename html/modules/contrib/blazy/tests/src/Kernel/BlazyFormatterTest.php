@@ -8,10 +8,18 @@ use Drupal\blazy\BlazyMedia;
 /**
  * Tests the Blazy image formatter.
  *
- * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter
+ * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
+ *
  * @group blazy
  */
 class BlazyFormatterTest extends BlazyKernelTestBase {
+
+  /**
+   * The formatter instance.
+   *
+   * @var \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
+   */
+  protected $formatterInstance;
 
   /**
    * {@inheritdoc}
@@ -63,8 +71,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Tests ::settingsForm.
     $form = [];
-    $definition = $this->getFormatterDefinition();
-    $definition['_views'] = TRUE;
 
     // Check for setttings form.
     $form_state = new FormState();
@@ -101,7 +107,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     try {
       $settings['vanilla'] = TRUE;
-      $this->blazyFormatterManager->buildSettings($format, $this->testItems);
+      $this->BlazyFormatter->buildSettings($format, $this->testItems);
     }
     catch (\PHPUnit_Framework_Exception $e) {
     }
@@ -109,22 +115,13 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testFieldName, $settings['field_name']);
 
     $settings['vanilla'] = FALSE;
-    $this->blazyFormatterManager->buildSettings($format, $this->testItems);
+    $this->BlazyFormatter->buildSettings($format, $this->testItems);
 
     $this->assertEquals($this->testFieldName, $settings['field_name']);
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);
 
-    // Tests options.
-    // Verify no optionsets without a defined function paramater.
-    try {
-      $options_1a = $this->blazyAdminFormatter->getOptionsetOptions();
-    }
-    catch (\PHPUnit_Framework_Exception $e) {
-    }
-    $this->assertEmpty($options_1a);
-
-    $options_1b = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
-    $this->assertArrayHasKey('large', $options_1b);
+    $options = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
+    $this->assertArrayHasKey('large', $options);
 
     // Tests grid.
     $new_settings = $this->getFormatterSettings();
@@ -149,34 +146,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter file.
-   */
-  public function testBlazyFile() {
-    $settings = [
-      'iframe_lazy'  => TRUE,
-      'media_switch' => 'media',
-      'ratio'        => 'fluid',
-      'view_mode'    => 'default',
-    ];
-
-    $data = [
-      'field_name' => 'field_image',
-      'plugin_id'  => 'blazy_file',
-      'settings'   => $settings + $this->getFormatterSettings(),
-    ];
-    $display = $this->setUpFormatterDisplay($this->bundle, $data);
-
-    $formatter = $this->getFormatterInstance('blazy_file');
-    $build = $this->display->build($this->entity);
-
-    $scopes = $formatter->getScopedFormElements();
-    $this->assertArrayHasKey('multimedia', $scopes);
-
-    $render = $this->blazyManager->getRenderer()->renderRoot($build);
-    $this->assertTrue(strpos($render, 'data-blazy') !== FALSE);
-  }
-
-  /**
    * Tests the Blazy formatter faked Media integration.
    *
    * @param mixed|string|bool $input_url
@@ -192,6 +161,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $settings = [
       'input_url'       => $input_url,
       'source_field'    => $this->testFieldName,
+      'media_source'    => 'remote_video',
       'view_mode'       => 'default',
       'bundle'          => $this->bundle,
       'thumbnail_style' => 'thumbnail',
@@ -206,6 +176,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       $this->assertNotEmpty($render);
 
       $field[0] = $render;
+      $field['#settings'] = $settings;
       $wrap = BlazyMedia::wrap($field, $settings);
       $this->assertNotEmpty($wrap);
 

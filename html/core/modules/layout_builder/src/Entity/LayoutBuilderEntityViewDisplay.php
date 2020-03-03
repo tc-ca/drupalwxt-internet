@@ -334,11 +334,22 @@ class LayoutBuilderEntityViewDisplay extends BaseEntityViewDisplay implements La
    *   An array of context objects for a given entity.
    */
   protected function getContextsForEntity(FieldableEntityInterface $entity) {
-    return [
+    $contexts = [
       'view_mode' => new Context(ContextDefinition::create('string'), $this->getMode()),
       'entity' => EntityContext::fromEntity($entity),
       'display' => EntityContext::fromEntity($this),
     ] + $this->contextRepository()->getAvailableContexts();
+
+    // Get section storage to pass to contexts hook.
+    $cacheability = new CacheableMetadata();
+    $storage = $this->sectionStorageManager()->findByContext($contexts, $cacheability);
+
+    // Allow modules to alter the contexts available. Pass the section storage
+    // as context so that DefaultsSectionStorage's thirdPartySettings can be
+    // used to influence contexts.
+    \Drupal::moduleHandler()->alter('layout_builder_view_context', $contexts, $storage);
+
+    return $contexts;
   }
 
   /**
@@ -350,7 +361,7 @@ class LayoutBuilderEntityViewDisplay extends BaseEntityViewDisplay implements La
    * @return \Drupal\layout_builder\Section[]
    *   The sections.
    *
-   * @deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0.
+   * @deprecated in drupal:8.7.0 and is removed from drupal:9.0.0.
    *   \Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface::findByContext()
    *   should be used instead. See https://www.drupal.org/node/3022574.
    */

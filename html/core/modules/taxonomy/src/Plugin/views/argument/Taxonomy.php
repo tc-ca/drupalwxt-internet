@@ -18,14 +18,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class Taxonomy extends NumericArgument implements ContainerFactoryPluginInterface {
 
   /**
-   * @var EntityRepositoryInterface
-   */
-   protected $entityRepository;
-
-  /**
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $termStorage;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
 
   /**
    * {@inheritdoc}
@@ -33,8 +33,8 @@ class Taxonomy extends NumericArgument implements ContainerFactoryPluginInterfac
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityStorageInterface $term_storage, EntityRepositoryInterface $entityRepository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityRepository = $entityRepository;
     $this->termStorage = $term_storage;
+    $this->entityRepository = $entityRepository;
   }
 
   /**
@@ -45,7 +45,7 @@ class Taxonomy extends NumericArgument implements ContainerFactoryPluginInterfac
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager')->getStorage('taxonomy_term'),
+      $container->get('entity_type.manager')->getStorage('taxonomy_term'),
       $container->get('entity.repository')
     );
   }

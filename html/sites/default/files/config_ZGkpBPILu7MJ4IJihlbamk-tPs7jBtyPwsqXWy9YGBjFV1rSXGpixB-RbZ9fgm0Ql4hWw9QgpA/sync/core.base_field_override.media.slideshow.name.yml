@@ -1,0 +1,20 @@
+uuid: e99db361-3219-4371-aa13-73e55ce10cd0
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.slideshow
+id: media.slideshow.name
+field_name: name
+entity_type: media
+bundle: slideshow
+label: Name
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string

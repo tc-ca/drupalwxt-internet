@@ -14,6 +14,11 @@ class ModerationSidebarTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'toolbar',
     'moderation_sidebar',
@@ -413,6 +418,41 @@ class ModerationSidebarTest extends WebDriverTestBase {
     $title = $this->getSession()->getPage()->find('css', '.ui-dialog-title');
     $this->assertEquals($title->getText(), 'Camel DE');
     $assert_session->elementExists('css', '.moderation-sidebar-link#create_new_draft');
+
+    // SCENARIO 6: Published EN, Published DE, Removed DE.
+    $this->drupalGet('node/add/article');
+    $this->clickLink('URL alias');
+    $this->submitForm([
+      'title[0][value]' => 'Guanaco EN',
+      'moderation_state[0][state]' => 'published',
+    ], 'Save');
+    $this->assertSession()->elementExists('css', '.moderation-label-published[data-label="Published"]');
+    $this->clickLink('Tasks');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $title = $this->getSession()->getPage()->find('css', '.ui-dialog-title');
+    $this->assertEquals($title->getText(), 'Guanaco EN');
+    $this->clickLink('Translate');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->clickLink('Create translation');
+    $this->submitForm([
+      'title[0][value]' => 'Guanaco DE',
+      'moderation_state[0][state]' => 'published',
+    ], 'Save');
+    $this->assertSession()->elementExists('css', '.moderation-label-published[data-label="Published"]');
+    $this->clickLink('Tasks');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $title = $this->getSession()->getPage()->find('css', '.ui-dialog-title');
+    $this->assertEquals($title->getText(), 'Guanaco DE');
+    $node = $this->getNodeByTitle('Guanaco EN');
+    $node->removeTranslation('de');
+    $node->save();
+    $this->drupalGet('node/' . $node->id());
+    $this->clickLink('Tasks');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->clickLink('Translate');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->clickLink('Create translation');
+    $this->assertSession()->pageTextContains('Create German translation of Guanaco EN');
   }
 
 }

@@ -1,0 +1,29 @@
+uuid: efdb18e2-2f82-4530-ae00-44eeccad40fd
+langcode: en
+status: true
+dependencies:
+  module:
+    - openplus
+    - wxt_library
+  theme:
+    - wxt_bootstrap
+id: datemodifiedfield_date_publishedblock
+theme: wxt_bootstrap
+region: content_footer
+weight: 0
+provider: null
+plugin: op_date_modified
+settings:
+  id: op_date_modified
+  label: 'Date modified (field_date_published) block'
+  provider: openplus
+  label_display: '0'
+  context_mapping:
+    node: '@node.node_route_context:node'
+  date_modified: tiny
+visibility:
+  panels_title:
+    id: panels_title
+    enabled: 0
+    negate: false
+    context_mapping: {  }

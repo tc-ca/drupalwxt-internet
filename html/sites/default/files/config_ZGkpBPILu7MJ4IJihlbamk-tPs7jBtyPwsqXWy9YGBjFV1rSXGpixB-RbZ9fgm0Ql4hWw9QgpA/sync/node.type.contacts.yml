@@ -1,0 +1,17 @@
+uuid: 9ef58116-0a3d-4545-9dc1-8a7db16f391b
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: Contacts
+type: contacts
+description: 'Area to store contact information for Transport Canada groups.'
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

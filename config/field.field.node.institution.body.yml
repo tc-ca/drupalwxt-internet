@@ -1,0 +1,26 @@
+uuid: a9971357-ff95-4346-a8b5-22e56077c88a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.institution
+  module:
+    - text
+id: node.institution.body
+field_name: body
+entity_type: node
+bundle: institution
+label: Body
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    summary: ''
+    value: "<section class=\"gc-srvinfo mrgn-bttm-lg\">\r\n<div class=\"container\">\r\n<div class=\"row\">\r\n<h2 class=\"wb-inv\">Services and information</h2>\r\n\r\n<div class=\"wb-eqht\">\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<section class=\"col-md-4\">\r\n<h3><a href=\"#\">[Hyperlink text]</a></h3>\r\n\r\n<p>Use action verbs, or simply list keywords to summarize of the information or tasks that can be accomplished on the page it links to.</p>\r\n</section>\r\n\r\n<div class=\"clearfix\">&nbsp;</div>\r\n</div>\r\n</div>\r\n</div>\r\n</section>\r\n"
+    format: rich_text
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

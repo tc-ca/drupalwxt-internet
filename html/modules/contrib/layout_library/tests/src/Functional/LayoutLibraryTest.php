@@ -64,6 +64,8 @@ class LayoutLibraryTest extends BrowserTestBase {
     // Customize the library layout so we can tell it from the others.
     $page->clickLink('Add section');
     $page->clickLink('One column');
+    $page->fillField('layout_settings[label]', 'Slim Pug Section');
+    $page->pressButton('Add section');
     $page->clickLink('Add block');
     $page->clickLink('Powered by Drupal');
     $page->fillField('settings[label]', 'This is from the library');
@@ -89,6 +91,8 @@ class LayoutLibraryTest extends BrowserTestBase {
     $page->clickLink('Manage layout');
     $page->clickLink('Add section');
     $page->clickLink('One column');
+    $page->fillField('layout_settings[label]', 'Slim Pug Section');
+    $page->pressButton('Add section');
     $page->clickLink('Add block');
     $page->clickLink('Powered by Drupal');
     $page->fillField('settings[label]', 'This is from defaults');
@@ -111,10 +115,12 @@ class LayoutLibraryTest extends BrowserTestBase {
 
     // Customize the overridden layout so we can tell it from the others.
     $page->clickLink('Layout');
-    $page->clickLink('Remove section');
+    $page->clickLink('Remove Slim Pug Section');
     $page->pressButton('Remove');
     $page->clickLink('Add section');
     $page->clickLink('One column');
+    $page->fillField('layout_settings[label]', 'Slim Pug Section');
+    $page->pressButton('Add section');
     $page->clickLink('Add block');
     $page->clickLink('Powered by Drupal');
     $page->fillField('settings[label]', 'This is from overrides');

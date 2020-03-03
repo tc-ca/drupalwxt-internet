@@ -19,11 +19,12 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "set_field_value",
  *   label = @Translation("Set field value"),
  *   group = @Translation("Entity"),
- *   description = @Translation("Set a value to an Entity field"),
+ *   description = @Translation("Set a value to an Entity field. Used only 'Before saving entity' rule."),
  *   isContextDependent = TRUE,
  *   hasTargetEntity = TRUE,
  *   hasTargetBundle = TRUE,
  *   hasTargetField = TRUE,
+ *   reactsOnIds = {"entity_presave"}
  * )
  */
 class SetFieldValue extends BusinessRulesActionPlugin {

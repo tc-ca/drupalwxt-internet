@@ -5,7 +5,6 @@ namespace Drupal\layout_library\Plugin\SectionStorage;
 use Drupal\Component\Plugin\Context\ContextInterface as ComponentContextInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
-use Drupal\Core\Entity\EntityDisplayBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -107,7 +106,7 @@ class Library extends SectionStorageBase implements ContainerFactoryPluginInterf
    * {@inheritdoc}
    */
   public function getSectionListFromId($id) {
-    @trigger_error('\Drupal\layout_builder\SectionStorageInterface::getSectionListFromId() is deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0. The section list should be derived from context. See https://www.drupal.org/node/3016262.', E_USER_DEPRECATED);
+    @trigger_error('\Drupal\layout_builder\SectionStorageInterface::getSectionListFromId() is deprecated in drupal:8.7.0 and will be removed before drupal:9.0.0. The section list should be derived from context. See https://www.drupal.org/node/3016262', E_USER_DEPRECATED);
     if ($layout = $this->entityTypeManager->getStorage('layout')->load($id)) {
       return $layout;
     }
@@ -190,7 +189,7 @@ class Library extends SectionStorageBase implements ContainerFactoryPluginInterf
    * {@inheritdoc}
    */
   public function extractIdFromRoute($value, $definition, $name, array $defaults) {
-    @trigger_error('\Drupal\layout_builder\SectionStorageInterface::extractIdFromRoute() is deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0. \Drupal\layout_builder\SectionStorageInterface::deriveContextsFromRoute() should be used instead. See https://www.drupal.org/node/3016262.', E_USER_DEPRECATED);
+    @trigger_error('\Drupal\layout_builder\SectionStorageInterface::extractIdFromRoute() is deprecated in drupal:8.7.0 and will be removed before drupal:9.0.0. \Drupal\layout_builder\SectionStorageInterface::deriveContextsFromRoute() should be used instead. See https://www.drupal.org/node/3016262', E_USER_DEPRECATED);
     return $value ?: $defaults['layout'];
   }
 
@@ -266,7 +265,7 @@ class Library extends SectionStorageBase implements ContainerFactoryPluginInterf
     $is_library_enabled = FALSE;
     $values = $this->getContextValues();
 
-    if(!is_null($values['layout'])) {
+    if (!is_null($values['layout'])) {
       $entity = $values['layout']->getTargetEntityType();
       $bundle = $values['layout']->getTargetBundle();
       $view_mode = $values['view_mode'];
@@ -274,7 +273,7 @@ class Library extends SectionStorageBase implements ContainerFactoryPluginInterf
         ->getStorage('entity_view_display')
         ->load($entity . '.' . $bundle . '.' . $view_mode);
 
-      if($entity_view_display) {
+      if ($entity_view_display) {
         $is_library_enabled = $entity_view_display->getThirdPartySetting('layout_library', 'enable');
       }
     }
@@ -301,4 +300,5 @@ class Library extends SectionStorageBase implements ContainerFactoryPluginInterf
   protected function getSectionList() {
     return $this->getContextValue('layout');
   }
+
 }

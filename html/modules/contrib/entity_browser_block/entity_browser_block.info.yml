@@ -1,7 +1,8 @@
 name: Entity Browser Block
 type: module
 description: Derives block plugins for every Entity Browser on your site
-# core: 8.x
+core: 8.x
+core_version_requirement: '^8 || ^9'
 package: Media
 dependencies:
   - drupal:block
@@ -9,8 +10,7 @@ dependencies:
 test_dependencies:
   - ctools:ctools
 
-# Information added by Drupal.org packaging script on 2018-07-19
-version: '8.x-1.0'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2020-02-09
+version: '8.x-1.1'
 project: 'entity_browser_block'
-datestamp: 1532037784
+datestamp: 1581284772

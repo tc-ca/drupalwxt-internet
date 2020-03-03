@@ -1,0 +1,21 @@
+uuid: 9750c823-070a-4b95-8b72-a0503e45c764
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_middle_column
+    - paragraphs.paragraphs_type.topic_what
+  module:
+    - text
+id: paragraph.topic_what.field_middle_column
+field_name: field_middle_column
+entity_type: paragraph
+bundle: topic_what
+label: 'Middle column'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

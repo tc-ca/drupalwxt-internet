@@ -71,10 +71,8 @@
           }
         }
       },
-      click: function (event, data) {
-        if(data.targetType === 'title'){
-          new Drupal.TaxonomyManagerTermData(data.node.key, data.tree);
-        }
+      focus: function (event, data) {
+        new Drupal.TaxonomyManagerTermData(data.node.key, data.tree);
       }
     });
   };

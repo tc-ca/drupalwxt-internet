@@ -29,7 +29,7 @@ class ProfileExtensionListTest extends KernelTestBase {
     $this->assertSame($info['name'], 'Testing Inherited');
     $this->assertSame($info['base profile'], 'testing');
     $this->assertContains('config', $info['install']);
-    $this->assertContains('page_cache', $info['install']);
+    $this->assertContains('drupal:page_cache', $info['install']);
     $this->assertTrue($info['hidden'], 'Profiles should be hidden');
 
     // Test that profiles without any base return normalized info.

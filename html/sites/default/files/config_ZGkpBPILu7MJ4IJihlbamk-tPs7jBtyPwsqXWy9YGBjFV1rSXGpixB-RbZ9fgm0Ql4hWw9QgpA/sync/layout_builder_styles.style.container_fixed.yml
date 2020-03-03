@@ -1,0 +1,9 @@
+uuid: 7fa9e29b-3af5-4198-ba8e-4f4e50e6da8c
+langcode: en
+status: true
+dependencies: {  }
+id: container_fixed
+label: 'Container fixed'
+classes: container
+type: section
+block_restrictions: {  }

@@ -46,6 +46,12 @@
       }
     }).change();
 
+    $('select[name$="[grid]"]', t).on('change', function () {
+      var $select = $(this);
+
+      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--grid-on');
+    }).change();
+
     $('select[name$="[responsive_image_style]"]', t).on('change', function () {
       var $select = $(this);
       t[$select.val() === '' ? 'removeClass' : 'addClass']('form--responsive-image-on');
@@ -74,7 +80,7 @@
       $(this).parent().toggleClass('is-selected');
     });
 
-    t.on('click', '.description', function () {
+    t.on('click', '.description, .form-item__description', function () {
       $(this).closest('.is-selected').removeClass('is-selected');
     });
 
@@ -98,8 +104,28 @@
   function blazyTooltip(i, elm) {
     var $tip = $(elm);
 
+    // Claro removed description for BEM form-item__description.
+    if ($tip.hasClass('form-item__description')) {
+      $tip.addClass('description');
+    }
+
     if (!$tip.siblings('.hint').length) {
       $tip.closest('.form-item').append('<span class="hint">?</span>');
+    }
+  }
+
+  /**
+   * Blazy admin checkbox function.
+   *
+   * @param {int} i
+   *   The index of the current element.
+   * @param {HTMLElement} elm
+   *   The Blazy form item checkbox HTML element.
+   */
+  function blazyCheckbox(i, elm) {
+    var $elm = $(elm);
+    if (!$elm.next('.field-suffix').length) {
+      $elm.after('<span class="field-suffix"></span>');
     }
   }
 
@@ -112,7 +138,8 @@
     attach: function (context) {
       var $form = $('.form--slick', context);
 
-      $('.description', $form).once('blazy-tooltip').each(blazyTooltip);
+      $('.description, .form-item__description', $form).once('blazy-tooltip').each(blazyTooltip);
+      $('.form-checkbox', $form).once('blazy-checkbox').each(blazyCheckbox);
 
       $form.once('blazy-admin').each(blazyForm);
     }

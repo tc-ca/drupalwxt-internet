@@ -1,0 +1,29 @@
+uuid: 639a585d-c78c-43e5-9a9f-8c99477f634d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_team
+    - node.type.video
+    - taxonomy.vocabulary.teams
+id: node.video.field_team
+field_name: field_team
+entity_type: node
+bundle: video
+label: Team
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      teams: teams
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

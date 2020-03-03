@@ -59,7 +59,7 @@ class MediaTypeTest extends KernelTestBase {
     $component = lightning_media_entity_get_form_display('media', $type)
       ->getComponent('field_media_in_library');
 
-    $this->assertInternalType('array', $component);
+    $this->assertSame('array', gettype($component));
   }
 
 }

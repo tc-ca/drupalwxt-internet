@@ -1,0 +1,21 @@
+uuid: ff7d6e43-32ab-418b-a0a3-ae61e6f2a249
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_left_column
+    - paragraphs.paragraphs_type.topic_what
+  module:
+    - text
+id: paragraph.topic_what.field_left_column
+field_name: field_left_column
+entity_type: paragraph
+bundle: topic_what
+label: 'Left column'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

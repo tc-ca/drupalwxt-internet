@@ -94,7 +94,7 @@ class MiniLayout extends ConfigEntityBase implements SectionListInterface {
    * @return $this
    */
   protected function setSections(array $sections) {
-    $this->sections = $sections;
+    $this->sections = array_values($sections);
     return $this;
   }
 }

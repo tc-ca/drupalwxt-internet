@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\views\FunctionalJavascript;
 
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
-use Drupal\simpletest\ContentTypeCreationTrait;
-use Drupal\simpletest\NodeCreationTrait;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
+use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
+use Drupal\Tests\node\Traits\NodeCreationTrait;
 use Drupal\views\Tests\ViewTestData;
 
 /**
@@ -12,7 +12,7 @@ use Drupal\views\Tests\ViewTestData;
  *
  * @group views
  */
-class BlockExposedFilterAJAXTest extends JavascriptTestBase {
+class BlockExposedFilterAJAXTest extends WebDriverTestBase {
 
   use ContentTypeCreationTrait;
   use NodeCreationTrait;
@@ -22,7 +22,12 @@ class BlockExposedFilterAJAXTest extends JavascriptTestBase {
    */
   public static $modules = ['node', 'views', 'block', 'views_test_config'];
 
-  public static $testViews = ['test_block_exposed_ajax'];
+  public static $testViews = ['test_block_exposed_ajax', 'test_block_exposed_ajax_with_page'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
@@ -30,7 +35,6 @@ class BlockExposedFilterAJAXTest extends JavascriptTestBase {
   public function setUp() {
     parent::setUp();
     ViewTestData::createTestViews(self::class, ['views_test_config']);
-    $this->drupalPlaceBlock('views_block:test_block_exposed_ajax-block_1');
     $this->createContentType(['type' => 'page']);
     $this->createContentType(['type' => 'article']);
     $this->createNode(['title' => 'Page A']);
@@ -47,6 +51,7 @@ class BlockExposedFilterAJAXTest extends JavascriptTestBase {
    */
   public function testExposedFilteringAndReset() {
     $node = $this->createNode();
+    $block = $this->drupalPlaceBlock('views_block:test_block_exposed_ajax-block_1');
     $this->drupalGet($node->toUrl());
 
     $page = $this->getSession()->getPage();
@@ -59,7 +64,7 @@ class BlockExposedFilterAJAXTest extends JavascriptTestBase {
 
     // Filter by page type.
     $this->submitForm(['type' => 'page'], t('Apply'));
-    $this->assertSession()->waitForElementRemoved('xpath', "//text()[normalize-space() = 'Article A']");
+    $this->assertSession()->waitForElementRemoved('xpath', '//*[text()="Article A"]');
 
     // Verify that only the page nodes are present.
     $html = $page->getHtml();
@@ -75,7 +80,17 @@ class BlockExposedFilterAJAXTest extends JavascriptTestBase {
     $this->assertContains('Page A', $html);
     $this->assertContains('Page B', $html);
     $this->assertContains('Article A', $html);
-    $this->assertEquals($node->toUrl()->setAbsolute()->toString(), $this->getSession()->getCurrentUrl());
+    $this->assertSession()->addressEquals('node/' . $node->id());
+
+    $block->delete();
+    // Do the same test with a block that has a page display to test the user
+    // is redirected to the page display.
+    $this->drupalPlaceBlock('views_block:test_block_exposed_ajax_with_page-block_1');
+    $this->drupalGet($node->toUrl());
+    $this->submitForm(['type' => 'page'], t('Apply'));
+    $this->assertSession()->waitForElementRemoved('xpath', '//*[text()="Article A"]');
+    $this->submitForm([], t('Reset'));
+    $this->assertSession()->addressEquals('some-path');
   }
 
 }

@@ -1,0 +1,20 @@
+uuid: 8a84a203-cf4a-4362-b5ab-3e380fd83788
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.tweet
+  module:
+    - path
+id: media.tweet.path
+field_name: path
+entity_type: media
+bundle: tweet
+label: 'URL alias'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: path

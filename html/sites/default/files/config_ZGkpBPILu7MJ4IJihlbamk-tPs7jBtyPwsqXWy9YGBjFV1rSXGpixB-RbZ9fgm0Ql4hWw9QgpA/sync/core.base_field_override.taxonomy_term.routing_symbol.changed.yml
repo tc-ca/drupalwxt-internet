@@ -1,0 +1,18 @@
+uuid: e3553362-62d5-4ff1-8511-eb2c67b0911d
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.routing_symbol
+id: taxonomy_term.routing_symbol.changed
+field_name: changed
+entity_type: taxonomy_term
+bundle: routing_symbol
+label: Changed
+description: 'The time that the term was last edited.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: changed

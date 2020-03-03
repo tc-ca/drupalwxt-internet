@@ -4,6 +4,7 @@ namespace Drupal\business_rules\Plugin\EntityReferenceSelection;
 
 use Drupal\business_rules\Ajax\UpdateOptionsCommand;
 use Drupal\business_rules\Util\BusinessRulesUtil;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -200,7 +201,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
             $rendered_value = (string) $renderer->render($value);
             $options[] = [
               'key' => $key,
-              'value' => strip_tags($rendered_value),
+              'value' => Html::decodeEntities(strip_tags($rendered_value)),
             ];
           }
         }

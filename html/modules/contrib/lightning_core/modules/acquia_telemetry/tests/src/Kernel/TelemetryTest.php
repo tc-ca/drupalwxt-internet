@@ -7,6 +7,8 @@ use GuzzleHttp\ClientInterface;
 use Prophecy\Argument;
 
 /**
+ * Contains basic unit tests of Acquia's telemetry integration.
+ *
  * @group lightning
  * @group lightning_core
  * @group acquia_telemetry
@@ -20,6 +22,9 @@ class TelemetryTest extends KernelTestBase {
    */
   protected static $modules = ['acquia_telemetry', 'system'];
 
+  /**
+   * Tests HTTP error suppression when sending telemetry to Acquia.
+   */
   public function testErrorSuppression() {
     $http_client = $this->prophesize(ClientInterface::class);
     $http_client->request(Argument::cetera())->willThrow('Exception');
@@ -29,7 +34,7 @@ class TelemetryTest extends KernelTestBase {
     $this->assertFalse($telemetry->sendTelemetry('Foobaz'));
 
     $this->container->get('state')->set('acquia_telemetry.loud', TRUE);
-    $this->setExpectedException('Exception');
+    $this->expectException('Exception');
     $telemetry->sendTelemetry('Blow up real good!');
   }
 

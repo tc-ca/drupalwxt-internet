@@ -1,0 +1,27 @@
+uuid: 328cf8b7-3056-495d-8799-5d43abace18e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_attachments
+    - node.type.tcpage
+  module:
+    - file
+id: node.tcpage.field_attachments
+field_name: field_attachments
+entity_type: node
+bundle: tcpage
+label: Attachments
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: attachments
+  file_extensions: 'pdf docx xlsx'
+  max_filesize: ''
+  description_field: false
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file

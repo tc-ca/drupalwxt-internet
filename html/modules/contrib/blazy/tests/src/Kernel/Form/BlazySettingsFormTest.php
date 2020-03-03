@@ -17,6 +17,11 @@ use Drupal\blazy_ui\Form\BlazySettingsForm;
 class BlazySettingsFormTest extends KernelTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * The Blazy form object under test.
    *
    * @var \Drupal\blazy_ui\Form\BlazySettingsForm
@@ -32,6 +37,7 @@ class BlazySettingsFormTest extends KernelTestBase {
     'system',
     'file',
     'image',
+    'media',
     'blazy',
     'blazy_ui',
   ];
@@ -48,9 +54,7 @@ class BlazySettingsFormTest extends KernelTestBase {
 
     $this->blazyManager = $this->container->get('blazy.manager');
 
-    $this->blazySettingsForm = new BlazySettingsForm(
-      $this->blazyManager->getConfigFactory()
-    );
+    $this->blazySettingsForm = BlazySettingsForm::create($this->container);
   }
 
   /**
@@ -72,7 +76,7 @@ class BlazySettingsFormTest extends KernelTestBase {
     $this->assertTrue($this->blazyManager->getConfigFactory()->get('blazy.settings')->get('admin_css'));
 
     $id = $this->blazySettingsForm->getFormId();
-    $this->assertEquals('blazy_settings', $id);
+    $this->assertEquals('blazy_settings_form', $id);
 
     $method = new \ReflectionMethod(BlazySettingsForm::class, 'getEditableConfigNames');
     $method->setAccessible(TRUE);
@@ -82,19 +86,6 @@ class BlazySettingsFormTest extends KernelTestBase {
 
     $form = $this->blazySettingsForm->buildForm([], $form_state);
     $this->blazySettingsForm->submitForm($form, $form_state);
-  }
-
-}
-
-namespace Drupal\blazy_ui\Form;
-
-if (!function_exists('drupal_set_message')) {
-
-  /**
-   * Dummy function.
-   */
-  function drupal_set_message() {
-    // Empty block to satisfy coder.
   }
 
 }

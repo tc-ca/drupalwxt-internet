@@ -10,6 +10,11 @@ function autosave_form_test_form_alter(&$form, FormStateInterface $form_state, $
   if (isset($form[AutosaveFormInterface::AUTOSAVE_ELEMENT_NAME])) {
     $form[AutosaveFormInterface::AUTOSAVE_ELEMENT_NAME]['#submit'][] = 'autosave_form_test_autosave_submit';
   }
+
+  if (\Drupal::state()->get('disable_html5_validation')) {
+    // Disable HTML5 validation.
+    $form['#attributes']['novalidate'] = 'novalidate';
+  }
 }
 
 function autosave_form_test_autosave_submit($form, FormStateInterface $form_state) {

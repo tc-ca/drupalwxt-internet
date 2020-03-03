@@ -47,7 +47,7 @@ class ConfigDeleteUITest extends WebDriverTestBase {
 
     $this->rebuildContainer();
     $config = $this->config('contact.form.personal');
-    $this->assertFalse($config->get('id'), $config->get('id'));
+    $this->assertNull($config->get('id'));
   }
 
   /**

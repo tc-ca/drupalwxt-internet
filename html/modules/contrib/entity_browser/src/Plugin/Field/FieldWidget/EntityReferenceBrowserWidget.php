@@ -173,7 +173,7 @@ class EntityReferenceBrowserWidget extends WidgetBase implements ContainerFactor
       }
     }
 
-    $id = Html::getId($this->fieldDefinition->getName()) . '-field-widget-display-settings-ajax-wrapper-' . md5($this->fieldDefinition->get('uuid'));
+    $id = Html::getId($this->fieldDefinition->getName()) . '-field-widget-display-settings-ajax-wrapper-' . md5($this->fieldDefinition->getUniqueIdentifier());
     $element['field_widget_display'] = [
       '#title' => $this->t('Entity display plugin'),
       '#type' => 'radios',
@@ -294,7 +294,7 @@ class EntityReferenceBrowserWidget extends WidgetBase implements ContainerFactor
   /**
    * Ajax callback that updates field widget display settings fieldset.
    */
-  public function updateFieldWidgetDisplaySettings(array $form, FormStateInterface $form_state) {
+  public static function updateFieldWidgetDisplaySettings(array $form, FormStateInterface $form_state) {
     $array_parents = $form_state->getTriggeringElement()['#array_parents'];
     $up_two_levels = array_slice($array_parents, 0, count($array_parents) - 2);
     $settings_path = array_merge($up_two_levels, ['field_widget_display_settings']);
@@ -698,12 +698,12 @@ class EntityReferenceBrowserWidget extends WidgetBase implements ContainerFactor
     }
 
     if ($cardinality === 1 && $selected === 0) {
-      $message = t('You can select one @entity_type.', [
+      $message = $this->t('You can select one @entity_type.', [
         '@entity_type' => $target_type->getSingularLabel(),
       ]);
     }
     elseif ($cardinality >= $selected) {
-      $message = t('You can select up to @maximum @entity_type (@remaining left).', [
+      $message = $this->t('You can select up to @maximum @entity_type (@remaining left).', [
         '@maximum' => $cardinality,
         '@entity_type' => $target_type->getPluralLabel(),
         '@remaining' => $cardinality - $selected,
@@ -728,6 +728,7 @@ class EntityReferenceBrowserWidget extends WidgetBase implements ContainerFactor
       'widget_context' => [
         'target_bundles' => !empty($handler['target_bundles']) ? $handler['target_bundles'] : [],
         'target_entity_type' => $settings['target_type'],
+        'cardinality' => $this->fieldDefinition->getFieldStorageDefinition()->getCardinality(),
       ],
     ];
   }

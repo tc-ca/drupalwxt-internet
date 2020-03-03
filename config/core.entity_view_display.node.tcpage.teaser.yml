@@ -1,0 +1,31 @@
+uuid: ef14ce9d-67da-4f60-9f08-639ae1e3faed
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.tcpage.body
+    - node.type.tcpage
+  module:
+    - text
+    - user
+id: node.tcpage.teaser
+targetEntityType: node
+bundle: tcpage
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 101
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  langcode: true

@@ -3,7 +3,7 @@ core: 8.x
 type: module
 package: Testing
 
-# Information added by Drupal.org packaging script on 2019-09-25
-version: '8.x-1.0-alpha2'
+# Information added by Drupal.org packaging script on 2019-12-10
+version: '8.x-1.0-beta1'
 project: 'core_context'
-datestamp: 1569433986
+datestamp: 1575989313

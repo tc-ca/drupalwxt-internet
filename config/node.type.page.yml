@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - content_moderation
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - sidebar
+    parent: 'sidebar:'
+  lightning_workflow:
+    workflow: editorial
+name: 'Basic page'
+type: page
+description: 'Use <em>basic pages</em> for your static content, such as an ''About us'' page.'
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: false
+_core:
+  default_config_hash: nb_cPUs4dvoXeLvPMQYwg1oWcQ5-nE7TcwKGs_VsiHg
+uuid: a1d416fd-3f95-45da-9a37-79c4e76224a5

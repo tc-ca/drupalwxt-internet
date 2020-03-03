@@ -1,0 +1,24 @@
+uuid: 2fcf9624-a566-4b3b-8ad8-c34320ab1342
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_inst_contact
+    - node.type.institution
+  module:
+    - text
+id: node.institution.field_inst_contact
+field_name: field_inst_contact
+entity_type: node
+bundle: institution
+label: 'Contact us'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: "<div class=\"most-requested well well-sm brdr-0\">\r\n<div class=\"container\">\r\n<div class=\"row\">\r\n<div class=\"wb-eqht\"><span class=\"clearfix\"></span>\r\n<section class=\"col-lg-4 col-sm-6\">\r\n<h3 class=\"h5\"><a href=\"#\">Contact [Institution]</a></h3>\r\n</section>\r\n\r\n<section class=\"col-lg-4 col-sm-6\">\r\n<h3 class=\"h5\"><a href=\"#\">[Top contact task 2]</a></h3>\r\n</section>\r\n\r\n<section class=\"col-lg-4 col-sm-6\">\r\n<h3 class=\"h5\"><a href=\"#\">[Top contact task 3]</a></h3>\r\n</section>\r\n</div>\r\n</div>\r\n\r\n<div class=\"row\">\r\n<section class=\"col-md-8 pull-left mrgn-bttm-lg\">\r\n<h2 class=\"h3\">About the [Institution]</h2>\r\n\r\n<div class=\"wb-eqht row\">\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Mandate</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Organizational structure</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\" rel=\"external\">Transparency</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\" rel=\"external\">Job opportunities</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Reports</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Compliance</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Enforcement notifications</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Institutional link</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\"><a href=\"#\">Institutional link</a></h3>\r\n</section>\r\n</div>\r\n\r\n<div class=\"col-md-6\">\r\n<section>\r\n<h3 class=\"h5\">More: <a href=\"#\" rel=\"external\">About the [Institution]</a></h3>\r\n</section>\r\n</div>\r\n</div>\r\n</section>\r\n\r\n<div class=\"col-md-4 col-sm-5 pull-right mobile-left\">\r\n<section class=\"lnkbx\">\r\n<h2 class=\"h3\">Minister</h2>\r\n\r\n<p><a href=\"#\">[(Honourable) first and last name]</a><br />\r\n<small>Minister's official title</small></p>\r\n\r\n<p><a href=\"#\">[(Honourable) first and last name]</a><br />\r\n<small>Minister's official title</small></p>\r\n\r\n<p><a href=\"#\">[(Honourable) first and last name]</a><br />\r\n<small>Minister's official title</small></p>\r\n</section>\r\n\r\n<section class=\"followus experimental\">\r\n<h2 class=\"mrgn-tp-lg h3\">Follow us</h2>\r\n\r\n<ul>\r\n\t<li><a class=\"facebook\" href=\"https://www.facebook.com/canrevagency\" rel=\"external\"><span class=\"wb-inv\">Facebook</span></a></li>\r\n\t<li><a class=\"twitter\" href=\"https://twitter.com/CanRevAgency\" rel=\"external\"><span class=\"wb-inv\">Twitter</span></a></li>\r\n\t<li><a class=\"youtube\" href=\"https://www.youtube.com/user/CanRevAgency\" rel=\"external\"><span class=\"wb-inv\">YouTube</span></a></li>\r\n\t<li><a class=\"linkedin\" href=\"https://www.linkedin.com/company/cra-arc\" rel=\"external\"><span class=\"wb-inv\">LinkedIn</span></a></li>\r\n</ul>\r\n</section>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n"
+    format: rich_text
+default_value_callback: ''
+settings: {  }
+field_type: text_long

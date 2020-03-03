@@ -3,7 +3,6 @@
 namespace Drupal\blazy_test\Form;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Component\Utility\Html;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\Form\BlazyAdminInterface;
 use Drupal\blazy\BlazyManagerInterface;
@@ -28,20 +27,6 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
    * @var \Drupal\blazy_test\BlazyManagerInterface
    */
   protected $manager;
-
-  /**
-   * Static cache for the skin definition.
-   *
-   * @var array
-   */
-  protected $skinDefinition;
-
-  /**
-   * Static cache for the skin options.
-   *
-   * @var array
-   */
-  protected $skinOptions;
 
   /**
    * Constructs a GridStackAdmin object.
@@ -73,24 +58,13 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
   }
 
   /**
-   * Returns defined skins as registered via hook_blazy_test_skins_info().
-   */
-  public function getSkins() {
-    if (!isset($this->skinDefinition)) {
-      $this->skinDefinition = $this->manager->buildSkins('blazy_test', '\Drupal\blazy_test\BlazyTestSkin');
-    }
-
-    return $this->skinDefinition;
-  }
-
-  /**
    * Returns all settings form elements.
    */
   public function buildSettingsForm(array &$form, $definition = []) {
     $definition += [
       'namespace'  => 'blazy',
       'optionsets' => [],
-      'skins'      => $this->getSkinOptions(),
+      'skins'      => [],
       'grid_form'  => TRUE,
       'style'      => TRUE,
     ];
@@ -109,7 +83,7 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
   /**
    * Returns the opening form elements.
    */
-  public function openingForm(array &$form, $definition = []) {
+  public function openingForm(array &$form, &$definition = []) {
     $this->blazyAdmin->openingForm($form, $definition);
   }
 
@@ -146,20 +120,6 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
   }
 
   /**
-   * Returns available blazy_test skins for select options.
-   */
-  public function getSkinOptions() {
-    if (!isset($this->skinOptions)) {
-      $this->skinOptions = [];
-      foreach ($this->getSkins() as $skin => $properties) {
-        $this->skinOptions[$skin] = Html::escape($properties['name']);
-      }
-    }
-
-    return $this->skinOptions;
-  }
-
-  /**
    * Returns default layout options for the core Image, or Views.
    */
   public function getLayoutOptions() {
@@ -172,24 +132,8 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
 
   /**
    * Return the field formatter settings summary.
-   *
-   * @deprecated: Removed for self::getSettingsSummary().
    */
-  public function settingsSummary($plugin, $definition = []) {
-    return $this->blazyAdmin->settingsSummary($plugin, $definition);
-  }
-
-  /**
-   * Return the field formatter settings summary.
-   *
-   * @todo: Remove second param $plugin for post-release for Blazy RC2+.
-   */
-  public function getSettingsSummary(array $definition = [], $plugin = NULL) {
-    // @todo: Remove condition for Blazy RC2+.
-    if (!method_exists($this->blazyAdmin, 'getSettingsSummary')) {
-      return $this->blazyAdmin->settingsSummary($plugin, $definition);
-    }
-
+  public function getSettingsSummary(array $definition = []) {
     return $this->blazyAdmin->getSettingsSummary($definition);
   }
 

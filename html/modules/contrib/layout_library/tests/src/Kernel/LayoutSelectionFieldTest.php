@@ -46,7 +46,7 @@ class LayoutSelectionFieldTest extends KernelTestBase {
    */
   public function testFieldPersistsForMultipleDisplays() {
     /** @var \Drupal\layout_builder\Entity\LayoutEntityDisplayInterface $full_display */
-    $full_display = entity_get_display('node', 'test', 'full');
+    $full_display = \Drupal::service('entity_display.repository')->getViewDisplay('node', 'test', 'full');
     $this->assertInstanceOf(LayoutEntityDisplayInterface::class, $full_display);
     $full_display->enableLayoutBuilder()
       ->setThirdPartySetting('layout_library', 'enable', TRUE)
@@ -54,7 +54,7 @@ class LayoutSelectionFieldTest extends KernelTestBase {
     $this->assertFieldExists();
 
     /** @var \Drupal\layout_builder\Entity\LayoutEntityDisplayInterface $teaser_display */
-    $teaser_display = entity_get_display('node', 'test', 'teaser');
+    $teaser_display = \Drupal::service('entity_display.repository')->getViewDisplay('node', 'test', 'teaser');
     $this->assertInstanceOf(LayoutEntityDisplayInterface::class, $teaser_display);
     $teaser_display->enableLayoutBuilder()
       ->setThirdPartySetting('layout_library', 'enable', TRUE)

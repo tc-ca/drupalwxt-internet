@@ -1,0 +1,8 @@
+uuid: 0af77fb6-8805-47a5-be85-7f22076ef1f8
+langcode: en
+status: true
+dependencies: {  }
+id: featured_block
+label: 'Featured block'
+revision: 1
+description: 'Link, image, body block - featured blocks on topic pages.'

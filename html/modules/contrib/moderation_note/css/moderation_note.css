@@ -69,6 +69,7 @@ div.moderation-note,
 
 .ui-dialog-off-canvas #drupal-off-canvas .moderation-note-form .form-item.form-item-assignee {
   display: flex;
+  overflow: hidden;
   align-items: center;
   margin-top: 10px;
 }
@@ -190,12 +191,12 @@ div.moderation-note,
 .ui-dialog .moderation-note-quote-information p,
 #drupal-off-canvas .ui-dialog .moderation-note-quote-information,
 #drupal-off-canvas .ui-dialog .moderation-note-quote-information p {
-  display: none;
+  display: none !important;
 }
 
 .ui-dialog .moderation-note-preview .moderation-note-quote-information,
 #drupal-off-canvas .ui-dialog .moderation-note-preview .moderation-note-quote-information {
-  display: block;
+  display: block !important;
 }
 
 .moderation-note .moderation-note-actions,

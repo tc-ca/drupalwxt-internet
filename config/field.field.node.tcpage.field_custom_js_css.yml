@@ -1,0 +1,23 @@
+uuid: f393662c-312e-426e-bdae-472bf3f46adc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_custom_js_css
+    - node.type.tcpage
+id: node.tcpage.field_custom_js_css
+field_name: field_custom_js_css
+entity_type: node
+bundle: tcpage
+label: 'Custom JS/CSS'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

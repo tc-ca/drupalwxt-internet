@@ -1,0 +1,21 @@
+uuid: fab02d56-953a-4a29-aea8-a60147211a24
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_archive_notify
+    - node.type.video
+  module:
+    - datetime
+id: node.video.field_archive_notify
+field_name: field_archive_notify
+entity_type: node
+bundle: video
+label: 'Archive notify'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

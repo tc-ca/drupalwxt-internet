@@ -36,11 +36,11 @@
    */
   Drupal.AjaxCommands.prototype.remove_moderation_note = function (ajax, response, status) {
     var id = response.id;
-    var $wrapper = $('[data-moderation-note-highlight-id="' + id + '"]');
+    var $wrap = $('[data-moderation-note-highlight-id="' + id + '"]');
     if (Drupal.moderation_note.notes[response.id]) {
       delete Drupal.moderation_note.notes[response.id];
     }
-    $wrapper.contents().unwrap();
+    removeHighlight($wrap);
   };
 
   /**
@@ -145,11 +145,13 @@
     var match, selection, range, current_offset, current_difference;
 
     if (window.find && window.getSelection) {
+      text = text.replace("\r\n", "\n");
+
       selection = window.getSelection();
       selection.collapse(element, 0);
 
       var offset_difference = element.innerHTML.length;
-      while (window.find(text)) {
+      while (window.find(text) && selection.rangeCount) {
         range = selection.getRangeAt(0);
         var $ancestor = $(range.commonAncestorContainer);
         if ($ancestor.closest(element).length) {
@@ -177,7 +179,9 @@
       }
     }
 
-    selection.collapseToEnd();
+    if (selection.rangeCount) {
+      selection.collapseToEnd();
+    }
     $(window).scrollTop(scroll);
     return match;
   }
@@ -319,13 +323,13 @@
 
         var $view_tooltip = Drupal.moderation_note.view_tooltip;
 
-        $wrap.on('mouseover', function () {
+        $wrap.on('mouseover.moderation_note', function () {
           showViewTooltip($view_tooltip, $(this));
           $view_tooltip.stop().fadeIn();
           clearTimeout(view_tooltip_timeout);
         });
 
-        $wrap.on('mouseleave', function () {
+        $wrap.on('mouseleave.moderation_note', function () {
           clearTimeout(view_tooltip_timeout);
           view_tooltip_timeout = setTimeout(function () {
             $view_tooltip.fadeOut('fast');
@@ -371,7 +375,7 @@
         $(this).removeClass('moderation-note-contextual-highlight existing');
       }
       else {
-        $(this).contents().unwrap();
+        removeHighlight($(this));
       }
     });
   }
@@ -381,8 +385,28 @@
    */
   function removeModerationNotes () {
     $('.moderation-note-highlight').each(function () {
-      $(this).contents().unwrap();
+      removeHighlight($(this));
     });
+  }
+
+  /**
+   * Removes the highlight and note data for a given wrapper element.
+   *
+   * @param {Object} $wrap
+   *   The jQuery object for the wrap (could contain multiple elements).
+   */
+  function removeHighlight ($wrap) {
+    if ($wrap.is('.moderation-note-highlight-existing')) {
+      $wrap.removeClass('moderation-note-contextual-highlight moderation-note-highlight moderation-note-highlight-existing existing new');
+      $wrap.removeAttr('data-moderation-note-highlight-id');
+      $wrap.removeData('moderation-note-highlight-id');
+      $wrap.removeData('moderation-note');
+      $wrap.off('mouseover.moderation_note');
+      $wrap.off('mouseleave.moderation_note');
+    }
+    else {
+      $wrap.contents().unwrap();
+    }
   }
 
   /**
@@ -398,17 +422,21 @@
   function highliteRange (range, classes) {
     var selection = window.getSelection();
 
-    selection.removeAllRanges();
-    selection.addRange(range);
     document.designMode = 'on';
     var spellcheck = document.body.spellcheck;
     document.body.spellcheck = false;
+    selection.removeAllRanges();
+    selection.addRange(range);
     document.execCommand('hilitecolor', false, 'yellow');
     document.designMode = 'off';
     document.body.spellcheck = spellcheck;
 
     var wrap_range = selection.getRangeAt(0);
     var $wrap = $(wrap_range.startContainer.parentNode).add(wrap_range.endContainer.parentNode);
+    // This is not a new span element.
+    if ($wrap[0].attributes.length > 1) {
+      $wrap.addClass('moderation-note-highlight-existing');
+    }
     $wrap.removeAttr('style').addClass(classes);
     selection.collapseToEnd();
 
@@ -520,6 +548,9 @@
             if ($element.length) {
               showViewTooltip(Drupal.moderation_note.view_tooltip, $element);
               Drupal.moderation_note.view_tooltip.stop().hide().trigger('click');
+              $('html, body').animate({
+                scrollTop: $element.offset().top - ($(window).height() / 2)
+              }, 1000);
             }
           }
         }

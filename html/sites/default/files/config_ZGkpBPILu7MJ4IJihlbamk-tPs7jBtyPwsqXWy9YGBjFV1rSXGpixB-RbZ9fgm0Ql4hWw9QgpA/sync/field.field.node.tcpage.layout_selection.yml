@@ -1,0 +1,21 @@
+uuid: 622f4298-1d78-4d5f-8bb9-408d34db1555
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.layout_selection
+    - node.type.tcpage
+id: node.tcpage.layout_selection
+field_name: layout_selection
+entity_type: node
+bundle: tcpage
+label: Layout
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: layout_library
+  handler_settings: {  }
+field_type: entity_reference

@@ -1,0 +1,177 @@
+uuid: 07920cce-a726-4778-8b5b-a3926c921856
+langcode: en
+status: open
+dependencies: {  }
+open: null
+close: null
+weight: 0
+uid: 1
+template: false
+archive: false
+id: drone_incident_form
+title: 'Drone incident form'
+description: ''
+category: ''
+elements: "date_and_location_of_incident:\n  '#type': fieldset\n  '#title': 'Date and location of incident'\n  address_or_notable:\n    '#type': textfield\n    '#title': 'Address or notable landmark where incident occurred'\n  city:\n    '#type': textfield\n    '#title': City\n  province:\n    '#type': select\n    '#title': Province\n    '#options': province_names\n  time_of_incident:\n    '#type': datetime\n    '#title': 'Time of incident'\n    '#date_date_element': datepicker\n    '#date_time_element': timepicker\n    '#date_time_format': 'g:i A'\n    '#date_time_step': '300'\nprimary_concern_fs:\n  '#type': fieldset\n  '#title': 'Primary concern'\n  primary_concern:\n    '#type': webform_radios_other\n    '#title': 'Is your primary concern'\n    '#options':\n      aviation_safety: 'Safety of aviation '\n      people_safety: 'Safety of people'\n      'privacy ': 'Privacy '\n    '#other__title': Other\n    '#wrapper_type': form_element\ndescription_of_incident_fs:\n  '#type': fieldset\n  '#title': 'Description of incident'\n  description_of_incident:\n    '#type': webform_checkboxes_other\n    '#title': 'Was the drone flying (click all that apply)'\n    '#options':\n      near_airport: 'Near an airport/aerodrome/heliport '\n      'near_aircraft ': 'Near an aircraft '\n      'populated_areas ': 'Over people/populated areas '\n      moving_vehicle_etc: 'Moving vehicles, highways, busy streets, bridges '\n      over_private_property: 'Over private property'\n      over_crowd: 'Over a crowd (sporting event, concert, festival) '\n      poor_weather: 'In cloud/poor weather'\n      fireworks_show: 'Fireworks show'\n      natural_disaster: 'Forest fire (or other natural disaster, i.e. flood)'\n      'critical_infrastructure ': 'Near critical infrastructure'\n      near_emergency_services: 'Near an emergency services (police, fire, ambulance) operation'\n    '#options_display': two_columns\n    '#other__title': Other\n    '#wrapper_type': form_element\n  incident_details:\n    '#type': textarea\n    '#title': 'Give as many details as possible (what happened)'\nevidence_fs:\n  '#type': fieldset\n  '#title': Evidence\n  identify_pilot:\n    '#type': select\n    '#title': 'Can you identify or describe the drone pilot?'\n    '#options': yes_no\n  pilot_description:\n    '#type': textarea\n    '#title': 'Please include details below (e.g. what the pilot looked like, the state of the pilot)'\n    '#states':\n      visible:\n        ':input[name=\"identify_pilot\"]':\n          value: 'Yes'\n  has_evidence:\n    '#type': select\n    '#title': 'Do you have evidence such as photos or videos or witness statements of this incident?'\n    '#options': yes_no\ncontact_information_fs:\n  '#type': fieldset\n  '#title': 'Contact information'\n  '#description': 'As we look into this report, we may need to contact you for more information. If you agree to be contacted, complete the following fields. Otherwise, leave them blank and submit your report.'\n  can_contact:\n    '#type': select\n    '#title': 'Can a Transport Canada Official contact you for more information regarding this report?'\n    '#options': yes_no\n  contact:\n    '#type': webform_contact\n    '#title': 'Contact information'\n    '#states':\n      visible:\n        ':input[name=\"can_contact\"]':\n          value: 'Yes'\n    '#company__access': false\n    '#address__access': false\n    '#address_2__access': false\n    '#city__access': false\n    '#state_province__access': false\n    '#postal_code__access': false\n    '#country__access': false\nprivacy_statement:\n  '#type': processed_text\n  '#text': |\n    <div class=\"alert alert-info\">\n    <h3>Privacy statement</h3>\n    \n    <p>Transport Canada (TC) is committed to protecting the privacy rights of individuals and safeguarding the personal information under its control.</p>\n    \n    <p>“Personal information” is defined as any information, in any form, about an identifiable individual; refer to section 3 of the <a href=\"http://laws-lois.justice.gc.ca/eng/acts/P-21/\"><cite>Privacy Act</cite></a> for further details regarding personal information.</p>\n    \n    <p>Personal information collected by TC is protected from disclosure to unauthorized persons and/or agencies subject to the provisions of the <cite>Privacy Act</cite>. Individuals have the right to the protection of and access to their personal information and to request corrections where the individual believes there is an error or omission. Individuals may contact the Department’s Access to Information and Privacy Protection Division to request corrections.</p>\n    \n    <p>The information requested is required by the Department for the purpose of regulatory follow-up and will be used to investigate. Your personal information will be shared with Transport Canada Civil Aviation for the purpose of regulatory enforcement.</p>\n    \n    <p>The information is collected under the authority of the <cite><a href=\"https://www.tc.gc.ca/eng/acts-regulations/acts-1985ca-2.htm\">Aeronautics Act</a></cite> (R.S., 1985, c. A-2).</p>\n    \n    <p>Provision of the information requested in this document is voluntary and you may, without prejudice, decline to respond. Should you decide to complete the form, it is important to know that the submission of your information constitutes consent to the collection and use of your personal information.</p>\n    \n    <p>Your personal information will be used for the following secondary purpose: statistical trend analysis. The personal information collected will be retained for seven years. The form containing personal information will be destroyed after 84 months (seven years).</p>\n    </div>\n    \n  '#format': rich_text\nauthorization:\n  '#type': checkbox\n  '#title': 'I authorize Transport Canada to review the issue or feedback mentioned. I further certify that the information given on this form is, to the best of my knowledge, correct and complete.'\ndisclaimer:\n  '#type': processed_text\n  '#text': |\n    <div class=\"alert alert-info\">\n    <h3>Disclaimer</h3>\n    \n    <p>Information submitted through this form will be forwarded to a technical expert for review. Please note, however, that feedback on issues submitted through this means cannot always be provided.</p>\n    </div>\n    \n  '#format': rich_text"
+css: ''
+javascript: ''
+settings:
+  ajax: false
+  ajax_scroll_top: form
+  ajax_progress_type: ''
+  ajax_effect: ''
+  ajax_speed: null
+  page: true
+  page_submit_path: ''
+  page_confirm_path: ''
+  page_admin_theme: false
+  form_title: both
+  form_submit_once: false
+  form_exception_message: ''
+  form_open_message: ''
+  form_close_message: ''
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ''
+  form_remote_addr: true
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
+  form_reset: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
+  form_unsaved: false
+  form_disable_back: false
+  form_submit_back: false
+  form_autofocus: false
+  form_details_toggle: false
+  form_access_denied: default
+  form_access_denied_title: ''
+  form_access_denied_message: ''
+  form_access_denied_attributes: {  }
+  form_file_limit: ''
+  submission_label: ''
+  submission_log: false
+  submission_views: {  }
+  submission_views_replace: {  }
+  submission_user_columns: {  }
+  submission_user_duplicate: false
+  submission_access_denied: default
+  submission_access_denied_title: ''
+  submission_access_denied_message: ''
+  submission_access_denied_attributes: {  }
+  submission_exception_message: ''
+  submission_locked_message: ''
+  submission_excluded_elements: {  }
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
+  previous_submission_message: ''
+  previous_submissions_message: ''
+  autofill: false
+  autofill_message: ''
+  autofill_excluded_elements: {  }
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: false
+  wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_start_label: ''
+  wizard_preview_link: false
+  wizard_confirmation: true
+  wizard_confirmation_label: ''
+  wizard_track: ''
+  preview: 0
+  preview_label: ''
+  preview_title: ''
+  preview_message: ''
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
+  draft: none
+  draft_multiple: false
+  draft_auto_save: false
+  draft_saved_message: ''
+  draft_loaded_message: ''
+  draft_pending_single_message: ''
+  draft_pending_multiple_message: ''
+  confirmation_type: page
+  confirmation_title: ''
+  confirmation_message: ''
+  confirmation_url: ''
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
+  confirmation_update: false
+  limit_total: null
+  limit_total_interval: null
+  limit_total_message: ''
+  limit_total_unique: false
+  limit_user: null
+  limit_user_interval: null
+  limit_user_message: ''
+  limit_user_unique: false
+  entity_limit_total: null
+  entity_limit_total_interval: null
+  entity_limit_user: null
+  entity_limit_user_interval: null
+  purge: none
+  purge_days: null
+  results_disabled: false
+  results_disabled_ignore: false
+  token_update: false
+access:
+  create:
+    roles:
+      - anonymous
+      - authenticated
+    users: {  }
+    permissions: {  }
+  view_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  purge_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  view_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  administer:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  test:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  configuration:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+handlers: {  }

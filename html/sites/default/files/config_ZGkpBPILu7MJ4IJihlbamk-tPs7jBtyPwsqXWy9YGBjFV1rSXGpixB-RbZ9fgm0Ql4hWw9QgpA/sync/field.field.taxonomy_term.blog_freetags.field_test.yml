@@ -1,0 +1,27 @@
+uuid: 18aac4e8-3a77-490d-9024-28af06e380f8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_test
+    - taxonomy.vocabulary.blog_freetags
+id: taxonomy_term.blog_freetags.field_test
+field_name: field_test
+entity_type: taxonomy_term
+bundle: blog_freetags
+label: 'Menu test'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:menu_link_content'
+  handler_settings:
+    target_bundles:
+      menu_link_content: menu_link_content
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -101,6 +101,12 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
 
   /**
    * Manual execution of a scheduled item.
+   *
+   * @param string $business_rules_schedule
+   *   The business_rules_schedule id.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   The redirect response.
    */
   public function execute($business_rules_schedule) {
     $task = Schedule::load($business_rules_schedule);
@@ -133,7 +139,7 @@ class ScheduleController extends ControllerBase implements ContainerInjectionInt
 
     $event = $task_event instanceof BusinessRulesEvent ? $task_event : $dummy_event;
     /** @var \Drupal\Core\Entity\Entity $entity */
-    $entity = $task_event->getSubject() instanceof Entity ? $task_event->getSubject() : FALSE;
+    $entity = $task_event ? $task_event->getSubject() instanceof Entity ? $task_event->getSubject() : FALSE : FALSE;
     if ($entity) {
       $entity = \Drupal::entityTypeManager()
         ->getStorage($entity->getEntityTypeId())

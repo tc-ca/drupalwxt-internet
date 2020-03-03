@@ -1,0 +1,28 @@
+uuid: 3007f38a-bc56-4b4b-bf95-14b08d25916e
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.featured_block
+    - field.storage.paragraph.field_right_block
+    - paragraphs.paragraphs_type.3_column_blocks
+id: paragraph.3_column_blocks.field_right_block
+field_name: field_right_block
+entity_type: paragraph
+bundle: 3_column_blocks
+label: 'Right block'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:block_content'
+  handler_settings:
+    target_bundles:
+      featured_block: featured_block
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

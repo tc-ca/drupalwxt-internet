@@ -165,7 +165,7 @@ final class LayoutBuilderMigration implements ContainerInjectionInterface {
           // to make the entity save-able.
           $panelizer_item->panels_display = $configuration;
         }
-        if ($panelizer_item->default && $entity->hasField('layout_selection')) {
+        if ($panelizer_item->default && $panelizer_item->default !== '__bundle_default__' && $entity->hasField('layout_selection')) {
           $entity->layout_selection->target_id = implode('_', [
             $entity_type_id,
             $bundle,

@@ -24,6 +24,9 @@ interface LayoutBuilderRestrictionInterface extends PluginInspectionInterface {
    *   At a minimum, the entity, view_mode, layout, and region.
    *   Depending on the plugin, they may or may not ignore some of
    *   these contexts.
+   *
+   * @return array
+   *   A modified block definition array.
    */
   public function alterBlockDefinitions(array $definitions, array $context);
 
@@ -34,11 +37,14 @@ interface LayoutBuilderRestrictionInterface extends PluginInspectionInterface {
    * A plugin can manipulate the definitions as needed.
    *
    * @param array $definitions
-   *   All the available block definitions.
+   *   All the available layout definitions.
    * @param array $context
    *   At a minimum, the entity, view_mode, layout, and region.
    *   Depending on the plugin, they may or may not ignore some of
    *   these contexts.
+   *
+   * @return array
+   *   A modified layout definition array.
    */
   public function alterSectionDefinitions(array $definitions, array $context);
 

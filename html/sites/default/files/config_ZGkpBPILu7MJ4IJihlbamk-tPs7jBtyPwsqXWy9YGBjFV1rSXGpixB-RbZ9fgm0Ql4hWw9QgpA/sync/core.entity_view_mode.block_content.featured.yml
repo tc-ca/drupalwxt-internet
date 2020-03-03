@@ -1,0 +1,16 @@
+uuid: 13e57528-45ac-435c-a67d-5e1d4c79cb6f
+langcode: en
+status: true
+dependencies:
+  module:
+    - block_content
+    - lightning_core
+third_party_settings:
+  lightning_core:
+    description: ''
+_core:
+  default_config_hash: DQ7z8zW5R4S65PCme4pKMVqoksqzcrLn054iIdkLyfw
+id: block_content.featured
+label: Featured
+targetEntityType: block_content
+cache: true

@@ -1,0 +1,24 @@
+uuid: 073eb781-f4cc-4dd1-8324-049dcf00f2fc
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+_core:
+  default_config_hash: 8aTzJfhfIZ2Twd4_TsRkj1OcwgrlV-GtbGmNGRqAv_s
+id: topic_page
+label: 'Topic page'
+type: 'canonical_entities:node'
+pattern: '[node:title]'
+selection_criteria:
+  418afc4f-acb4-4c80-a125-41517220aab0:
+    id: node_type
+    bundles:
+      topic: topic
+    negate: false
+    context_mapping:
+      node: node
+    uuid: 418afc4f-acb4-4c80-a125-41517220aab0
+selection_logic: and
+weight: -5
+relationships: {  }

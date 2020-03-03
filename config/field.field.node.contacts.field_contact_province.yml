@@ -1,0 +1,21 @@
+uuid: ded9890e-a06f-4886-ae53-1815075d7818
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_contact_province
+    - node.type.contacts
+  module:
+    - options
+id: node.contacts.field_contact_province
+field_name: field_contact_province
+entity_type: node
+bundle: contacts
+label: Contact_province
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

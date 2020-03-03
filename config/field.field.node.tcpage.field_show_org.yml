@@ -1,0 +1,23 @@
+uuid: 1887a198-4a5b-4a8f-bde0-32fd29847f0d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_show_org
+    - node.type.tcpage
+id: node.tcpage.field_show_org
+field_name: field_show_org
+entity_type: node
+bundle: tcpage
+label: 'Show organization by-line'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

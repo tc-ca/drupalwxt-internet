@@ -1,0 +1,8 @@
+uuid: a0dc527d-e7da-4766-8f1f-4df3910644b6
+langcode: en
+status: true
+dependencies: {  }
+name: 'Publication types'
+vid: publication_types
+description: ''
+weight: 0

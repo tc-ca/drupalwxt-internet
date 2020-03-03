@@ -1,0 +1,28 @@
+# French translation of Menu block (8.x-1.4)
+# Copyright (c) 2016 by the French translation team
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Menu block (8.x-1.4)\n"
+"POT-Creation-Date: 2016-09-05 08:44+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+msgid "Advanced options"
+msgstr "Options avancées"
+msgid "Menu Block"
+msgstr "Bloc de menu"
+msgid "Menus"
+msgstr "Menus"
+msgid "Menu block"
+msgstr "Bloc de menu"
+msgid "Starting level"
+msgstr "Niveau de départ"
+msgid "Fixed parent item"
+msgstr "Élément parent fixe"
+msgid "Maximum number of levels"
+msgstr "Nombre de niveaux maximum"

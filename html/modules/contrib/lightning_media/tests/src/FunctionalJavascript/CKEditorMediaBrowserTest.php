@@ -288,7 +288,7 @@ class CKEditorMediaBrowserTest extends WebDriverTestBase {
     // Assert that we have a valid list of CKeditor instance IDs.
     /** @var array $editors */
     $editors = $session->evaluateScript('Object.keys(CKEDITOR.instances)');
-    $this->assertInternalType('array', $editors);
+    $this->assertSame('array', gettype($editors));
     $this->assertNotEmpty($editors);
 
     // Assert that the editor is ready.

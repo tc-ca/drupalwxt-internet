@@ -4,8 +4,10 @@ description: 'Delete configuration items from the UI.'
 package: 'Development'
 core: 8.x
 core_version_requirement: ^8 || ^9
+dependencies:
+  - drupal:config
 
-# Information added by Drupal.org packaging script on 2019-12-03
-version: '8.x-1.13'
+# Information added by Drupal.org packaging script on 2020-02-06
+version: '8.x-1.16'
 project: 'config_delete'
-datestamp: 1575376386
+datestamp: 1580973555

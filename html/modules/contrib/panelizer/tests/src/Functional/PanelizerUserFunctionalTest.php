@@ -160,10 +160,16 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
     ]);
     $block_content->save();
 
-    // Create a user account with a custom layout.
-    $account = $this->drupalCreateUser();
     /** @var \Drupal\panelizer\PanelizerInterface $panelizer */
     $panelizer = $this->container->get('panelizer');
+
+    // Create a user account that explicitly uses the default layout, to ensure
+    // it does not break the migration.
+    $default_layout_account = $this->drupalCreateUser();
+    $panelizer->setPanelsDisplay($default_layout_account, 'full', '__bundle_default__');
+
+    // Create a user account with a custom layout.
+    $account = $this->drupalCreateUser();
     /** @var \Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant $panels_display */
     $panels_display = $panelizer->getPanelsDisplay($account, 'full');
     $this->assertInstanceOf(PanelsDisplayVariant::class, $panels_display);
@@ -175,6 +181,10 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
       'weight' => 1,
     ]);
     $panelizer->setPanelsDisplay($account, 'full', NULL, $panels_display);
+
+    $this->drupalGet($default_layout_account->toUrl());
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
     $this->drupalGet($account->toUrl());
     $assert_session->statusCodeEquals(200);
@@ -193,6 +203,9 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
     $assert_session->checkboxNotChecked('Use Layout Builder');
     $assert_session->checkboxNotChecked('Allow each user to have its layout customized.');
     $page->pressButton('Migrate to Layout Builder');
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('Hold your horses, cowpoke.');
+    $page->pressButton('I understand the risks and have backed up my database. Proceed!');
     $this->checkForMetaRefresh();
     $assert_session->checkboxChecked('Use Layout Builder');
     $assert_session->checkboxChecked('Allow content editors to use stored layouts');
@@ -200,6 +213,10 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each user to have its display customized');
+
+    $this->drupalGet($default_layout_account->toUrl());
+    $assert_session->statusCodeEquals(200);
+    $assert_session->pageTextContains('The context value is 42, brought to you by the letter Juliet.');
 
     $this->drupalGet($account->toUrl());
     $assert_session->statusCodeEquals(200);

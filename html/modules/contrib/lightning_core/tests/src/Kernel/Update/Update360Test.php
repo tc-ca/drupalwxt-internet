@@ -7,6 +7,8 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\lightning_core\Update\Update360;
 
 /**
+ * Tests optional updates targeting Lightning Core 3.6.0.
+ *
  * @group lightning_core
  *
  * @covers \Drupal\lightning_core\Update\Update360
@@ -32,6 +34,9 @@ class Update360Test extends KernelTestBase {
     $this->installEntitySchema('user');
   }
 
+  /**
+   * Tests optional updates targeting Lightning Core 3.6.0.
+   */
   public function test() {
     $this->assertFalse($this->container->get('module_handler')->moduleExists('image'));
     $this->assertNull(FieldConfig::loadByName('user', 'user', 'user_picture'));
@@ -46,8 +51,8 @@ class Update360Test extends KernelTestBase {
 
     $display = lightning_core_entity_get_display('user', 'user', 'compact');
     $this->assertFalse($display->isNew());
-    $this->assertInternalType('array', $display->getComponent('name'));
-    $this->assertInternalType('array', $display->getComponent('user_picture'));
+    $this->assertSame('array', gettype($display->getComponent('name')));
+    $this->assertSame('array', gettype($display->getComponent('user_picture')));
   }
 
 }

@@ -1,0 +1,63 @@
+uuid: e1917433-074c-4568-95d3-a57ea96bdab6
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - wxt_ext_migration
+_core:
+  default_config_hash: ZkcSsQOdwJxOERh1zeSfmGc_zbZnTchGVVDfzULfzpQ
+id: gcweb_block
+class: null
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags:
+  - Core
+migration_group: gcweb
+label: 'Embedded data import for custom block types (basic)'
+source:
+  plugin: embedded_data
+  default_lang: true
+  data_rows:
+    -
+      bid: homepage_block_1
+      language: en
+      title: Canada.ca
+      body: "<div class=\"home-banner\">\n  <div class=\"container\">\n    <div class=\"innerbox\">\n      <h1 property=\"name\" id=\"wb-cont\">Canada.ca</h1>\n      <p>The official website of the Government of Canada</p>\n    </div>\n  </div>\n  <div class=\"promo\">\n    <div class=\"container\">\n      <a class=\"figcaption\" href=\"#\">\n        <figure class=\"clearfix\">\n          <div><p class=\"pull-left mrgn-tp-md mrgn-bttm-md\">Featured:</p></div>\n          <figcaption class=\"pull-left mrgn-tp-md mrgn-bttm-md\">[Promotion title]</figcaption>\n        </figure>\n      </a>\n    </div>\n  </div>\n</div>\n"
+    -
+      bid: homepage_block_2
+      language: en
+      title: 'Most Requested'
+      body: "<section class=\"home-most-requested well well-sm brdr-0\">\n  <div class=\"container\">\n    <h2 class=\"mrgn-tp-md\">Most requested</h2>\n    <ul class=\"wb-eqht list-unstyled mrgn-tp-md mrgn-bttm-sm lst-spcd-2 list-responsive\">\n    <li><a href=\"https://www.canada.ca/en/government/sign-in-online-account.html\">Login to an account</a></li>\n    <li><a href=\"https://www.canada.ca/en/services/benefits/ei.html\">Employment Insurance and leave</a></li>\n    <li><a href=\"https://www.canada.ca/en/services/benefits/publicpensions.html\">Public pensions (CPP and OAS)</a></li>\n    <li><a href=\"https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-passports.html\">Get a passport</a></li>\n    <li><a href=\"https://weather.gc.ca/canada_e.html\">Weather</a></li>\n    <li><a href=\"https://www.canada.ca/en/government/grants-funding.html\">Grants and funding</a></li>\n    <li><a href=\"https://www.canada.ca/en/government/change-address.html\">Change your address</a></li>\n    <li><a href=\"http://www.healthycanadians.gc.ca/recall-alert-rappel-avis/index-eng.php\">Product recalls and alerts</a></li>\n    </ul>\n  </div>\n</section>\n"
+    -
+      bid: homepage_block_3
+      language: en
+      title: 'Focus On'
+      body: "<section class=\"gc-srvinfo container\">\n  <h2 class=\"wb-inv\">Services and information</h2>\n  <div class=\"wb-eqht row\">\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/jobs.html\">Jobs</a></h3>\n      <p>Find a job, training, hiring programs, work permits, Social Insurance Number (SIN)</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/immigration-citizenship.html\">Immigration and citizenship</a></h3>\n      <p>Visit, work, study, immigrate, refugees, permanant residents, apply, check status</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://travel.gc.ca\">Travel and tourism</a></h3>\n      <p>In Canada or abroad, advice, advisories, passports, visit Canada, events, attractions</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/business.html\">Business and industry</a></h3>\n      <p>Starting a business, permits, copyright, business support, selling to government</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/benefits.html\">Benefits</a></h3>\n      <p>EI, family and sickness leave, pensions, housing, student aid, disabilities</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/health.html\">Health</a></h3>\n      <p>Food, nutrition, diseases, vaccines, drugs, product safety and recalls</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/taxes.html\">Taxes</a></h3>\n      <p>Income tax, payroll, GST/HST, contribution limits, tax credits, charities</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/environment.html\">Environment and natural resources</a></h3>\n      <p>Weather, climate, agriculture, wildlife, pollution, conservation, fisheries</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/defence.html\">National security and defence</a></h3>\n      <p>Military, transportation and cyber security, securing the border, counter-terrorism</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/culture.html\">Culture, history and sport</a></h3>\n      <p>Arts, media, heritage, official languages, national identity and funding</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/policing.html\">Policing, justice and emergencies</a></h3>\n      <p>Safety, justice system, prepare for emergencies, services for victims of crime</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/transport.html\">Transport and infrastructure</a></h3>\n      <p>Aviation, marine, road, rail, dangerous goods, infrastructure projects</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"http://international.gc.ca/world-monde/index.aspx?lang=eng\">Canada and the world</a></h3>\n      <p>Foreign policy, trade agreements, development work, global issues</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/finance.html\">Money and finances</a></h3>\n      <p>Personal finance, credit reports, fraud protection, paying for education</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/science.html\">Science and innovation</a></h3>\n      <p>Scientific research on health, environment and space, grants and funding</p>\n    </div>\n  </div>\n</section>\n<section class=\"gc-srvinfo container mrgn-bttm-lg\">\n  <h2>Focus on</h2>\n  <div class=\"wb-eqht row\">\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"http://www.aadnc-aandc.gc.ca/eng/1461766373625/1461766394598\">Indigenous peoples</a></h3>\n      <p>Programs and services for First Nations, Inuit and Métis</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/veterans.html\">Veterans</a></h3>\n      <p>Services for current and former military, <abbr title=\"Royal Canadian Mounted Police\">RCMP</abbr> and\n        their families</p>\n    </div>\n    <div class=\"col-lg-4 col-md-6\">\n      <h3><a href=\"https://www.canada.ca/en/services/youth.html\">Youth</a></h3>\n      <p>Programs and services for teenagers and young adults</p>\n    </div>\n  </div>\n</section>"
+    -
+      bid: homepage_block_4
+      language: en
+      title: 'Your Government'
+      body: "<section class=\"home-your-gov gc-srvinfo well well-sm brdr-0\">\n  <div class=\"container\">\n    <h2>Your government</h2>\n    <div class=\"row mrgn-bttm-md\">\n      <div class=\"col-lg-7 col-xs-12 col-md-6\">\n        <div class=\"wb-eqht row\">\n          <div class=\"col-lg-6\">\n            <h3><a href=\"https://www.canada.ca/en/contact.html\">Contact us</a></h3>\n            <p>Department and agency contacts, change your address</p>\n          </div>\n          <div class=\"col-lg-6\">\n            <h3><a href=\"https://www.canada.ca/en/government/dept.html\">Departments and agencies</a></h3>\n            <p>A list of current government and related organizations</p>\n          </div>\n          <div class=\"col-lg-6\">\n            <h3><a href=\"https://www.canada.ca/en/government/system.html\">How government works</a></h3>\n            <p>Government structure, priorities, finances and regulations</p>\n          </div>\n          <div class=\"col-lg-6\">\n            <h3><a href=\"https://open.canada.ca/en\">Open government</a></h3>\n            <p>Accessible government, open information and data, open dialogue</p>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</section>\n"
+  ids:
+    bid:
+      type: string
+process:
+  id: bid
+  info: title
+  uid:
+    plugin: default_value
+    default_value: 1
+  body/value: body
+  body/format:
+    plugin: default_value
+    default_value: rich_text
+  langcode: language
+destination:
+  plugin: 'entity:block_content'
+  default_bundle: basic
+  no_stub: true
+migration_dependencies:
+  required:
+    - wxt_file
+    - wxt_media

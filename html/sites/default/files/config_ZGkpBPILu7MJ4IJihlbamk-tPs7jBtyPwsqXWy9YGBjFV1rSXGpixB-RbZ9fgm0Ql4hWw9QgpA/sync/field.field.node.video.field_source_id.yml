@@ -1,0 +1,23 @@
+uuid: 03012a8f-a295-4eec-88e5-42247210c396
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_id
+    - node.type.video
+id: node.video.field_source_id
+field_name: field_source_id
+entity_type: node
+bundle: video
+label: 'Source id'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

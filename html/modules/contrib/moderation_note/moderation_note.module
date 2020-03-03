@@ -151,7 +151,14 @@ function moderation_note_preprocess_field(&$variables) {
   }
 
   // Check the field type - we only support text fields at this time.
-  $supported_types = ['string', 'text', 'text_long', 'text_with_summary'];
+  $supported_types = [
+    'string',
+    'string_long',
+    'text',
+    'text_long',
+    'text_with_summary',
+  ];
+
   if (!in_array($field_definition->getType(), $supported_types, TRUE)) {
     return;
   }
@@ -386,22 +393,9 @@ function template_preprocess_moderation_note(array &$variables) {
     ];
   }
 
-  // We don't support view modes, but if a note is rendered with "preview" we
-  // add a button to view the "full" note (the note with replies).
-  if (\Drupal::routeMatch()->getRouteName() === 'moderation_note.assigned_list') {
-    $query = [
-      'open-moderation-note' => $note->hasParent() ? $note->getParent()->id() : $note->id(),
-    ];
-    $actions['view'] = [
-      '#type' => 'link',
-      '#title' => t('View note at "%label"', [
-        '%label' => $note->getModeratedEntity()->label(),
-      ]),
-      '#url' => $note->getModeratedEntity()->toUrl($rel)
-        ->setOption('query', $query),
-    ];
-  }
-  else {
+  // If a user is already viewing a note in the sidebar, it's assumed that the
+  // note is already being viewed in the context of the moderated entity.
+  if (\Drupal::request()->query->get('_wrapper_format') === 'drupal_dialog.off_canvas') {
     $url = Url::fromRoute('moderation_note.view', $params);
     $url->setOption('query', ['from-preview' => '1']);
     $actions['view'] = [
@@ -415,6 +409,17 @@ function template_preprocess_moderation_note(array &$variables) {
       ],
     ];
   }
+  else {
+    $actions['view'] = [
+      '#type' => 'link',
+      '#title' => t('View note at "%label"', [
+        '%label' => $note->getModeratedEntity()->label(),
+      ]),
+      '#url' => $note->toUrl(),
+    ];
+  }
+
+  $variables['elements']['#cache']['contexts'][] = 'url.query_args';
   $variables['actions'] = $actions;
 }
 
@@ -499,6 +504,18 @@ function moderation_note_moderation_note_update(ModerationNoteInterface $note) {
 }
 
 /**
+ * Implements hook_entity_view_mode_info_alter().
+ */
+function moderation_note_entity_view_mode_info_alter(&$view_modes) {
+  $view_modes['moderation_note']['preview'] = [
+    'id' => 'moderation_note.preview',
+    'label' => 'Preview',
+    'targetEntityType' => 'moderation_note',
+    'cache' => TRUE,
+  ];
+}
+
+/**
  * Implements hook_mail().
  */
 function moderation_note_mail($key, &$message, $params) {
@@ -521,17 +538,15 @@ function moderation_note_mail($key, &$message, $params) {
     $view_link = [
       '#type' => 'link',
       '#title' => t('Click here to view the related content'),
-    ] + $view_url->toRenderArray();
+      '#url' => $view_url,
+    ];
   }
   else {
-    $query = [
-      'open-moderation-note' => $note->hasParent() ? $note->getParent()->id() : $note->id(),
-    ];
-    $view_url->setOption('query', $query)->toString();
     $view_link = [
       '#type' => 'link',
       '#title' => t('Click here to view this note in context'),
-    ] + $view_url->toRenderArray();
+      '#url' => $note->toUrl(),
+    ];
   }
   $options = [
     'langcode' => $message['langcode'],
@@ -604,7 +619,7 @@ function moderation_note_mail($key, &$message, $params) {
     $body['#previous_note_author'] = $previous_note->getOwner()->getDisplayName();
     $body['#previous_note_quote'] = !$previous_note->hasParent() ? $previous_note->getQuote() : '';
   }
-  $message['body'] = \Drupal::service('renderer')->renderRoot($body);
+  $message['body'][] = \Drupal::service('renderer')->renderRoot($body);
 }
 
 /**
@@ -656,4 +671,29 @@ function _moderation_note_get_user_email(UserInterface $user) {
   $name = htmlspecialchars($user->getDisplayName(), ENT_QUOTES);
   $email = filter_var($user->getEmail(), FILTER_SANITIZE_EMAIL);
   return "\"$name\" <$email>";
+}
+
+/**
+ * Assembles a URL to view a Moderation Note in context.
+ *
+ * @param \Drupal\moderation_note\ModerationNoteInterface $note
+ *   The moderation note.
+ *
+ * @return \Drupal\Core\Url
+ *   The URL object.
+ */
+function moderation_note_uri(ModerationNoteInterface $note) {
+  /** @var \Drupal\content_moderation\ModerationInformation $information */
+  $information = \Drupal::service('content_moderation.moderation_information');
+  if ($information->hasPendingRevision($note->getModeratedEntity())) {
+    $rel = 'latest-version';
+  }
+  else {
+    $rel = 'canonical';
+  }
+  $query = [
+    'open-moderation-note' => $note->hasParent() ? $note->getParent()->id() : $note->id(),
+  ];
+  return $note->getModeratedEntity()->toUrl($rel)
+    ->setOption('query', $query);
 }

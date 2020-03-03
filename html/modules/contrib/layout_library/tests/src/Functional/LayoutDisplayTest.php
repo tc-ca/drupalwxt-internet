@@ -61,6 +61,8 @@ class LayoutDisplayTest extends BrowserTestBase {
 
     $page->clickLink('Add section');
     $page->clickLink('One column');
+    $page->fillField('layout_settings[label]', 'Lion Section');
+    $page->pressButton('Add section');
     $page->clickLink('Add block');
     $page->clickLink('Powered by Drupal');
     $page->fillField('settings[label]', 'This is from the library');
@@ -85,7 +87,7 @@ class LayoutDisplayTest extends BrowserTestBase {
     $page->pressButton('Save');
     $assert_session->pageTextNotContains('This is from the library');
 
-    // Disable the full content display
+    // Disable the full content display.
     $this->drupalGet('admin/structure/types/manage/cats/display');
     $page->uncheckField('display_modes_custom[full]');
     $page->pressButton('Save');
@@ -93,4 +95,5 @@ class LayoutDisplayTest extends BrowserTestBase {
     $this->drupalGet($node->toUrl());
     $assert_session->pageTextContains('This is from the library');
   }
+
 }

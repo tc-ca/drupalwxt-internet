@@ -86,7 +86,14 @@ class SectionComponent {
    *   A renderable array representing the content of the component.
    */
   public function toRenderArray(array $contexts = [], $in_preview = FALSE) {
-    $event = new SectionComponentBuildRenderArrayEvent($this, $contexts, $in_preview);
+    // If plugin instantiation throws an exception due to missing context,
+    // return an empty array.
+    try {
+      $event = new SectionComponentBuildRenderArrayEvent($this, $contexts, $in_preview);
+    }
+    catch (ContextException $e) {
+      return [];
+    }
     $this->eventDispatcher()->dispatch(LayoutBuilderEvents::SECTION_COMPONENT_BUILD_RENDER_ARRAY, $event);
     $output = $event->getBuild();
     $event->getCacheableMetadata()->applyTo($output);

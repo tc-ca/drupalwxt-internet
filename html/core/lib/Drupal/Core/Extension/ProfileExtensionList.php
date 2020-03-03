@@ -56,7 +56,7 @@ class ProfileExtensionList extends ExtensionList {
     $ancestors = [];
 
     if (empty($profile)) {
-      $profile = $this->installProfile ?: drupal_get_profile();
+      $profile = $this->installProfile ?: \Drupal::installProfile();
     }
     if (empty($profile)) {
       return $ancestors;
@@ -151,12 +151,13 @@ class ProfileExtensionList extends ExtensionList {
 
         // Add the current profile as a child of the ancestor.
         $ancestor->children[] = $profile_name;
-
-        // Inherit all of the ancestor's modules and themes except for the ones
-        // in the 'exclude' list.
+        // Inherit all of the ancestor's modules, themes and dependencies except
+        // those found in the 'exclude' list.
         $info['install'] = array_diff(array_merge($info['install'], $ancestor->info['install']), $info['exclude']);
         $info['themes'] = array_diff(array_merge($info['themes'], $ancestor->info['themes']), $info['exclude']);
+        $info['dependencies'] = array_diff(array_merge($info['dependencies'], $ancestor->info['dependencies']), $info['exclude']);
       }
+      $info['dependencies'] = array_unique($info['dependencies']);
       $info['install'] = array_unique($info['install']);
       $info['themes'] = array_unique($info['themes']);
     }

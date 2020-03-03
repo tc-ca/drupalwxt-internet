@@ -1,0 +1,22 @@
+uuid: e5d41ca7-717e-4e55-8a16-0903e47ba0a8
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: tcpage
+label: Page
+type: 'canonical_entities:node'
+pattern: '[node:field_topics:0:entity:parents:join-path]/[node:field_topics:0:entity:name]/[node:title]'
+selection_criteria:
+  acd98345-0dd0-4a83-8216-0e15611dfb36:
+    id: node_type
+    bundles:
+      tcpage: tcpage
+    negate: false
+    context_mapping:
+      node: node
+    uuid: acd98345-0dd0-4a83-8216-0e15611dfb36
+selection_logic: and
+weight: -5
+relationships: {  }

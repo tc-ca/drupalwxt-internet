@@ -1,0 +1,18 @@
+uuid: 1b8c5012-1435-4e8e-8383-6f30b500a88a
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.webform
+id: node.webform.metatag
+field_name: metatag
+entity_type: node
+bundle: webform
+label: Metatags
+description: 'The meta tags for the entity.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: map

@@ -18,6 +18,11 @@ class AdminToolbarStateTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = ['toolbar', 'moderation_sidebar', 'node'];
 
   /**

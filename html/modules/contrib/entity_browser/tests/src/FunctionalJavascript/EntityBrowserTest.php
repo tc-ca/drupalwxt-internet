@@ -85,6 +85,10 @@ class EntityBrowserTest extends EntityBrowserWebDriverTestBase {
    * Tests the field widget with a multi-cardinality field.
    */
   public function testMultiCardinalityField() {
+    $assert_session = $this->assertSession();
+    $session = $this->getSession();
+    $page = $session->getPage();
+
     $this->container->get('entity_type.manager')
       ->getStorage('field_storage_config')
       ->load('node.field_reference')
@@ -99,21 +103,21 @@ class EntityBrowserTest extends EntityBrowserWebDriverTestBase {
 
     $this->drupalGet('node/add/article');
 
-    $this->assertSession()->linkExists('Select entities');
-    $this->assertSession()->pageTextContains('You can select up to 3 file entities (3 left).');
-    $this->getSession()->getPage()->clickLink('Select entities');
+    $assert_session->linkExists('Select entities');
+    $assert_session->pageTextContains('You can select up to 3 files (3 left).');
+    $page->clickLink('Select entities');
 
-    $this->getSession()->switchToIFrame('entity_browser_iframe_test_entity_browser_file');
+    $session->switchToIFrame('entity_browser_iframe_test_entity_browser_file');
 
-    $this->getSession()->getPage()->checkField('entity_browser_select[file:' . $images[0]->id() . ']');
-    $this->getSession()->getPage()->checkField('entity_browser_select[file:' . $images[1]->id() . ']');
-    $this->getSession()->getPage()->pressButton('Select entities');
+    $page->checkField('entity_browser_select[file:' . $images[0]->id() . ']');
+    $page->checkField('entity_browser_select[file:' . $images[1]->id() . ']');
+    $page->pressButton('Select entities');
 
     // Switch back to the main page.
-    $this->getSession()->switchToIFrame();
+    $session->switchToIFrame();
     $this->waitForAjaxToFinish();
     // Selections have been made, so the message should be different.
-    $this->assertSession()->pageTextContains('You can select up to 3 file entities (1 left).');
+    $assert_session->pageTextContains('You can select up to 3 files (1 left).');
   }
 
   /**

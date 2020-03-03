@@ -1,0 +1,9 @@
+uuid: 3ff9f237-3d70-4ec3-9862-ec26a46df6a3
+langcode: en
+status: true
+dependencies: {  }
+id: search_api__views_page__site_search__page_1
+name: 'search_api:views_page__site_search__page_1'
+filter_key: null
+url_processor: query_string
+breadcrumb: {  }

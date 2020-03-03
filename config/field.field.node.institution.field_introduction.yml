@@ -1,0 +1,21 @@
+uuid: 8d6bff8c-c1f6-4002-ae1e-a386fa9b38bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_introduction
+    - node.type.institution
+  module:
+    - text
+id: node.institution.field_introduction
+field_name: field_introduction
+entity_type: node
+bundle: institution
+label: Introduction
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

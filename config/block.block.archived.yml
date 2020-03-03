@@ -1,0 +1,42 @@
+uuid: beebcc0b-0dd8-40fe-9ca0-493c1e2018b8
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:8eda7cea-fc48-41a9-9fdb-6e18ef4defac'
+  module:
+    - block_content
+    - entity_field_condition
+    - wxt_library
+  theme:
+    - wxt_bootstrap
+id: archived
+theme: wxt_bootstrap
+region: header
+weight: -7
+provider: null
+plugin: 'block_content:8eda7cea-fc48-41a9-9fdb-6e18ef4defac'
+settings:
+  id: 'block_content:8eda7cea-fc48-41a9-9fdb-6e18ef4defac'
+  label: Archived
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  panels_title:
+    id: panels_title
+    enabled: 0
+    negate: false
+    context_mapping: {  }
+  node_field:
+    id: node_field
+    entity_type_id: node
+    entity_bundle: tcpage
+    field: field_archive
+    value_source: specified
+    value: '1'
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'

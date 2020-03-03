@@ -1,3 +1,121 @@
+## v3.0.6
+
+Features/Updates:
+
+- Update Drupal Core to 8.8.1
+- Update Lightning [4.1.1](https://github.com/acquia/lightning/releases/tag/4.1.1)
+- Update contributed modules:
+  - Update core_context to 1.0-beta1
+  - Update diff to 1.0
+  - Update migrate_tools to 4.5
+  - Update panelizer to 5.0-beta2
+  - Update simple_sitemap to 3.5
+- Update tarball packaging script to support core 8.8.x
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.5
+
+Features/Updates:
+
+- Update Drupal Core to 8.7.11
+- Update Lightning [4.0.6](https://github.com/acquia/lightning/releases/tag/4.0.6); includes:
+  - Updated Lightning Layout to 2.5
+- Update contributed modules:
+  - Update acquia_connector to 1.18
+  - Update embed to 1.3
+  - Update layout builder restrictions
+  - Update metatag to 1.11
+  - Update pathauto to 1.6
+  - Update redirect to 1.5
+  - Update webform to 5.6
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.4
+
+Features/Updates:
+
+- Essentially the same as v3.0.3
+- Fix missing update to WxT dependencies for legacy packaging (drush make)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.3
+
+Features/Updates:
+
+- Update block_class to 1.1
+- Fix page manager variant of type Http Status Code
+- Fix for config export / import
+- Update WxT Library
+  - Update wet-boew to v4.0.32
+  - Update gcweb theme to v6.0.0
+- Update WxT Bootstrap
+  - Improved Footer CDN logic
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
 ## v3.0.2
 
 Features/Updates:

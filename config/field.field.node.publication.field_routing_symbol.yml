@@ -1,0 +1,19 @@
+uuid: b82bbeef-a7dc-4a49-b812-daf26b174538
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_routing_symbol
+    - node.type.publication
+id: node.publication.field_routing_symbol
+field_name: field_routing_symbol
+entity_type: node
+bundle: publication
+label: 'Routing symbol'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

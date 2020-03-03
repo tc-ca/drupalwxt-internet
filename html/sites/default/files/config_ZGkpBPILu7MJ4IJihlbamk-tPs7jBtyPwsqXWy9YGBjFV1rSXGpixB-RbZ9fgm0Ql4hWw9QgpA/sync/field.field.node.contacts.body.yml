@@ -1,0 +1,22 @@
+uuid: cf765e4e-332b-4834-818d-a963e9093025
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.contacts
+  module:
+    - text
+id: node.contacts.body
+field_name: body
+entity_type: node
+bundle: contacts
+label: 'Contact description'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

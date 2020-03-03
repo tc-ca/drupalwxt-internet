@@ -1,0 +1,25 @@
+uuid: 68e81685-c8b2-4703-aa5e-15b30781a3e9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_image_link
+    - media.type.image
+  module:
+    - link
+_core:
+  default_config_hash: 3w3UB4fyFU0KFY8xO-OAtFmEUi8Fex6FW0jrhZ5dF8E
+id: media.image.field_image_link
+field_name: field_image_link
+entity_type: media
+bundle: image
+label: Link
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 2
+field_type: link

@@ -16,6 +16,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Drupal\views\Views;
 
 /**
@@ -30,9 +31,9 @@ function contact_storage_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<dl>';
       $output .= '<dt>' . t('Using the Contact messages page') . '</dt>';
-      $output .= '<dd>' . t('Registered users can access stored messages on the <a href=":url">Contact messages</a> page.  This page can be manually accessed from the Administration menu path "Home >> Administration >> Structure >> Contact forms".  The Contact Storage module places the "List" tab on the "Contact forms" page. The "Contact messages" page is displayed when the List tab is selected.  View, edit and delete operations can be performed on individual messages from this listing of contact messages.', [':url' => \Drupal::url('entity.contact_message.collection')]) . '</dd>';
+      $output .= '<dd>' . t('Registered users can access stored messages on the <a href=":url">Contact messages</a> page.  This page can be manually accessed from the Administration menu path "Home >> Administration >> Structure >> Contact forms".  The Contact Storage module places the "List" tab on the "Contact forms" page. The "Contact messages" page is displayed when the List tab is selected.  View, edit and delete operations can be performed on individual messages from this listing of contact messages.', [':url' => Url::fromRoute('entity.contact_message.collection')->toString()]) . '</dd>';
       $output .= '<dt>' . t('Configuring contact message pages') . '</dt>';
-      $output .= '<dd>' . t('The listing of Contact messages is a <a href=":url">Views</a> page.  This page can be manually accessed from the Administration menu path "Home >> Administration >> Structure >> Views" like any other view. It has a VIEW NAME of "Contact messages". Registered users can perform Edit, Duplicate, Disable and Delete Operations from the Views listing page.', [':url' => \Drupal::url('entity.view.collection')]) . '</dd>';
+      $output .= '<dd>' . t('The listing of Contact messages is a <a href=":url">Views</a> page.  This page can be manually accessed from the Administration menu path "Home >> Administration >> Structure >> Views" like any other view. It has a VIEW NAME of "Contact messages". Registered users can perform Edit, Duplicate, Disable and Delete Operations from the Views listing page.', [':url' => Url::fromRoute('entity.view.collection')->toString()]) . '</dd>';
       return $output;
   }
 }
@@ -329,6 +330,7 @@ function contact_storage_entity_type_alter(array &$entity_types) {
   // Add edit and delete forms.
   $entity_types['contact_message']->setFormClass('edit', '\Drupal\contact_storage\MessageEditForm');
   $entity_types['contact_message']->setFormClass('delete', '\Drupal\Core\Entity\ContentEntityDeleteForm');
+  $entity_types['contact_message']->setFormClass('delete-multiple-confirm', 'Drupal\Core\Entity\Form\DeleteMultipleForm');
   // Add clone form for messages.
   $entity_types['contact_form']->setFormClass('clone', '\Drupal\contact_storage\Form\ContactFormCloneForm');
   // Allow edit/delete links in list builder.
@@ -336,6 +338,7 @@ function contact_storage_entity_type_alter(array &$entity_types) {
   $entity_types['contact_message']->setLinkTemplate('canonical', '/admin/structure/contact/messages/{contact_message}');
   $entity_types['contact_message']->setLinkTemplate('edit-form', '/admin/structure/contact/messages/{contact_message}/edit');
   $entity_types['contact_message']->setLinkTemplate('delete-form', '/admin/structure/contact/messages/{contact_message}/delete');
+  $entity_types['contact_message']->setLinkTemplate('delete-multiple-form', '/admin/structure/contact/messages/delete');
   // Add clone link for forms.
   $entity_types['contact_form']->setLinkTemplate('clone-form', '/admin/structure/contact/manage/{contact_form}/clone');
 
@@ -508,4 +511,13 @@ function contact_storage_maximum_submissions_user(ContactFormInterface $contact_
 function contact_storage_contact_form_delete(EntityInterface $entity) {
   // Delete all aliases with this contact form as a source.
   \Drupal::service('path.alias_storage')->delete(['source' => '/' . $entity->toUrl('canonical')->getInternalPath()]);
+}
+
+/**
+ * Implements hook_action_info_alter().
+ */
+function contact_storage_action_info_alter(array &$definitions) {
+  // For backwards compatibility, treat 'message_delete_action' as an alias of
+  // the 'entity:delete_action:contact_message' plugin provided by core.
+  $definitions['message_delete_action'] = $definitions['entity:delete_action:contact_message'];
 }

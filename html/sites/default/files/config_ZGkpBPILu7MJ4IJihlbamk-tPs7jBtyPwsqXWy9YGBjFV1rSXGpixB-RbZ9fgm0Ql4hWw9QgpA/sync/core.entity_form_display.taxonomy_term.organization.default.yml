@@ -1,0 +1,59 @@
+uuid: fae9ef9a-d90e-4500-a8b4-e687543337df
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.organization.field_home_page_link
+    - taxonomy.vocabulary.organization
+  module:
+    - link
+    - path
+    - text
+id: taxonomy_term.organization.default
+targetEntityType: taxonomy_term
+bundle: organization
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_home_page_link:
+    weight: 31
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+    region: content
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  translation:
+    weight: 10
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden: {  }

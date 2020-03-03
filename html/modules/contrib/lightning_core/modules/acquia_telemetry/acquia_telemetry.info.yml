@@ -14,7 +14,7 @@ Acquia's collection of this anonymized telemetry data will be used in accordance
 dependencies:
   - drupal:system (>= 8.6)
 
-# Information added by Drupal.org packaging script on 2019-11-15
-version: '8.x-4.8'
+# Information added by Drupal.org packaging script on 2019-12-04
+version: '8.x-5.0'
 project: 'lightning_core'
-datestamp: 1573851787
+datestamp: 1575473901

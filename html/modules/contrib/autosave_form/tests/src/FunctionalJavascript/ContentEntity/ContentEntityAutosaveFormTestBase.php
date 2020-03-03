@@ -193,10 +193,6 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
     $this->assertTrue($this->getCountAutosaveEntries($entity->id()) > 0);
     $this->assertAutosaveIsRunning(TRUE);
 
-    // Determine wheter the alert message will be shown or not. In headless
-    // browsers there will be no alert shown.
-    $skip_alert_handling = $this->isHeadlessBrowser();
-
     // Meanwhile simulate saving by another user in the background.
     $entity->setChangedTime($entity->getChangedTime() + 1)
       ->save();
@@ -212,11 +208,6 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
     // one autosave submission, but not more than one.
     $this->assertFalse($this->waitForAutosaveSubmits(2));
 
-    $driver = $this->getSession()->getDriver();
-    if (!$skip_alert_handling && $driver instanceof \Behat\Mink\Driver\Selenium2Driver) {
-      // Accept the alert that autosave has been disabled.
-      $driver->getWebDriverSession()->accept_alert();
-    }
     $this->assertAutosaveIsRunning(FALSE);
     $this->assertEquals(0, $this->getCountAutosaveEntries($entity->id()));
 
@@ -231,7 +222,13 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
   protected function doTestAutosaveAfterFormValidationFail() {
     // Create a test entity and ensure that the required field is not filled in
     // order to trigger a validation error on entity form submission.
-    $entity = $this->createTestEntity();;
+    $entity = $this->createTestEntity();
+
+    // Disable the HTML5 validation as it prevents the form submission when a
+    // required field is empty, which however we want to do on purpose to test
+    // how autosave_form behaves when a form is returned with validation errors,
+    // but for that it has to be submitted first.
+    \Drupal::state()->set('disable_html5_validation', TRUE);
 
     $entity_form_edit_url = $entity->toUrl('edit-form');
     $this->drupalGet($entity_form_edit_url);
@@ -253,6 +250,9 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
 
     // Submit the form.
     $this->saveForm();
+
+    // Do not prevent the HTML5 validation anymore.
+    \Drupal::state()->delete('disable_html5_validation');
 
     $this->logHtmlOutput(__FUNCTION__ . ' after validation fail.');
 
@@ -318,7 +318,7 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
   }
 
   /**
-   * Empties a required efield.
+   * Empties a required field.
    *
    * Helper method for ::doTestAutosaveAfterFormValidationFail() to empty a
    * required field on the entity form in order to trigger a form validation
@@ -691,7 +691,7 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
         'bundle' => $this->bundle,
         'label' => $this->randomMachineName() . '_label',
       ])->save();
-      entity_get_form_display($this->entityType, $this->bundle, 'default')
+      $this->getEntityFormDisplay($this->entityType, $this->bundle, 'default')
         ->setComponent($this->unlimitedCardinalityField, [
           'type' => 'text_textfield',
         ])
@@ -722,7 +722,7 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
         'label' => $this->requiredField,
         'required' => TRUE,
       ])->save();
-      entity_get_form_display($this->entityType, $this->bundle, 'default')
+      $this->getEntityFormDisplay($this->entityType, $this->bundle, 'default')
         ->setComponent($this->requiredField, [
           'type' => 'text_textfield',
         ])
@@ -738,17 +738,6 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
     $this->drupalLogin($this->webUser);
   }
 
- /**
-   * Determines whether the browser is headless.
-   *
-   * @return bool
-   *   TRUE if the browser is deemed to be headless, FALSE otherwise.
-   */
-  protected function isHeadlessBrowser() {
-    $js = '/\bHeadlessChrome\//i.test(navigator.userAgent) || /\bPhantomJS/i.test(navigator.userAgent)';
-    return $this->getSession()->evaluateScript($js);
-  }
-
   /**
    * Returns the URL for creating a new entity.
    *
@@ -757,4 +746,37 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
    */
   protected abstract function getCreateNewEntityURL();
 
+  /**
+   * Returns the entity form display associated with a bundle and form mode.
+   *
+   * This is just a wrapper around
+   * Drupal\Core\Entity\EntityDisplayRepository::getFormDisplay() for Drupal
+   * versions >= 8.8, with a fallback to entity_get_form_display() for prior
+   * Drupal versions.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The bundle.
+   * @param string $form_mode
+   *   The form mode.
+   *
+   * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface
+   *   The entity form display associated with the given form mode.
+   *
+   * @todo Remove this once Drupal 8.7 is no longer supported.
+   */
+  private function getEntityFormDisplay($entity_type, $bundle, $form_mode) {
+    if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
+      return \Drupal::service('entity_display.repository')->getFormDisplay($entity_type, $bundle, $form_mode);
+    }
+    else {
+      // Because this code only runs for older Drupal versions, we do not need
+      // or want IDEs or the Upgrade Status module warning people about this
+      // deprecated code usage. Setting the function name dynamically
+      // circumvents those warnings.
+      $function = 'entity_get_form_display';
+      return $function($entity_type, $bundle, $form_mode);
+    }
+  }
 }

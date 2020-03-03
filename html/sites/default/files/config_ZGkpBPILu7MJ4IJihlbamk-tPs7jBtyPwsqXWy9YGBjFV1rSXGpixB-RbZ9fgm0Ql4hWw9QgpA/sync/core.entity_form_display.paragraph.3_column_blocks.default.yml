@@ -1,0 +1,136 @@
+uuid: 0a3f1788-256a-4ca4-8a7b-71ee6a3c0407
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.3_column_blocks.field_left_block
+    - field.field.paragraph.3_column_blocks.field_middle_block
+    - field.field.paragraph.3_column_blocks.field_right_block
+    - paragraphs.paragraphs_type.3_column_blocks
+  module:
+    - field_group
+third_party_settings:
+  field_group:
+    group_table:
+      children:
+        - group_row
+      parent_name: ''
+      weight: 0
+      format_type: html_element
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        element: table
+        show_label: false
+        label_element: h3
+        label_element_classes: ''
+        required_fields: true
+        attributes: ''
+        effect: none
+        speed: fast
+      label: Table
+    group_row:
+      children:
+        - group_col1
+        - group_col2
+        - group_col3
+      parent_name: group_table
+      weight: 6
+      format_type: html_element
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        element: tr
+        show_label: false
+        label_element: h3
+        label_element_classes: ''
+        required_fields: true
+        attributes: ''
+        effect: none
+        speed: fast
+      label: Row
+    group_col1:
+      children:
+        - field_left_block
+      parent_name: group_row
+      weight: 7
+      format_type: html_element
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        element: td
+        show_label: false
+        label_element: h3
+        label_element_classes: ''
+        required_fields: true
+        attributes: ''
+        effect: none
+        speed: fast
+      label: Col1
+    group_col2:
+      children:
+        - field_middle_block
+      parent_name: group_row
+      weight: 8
+      format_type: html_element
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        element: td
+        show_label: false
+        label_element: h3
+        label_element_classes: ''
+        required_fields: true
+        attributes: ''
+        effect: none
+        speed: fast
+      label: Col2
+    group_col3:
+      children:
+        - field_right_block
+      parent_name: group_row
+      weight: 9
+      format_type: html_element
+      region: content
+      format_settings:
+        id: ''
+        classes: ''
+        element: td
+        show_label: false
+        label_element: h3
+        label_element_classes: ''
+        required_fields: true
+        attributes: ''
+        effect: none
+        speed: fast
+      label: Col3
+id: paragraph.3_column_blocks.default
+targetEntityType: paragraph
+bundle: 3_column_blocks
+mode: default
+content:
+  field_left_block:
+    weight: 9
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  field_middle_block:
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  field_right_block:
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+hidden:
+  created: true
+  status: true

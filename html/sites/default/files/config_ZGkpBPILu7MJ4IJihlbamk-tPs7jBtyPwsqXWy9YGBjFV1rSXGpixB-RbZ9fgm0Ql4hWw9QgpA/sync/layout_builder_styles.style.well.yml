@@ -1,0 +1,9 @@
+uuid: 5c3f4e44-8840-4ea2-9137-5d7178bb336d
+langcode: en
+status: true
+dependencies: {  }
+id: well
+label: Well
+classes: well
+type: component
+block_restrictions: {  }

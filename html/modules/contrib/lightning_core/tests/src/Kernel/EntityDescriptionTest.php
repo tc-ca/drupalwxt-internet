@@ -6,6 +6,8 @@ use Drupal\Core\Entity\EntityDescriptionInterface;
 use Drupal\KernelTests\KernelTestBase;
 
 /**
+ * Tests attaching descriptive text to certain config entities.
+ *
  * @group lightning_core
  */
 class EntityDescriptionTest extends KernelTestBase {
@@ -63,7 +65,7 @@ class EntityDescriptionTest extends KernelTestBase {
         ->get('entity.form_builder')
         ->getForm($entity, $form_operation);
 
-      $this->assertInternalType('array', $form['description']);
+      $this->assertSame('array', gettype($form['description']));
       $this->assertEquals($description, $form['description']['#default_value']);
     }
   }

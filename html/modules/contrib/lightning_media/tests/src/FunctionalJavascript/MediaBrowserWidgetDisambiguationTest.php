@@ -114,7 +114,15 @@ class MediaBrowserWidgetDisambiguationTest extends WebDriverTestBase {
     // correctly.
     $assert_session->assertWaitOnAjaxRequest();
 
-    $assert_session->waitForField('input_file')->attachFile(__DIR__ . '/../../files/test.jpg');
+    // This helps stabilize the next couple of calls; without it, the
+    // upload is more likely to randomly fail. It's not clear why this
+    // is the case, but repeated testing on Travis CI seems to support
+    // it.
+    $assert_session->assertWaitOnAjaxRequest();
+
+    $path = realpath(__DIR__ . '/../../files/test.jpg');
+    $this->assertNotEmpty($path);
+    $assert_session->waitForField('input_file')->attachFile($path);
     $assert_session->waitForField('Bundle')->selectOption('Picture');
     $assert_session->waitForField('Name')->setValue('Bar');
     $page->fillField('Alternative text', 'Baz');

@@ -1,0 +1,23 @@
+uuid: 47474844-b77b-4d16-b4e1-89af803b7be4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source_url
+    - node.type.publication
+  module:
+    - link
+id: node.publication.field_source_url
+field_name: field_source_url
+entity_type: node
+bundle: publication
+label: 'Source url'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 16
+  title: 0
+field_type: link

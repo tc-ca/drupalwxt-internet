@@ -3,7 +3,7 @@ test-results
 scripts/local
 scripts/drupal
 files_private/
-html/sites/dv13.dd
+html/sites/tcwww.dd
 
 # Composer files
 composer.lock

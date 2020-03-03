@@ -23,6 +23,11 @@ class QuickEditIntegrationLoadingTest extends BrowserTestBase {
   public static $modules = ['quickedit', 'filter', 'node', 'editor'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * The test node.
    *
    * @var \Drupal\node\NodeInterface

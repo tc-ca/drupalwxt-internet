@@ -1,0 +1,24 @@
+uuid: a1d57ebc-860b-451f-b90a-c3bdf1df11e1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_inst_mostreq
+    - node.type.institution
+  module:
+    - text
+id: node.institution.field_inst_mostreq
+field_name: field_inst_mostreq
+entity_type: node
+bundle: institution
+label: 'Most requested'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: "<section class=\"most-requested well well-sm brdr-0\">\r\n<div class=\"container\">\r\n<div class=\"row\">\r\n<div class=\"col-sm-12\">\r\n<ul class=\"wb-eqht list-unstyled mrgn-tp-md mrgn-bttm-sm lst-spcd-2 list-responsive-3\"><!-- can use 'list-responsive' to get 4 column option -->\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n\t<li><a href=\"#\">[Top task hyperlink]</a></li>\r\n</ul>\r\n</div>\r\n</div>\r\n</div>\r\n</section>\r\n"
+    format: rich_text
+default_value_callback: ''
+settings: {  }
+field_type: text_long

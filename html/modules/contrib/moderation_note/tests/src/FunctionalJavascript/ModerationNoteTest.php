@@ -6,6 +6,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\moderation_note\Entity\ModerationNote;
+use Drupal\Tests\content_moderation\Traits\ContentModerationTestTrait;
 
 /**
  * Contains Moderation Note integration tests.
@@ -13,6 +14,8 @@ use Drupal\moderation_note\Entity\ModerationNote;
  * @group moderation_note
  */
 class ModerationNoteTest extends JavascriptTestBase {
+
+  use ContentModerationTestTrait;
 
   /**
    * {@inheritdoc}
@@ -29,6 +32,10 @@ class ModerationNoteTest extends JavascriptTestBase {
     $node_type = $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
     /* @var \Drupal\workflows\WorkflowInterface $workflow */
     $workflow = $this->container->get('entity_type.manager')->getStorage('workflow')->load('editorial');
+    if (!$workflow) {
+      $workflow = $this->createEditorialWorkflow();
+    }
+
     $workflow->getTypePlugin()->addEntityTypeAndBundle('node', 'article');
     $workflow->save();
     $node_type->setNewRevision(TRUE);

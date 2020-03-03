@@ -38,7 +38,11 @@ class InstagramEmbedFormatterTest extends BrowserTestBase {
    */
   protected function setUp() {
     parent::setUp();
-
+    \Drupal::configFactory()
+      ->getEditable('media.settings')
+      ->set('standalone_url', TRUE)
+      ->save(TRUE);
+    \Drupal::service('router.builder')->rebuild();
     $this->testBundle = $this->createMediaType(['bundle' => 'instagram'], 'instagram');
     $this->drupalPlaceBlock('local_actions_block');
     $account = $this->drupalCreateUser([
@@ -96,7 +100,7 @@ class InstagramEmbedFormatterTest extends BrowserTestBase {
 
     $assert->fieldExists('Name')->setValue('My test instagram');
     // Example instagram from https://www.instagram.com/developer/embedding
-    $assert->fieldExists('Instagram')->setValue('https://www.instagram.com/p/bNd86MSFv6/');
+    $assert->fieldExists('Instagram')->setValue('https://www.instagram.com/p/B2huuS8AQVq/');
     $assert->buttonExists('Save')->press();
 
     // Assert that the media has been successfully saved.

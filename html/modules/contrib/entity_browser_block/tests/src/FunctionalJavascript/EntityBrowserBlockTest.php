@@ -2,14 +2,14 @@
 
 namespace Drupal\Tests\entity_browser_block\FunctionalJavascript;
 
-use Drupal\Tests\entity_browser\FunctionalJavascript\EntityBrowserJavascriptTestBase;
+use Drupal\Tests\entity_browser\FunctionalJavascript\EntityBrowserWebDriverTestBase;
 
 /**
  * Tests the functionality of the Entity Browser block.
  *
  * @group entity_browser_block
  */
-class EntityBrowserBlockTest extends EntityBrowserJavascriptTestBase {
+class EntityBrowserBlockTest extends EntityBrowserWebDriverTestBase {
 
   /**
    * {@inheritdoc}
