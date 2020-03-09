@@ -6,6 +6,7 @@ files_private/
 html/sites/tcwww.dd
 tcwww/html/sites/default/files/
 tcwww/config/
+storage/
 
 # VS Code
 *.code-workspace

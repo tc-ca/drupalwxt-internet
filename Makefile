@@ -13,8 +13,12 @@ run:
 	-h dev.tc.gc.ca \
 	--network host \
 	-v $(CURDIR)/docker/apache2/sites-available/vhost.conf:/etc/apache2/sites-available/000-default.conf \
-	-v $(CURDIR)/tcwww/config:/home/site/wwwroot/config \
-	-v $(CURDIR)/tcwww/html/sites/default/files:/home/site/wwwroot/html/sites/default/files \
+	-v $(CURDIR)/docker/php/php.ini:/usr/local/etc/php/php.ini \
+	-v $(CURDIR)/docker/startup/init.sh:/usr/local/bin/init.sh \
+	-v $(CURDIR)/storage/home/site/wwwroot/config:/home/site/wwwroot/config \
+	-v $(CURDIR)/storage/home/site/wwwroot/html/sites/default/files:/home/site/wwwroot/html/sites/default/files \
+	-v $(CURDIR)/storage/home/site/wwwroot/redirects.db:/home/site/wwwroot/redirects.db \
+	-v $(CURDIR)/tcwww:/var/www \
 	-e DRUPAL_HASH_SALT='PHlhk1pNA3I-ifkIF93PaDfVbX47lddV-1v5pNOLVV83aYct4sg8OIaaRDeXvSlAUzlD9hlq2w' \
 	-e POSTGRES_DATABASE=www \
 	-e POSTGRES_USERNAME=postgres \
@@ -30,31 +34,7 @@ run:
 	postgres:11.6
 
 	docker ps -a
-
-run_override_site_root:
-	docker run -d \
-	--name drupalwxt-internet \
-	-p 80:80 \
-	-h dev.tc.gc.ca \
-	--network host \
-	-v $(CURDIR)/tcwww:/home/site/wwwroot \
-	-e DRUPAL_HASH_SALT='PHlhk1pNA3I-ifkIF93PaDfVbX47lddV-1v5pNOLVV83aYct4sg8OIaaRDeXvSlAUzlD9hlq2w' \
-	-e POSTGRES_DATABASE=www \
-	-e POSTGRES_USERNAME=postgres \
-	-e POSTGRES_PASSWORD=WxT \
-	-e POSTGRES_HOST=localhost \
-	-e SITE_ROOT_OVERRIDE=/home/site/wwwroot \
-	drupalwxt-internet:latest
 	
-	docker run -d \
-	--name postgres-drupalwxt \
-	-p 5432:5432 \
-	-e POSTGRES_PASSWORD=WxT \
-	-v pgdatawxt:/var/lib/postgresql/data \
-	postgres:11.6
-
-	docker ps -a
-
 stop:
 	docker stop drupalwxt-internet
 	docker stop postgres-drupalwxt
