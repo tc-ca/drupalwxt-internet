@@ -13,6 +13,11 @@ cat /etc/motd
 
 eval $(printenv | sed -n "s/^\([^=]\+\)=\(.*\)$/export \1=\2/p" | sed 's/"/\\\"/g' | sed '/=/s//="/' | sed 's/$/"/' >> /etc/profile)
 
+rm /var/www/html/sites/default/files
+rm /var/www/config
+ln -s /home/site/wwwroot/html/sites/default/files /var/www/html/sites/default/files
+ln -s /home/site/wwwroot/config /var/www/config
+
 if test ! -z $SITE_ROOT_OVERRIDE
 then
     rm -fr /var/www

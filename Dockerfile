@@ -28,9 +28,6 @@ RUN chmod +x /usr/local/bin/init.sh
 
 COPY ./tcwww /var/www
 
-RUN ln -sf /home/site/wwwroot/html/sites/default/files /var/www/html/sites/default/files \
-    && ln -sf /home/site/wwwroot/config /var/www/config
-
 COPY ./docker/fix-permissions.sh /usr/local/fix-permissions.sh
 RUN bash /usr/local/fix-permissions.sh --drupal_path=/var/www/html --drupal_user=root
 

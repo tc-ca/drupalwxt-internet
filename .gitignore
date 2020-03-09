@@ -7,6 +7,8 @@ html/sites/tcwww.dd
 tcwww/html/sites/default/files/
 tcwww/config/
 storage/
+tcwww/html/sites/default/files
+tcwww/config
 
 # VS Code
 *.code-workspace
