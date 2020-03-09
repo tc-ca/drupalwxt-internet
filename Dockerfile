@@ -39,6 +39,4 @@ EXPOSE 80 2222
 ENV PATH /var/www/vendor/drush/drush:${PATH}
 ENV PATH ${PATH}:/home/site/wwwroot
 
-WORKDIR /home/site/wwwroot
-
 ENTRYPOINT ["init.sh"]
