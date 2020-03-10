@@ -129,14 +129,19 @@
                 "2984465 - Hide facets when it is configured to hide the block":
                 "https://www.drupal.org/files/issues/2019-06-11/facets-empty-block-2984465-31.patch"
             },
-            "drupal/txonomy_manager": {
+            "drupal/taxonomy_manager": {
                 "3046752 - AJAX error when editing term content":
                 "https://www.drupal.org/files/issues/2019-07-30/taxonomy_manager-3046752-1.patch",
                 "3025793 - Parameter must be an array":
                 "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
                 "2662060 - Created Terms can't be Translated":
                 "https://www.drupal.org/files/issues/2020-01-24/taxonomy_manager-translate_terms-2662060-5.patch"
+            },
+            "drupal/smtp": {
+                "3114989 - SMTP Error: Could not authenticate", 
+                "https://www.drupal.org/files/issues/2020-03-01/3114989-18.patch"
             }
+
         },
          "patches-ignore": {
             "drupal/lightning_core": {
