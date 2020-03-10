@@ -138,7 +138,7 @@
                 "https://www.drupal.org/files/issues/2020-01-24/taxonomy_manager-translate_terms-2662060-5.patch"
             },
             "drupal/smtp": {
-                "3114989 - SMTP Error: Could not authenticate", 
+                "3114989 - SMTP Error Could not authenticate":
                 "https://www.drupal.org/files/issues/2020-03-01/3114989-18.patch"
             }
 
