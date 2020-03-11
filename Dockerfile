@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
         #For redirects
         libaprutil1-dbd-pgsql \
         git \
+        nano \
         --no-install-recommends openssh-server vim \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install opcache \
