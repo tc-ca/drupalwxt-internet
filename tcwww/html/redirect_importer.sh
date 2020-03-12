@@ -1,7 +1,7 @@
 #!/bin/bash
 
 i=0
-cat redir.csv| while read line
+cat redir.csv| while read line || [ -n "$line" ]
 do
  let "i++"
  rsource=`echo $line | cut -d ',' -f1`
