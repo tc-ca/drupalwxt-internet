@@ -105,7 +105,7 @@ class ConnectionTesterTest extends UnitTestCase {
         'expected' => [
           'smtp_connection'=> [
             'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled, turned on, but SmtpConnect() returned FALSE.', []]),
+            'value' => serialize(['SMTP module is enabled, turned on, but SmtpConnect() threw an unexpected exception', []]),
             'severity' => ConnectionTester::REQUIREMENT_ERROR,
           ],
         ],
