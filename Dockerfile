@@ -38,4 +38,7 @@ EXPOSE 80 2222
 ENV PATH /var/www/vendor/drush/drush:${PATH}
 ENV PATH ${PATH}:/home/site/wwwroot
 
+#apache
+ENV APACHE_LOG_DIR "/home/LogFiles/apache2"
+
 ENTRYPOINT ["init.sh"]

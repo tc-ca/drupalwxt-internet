@@ -24,6 +24,11 @@ then
     ln -s $SITE_ROOT_OVERRIDE /var/www
 fi
 
+if ! -d $APACHE_LOG_DIR
+then
+  mkdir -p $APACHE_LOG_DIR
+fi
+
 service ssh start
 
 exec apache2ctl -DFOREGROUND "$@"
