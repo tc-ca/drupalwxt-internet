@@ -9,6 +9,7 @@ use Drupal\FunctionalTests\Update\UpdatePathTestBase;
  * Tests Linkit upgrade paths.
  *
  * @group Update
+ * @group legacy
  */
 class LinkitUpdateTest extends UpdatePathTestBase {
 
@@ -18,6 +19,11 @@ class LinkitUpdateTest extends UpdatePathTestBase {
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

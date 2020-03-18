@@ -142,7 +142,7 @@ class LinkitFilterEntityTest extends LinkitKernelTestBase {
 
     // Make sure the title is not overwritten.
     $input = '<a data-entity-type="' . $entity->getEntityTypeId() . '" data-entity-uuid="' . $entity->uuid() . '" title="Do not override">Link text</a>';
-    $this->assertTrue(strpos($this->process($input)->getProcessedText(), 'Do not override'), 'The filer is not overwrite the provided title attribute value.');
+    $this->assertTrue(strpos($this->process($input)->getProcessedText(), 'Do not override') !== FALSE, 'The filer is not overwrite the provided title attribute value.');
   }
 
 }
