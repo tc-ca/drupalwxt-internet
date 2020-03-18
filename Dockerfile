@@ -1,24 +1,25 @@
 FROM php:7.3.0-apache
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
         libfreetype6-dev \
-        libjpeg62-turbo-dev \
+        libjpeg-dev \
         libpng-dev \
         libpq-dev \
-        #For redirects
-        libaprutil1-dbd-pgsql \
         git \
         nano \
-        --no-install-recommends openssh-server vim \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install opcache \
-    && docker-php-ext-install pdo_pgsql \
-    && a2enmod rewrite \
-    && a2enmod proxy \
-    && a2enmod proxy_http \
-    && a2enmod ssl \
-    #For redirects
-    && a2enmod dbd \
+        vim \
+        openssh-server \
+    && docker-php-ext-configure \
+        gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        opcache \
+        pdo_pgsql \
+    && a2enmod \
+        rewrite \
+        proxy \
+        proxy_http \
+        ssl \
     && echo "root:Docker!" | chpasswd
 
 COPY ./docker/apache2/sites-available/vhost.conf /etc/apache2/sites-available/000-default.conf
@@ -36,5 +37,8 @@ EXPOSE 80 2222
 
 ENV PATH /var/www/vendor/drush/drush:${PATH}
 ENV PATH ${PATH}:/home/site/wwwroot
+
+#apache
+ENV APACHE_LOG_DIR "/home/LogFiles/apache2"
 
 ENTRYPOINT ["init.sh"]
