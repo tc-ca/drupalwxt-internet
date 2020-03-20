@@ -4,6 +4,8 @@ scripts/local
 scripts/drupal
 files_private/
 html/sites/tcwww.dd
+html/sites/default/files
+html/sites/default/settings.php
 
 # Composer files
 composer.lock
