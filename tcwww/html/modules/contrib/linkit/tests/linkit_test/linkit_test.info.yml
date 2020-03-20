@@ -1,0 +1,9 @@
+name: 'Linkit test module'
+description: 'Support module for Linkit testing.'
+package: Testing
+type: module
+core_version_requirement: ^8.7.7 || ^9
+dependencies:
+  - linkit:linkit
+  - drupal:field
+  - drupal:text

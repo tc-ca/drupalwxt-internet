@@ -5,10 +5,15 @@ scripts/drupal
 files_private/
 html/sites/tcwww.dd
 html/sites/default/files
-html/sites/default/settings.php
+tcwww/html/sites/default/settings.php
+tcwww/html/sites/default/files/
+tcwww/config/
+storage/
+tcwww/html/sites/default/files
+tcwww/config
 
-# Composer files
-composer.lock
+# VS Code
+*.code-workspace
 
 # Ignore Development Files
 compass_app_log.txt

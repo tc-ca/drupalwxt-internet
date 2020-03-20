@@ -1,9 +1,0 @@
-uuid: 339d1314-2a81-42df-879b-c9deceab5db6
-langcode: en
-status: true
-dependencies: {  }
-id: topic_what
-label: '3 column text'
-icon_uuid: null
-description: ''
-behavior_plugins: {  }

@@ -1,9 +1,0 @@
-uuid: 02142581-992a-4afb-8b00-c6d4500799ba
-langcode: en
-status: true
-dependencies: {  }
-id: alert_info
-label: 'Alert info'
-classes: 'alert alert-info'
-type: component
-block_restrictions: {  }

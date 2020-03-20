@@ -1,0 +1,32 @@
+version: '3'
+services:
+  drupal:
+    build: .
+    image: drupalwxt-internet
+    ports:
+    - "80:80"
+    network_mode: "host"
+    container_name: drupalwxt-internet
+    hostname: dev.tc.canada.ca
+    environment:
+    - DRUPAL_HASH_SALT=PHlhk1pNA3I-ifkIF93PaDfVbX47lddV-1v5pNOLVV83aYct4sg8OIaaRDeXvSlAUzlD9hlq2w
+    - POSTGRES_DATABASE=www
+    - POSTGRES_USERNAME=postgres
+    - POSTGRES_PASSWORD=WxT
+    - POSTGRES_HOST=localhost
+    volumes:
+    - ./docker/apache2/sites-available/vhost.conf:/etc/apache2/sites-available/000-default.conf
+    - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    - ./docker/startup/init.sh:/usr/local/bin/init.sh
+    - ./storage/home:/home
+    - ./tcwww:/var/www
+  pgsql:
+    image: postgres:11.6
+    ports:
+    - "5432:5432"
+    environment:
+    - POSTGRES_PASSWORD=WxT
+    volumes:
+    - pgdatawxt:/var/lib/postgresql/data
+volumes:
+  pgdatawxt: {}
