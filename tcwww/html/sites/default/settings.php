@@ -88,7 +88,17 @@
  * ];
  * @endcode
  */
-$databases = [];
+
+$databases['default']['default'] = array (
+  'database' => getenv('POSTGRES_DATABASE'),
+  'username' => getenv('POSTGRES_USERNAME'),
+  'password' => getenv('POSTGRES_PASSWORD'),
+  'prefix' => '',
+  'host' => getenv('POSTGRES_HOST'),
+  'port' => '5432',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
+  'driver' => 'pgsql',
+);
 
 /**
  * Customizing database settings.
@@ -759,18 +769,7 @@ $settings['entity_update_backup'] = TRUE;
  *
  * Keep this code block at the end of this file to take full effect.
  */
-#
-# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-#   include $app_root . '/' . $site_path . '/settings.local.php';
-# }
 
-$databases['default']['default'] = array (
-  'database' => getenv('POSTGRES_DATABASE'),
-  'username' => getenv('POSTGRES_USERNAME'),
-  'password' => getenv('POSTGRES_PASSWORD'),
-  'prefix' => '',
-  'host' => getenv('POSTGRES_HOST'),
-  'port' => '5432',
-  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
-  'driver' => 'pgsql',
-);
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
+}
