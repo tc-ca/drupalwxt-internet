@@ -140,6 +140,10 @@
             "drupal/smtp": {
                 "3114989 - SMTP Error Could not authenticate":
                 "https://www.drupal.org/files/issues/2020-03-01/3114989-18.patch"
+            },
+            "drupal/linkit": {
+                "2895153 - Linkit filter should honour the URL query and fragment":
+                "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
             }
 
         },
@@ -196,7 +200,10 @@
         "drupal/allowed_formats": "^1.2",
         "drupal/bulk_update_fields": "^2.0@alpha",
         "drupal/geofield": "^1.8",
+        "drupal/linkit": "dev-5.x#4a5834c as 5.0.0-beta10",
         "drupal/smtp": "^1.0@beta"
+    },
+    "replace": {
     },
     "autoload": {
         "classmap": [

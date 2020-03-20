@@ -108,20 +108,26 @@ class LinkitFilter extends FilterBase implements ContainerFactoryPluginInterface
               ->createInstance($substitution_type)
               ->getUrl($entity);
 
-            $element->setAttribute('href', $url->getGeneratedUrl());
-            $access = $entity->access('view', NULL, TRUE);
+            // Parse link href as url, extract query and fragment from it.
+            $href_url = parse_url($element->getAttribute('href'));
+            $anchor = empty($href_url["fragment"]) ? '' : '#' . $href_url["fragment"];
+            $query = empty($href_url["query"]) ? '' : '?' . $href_url["query"];
+
+            $element->setAttribute('href', $url->getGeneratedUrl() . $query . $anchor);
 
             // Set the appropriate title attribute.
-            if ($this->settings['title'] && !$access->isForbidden() && !$element->getAttribute('title')) {
-              $element->setAttribute('title', $entity->label());
+            if ($this->settings['title'] && !$element->getAttribute('title')) {
+              $access = $entity->access('view', NULL, TRUE);
+              if (!$access->isForbidden()) {
+                $element->setAttribute('title', $entity->label());
+              }
+              // Cache the linked entity access for the current user.
+              $result->addCacheableDependency($access);
             }
 
             // The processed text now depends on:
             $result
-              // - the linked entity access for the current user.
-              ->addCacheableDependency($access)
-              // - the generated URL (which has undergone path & route
-              // processing)
+              // - the generated URL (which has undergone path & route processing)
               ->addCacheableDependency($url)
               // - the linked entity (whose URL and title may change)
               ->addCacheableDependency($entity);
