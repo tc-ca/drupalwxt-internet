@@ -719,11 +719,10 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  * example.org, with all subdomains included.
  */
 
-#$settings['trusted_host_patterns'] = [
-#  '^(.+)\.azurewebsites\.net$',
-#  '^(.+\.)?tc\.canada\.ca$',
-#  '^(.+\.)?tc\.gc\.ca$',
-#];
+$settings['trusted_host_patterns'] = [
+  '^(.+\.)?tc\.canada\.ca$',
+  '^(.+)\.azurewebsites\.net$',
+];
 
 /**
  * The default list of directories that will be ignored by Drupal's file API.
