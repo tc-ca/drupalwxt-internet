@@ -1,0 +1,31 @@
+{
+    "name": "drupal/administration_language_negotiation",
+    "description": "This module allows the users to browse particular pages in a specific language.",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "minimum-stability": "stable",
+    "homepage": "https://drupal.org/project/administration_language_negotiation",
+    "authors": [
+        {
+            "name": "Pol Dellaiera (@drupol)",
+            "homepage": "https://www.drupal.org/u/pol",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/administration_language_negotiation?categories=All",
+        "irc": "irc://irc.freenode.org/drupal-contribute",
+        "source": "https://cgit.drupalcode.org/administration_language_negotiation"
+    },
+    "require-dev": {
+        "drupol/drupal-conventions": "^1"
+    },
+    "scripts": {
+        "grumphp": "./vendor/bin/grumphp run"
+    },
+    "extra": {
+        "grumphp": {
+            "config-default-path": "vendor/drupol/drupal-conventions/config/drupal8/grumphp.yml"
+        }
+    }
+}

@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Main module file.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function administration_language_negotiation_help($route_name, RouteMatchInterface $route_match) {
+  $help = '';
+
+  if ($route_name === 'help.page.administration_language_negotiation') {
+    $help = '';
+    $help .= '<h3>' . t('About') . '</h3>';
+    $help .= '<p>' . t('The Administration Language Negotiation module allows the users to browse particular pages in a specific language. The classical use case is to allow displaying the frontend of the site in one language and still keep most of the backend in English (or another language of
++your choice), but it can have other usages') . '</p>';
+    $help .= '<h3>' . t('Configuration') . '</h3>';
+    $help .= '<ul>';
+    $help .= '<li>' . t('Enable the <strong>Administration language</strong> language detection <a href=":url">Home > Administration > Configuration > Regional and language > Languages > Detection and selection</a>', [':url' => Url::fromRoute('language.negotiation')->toString()]) . '</li>';
+    $help .= '<li>' . t('Configure the paths and language <a href=":url">Home > Administration > Configuration > Regional and language > Languages > Detection and selection</a>', [':url' => Url::fromRoute('language.negotiation')->toString()]) . '</li>';
+    $help .= '<li>' . t('You will also need to change the detection order. It needs to come before other language detections.') . '</li>';
+    $help .= '</ul>';
+  }
+
+  return $help;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function administration_language_negotiation_form_user_form_alter(array &$form, FormStateInterface $form_state) {
+  /* @var $user \Drupal\user\Entity\User */
+  $user = $form_state->getFormObject()->getEntity();
+
+  if ($user->hasPermission('use administration language negotiation')) {
+    $form['language']['preferred_admin_langcode']['#access'] = TRUE;
+  }
+}
