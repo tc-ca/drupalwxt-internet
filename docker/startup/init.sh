@@ -34,5 +34,6 @@ if ! [ -L $config_link ]; then
 fi
 
 service ssh start
+service varnish start
 
 exec apache2ctl -DFOREGROUND "$@"
