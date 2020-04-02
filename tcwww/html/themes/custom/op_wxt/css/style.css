@@ -71,3 +71,11 @@ body.home > div.dialog-off-canvas-main-canvas > div > div > main > section > div
     text-decoration: none;
     z-index: 2;
 }
+
+//Fix facets
+.facet-count.badge {
+    float:right;
+}
+ul.js-facets-widget {
+    list-style-type:none;
+}
