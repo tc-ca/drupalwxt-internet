@@ -63,3 +63,19 @@ body.home > div.dialog-off-canvas-main-canvas > div > div > main > section > div
     top: -35px;
     z-index: -1;
 }
+
+.toc li .list-group-item.is-active, .toc li .list-group-item.active:focus, .toc li .list-group-item.active:hover {
+    background-color: #335075;
+    color: #fff;
+    cursor: auto;
+    text-decoration: none;
+    z-index: 2;
+}
+
+//Fix facets
+.facet-count.badge {
+    float:right;
+}
+ul.js-facets-widget {
+    list-style-type:none;
+}

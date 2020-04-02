@@ -17,9 +17,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         pdo_pgsql \
     && a2enmod \
         rewrite \
-        proxy \
-        proxy_http \
-        ssl \
     && echo "root:Docker!" | chpasswd
 
 COPY ./docker/apache2/sites-available/vhost.conf /etc/apache2/sites-available/000-default.conf
@@ -40,5 +37,8 @@ ENV PATH ${PATH}:/home/site/wwwroot
 
 #apache
 ENV APACHE_LOG_DIR "/home/LogFiles/apache2"
+
+#drupal storage
+ENV DRUPAL_STORAGE_DIR "/home/site/wwwroot"
 
 ENTRYPOINT ["init.sh"]

@@ -3,12 +3,10 @@ test-results
 scripts/local
 scripts/drupal
 files_private/
-html/sites/tcwww.dd
-tcwww/html/sites/default/files/
-tcwww/config/
-storage/
+tcwww/html/sites/default/settings.local.php
 tcwww/html/sites/default/files
 tcwww/config
+storage/
 
 # VS Code
 *.code-workspace
