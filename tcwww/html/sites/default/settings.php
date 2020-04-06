@@ -88,17 +88,7 @@
  * ];
  * @endcode
  */
-
-$databases['default']['default'] = array (
-  'database' => getenv('POSTGRES_DATABASE'),
-  'username' => getenv('POSTGRES_USERNAME'),
-  'password' => getenv('POSTGRES_PASSWORD'),
-  'prefix' => '',
-  'host' => getenv('POSTGRES_HOST'),
-  'port' => '5432',
-  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
-  'driver' => 'pgsql',
-);
+$databases = [];
 
 /**
  * Customizing database settings.
@@ -235,20 +225,42 @@ $databases['default']['default'] = array (
  *   ];
  * @endcode
  */
+$databases['default']['default'] = [
+  'driver' => 'pgsql',
+  'database' => 'postgreswwwdevtcgcca',
+  'username' => 'drupal@postgres-wwwdev-tc-gc-ca',
+  'password' => 'fqfQ7LMfyfwn6.qLWvNy',
+  'host' => 'postgres-wwwdev-tc-gc-ca.postgres.database.azure.com',
+  'port' => '5432',
+  'prefix' => '',
+];
 
 /**
  * Location of the site configuration files.
  *
- * The $settings['config_sync_directory'] specifies the location of file system
- * directory used for syncing configuration data. On install, the directory is
- * created. This is used for configuration imports.
+ * The $config_directories array specifies the location of file system
+ * directories used for configuration data. On install, the "sync" directory is
+ * created. This is used for configuration imports. The "active" directory is
+ * not created by default since the default storage for active configuration is
+ * the database rather than the file system. (This can be changed. See "Active
+ * configuration settings" below).
  *
- * The default location for this directory is inside a randomly-named
- * directory in the public files path. The setting below allows you to set
- * its location.
+ * The default location for the "sync" directory is inside a randomly-named
+ * directory in the public files path. The setting below allows you to override
+ * the "sync" location.
+ *
+ * If you use files for the "active" configuration, you can tell the
+ * Configuration system where this directory is located by adding an entry with
+ * array key CONFIG_ACTIVE_DIRECTORY.
+ *
+ * Example:
+ * @code
+ *   $config_directories = [
+ *     CONFIG_SYNC_DIRECTORY => '/directory/outside/webroot',
+ *   ];
+ * @endcode
  */
- #$settings['config_sync_directory'] = '../config/sync';
- $config_directories['sync'] = '../config/sync';
+$config_directories = [];
 
 /**
  * Settings:
@@ -277,7 +289,7 @@ $databases['default']['default'] = array (
  *   $settings['hash_salt'] = file_get_contents('/home/example/salt.txt');
  * @endcode
  */
-$settings['hash_salt'] = getenv('DRUPAL_HASH_SALT');
+$settings['hash_salt'] = 'YS1x8lep17y0yohcrM_2chHjF_LTGiEBHFdmAy9YIJk6CmwakT3UvW10cURgjnok-vzh7FkH-g';
 
 /**
  * Deployment identifier.
@@ -352,15 +364,14 @@ $settings['update_free_access'] = FALSE;
  * Be aware, however, that it is likely that this would allow IP
  * address spoofing unless more advanced precautions are taken.
  */
- $settings['reverse_proxy'] = getenv('DRUPAL_REVERSE_PROXY');
+# $settings['reverse_proxy'] = TRUE;
 
 /**
  * Specify every reverse proxy IP address in your environment.
  * This setting is required if $settings['reverse_proxy'] is TRUE.
  */
- #$settings['reverse_proxy_addresses'] = explode(",", getenv('DRUPAL_REVERSE_PROXY_ADDRESSES'));
- $settings['reverse_proxy_addresses'] = [getenv('REMOTE_ADDR')];
- 
+# $settings['reverse_proxy_addresses'] = ['a.b.c.d', ...];
+
 /**
  * Reverse proxy trusted headers.
  *
@@ -532,20 +543,7 @@ if ($settings['hash_salt']) {
  * See https://www.drupal.org/documentation/modules/file for more information
  * about securing private files.
  */
-# $settings['file_private_path'] = 'sites/default/files/private';
-
-/**
- * Temporary file path:
- *
- * A local file system path where temporary files will be stored. This directory
- * must be absolute, outside of the Drupal installation directory and not
- * accessible over the web.
- *
- * If this is not set, the default for the operating system will be used.
- *
- * @see \Drupal\Component\FileSystem\FileSystem::getOsTemporaryDirectory()
- */
-# $settings['file_temp_path'] = '/tmp';
+$settings['file_private_path'] = 'sites/default/files/private';
 
 /**
  * Session write interval:
@@ -608,6 +606,25 @@ if ($settings['hash_salt']) {
 # ini_set('pcre.recursion_limit', 200000);
 
 /**
+ * Active configuration settings.
+ *
+ * By default, the active configuration is stored in the database in the
+ * {config} table. To use a different storage mechanism for the active
+ * configuration, do the following prior to installing:
+ * - Create an "active" directory and declare its path in $config_directories
+ *   as explained under the 'Location of the site configuration files' section
+ *   above in this file. To enhance security, you can declare a path that is
+ *   outside your document root.
+ * - Override the 'bootstrap_config_storage' setting here. It must be set to a
+ *   callable that returns an object that implements
+ *   \Drupal\Core\Config\StorageInterface.
+ * - Override the service definition 'config.storage.active'. Put this
+ *   override in a services.yml file in the same directory as settings.php
+ *   (definitions in this file will override service definition defaults).
+ */
+# $settings['bootstrap_config_storage'] = ['Drupal\Core\Config\BootstrapConfigStorageFactory', 'getFileStorage'];
+
+/**
  * Configuration overrides.
  *
  * To globally override specific configuration values for this site,
@@ -629,7 +646,9 @@ if ($settings['hash_salt']) {
  * configuration values in settings.php will not fire any of the configuration
  * change events.
  */
+# $config['system.file']['path']['temporary'] = '/tmp';
 # $config['system.site']['name'] = 'My Drupal site';
+# $config['system.theme']['default'] = 'stark';
 # $config['user.settings']['anonymous'] = 'Visitor';
 
 /**
@@ -720,8 +739,9 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  */
 
 $settings['trusted_host_patterns'] = [
-  '^(.+\.)?tc\.canada\.ca$',
-  '^(.+)\.azurewebsites\.net$',
+  '^www\.example\.com$',
+  '^wwwdev-tc-gc-ca\.canadacentral\.cloudapp\.azure\.com$',
+  '^www\.tc\.gc\.ca$',
 ];
 
 /**
@@ -731,7 +751,7 @@ $settings['trusted_host_patterns'] = [
  * with common frontend tools and recursive scanning of directories looking for
  * extensions.
  *
- * @see \Drupal\Core\File\FileSystemInterface::scanDirectory()
+ * @see file_scan_directory()
  * @see \Drupal\Core\Extension\ExtensionDiscovery::scanDirectory()
  */
 $settings['file_scan_ignore_directories'] = [
@@ -768,7 +788,19 @@ $settings['entity_update_backup'] = TRUE;
  *
  * Keep this code block at the end of this file to take full effect.
  */
+#
+# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+#   include $app_root . '/' . $site_path . '/settings.local.php';
+# }
 
-if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-  include $app_root . '/' . $site_path . '/settings.local.php';
-}
+$databases['default']['default'] = array (
+  'database' => 'postgreswwwdevtcgcca',
+  'username' => 'drupal@postgres-wwwdev-tc-gc-ca',
+  'password' => 'fqfQ7LMfyfwn6.qLWvNy',
+  'prefix' => '',
+  'host' => 'postgres-wwwdev-tc-gc-ca.postgres.database.azure.com',
+  'port' => '5432',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
+  'driver' => 'pgsql',
+);
+$config_directories['sync'] = '../../config/sync';

@@ -87,7 +87,7 @@ function openplus_cancel_callback(array &$form, \Drupal\Core\Form\FormStateInter
 }
 
 function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
-  if (!empty($breadcrumb)) {
+  if (!empty($breadcrumb) && !\Drupal::service('router.admin_context')->isAdminRoute()) {
     $links = $breadcrumb->getLinks();
     array_shift($links);
 
