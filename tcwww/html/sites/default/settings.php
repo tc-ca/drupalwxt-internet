@@ -88,7 +88,17 @@
  * ];
  * @endcode
  */
-$databases = [];
+
+$databases['default']['default'] = array (
+  'database' => getenv('POSTGRES_DATABASE'),
+  'username' => getenv('POSTGRES_USERNAME'),
+  'password' => getenv('POSTGRES_PASSWORD'),
+  'prefix' => '',
+  'host' => getenv('POSTGRES_HOST'),
+  'port' => '5432',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
+  'driver' => 'pgsql',
+);
 
 /**
  * Customizing database settings.
@@ -225,15 +235,6 @@ $databases = [];
  *   ];
  * @endcode
  */
-$databases['default']['default'] = [
-  'driver' => 'pgsql',
-  'database' => 'postgreswwwdevtcgcca',
-  'username' => 'drupal@postgres-wwwdev-tc-gc-ca',
-  'password' => 'fqfQ7LMfyfwn6.qLWvNy',
-  'host' => 'postgres-wwwdev-tc-gc-ca.postgres.database.azure.com',
-  'port' => '5432',
-  'prefix' => '',
-];
 
 /**
  * Location of the site configuration files.
@@ -260,7 +261,7 @@ $databases['default']['default'] = [
  *   ];
  * @endcode
  */
-$config_directories = [];
+ $config_directories['sync'] = '../config/sync';
 
 /**
  * Settings:
@@ -289,7 +290,7 @@ $config_directories = [];
  *   $settings['hash_salt'] = file_get_contents('/home/example/salt.txt');
  * @endcode
  */
-$settings['hash_salt'] = 'YS1x8lep17y0yohcrM_2chHjF_LTGiEBHFdmAy9YIJk6CmwakT3UvW10cURgjnok-vzh7FkH-g';
+$settings['hash_salt'] = getenv('DRUPAL_HASH_SALT');
 
 /**
  * Deployment identifier.
@@ -364,14 +365,14 @@ $settings['update_free_access'] = FALSE;
  * Be aware, however, that it is likely that this would allow IP
  * address spoofing unless more advanced precautions are taken.
  */
-# $settings['reverse_proxy'] = TRUE;
+ $settings['reverse_proxy'] = getenv('DRUPAL_REVERSE_PROXY');
 
 /**
  * Specify every reverse proxy IP address in your environment.
  * This setting is required if $settings['reverse_proxy'] is TRUE.
  */
-# $settings['reverse_proxy_addresses'] = ['a.b.c.d', ...];
-
+ $settings['reverse_proxy_addresses'] = [getenv('REMOTE_ADDR')];
+ 
 /**
  * Reverse proxy trusted headers.
  *
@@ -739,9 +740,8 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  */
 
 $settings['trusted_host_patterns'] = [
-  '^www\.example\.com$',
-  '^wwwdev-tc-gc-ca\.canadacentral\.cloudapp\.azure\.com$',
-  '^www\.tc\.gc\.ca$',
+  '^(.+\.)?tc\.canada\.ca$',
+  '^(.+)\.azurewebsites\.net$',
 ];
 
 /**
@@ -751,7 +751,7 @@ $settings['trusted_host_patterns'] = [
  * with common frontend tools and recursive scanning of directories looking for
  * extensions.
  *
- * @see file_scan_directory()
+ * @see \Drupal\Core\File\FileSystemInterface::scanDirectory()
  * @see \Drupal\Core\Extension\ExtensionDiscovery::scanDirectory()
  */
 $settings['file_scan_ignore_directories'] = [
@@ -788,19 +788,7 @@ $settings['entity_update_backup'] = TRUE;
  *
  * Keep this code block at the end of this file to take full effect.
  */
-#
-# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-#   include $app_root . '/' . $site_path . '/settings.local.php';
-# }
 
-$databases['default']['default'] = array (
-  'database' => 'postgreswwwdevtcgcca',
-  'username' => 'drupal@postgres-wwwdev-tc-gc-ca',
-  'password' => 'fqfQ7LMfyfwn6.qLWvNy',
-  'prefix' => '',
-  'host' => 'postgres-wwwdev-tc-gc-ca.postgres.database.azure.com',
-  'port' => '5432',
-  'namespace' => 'Drupal\\Core\\Database\\Driver\\pgsql',
-  'driver' => 'pgsql',
-);
-$config_directories['sync'] = '../../config/sync';
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+  include $app_root . '/' . $site_path . '/settings.local.php';
+}
