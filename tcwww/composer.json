@@ -114,6 +114,8 @@
                 "https://www.drupal.org/files/issues/2020-02-04/layout-builder-save-issue-3045171-140.patch",
                 "2885278 - Node local tasks tabs do not appear on node revisions":
                 "https://www.drupal.org/files/issues/2019-11-12/drupal-node_revision_local_tasks_canonical-2885278-15.patch",
+		"2845144 - User cannot reference unpublished content":
+		"https://www.drupal.org/files/issues/2019-03-26/user_cant_reference_unpublished_content-2845144-24.patch",
                 "3001188 - Make it possible to add relationships to layout builder":
                 "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch"
             },
