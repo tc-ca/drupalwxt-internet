@@ -42,7 +42,7 @@ class AddBnBlock extends BlockBase {
         ],
       ],
       'query' => [
-        'destination' => '/admin/bn-admin/' . $node->id() . '/manage',
+        'destination' => '/admin/binder-admin/' . $node->id() . '/manage',
         'edit[field_binder][widget][0][target_id]' => $node->id(),
       ],
     ];
