@@ -32,23 +32,23 @@ class AddBnBlock extends BlockBase {
     $user = \Drupal::currentUser();
     $node = $this->getContextValue('node');
     
-    $url = Url::fromUserInput('/node/add/briefing-note');
+    $url = Url::fromUserInput('/node/add/briefing_note');
     $link_options = [
       'attributes' => [
         'class' => [
-          'btn',
-          'btn-primary',
-          'btn-raised',
+          'button',
+          'button--primary',
+          'btn--action',
         ],
       ],
       'query' => [
-        'destination' => '/admin/bn-admin/' . $node->id() . '/manage',
+        'destination' => '/admin/binder-admin/' . $node->id() . '/manage',
         'edit[field_binder][widget][0][target_id]' => $node->id(),
       ],
     ];
     
     $url->setOptions($link_options);
-    $link = Link::fromTextAndUrl($this->t('Add binder'), $url)->toRenderable();
+    $link = Link::fromTextAndUrl($this->t('Add briefing note'), $url)->toRenderable();
     $build['#markup'] = '<div>' . render($link) . '</div>'; 
     
     return $build;
