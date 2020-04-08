@@ -48,7 +48,7 @@ class AddBnBlock extends BlockBase {
     ];
     
     $url->setOptions($link_options);
-    $link = Link::fromTextAndUrl($this->t('Add briefing note'), $url)->toRenderable();
+    $link = Link::fromTextAndUrl($this->t('Add briefing material'), $url)->toRenderable();
     $build['#markup'] = '<div>' . render($link) . '</div>'; 
     
     return $build;

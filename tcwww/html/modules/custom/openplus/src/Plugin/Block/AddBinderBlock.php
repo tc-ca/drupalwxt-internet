@@ -13,14 +13,10 @@ use Drupal\Core\Link;
  *   id = "add_binder_block",
  *   admin_label = @Translation("Add binder block"),
  *   category = @Translation("Openplus"),
- *   context = {
- *     "node" = @ContextDefinition("entity:node")
- *   }
  * )
  */
 
 class AddBinderBlock extends BlockBase {
-
   /**
    * {@inheritdoc}
    */
@@ -34,13 +30,13 @@ class AddBinderBlock extends BlockBase {
     $link_options = [
       'attributes' => [
         'class' => [
-          'btn',
-          'btn-primary',
-          'btn-raised',
+          'button',
+          'button--primary',
+          'button--action',
         ],
       ],
       'query' => [
-        'destination' => '/binder-admin',
+        'destination' => '/admin/binder-admin',
       ],
     ];
     
