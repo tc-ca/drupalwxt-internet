@@ -93,14 +93,17 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
 
     $node = $route_match->getParameter('node');
     $new_links = [];
-    $title = 'Home';
+    $title = 'Canada.ca';
     $lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $url = Url::fromUri('https://www.canada.ca/' . $lang . '.html');
     $new_links[] = Link::fromTextAndUrl(t($title), $url);
-    $new_links[] = Link::fromTextAndUrl(t('Transport Canada'), Url::fromRoute('<front>'));
+    if (!\Drupal::service('path.matcher')->isFrontPage()) {
+      $new_links[] = Link::fromTextAndUrl(t('Transport Canada'), Url::fromRoute('<front>'));
+    }
 
     $breadcrumb = new Breadcrumb();
     $breadcrumb->setLinks(array_merge($new_links, $links));
+    $breadcrumb->addCacheContexts(['route']);
   }
 }
 
