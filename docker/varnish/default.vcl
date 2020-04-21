@@ -2,23 +2,20 @@ vcl 4.0;
 
 # This Varnish VCL has been adapted from the Four Kitchens VCL for Varnish 3.
 
-# Default backend definition. Points to Apache, normally.
+# Default backend definition. Points to Apache, normally. 
 backend default {
     .host = "127.0.0.1";
     .port = "8080";
     .first_byte_timeout = 300s;
-
 }
 
 # Access control list for PURGE requests.
 acl purge {
     "127.0.0.1";
-
 }
 
 # Respond to incoming requests.
 sub vcl_recv {
-    # Add locations of phpmyadmin here. 
     # Add an X-Forwarded-For header with the client IP address.
     if (req.restarts == 0) {
         if (req.http.X-Forwarded-For) {
@@ -109,7 +106,6 @@ sub vcl_recv {
             return (pass);
         }
     }
-
 }
 
 # Set a header to track a cache HITs and MISSes.
@@ -117,15 +113,14 @@ sub vcl_deliver {
     # Remove ban-lurker friendly custom headers when delivering to client.
     unset resp.http.X-Url;
     unset resp.http.X-Host;
-    unset resp.http.Purge-Cache-Tags;
+    unset resp.http.Cache-Tags;
 
     if (obj.hits > 0) {
-        set resp.http.X-Varnish-Cache = "HIT";
+        set resp.http.Cache-Tags = "HIT";
     }
     else {
-        set resp.http.X-Varnish-Cache = "MISS";
+        set resp.http.Cache-Tags = "MISS";
     }
-
 }
 
 # Instruct Varnish what to do in the case of certain backend responses (beresp).
@@ -144,7 +139,7 @@ sub vcl_backend_response {
         set beresp.do_stream = true;
         set beresp.ttl = 0s;
     }
-
+    
     # Don't allow static files to set cookies.
     # (?i) denotes case insensitive in PCRE (perl compatible regular expressions).
     # This list of extensions appears twice, once here and again in vcl_recv so
@@ -155,5 +150,4 @@ sub vcl_backend_response {
 
     # Allow items to remain in cache up to 6 hours past their cache expiration.
     set beresp.grace = 6h;
-
 }

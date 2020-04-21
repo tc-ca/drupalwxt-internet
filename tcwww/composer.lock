@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "253bf36f4a775659e75b5fea827c9259",
+    "content-hash": "9f06823cc4befddacfde53ce178e2d43",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -236,7 +236,7 @@
             "version": "v2.3.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fengyuanchen/cropper.git",
+                "url": "git@github.com:fengyuanchen/cropper.git",
                 "reference": "30c58b29ee21010e17e58ebab165fbd84285c685"
             },
             "dist": {
@@ -2505,6 +2505,71 @@
             }
         },
         {
+            "name": "drupal/administration_language_negotiation",
+            "version": "1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/administration_language_negotiation.git",
+                "reference": "8.x-1.8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/administration_language_negotiation-8.x-1.8.zip",
+                "reference": "8.x-1.8",
+                "shasum": "425de34c53085d341354b11c1a2fabfb1edaa755"
+            },
+            "require": {
+                "drupal/core": "*"
+            },
+            "require-dev": {
+                "drupol/drupal-conventions": "^1"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-1.8",
+                    "datestamp": "1561553886",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "grumphp": {
+                    "config-default-path": "vendor/drupol/drupal-conventions/config/drupal8/grumphp.yml"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "scripts": {
+                "grumphp": [
+                    "./vendor/bin/grumphp run"
+                ]
+            },
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Pol Dellaiera (@drupol)",
+                    "homepage": "https://www.drupal.org/u/pol",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Pol",
+                    "homepage": "https://www.drupal.org/user/47194"
+                }
+            ],
+            "description": "This module allows the users to browse particular pages in a specific language.",
+            "homepage": "https://drupal.org/project/administration_language_negotiation",
+            "support": {
+                "source": "https://cgit.drupalcode.org/administration_language_negotiation",
+                "issues": "https://www.drupal.org/project/issues/administration_language_negotiation?categories=All",
+                "irc": "irc://irc.freenode.org/drupal-contribute"
+            }
+        },
+        {
             "name": "drupal/allowed_formats",
             "version": "1.2.0",
             "source": {
@@ -4109,6 +4174,7 @@
                     "2652000 Views do not add the active class anymore": "https://www.drupal.org/files/issues/2020-01-09/2652000-84.patch",
                     "3045171 - Form blocks rendered inside layout builder break save": "https://www.drupal.org/files/issues/2020-02-04/layout-builder-save-issue-3045171-140.patch",
                     "2885278 - Node local tasks tabs do not appear on node revisions": "https://www.drupal.org/files/issues/2019-11-12/drupal-node_revision_local_tasks_canonical-2885278-15.patch",
+                    "2845144 - User cannot reference unpublished content": "https://www.drupal.org/files/issues/2019-03-26/user_cant_reference_unpublished_content-2845144-24.patch",
                     "3001188 - Make it possible to add relationships to layout builder": "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch",
                     "3096566 - Copy media library styles from Seven to Claro & 3096241 - Refactor image and file field widgets to improve contrib compatibility and to make their templates and preprocess functions DRY": "https://www.drupal.org/files/issues/2019-12-16/3096566-23-combined-3096241-3.patch",
                     "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
@@ -7606,20 +7672,14 @@
         },
         {
             "name": "drupal/linkit",
-            "version": "5.0.0-beta10",
+            "version": "dev-5.x",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/linkit.git",
-                "reference": "8.x-5.0-beta10"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/linkit-8.x-5.0-beta10.zip",
-                "reference": "8.x-5.0-beta10",
-                "shasum": "9980707514ec63fd1bdc27eebd4af243efda97a6"
+                "reference": "4a5834c"
             },
             "require": {
-                "drupal/core": "~8.0"
+                "drupal/core": "^8.7.7 || ^9"
             },
             "require-dev": {
                 "drupal/imce": "*"
@@ -7630,12 +7690,15 @@
                     "dev-5.x": "5.x-dev"
                 },
                 "drupal": {
-                    "version": "8.x-5.0-beta10",
-                    "datestamp": "1573783085",
+                    "version": "8.x-5.0-beta10+5-dev",
+                    "datestamp": "1586213816",
                     "security-coverage": {
                         "status": "not-covered",
-                        "message": "Beta releases are not covered by Drupal security advisories."
+                        "message": "Dev releases are not covered by Drupal security advisories."
                     }
+                },
+                "patches_applied": {
+                    "2895153 - Linkit filter should honour the URL query and fragment": "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -7655,7 +7718,8 @@
             "support": {
                 "source": "http://cgit.drupalcode.org/linkit",
                 "issues": "http://drupal.org/project/linkit"
-            }
+            },
+            "time": "2019-11-16T00:07:03+00:00"
         },
         {
             "name": "drupal/media_entity",
@@ -9538,6 +9602,121 @@
             }
         },
         {
+            "name": "drupal/prepopulate",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/prepopulate.git",
+                "reference": "8.x-2.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/prepopulate-8.x-2.2.zip",
+                "reference": "8.x-2.2",
+                "shasum": "c2b66fe6c2db4384e9bb4add22775aff365fdff8"
+            },
+            "require": {
+                "drupal/core": "~8.0"
+            },
+            "require-dev": {
+                "drupal/inline_entity_form": "*",
+                "drupal/og": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-2.2",
+                    "datestamp": "1551903184",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "eafarris",
+                    "homepage": "https://www.drupal.org/user/812"
+                },
+                {
+                    "name": "ff1",
+                    "homepage": "https://www.drupal.org/user/41738"
+                },
+                {
+                    "name": "heddn",
+                    "homepage": "https://www.drupal.org/user/1463982"
+                },
+                {
+                    "name": "jbrauer",
+                    "homepage": "https://www.drupal.org/user/12363"
+                }
+            ],
+            "description": "Allows form elements to be prepopulated from the URL.",
+            "homepage": "https://www.drupal.org/project/prepopulate",
+            "support": {
+                "source": "https://git.drupalcode.org/project/prepopulate"
+            }
+        },
+        {
+            "name": "drupal/purge",
+            "version": "3.0.0-beta9",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/purge.git",
+                "reference": "8.x-3.0-beta9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/purge-8.x-3.0-beta9.zip",
+                "reference": "8.x-3.0-beta9",
+                "shasum": "d7d5229806582f7553f3b46b56218a9e41e9e6c4"
+            },
+            "require": {
+                "drupal/core": "~8.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-3.x": "3.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-3.0-beta9",
+                    "datestamp": "1570540105",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Beta releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "SqyD",
+                    "homepage": "https://www.drupal.org/user/106525"
+                },
+                {
+                    "name": "djbobbydrake",
+                    "homepage": "https://www.drupal.org/user/336378"
+                },
+                {
+                    "name": "nielsvm",
+                    "homepage": "https://www.drupal.org/user/163285"
+                }
+            ],
+            "description": "Provides a generic external cache invalidation API and queue service.",
+            "homepage": "https://www.drupal.org/project/purge",
+            "support": {
+                "source": "https://git.drupalcode.org/project/purge"
+            }
+        },
+        {
             "name": "drupal/recaptcha",
             "version": "2.5.0",
             "source": {
@@ -10543,6 +10722,9 @@
                         "status": "not-covered",
                         "message": "Beta releases are not covered by Drupal security advisories."
                     }
+                },
+                "patches_applied": {
+                    "3114989 - SMTP Error Could not authenticate": "https://www.drupal.org/files/issues/2020-03-01/3114989-18.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -10611,6 +10793,11 @@
                         "status": "not-covered",
                         "message": "Alpha releases are not covered by Drupal security advisories."
                     }
+                },
+                "patches_applied": {
+                    "3046752 - AJAX error when editing term content": "https://www.drupal.org/files/issues/2019-07-30/taxonomy_manager-3046752-1.patch",
+                    "3025793 - Parameter must be an array": "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
+                    "2662060 - Created Terms can't be Translated": "https://www.drupal.org/files/issues/2020-01-24/taxonomy_manager-translate_terms-2662060-5.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -10899,6 +11086,61 @@
                 "source": "https://git.drupalcode.org/project/url_embed",
                 "issues": "https://www.drupal.org/project/issues/url_embed",
                 "irc": "irc://irc.freenode.org/drupal-media"
+            }
+        },
+        {
+            "name": "drupal/varnish_purge",
+            "version": "1.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/varnish_purge.git",
+                "reference": "8.x-1.12"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/varnish_purge-8.x-1.12.zip",
+                "reference": "8.x-1.12",
+                "shasum": "74515b0e845f2dd35629f03c07a0fc36e09d49bc"
+            },
+            "require": {
+                "drupal/core": "~8.0"
+            },
+            "require-dev": {
+                "drupal/purge": "*",
+                "drupal/purge_tokens": "*",
+                "drupal/varnish_purger-varnish_purger": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-1.x": "1.x-dev"
+                },
+                "drupal": {
+                    "version": "8.x-1.12",
+                    "datestamp": "1582973947",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "MiSc",
+                    "homepage": "https://www.drupal.org/user/382892"
+                },
+                {
+                    "name": "deadbeef",
+                    "homepage": "https://www.drupal.org/user/93644"
+                }
+            ],
+            "homepage": "https://www.drupal.org/project/varnish_purge",
+            "support": {
+                "source": "https://git.drupalcode.org/project/varnish_purge"
             }
         },
         {
@@ -12592,6 +12834,7 @@
                     "email": "jakub.onderka@gmail.com"
                 }
             ],
+            "abandoned": "php-parallel-lint/php-console-color",
             "time": "2018-09-29T17:23:10+00:00"
         },
         {
@@ -12638,6 +12881,7 @@
                 }
             ],
             "description": "Highlight PHP code in terminal",
+            "abandoned": "php-parallel-lint/php-console-highlighter",
             "time": "2018-09-29T18:48:56+00:00"
         },
         {
@@ -20432,7 +20676,14 @@
             "time": "2019-06-13T22:48:21+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "5.0.0-beta10",
+            "alias_normalized": "5.0.0.0-beta10",
+            "version": "dev-5.x",
+            "package": "drupal/linkit"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "drupal/layout_builder_styles": 10,
@@ -20446,6 +20697,7 @@
         "drupal/taxonomy_manager": 15,
         "drupal/administerusersbyrole": 10,
         "drupal/bulk_update_fields": 15,
+        "drupal/linkit": 20,
         "drupal/smtp": 10,
         "phpmd/phpmd": 0
     },

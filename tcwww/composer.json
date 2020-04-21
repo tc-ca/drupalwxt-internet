@@ -205,7 +205,9 @@
         "drupal/linkit": "dev-5.x#4a5834c as 5.0.0-beta10",
         "drupal/smtp": "^1.0@beta",
         "drupal/administration_language_negotiation": "^1.8",
-        "drupal/prepopulate": "^2.2"
+        "drupal/prepopulate": "^2.2",
+        "drupal/purge": "^3.0",
+        "drupal/varnish_purge": "^1.12"
     },
     "replace": {
     },

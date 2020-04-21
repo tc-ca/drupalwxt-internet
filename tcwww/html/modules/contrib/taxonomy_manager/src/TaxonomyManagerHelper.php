@@ -3,6 +3,7 @@
 namespace Drupal\taxonomy_manager;
 
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\language\Entity\ContentLanguageSettings;
 
 /**
  * Class for taxonomy manager helper.
@@ -46,7 +47,7 @@ class TaxonomyManagerHelper {
   public static function massAddTerms($input, $vid, $parents, array &$term_names_too_long = []) {
     $new_terms = [];
     $terms = explode("\n", str_replace("\r", '', $input));
-    $parents = count($parents) ? $parents : 0;
+    $parents = !empty($parents) ? $parents : 0;
 
     // Stores the current lineage of newly inserted terms.
     $last_parents = [];
@@ -80,13 +81,33 @@ class TaxonomyManagerHelper {
 
       $filter_formats = filter_formats();
       $format = array_pop($filter_formats);
+
+      // need to get language config
+      $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_term', 'topics');
+      $lang_setting = $language_configuration->getDefaultLangcode();
+
+      if ($lang_setting == 'site_default') {
+        $langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+      }
+      elseif ($lang_setting == 'current_interface') {
+        $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+      }
+      elseif ($lang_setting == 'authors_default') {
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+      }
+      elseif ($lang_setting == 'und' || $lang_setting == 'zxx' ) {
+        $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
+      }
+      else {
+        $langcode = $lang_setting; // fixed value set like 'en'
+      }
+
       $values = [
         'name' => $name,
         // @todo do we need to set a format?
         'format' => $format->id(),
         'vid' => $vid,
-        // @todo default language per vocabulary setting?
-        'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+        'langcode' => $lang_code,
       ];
       if (!empty($current_parents)) {
         foreach ($current_parents as $p) {

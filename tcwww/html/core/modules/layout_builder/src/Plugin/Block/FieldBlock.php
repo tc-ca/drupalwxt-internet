@@ -271,43 +271,6 @@ class FieldBlock extends BlockBase implements ContextAwarePluginInterface, Conta
       '#suffix' => '</div>',
     ];
 
-    $form['multivalue_wrapper'] = [
-      '#type' => 'container',
-      '#access' => FALSE,
-      'display_items' => [
-        '#title' => $this->t('Multiple items options'),
-        '#type' => 'radios',
-        '#options' => [
-          'display_all' => $this->t('Display all items'),
-          'display_some' => $this->t('Display a specified number of items'),
-        ],
-        '#default_value' => isset($config['display_items']) ? $config['display_items'] : 'display_all',
-      ],
-      'items_to_display' => [
-        '#title' => $this->t('Items to display'),
-        '#type' => 'textfield',
-        '#default_value' => isset($config['items_to_display']) ? $config['items_to_display'] : 0,
-        '#description' => $this->t('Enter 0 for no limit'),
-        '#states' => [
-          'invisible' => [
-            ':input[name="settings[multivalue_wrapper][display_items]"]' => ['value' => 'display_all'],
-          ],
-        ],
-      ],
-      'offset' => [
-        '#title' => $this->t('Offset (number of items to skip)'),
-        '#type' => 'number',
-        '#default_value' => isset($config['offset']) ? $config['offset'] : 0,
-        '#description' => $this->t('For example, set this to 3 and the first 3 items will not be displayed.'),
-        '#states' => [
-          'invisible' => [
-            ':input[name="settings[multivalue_wrapper][display_items]"]' => ['value' => 'display_all'],
-          ],
-        ],
-      ],
-
-    ];
-
     return $form;
   }
 
@@ -373,21 +336,6 @@ class FieldBlock extends BlockBase implements ContextAwarePluginInterface, Conta
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['formatter'] = $form_state->getValue('formatter');
-
-    // Only layout overrides have access to multivalue_wrapper, so this
-    // prevents multi-value config from being saved to layout defaults.
-    if (!empty($form['settings']['multivalue_wrapper']['#access'])) {
-      $multivalue_fields = [
-        'display_items' => ['multivalue_wrapper', 'display_items'],
-        'items_to_display' => ['multivalue_wrapper', 'items_to_display'],
-        'offset' => ['multivalue_wrapper', 'offset'],
-      ];
-      foreach ($multivalue_fields as $config_key => $form_field) {
-        if ($form_state->hasValue($form_field)) {
-          $this->configuration[$config_key] = $form_state->getValue($form_field);
-        }
-      }
-    }
   }
 
   /**
@@ -402,16 +350,6 @@ class FieldBlock extends BlockBase implements ContextAwarePluginInterface, Conta
       $this->fieldDefinition = $field_definitions[$this->fieldName];
     }
     return $this->fieldDefinition;
-  }
-
-  /**
-   * Returns the field name the block is based on.
-   *
-   * @return string
-   *   The field name.
-   */
-  public function getFieldName() {
-    return $this->fieldDefinition->getName();
   }
 
   /**

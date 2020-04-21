@@ -5,16 +5,16 @@ Patches applied to this directory:
 Source: https://www.drupal.org/files/issues/2020-01-09/2652000-84.patch
 
 
-3029830 - Provide single field values from multivalue fields as layout builder-friendly blocks
-Source: https://www.drupal.org/files/issues/2019-06-20/3029830-19.patch
-
-
 3045171 - Form blocks rendered inside layout builder break save
 Source: https://www.drupal.org/files/issues/2020-02-04/layout-builder-save-issue-3045171-140.patch
 
 
 2885278 - Node local tasks tabs do not appear on node revisions
 Source: https://www.drupal.org/files/issues/2019-11-12/drupal-node_revision_local_tasks_canonical-2885278-15.patch
+
+
+2845144 - User cannot reference unpublished content
+Source: https://www.drupal.org/files/issues/2019-03-26/user_cant_reference_unpublished_content-2845144-24.patch
 
 
 3001188 - Make it possible to add relationships to layout builder
