@@ -48,8 +48,7 @@ DAEMON_OPTS="-a :80 \
              -T localhost:6082 \
              -f /etc/varnish/default.vcl \
              -S /etc/varnish/secret \
-             -s malloc,1G"
-
+             -s file,/home/varnish.dat,1G"
 
 ## Alternative 3, Advanced configuration
 #
