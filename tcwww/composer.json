@@ -207,7 +207,9 @@
         "drupal/administration_language_negotiation": "^1.8",
         "drupal/prepopulate": "^2.2",
         "drupal/purge": "^3.0",
-        "drupal/varnish_purge": "^1.12"
+        "drupal/varnish_purge": "^1.12",
+        "drupal/views_bulk_operations": "^3.6",
+        "drupal/convert_bundles": "^1.0@alpha"
     },
     "replace": {
     },
