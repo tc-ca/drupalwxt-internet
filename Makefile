@@ -1,24 +1,16 @@
-tag:
-	docker tag drupalwxt-internet nprdcacnwwwdevacr.azurecr.io/drupalwxt-internet
-	docker tag drupalwxt-internet nprdcacnwwwaccacr.azurecr.io/drupalwxt-internet
-	docker tag drupalwxt-internet prodcacnwwwacr.azurecr.io/drupalwxt-internet
-
-login:
+push_dev:
 	az acr login --name nprdcacnwwwdevacr
-
-login_acc:
-	az acr login --name nprdcacnwwwaccacr
-
-login_prod:
-	az acr login --name prodcacnwwwacr
-
-push:
+	docker tag drupalwxt-internet nprdcacnwwwdevacr.azurecr.io/drupalwxt-internet
 	docker push nprdcacnwwwdevacr.azurecr.io/drupalwxt-internet:latest
 
 push_acc:
+	az acr login --name nprdcacnwwwaccacr
+	docker tag drupalwxt-internet nprdcacnwwwaccacr.azurecr.io/drupalwxt-internet
 	docker push nprdcacnwwwaccacr.azurecr.io/drupalwxt-internet:latest
 
 push_prod:
+	az acr login --name prodcacnwwwacr
+	docker tag drupalwxt-internet prodcacnwwwacr.azurecr.io/drupalwxt-internet
 	docker push prodcacnwwwacr.azurecr.io/drupalwxt-internet:latest
 
 bash:
