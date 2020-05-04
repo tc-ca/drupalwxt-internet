@@ -209,7 +209,8 @@
         "drupal/purge": "^3.0",
         "drupal/varnish_purge": "^1.12",
         "drupal/views_bulk_operations": "^3.6",
-        "drupal/convert_bundles": "^1.0@alpha"
+        "drupal/convert_bundles": "^1.0@alpha",
+        "drupal/views_data_export": "^1.0@RC"
     },
     "replace": {
     },
