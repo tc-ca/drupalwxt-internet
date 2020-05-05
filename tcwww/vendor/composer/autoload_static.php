@@ -146,6 +146,7 @@ class ComposerStaticInit9bae570e91ee55af0d5ce929cd895527
         array (
             'League\\OAuth2\\Server\\' => 21,
             'League\\Event\\' => 13,
+            'League\\Csv\\' => 11,
             'League\\Container\\' => 17,
             'Lcobucci\\JWT\\' => 13,
         ),
@@ -511,6 +512,10 @@ class ComposerStaticInit9bae570e91ee55af0d5ce929cd895527
         'League\\Event\\' => 
         array (
             0 => __DIR__ . '/..' . '/league/event/src',
+        ),
+        'League\\Csv\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/csv/src',
         ),
         'League\\Container\\' => 
         array (

@@ -208,6 +208,7 @@
         "drupal/prepopulate": "^2.2",
         "drupal/views_bulk_operations": "^3.6",
         "drupal/convert_bundles": "^1.0@alpha",
+        "drupal/views_data_export": "^1.0@RC",
         "drupal/cdn": "^3.5",
         "drupal/redis": "^1.4"
     },
