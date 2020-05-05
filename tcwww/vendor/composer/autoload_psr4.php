@@ -92,6 +92,7 @@ return array(
     'Drush\\Internal\\' => array($vendorDir . '/drush/drush/src/internal-forks'),
     'Drush\\' => array($vendorDir . '/drush/drush/src'),
     'Drupal\\wxt\\' => array($baseDir . '/html/profiles/wxt/src'),
+    'Drupal\\redis\\' => array($baseDir . '/html/modules/contrib/redis/src'),
     'Drupal\\Tests\\lightning_workflow\\' => array($baseDir . '/html/modules/contrib/lightning_workflow/tests/src'),
     'Drupal\\Tests\\lightning_media\\' => array($baseDir . '/html/modules/contrib/lightning_media/tests/src'),
     'Drupal\\Tests\\lightning_layout\\' => array($baseDir . '/html/modules/contrib/lightning_layout/tests/src'),

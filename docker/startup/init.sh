@@ -34,6 +34,5 @@ if ! [ -L $config_link ]; then
 fi
 
 service ssh start
-/usr/sbin/varnishd -a :80 -f /etc/varnish/default.vcl -s malloc,5G
 
 exec apache2ctl -DFOREGROUND "$@"

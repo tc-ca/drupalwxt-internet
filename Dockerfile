@@ -9,13 +9,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         nano \
         vim \
         openssh-server \
-        varnish \
     && docker-php-ext-configure \
         gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
         gd \
         opcache \
         pdo_pgsql \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && a2enmod \
         rewrite \
     && echo "root:Docker!" | chpasswd
@@ -25,9 +26,6 @@ COPY ./docker/apache2/ports.conf /etc/apache2/
 COPY ./docker/php/php.ini /usr/local/etc/php/
 COPY ./docker/ssh/sshd_config /etc/ssh/
 COPY ./docker/startup/init.sh /usr/local/bin/
-COPY ./docker/varnish/default.vcl /etc/varnish/
-COPY ./docker/varnish/varnish /etc/default/
-COPY ./docker/varnish/varnish.service /lib/systemd/system/
 
 RUN chmod +x /usr/local/bin/init.sh
 
