@@ -131,6 +131,7 @@ class ComposerStaticInit9bae570e91ee55af0d5ce929cd895527
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
             'Prophecy\\' => 9,
+            'Predis\\' => 7,
             'PhpParser\\' => 10,
         ),
         'O' => 
@@ -488,6 +489,10 @@ class ComposerStaticInit9bae570e91ee55af0d5ce929cd895527
         'Prophecy\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpspec/prophecy/src/Prophecy',
+        ),
+        'Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/predis/predis/src',
         ),
         'PhpParser\\' => 
         array (

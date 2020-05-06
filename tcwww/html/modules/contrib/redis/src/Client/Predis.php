@@ -2,6 +2,7 @@
 
 namespace Drupal\redis\Client;
 
+use Drupal\redis\ClientFactory;
 use Drupal\redis\ClientInterface;
 use Predis\Client;
 
@@ -11,12 +12,14 @@ use Predis\Client;
  */
 class Predis implements ClientInterface {
 
-  public function getClient($host = NULL, $port = NULL, $base = NULL, $password = NULL, $replicationHosts = NULL) {
+  public function getClient($host = NULL, $port = NULL, $base = NULL, $password = NULL, $scheme = NULL, $persistent = NULL, $replicationHosts = NULL) {
     $connectionInfo = [
       'password' => $password,
       'host'     => $host,
       'port'     => $port,
-      'database' => $base
+      'database' => $base,
+      'scheme'   => $scheme,
+      'persistent' => $persistent
     ];
 
     foreach ($connectionInfo as $key => $value) {
@@ -33,15 +36,19 @@ class Predis implements ClientInterface {
 
     // If we are passed in an array of $replicationHosts, we should attempt a clustered client connection.
     if ($replicationHosts !== NULL) {
+      $persistent_value = isset($connectionInfo['persistent']) ? 'persistent='. $connectionInfo['persistent'].'&' : '?';
       $parameters = [];
 
       foreach ($replicationHosts as $replicationHost) {
+        if (!isset($replicationHost['scheme']) || empty($replicationHost['scheme'])) {
+          $replicationHost['scheme'] = ClientFactory::REDIS_DEFAULT_SCHEME;
+        }
         // Configure master.
         if ($replicationHost['role'] === 'primary') {
-          $parameters[] = 'tcp://' . $replicationHost['host'] . ':' . $replicationHost['port'] . '?alias=master';
+          $parameters[] = $replicationHost['scheme'] . '://' . $replicationHost['host'] . ':' . $replicationHost['port'] . $persistent_value .'alias=master';
         }
         else {
-          $parameters[] = 'tcp://' . $replicationHost['host'] . ':' . $replicationHost['port'];
+          $parameters[] = $replicationHost['scheme'] . '://' . $replicationHost['host'] . ':' . $replicationHost['port'] . $persistent_value;
         }
       }
 

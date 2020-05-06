@@ -18,6 +18,11 @@ class ClientFactory {
   const REDIS_DEFAULT_PORT = 6379;
 
   /**
+   * Redis default persistant
+   */
+  const REDIS_DEFAULT_PERSISTENT = FALSE;
+
+  /**
    * Redis default database: will select none (Database 0).
    */
   const REDIS_DEFAULT_BASE = NULL;
@@ -26,6 +31,11 @@ class ClientFactory {
    * Redis default password: will not authenticate.
    */
   const REDIS_DEFAULT_PASSWORD = NULL;
+
+  /**
+   * Redis default scheme: will not authenticate.
+   */
+  const REDIS_DEFAULT_SCHEME = 'tcp';
 
   /**
    * Cache implementation namespace.
@@ -150,6 +160,7 @@ class ClientFactory {
         'port' => self::REDIS_DEFAULT_PORT,
         'base' => self::REDIS_DEFAULT_BASE,
         'password' => self::REDIS_DEFAULT_PASSWORD,
+        'scheme' => self::REDIS_DEFAULT_SCHEME,
       ];
 
       // If using replication, lets create the client appropriately.
@@ -165,6 +176,8 @@ class ClientFactory {
           $settings['port'],
           $settings['base'],
           $settings['password'],
+          $settings['scheme'],
+          $settings['persistent'],
           $settings['replication.host']);
       }
       else {
@@ -172,7 +185,9 @@ class ClientFactory {
           $settings['host'],
           $settings['port'],
           $settings['base'],
-          $settings['password']);
+          $settings['password'],
+          $settings['scheme'],
+          $settings['persistent']);
       }
     }
 

@@ -14,10 +14,11 @@ services:
       - POSTGRES_USERNAME=postgres
       - POSTGRES_PASSWORD=WxT
       - POSTGRES_HOST=localhost
-      - REDIS_HOST=localhost
-      - REDIS_PORT=6379
-      - REDIS_ACCESS_KEY=IrDVcY01K7nQ4agWhCsWOhlifKGMFasertYS7KLmiDg=
-      - REDIS_ENABLED=true
+      #- REDIS_SCHEME=tcp
+      #- REDIS_HOST=localhost
+      #- REDIS_PORT=6379
+      #- REDIS_ACCESS_KEY=test
+      #- REDIS_ENABLED=true
     volumes:
       - ./docker/apache2/sites-available/vhost.conf:/etc/apache2/sites-available/000-default.conf
       - ./docker/php/php.ini:/usr/local/etc/php/php.ini
@@ -27,11 +28,11 @@ services:
   pgsql:
     image: postgres:11.6
     ports:
-    - "5432:5432"
+      - "5432:5432"
     environment:
-    - POSTGRES_PASSWORD=WxT
+      - POSTGRES_PASSWORD=WxT
     volumes:
-    - pgdatawxt:/var/lib/postgresql/data
+      - pgdatawxt:/var/lib/postgresql/data
   redis:
     image: redis:4.0.14
     ports:

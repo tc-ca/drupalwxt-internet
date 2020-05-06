@@ -244,8 +244,9 @@ if (extension_loaded('redis') && filter_var(getenv('REDIS_ENABLED'), FILTER_VALI
 
   // Set Redis as the default backend for any cache bin not otherwise specified.
   // $settings['cache']['default'] = 'cache.backend.redis';
-  $settings['redis.connection']['interface'] = 'PhpRedis'; // Can be "Predis".
-  $settings['redis.connection']['host'] = getenv('REDIS_HOST');  // Your Redis instance hostname.
+  $settings['redis.connection']['interface'] = 'Predis'; // Can be "Predis".
+  $settings['redis.connection']['scheme'] = getenv('REDIS_SCHEME');
+  $settings['redis.connection']['host'] = getenv('REDIS_HOST');
   $settings['redis.connection']['port'] = getenv('REDIS_PORT');
   $settings['redis.connection']['password'] = getenv('REDIS_ACCESS_KEY');
 

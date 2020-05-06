@@ -35,3 +35,15 @@ $settings['redis.connection']['replication.host'][3]['host'] = '1.2.3.6';
 $settings['redis.connection']['replication.host'][3]['port'] = '6379';
 $settings['redis.connection']['replication.host'][3]['role'] = 'replica';
 $settings['cache']['default'] = 'cache.backend.redis';
+
+Configuration of module for use over SSL/TLS
+----------------------------
+By default Redis will opperate over tcp. Predis, however, supports connections over tls. This can be enabled be setting the scheme like this:
+
+$settings['redis.connection']['scheme'] = 'tls'; // Use redis over TLS.
+
+Configuration of module to use Predis with persistent connection
+---------------------------------------------------------
+By defaults Predis have false the persistent connection, to use a persistent connection add this in the setting.php
+
+$settings ['redis.connection'] ['persistent'] = 1;

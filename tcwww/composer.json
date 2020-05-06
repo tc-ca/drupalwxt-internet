@@ -146,8 +146,11 @@
             "drupal/linkit": {
                 "2895153 - Linkit filter should honour the URL query and fragment":
                 "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
+            },
+            "drupal/redis": {
+                "3004561 - Enable ssl scheme":
+                "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
             }
-
         },
          "patches-ignore": {
             "drupal/lightning_core": {
@@ -210,7 +213,8 @@
         "drupal/convert_bundles": "^1.0@alpha",
         "drupal/views_data_export": "^1.0@RC",
         "drupal/cdn": "^3.5",
-        "drupal/redis": "^1.4"
+        "drupal/redis": "^1.4",
+        "predis/predis": "^1.1"
     },
     "replace": {
     },
