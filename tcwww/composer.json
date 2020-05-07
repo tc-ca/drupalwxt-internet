@@ -214,7 +214,8 @@
         "drupal/views_data_export": "^1.0@RC",
         "drupal/cdn": "^3.5",
         "drupal/redis": "^1.4",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "drupal/editor_advanced_link": "^1.8"
     },
     "replace": {
     },
