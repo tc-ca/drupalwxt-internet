@@ -16,6 +16,12 @@ p.gc-byline{
     margin-bottom: 25px;
 }
 
+
+//Fix search box text
+.select-wrapper select {
+    line-height: 0.5;
+}
+
 .field--name-field-inst-featured-link > a{
     border: 1px solid transparent;
     border-style: outset;
