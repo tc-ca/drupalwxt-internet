@@ -1,0 +1,93 @@
+<div class="ip-cover-img">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <h1 property="name" id="wb-cont">{{ node.title.value }}</h1>
+        {{ node.field_introduction.value|raw }}
+        {% if not node.field_inst_super_task.isempty %}
+          {% if node.field_inst_super_task.0.url.external %}
+            <a class="btn btn-call-to-action ip-btn" href="{{ node.field_inst_super_task.uri }}">{{ node.field_inst_super_task.title }}</a>
+          {% else %}
+            <a class="btn btn-call-to-action ip-btn" href="{{ path(node.field_inst_super_task.0.url.routeName, node.field_inst_super_task.0.url.routeParameters) }}">
+              {{ node.field_inst_super_task.title }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</div>
+<section class="featured opct-90">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h2 class="wb-inv">Featured</h2>
+        {% if not node.field_inst_featured_link.isempty %}
+          {% if node.field_inst_featured_link.0.url.external %}
+            <a class="h5" href="{{ node.field_inst_featured_link.uri }}">{{ node.field_inst_featured_link.title }}</a>
+          {% else %}
+            <a class="h5" href="{{ path(node.field_inst_featured_link.0.url.routeName, node.field_inst_featured_link.0.url.routeParameters) }}">
+              {{ node.field_inst_featured_link.title }}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+<section class="most-requested well well-sm brdr-0">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h2 class="mrgn-tp-md">Most requested</h2>
+        {{ node.field_inst_mostreq.value|raw }}
+      </div>
+    </div>
+  </div>
+</section>
+<section class="gc-srvinfo mrgn-bttm-lg">
+  <div class="container">
+    <div class="row">
+      <h2 class="wb-inv">Services and information</h2>
+      <div class="wb-eqht">
+        {{ node.body.value|raw }}
+      </div>
+    </div>
+  </div>
+</section>
+<div class="most-requested well well-sm brdr-0">
+  <div class="container">
+    <div class="row">
+      <div class="wb-eqht">
+        <h2 class="col-lg-3 h3">Contact us</h2>
+        <span class="clearfix"></span>
+        {{ node.field_inst_contact.value|raw }}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <section class="col-md-4 wb-feeds limit-3 gc-nws">
+      <h2 class="h3">News</h2>
+      {{ drupal_block('op_news_block', {source_url_en: 'https://www.canada.ca/content/canadasite/api/nws/fds/en/web-feeds/transport-canada-tag.json', source_url_fr: 'https://www.canada.ca/content/canadasite/api/nws/fds/fr/fils-nouvelles/transports-canada-tag.json', max_items: '3'}) }}
+    </section>
+    <section class="col-md-8 gc-prtts">
+      <h2 class="h3">Features</h2>
+      <div class="row wb-eqht">
+        <div class="col-md-6 mrgn-bttm-md">
+          <a class="hght-inhrt" href="#">
+            <section class="well well-sm brdr-rds-0 hght-inhrt">
+              {{ drupal_entity('block_content', node.field_inst_featured1.0.target_id) }}
+            </section>
+          </a>
+        </div>
+        <div class="col-md-6 mrgn-bttm-md">
+          <a class="hght-inhrt" href="https://www.canada.ca/en/revenue-agency/campaigns/my-benefits-credits.html">
+            <section class="well well-sm brdr-rds-0 hght-inhrt">
+              {{ drupal_entity('block_content', node.field_inst_featured1.1.target_id) }}
+            </section>
+          </a>
+        </div>
+      </div>
