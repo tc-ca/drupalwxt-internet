@@ -1,0 +1,11 @@
+name: Element Class Formatter
+type: module
+description: A field formatter which adds classes to various field elements.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Fields
+
+# Information added by Drupal.org packaging script on 2020-04-15
+version: '8.x-1.1'
+project: 'element_class_formatter'
+datestamp: 1586993858
