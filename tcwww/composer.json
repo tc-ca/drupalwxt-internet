@@ -215,7 +215,9 @@
         "drupal/cdn": "^3.5",
         "drupal/redis": "^1.4",
         "predis/predis": "^1.1",
-        "drupal/editor_advanced_link": "^1.8"
+        "drupal/editor_advanced_link": "^1.8",
+        "drupal/twig_tweak": "^2.5",
+        "drupal/list_formatter": "2.x-dev"
     },
     "replace": {
     },
