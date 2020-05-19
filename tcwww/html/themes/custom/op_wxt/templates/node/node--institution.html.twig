@@ -18,24 +18,24 @@
     </div>
   </div>
 </div>
-<section class="featured opct-90">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-12">
-        <h2 class="wb-inv">{{ "Featured"|t }}</h2>
-        {% if not node.field_inst_featured_link.isempty %}
-          {% if node.field_inst_featured_link.0.url.external %}
-            <a class="h5" href="{{ node.field_inst_featured_link.uri }}">{{ node.field_inst_featured_link.title }}</a>
-          {% else %}
-            <a class="h5" href="{{ path(node.field_inst_featured_link.0.url.routeName, node.field_inst_featured_link.0.url.routeParameters) }}">
-              {{ node.field_inst_featured_link.title }}
-            </a>
-          {% endif %}
-        {% endif %}
+{% if not node.field_inst_featured_link.isempty %}
+  <section class="featured opct-90">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h2 class="wb-inv">{{ "Featured"|t }}</h2>
+            {% if node.field_inst_featured_link.0.url.external %}
+              <a class="h5" href="{{ node.field_inst_featured_link.uri }}">{{ node.field_inst_featured_link.title }}</a>
+            {% else %}
+              <a class="h5" href="{{ path(node.field_inst_featured_link.0.url.routeName, node.field_inst_featured_link.0.url.routeParameters) }}">
+                {{ node.field_inst_featured_link.title }}
+              </a>
+            {% endif %}
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+{% endif %}
 <section class="most-requested well well-sm brdr-0">
   <div class="container">
     <div class="row">
