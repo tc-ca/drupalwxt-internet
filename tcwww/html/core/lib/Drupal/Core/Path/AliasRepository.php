@@ -51,7 +51,7 @@ class AliasRepository implements AliasRepositoryInterface {
     if (!empty($preloaded)) {
       $conditions = new Condition('OR');
       foreach ($preloaded as $preloaded_item) {
-        $conditions->condition('base_table.path', $this->connection->escapeLike($preloaded_item), 'LIKE');
+        $conditions->condition('base_table.path', mb_strtolower($preloaded_item), '=');
       }
       $select->condition($conditions);
     }
@@ -73,7 +73,7 @@ class AliasRepository implements AliasRepositoryInterface {
     // See the queries above. Use LIKE for case-insensitive matching.
     $select = $this->getBaseQuery()
       ->fields('base_table', ['id', 'path', 'alias', 'langcode'])
-      ->condition('base_table.path', $this->connection->escapeLike($path), 'LIKE');
+      ->condition('base_table.path', mb_strtolower($path), '=');
 
     $this->addLanguageFallback($select, $langcode);
 

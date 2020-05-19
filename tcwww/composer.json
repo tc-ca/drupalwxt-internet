@@ -108,6 +108,8 @@
                 "https://patch-diff.githubusercontent.com/raw/deployphp/recipes/pull/80.patch"
             },
             "drupal/core": {
+                "2988018 - Performance issues with path alias generated queries on PostgreSQL":
+                "https://www.drupal.org/files/issues/2020-01-03/pathalias_postgres_ilike_performance.patch",
                 "2652000 Views do not add the active class anymore":
                 "https://www.drupal.org/files/issues/2020-01-09/2652000-84.patch",
                 "3045171 - Form blocks rendered inside layout builder break save":
