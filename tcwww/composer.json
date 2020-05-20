@@ -220,7 +220,8 @@
         "drupal/editor_advanced_link": "^1.8",
         "drupal/twig_tweak": "^2.5",
         "drupal/list_formatter": "2.x-dev",
-        "drupal/element_class_formatter": "^1.1"
+        "drupal/element_class_formatter": "^1.1",
+        "drupal/views_bulk_edit": "^2.4"
     },
     "replace": {
     },
