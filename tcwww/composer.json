@@ -149,6 +149,10 @@
                 "2895153 - Linkit filter should honour the URL query and fragment":
                 "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
             },
+            "drupal/library_manager": {
+                "3138547 - Add dependency form fails with google_tag":
+                "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch"
+            },
             "drupal/redis": {
                 "3004561 - Enable ssl scheme":
                 "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
@@ -221,7 +225,8 @@
         "drupal/twig_tweak": "^2.5",
         "drupal/list_formatter": "2.x-dev",
         "drupal/element_class_formatter": "^1.1",
-        "drupal/views_bulk_edit": "^2.4"
+        "drupal/views_bulk_edit": "^2.4",
+        "drupal/library_manager": "^1.0"
     },
     "replace": {
     },
