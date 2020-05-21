@@ -1,4 +1,4 @@
-FROM php:7.3.0-apache
+FROM php:7.2.31-apache
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
         libfreetype6-dev \
