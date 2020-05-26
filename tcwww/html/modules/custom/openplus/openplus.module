@@ -219,3 +219,15 @@ function openplus_tokens($type, $tokens, array $data, array $options, Bubbleable
   return $replacements;
 }
 
+function openplus_entity_embed_alter(&$build, $entity, &$context) {
+  // This is a workaround to a problem where manually added classes to embedded entities are supposed
+  // to inherit any classes added to the drupal-entity object.
+  // This code will pass classes to img tag
+  if (isset($build['#attributes']['class']) && count($build['#attributes']['class']) > 1) {
+    $classes = $build['#attributes']['class'];
+    if (($key = array_search('embedded-entity', $classes)) !== FALSE) {
+      unset($classes[$key]);
+    }
+    $build['entity']['#item_attributes']['class'] = $classes;
+  }
+}
