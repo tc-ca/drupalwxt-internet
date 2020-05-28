@@ -155,6 +155,10 @@
                 "3143565 - Condition logic issue skips libraries that should be attached":
                 "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
             },
+            "drupal/views_bulk_operations": {
+                "3020922 - Overcome nondeterministic behaviour in mysql ORDER BY":
+                "https://www.drupal.org/files/issues/2019-03-13/vbo-3020922-11.patch"
+            },
             "drupal/redis": {
                 "3004561 - Enable ssl scheme":
                 "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
