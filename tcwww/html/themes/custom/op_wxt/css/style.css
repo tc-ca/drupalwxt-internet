@@ -3,12 +3,7 @@
  * your custom CSS modifications here.
  */
 
-.container-fluid {
-    padding-right: 0px;
-    padding-left: 0px;
-}
-
- /* Fix arrows escaping the select field */
+/* Fix arrows escaping the select field */
 .field--type-webform form .form-type-select label{
     display: block;
 }
