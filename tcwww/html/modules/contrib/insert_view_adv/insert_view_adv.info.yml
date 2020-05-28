@@ -1,0 +1,15 @@
+name: 'Advanced Insert View'
+type: module
+description: 'Input filter which allows to embed views.'
+dependencies:
+  - drupal:views
+  - drupal:editor
+  - drupal:filter
+package: 'Input filters'
+core: 8.x
+core_version_requirement: ^8 || ^9
+
+# Information added by Drupal.org packaging script on 2020-05-22
+version: '8.x-1.0-beta1'
+project: 'insert_view_adv'
+datestamp: 1590137409

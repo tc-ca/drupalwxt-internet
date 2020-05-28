@@ -1,0 +1,6 @@
+drupalviews:
+  version: 1.0
+  js:
+    js/bueditor.drupalviews.js: {}
+  dependencies:
+    - bueditor/drupal.bueditor

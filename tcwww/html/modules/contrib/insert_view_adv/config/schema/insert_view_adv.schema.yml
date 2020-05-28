@@ -1,0 +1,26 @@
+# Schema for the configuration of the Advanced Insert View module.
+
+filter_settings.insert_view_adv:
+  type: filter
+  label: 'Filter to restrict views allowed to be inserted in CKEditor'
+  mapping:
+    allowed_views:
+      type: sequence
+      label: 'Allowed view'
+      sequence:
+        type: string
+        label: 'View machine name'
+    render_as_empty:
+      type: integer
+      label: 'Render view as empty if not allowed'
+    hide_argument_input:
+      type: boolean
+      label: 'Hide Argument Input'
+
+ckeditor.plugin.insert_view_adv:
+  type: mapping
+  label: 'Insert view plugin settings'
+  mapping:
+    enable_live_preview:
+      type: boolean
+      label: 'Enable live preview of the view token'

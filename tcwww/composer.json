@@ -234,7 +234,8 @@
         "drupal/views_bulk_edit": "^2.4",
         "drupal/library_manager": "^1.0",
         "drupal/codemirror_editor": "^1.5",
-        "drupal/content_export_yaml": "^2.9"
+        "drupal/content_export_yaml": "^2.9",
+        "drupal/insert_view_adv": "^1.0@beta"
     },
     "replace": {
     },
