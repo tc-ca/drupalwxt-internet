@@ -1,0 +1,3 @@
+services:
+  content_export_yaml.manager:
+    class: Drupal\content_export_yaml\ManageExport

@@ -1,0 +1,7 @@
+manager_content_export_yaml.manager_content_export_yaml_setting_form:
+  title: 'Manager Content Export YAML'
+  route_name: manager_content_export_yaml.manager_content_export_yaml_setting_form
+  description: 'Manager Content Export Yaml'
+  parent: system.admin_config_system
+  weight: 99
+

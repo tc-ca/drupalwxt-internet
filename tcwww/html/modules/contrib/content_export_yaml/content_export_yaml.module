@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Contains content_export.module.
+ */
+use Drupal\Core\Routing\RouteMatchInterface;
+/**
+ * Implements hook_help().
+ */
+function content_export_yaml_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the content_export module.
+    case 'help.page.content_export_yaml':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Export and Import Content Using YAML file') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+//function content_export_yaml_preprocess_page($var) {
+//  $export = \Drupal::service('content_export_yaml.manager');
+//  /**Default**/
+//  $result  = $export->importBlockAll('basic');    // required param block type
+//  $result  = $export->importNode(1,'article');    // required param id , type
+//  $result  = $export->exportTerm(1);  // required param id
+//  /**Custom Path **/
+//  $options['path'] = '/sites/default/files/export';
+//  $result  = $export->importBlockAll('basic',$options);
+//  $result  = $export->exportTermAll('tags',$options);
+//  $result  = $export->exportNode(1,$options);
+//}

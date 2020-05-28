@@ -1,0 +1,12 @@
+name: 'vbo_content_export_yaml'
+type: module
+description: 'Views Operation Bulk Content Export YAML'
+core: 8.x
+package: 'Content export yaml'
+dependencies:
+  - content_export_yaml
+  - views_bulk_operations
+# Information added by Drupal.org packaging script on 2019-11-06
+version: '8.x-2.9'
+project: 'content_export_yaml'
+datestamp: 1573043300
