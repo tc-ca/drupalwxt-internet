@@ -151,7 +151,9 @@
             },
             "drupal/library_manager": {
                 "3138547 - Add dependency form fails with google_tag":
-                "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch"
+                "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch",
+                "3143565 - Condition logic issue skips libraries that should be attached":
+                "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
             },
             "drupal/redis": {
                 "3004561 - Enable ssl scheme":
