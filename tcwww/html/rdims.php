@@ -1,17 +1,18 @@
 <?php
     
-    $rdims = $_GET["id"];
+    $id = $_GET["id"];
 
-    if($rdims != ''){
+    if(preg_match("/^\d+$/", $id)) {
 
         header('Content-Type: text/plain');
-        header('Content-Disposition: attachment; filename="RDIMS'.$rdims.'.DRF"');
+        header('Content-Disposition: attachment; filename="RDIMS'.$id.'.DRF"');
 
-        echo 'Document;RDIMS;'.$rdims.';R';
+        echo 'Document;RDIMS;'.$id.';R';
         
         exit();
     }
     else {
-        echo 'Empty RDIMS number. / Numéro SGDDI vide.';
+        echo 'Invalid RDIMS number. / Numéro SGDDI invalide.';
     }
+
 ?>
