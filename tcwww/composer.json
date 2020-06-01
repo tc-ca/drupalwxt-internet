@@ -139,7 +139,7 @@
                 "3025793 - Parameter must be an array":
                 "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
                 "2662060 - Created Terms can't be Translated":
-                "https://www.drupal.org/files/issues/2020-01-24/taxonomy_manager-translate_terms-2662060-5.patch"
+                "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
             },
             "drupal/smtp": {
                 "3114989 - SMTP Error Could not authenticate":

@@ -83,7 +83,7 @@ class TaxonomyManagerHelper {
       $format = array_pop($filter_formats);
 
       // need to get language config
-      $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_term', 'topics');
+      $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_term', $vid);
       $lang_setting = $language_configuration->getDefaultLangcode();
 
       if ($lang_setting == 'site_default') {
@@ -107,7 +107,7 @@ class TaxonomyManagerHelper {
         // @todo do we need to set a format?
         'format' => $format->id(),
         'vid' => $vid,
-        'langcode' => $lang_code,
+        'langcode' => $langcode,
       ];
       if (!empty($current_parents)) {
         foreach ($current_parents as $p) {
