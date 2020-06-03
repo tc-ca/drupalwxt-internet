@@ -37,33 +37,48 @@
       </div>
     </section>
   {% endif %}
+  {% set mostreq = {
+    '#type':   'processed_text',
+    '#text':    node.field_inst_mostreq.value,
+    '#format': 'rich_text',
+  } %}
   <section class="most-requested well well-sm brdr-0">
     <div class="container">
       <div class="row">
         <div class="col-sm-12">
           <h2 class="mrgn-tp-md">{{ "Most requested"|t }}</h2>
-          {{ node.field_inst_mostreq.value|raw }}
+          {{ mostreq }}
         </div>
       </div>
     </div>
   </section>
+  {% set svcinfo = {
+    '#type':   'processed_text',
+    '#text':    node.body.value,
+    '#format': 'rich_text',
+  } %}
   <section class="gc-srvinfo mrgn-bttm-lg">
     <div class="container">
       <div class="row">
         <h2 class="wb-inv">{{ "Services and information"|t }}</h2>
         <div class="wb-eqht">
-          {{ node.body.value|raw }}
+          {{ svcinfo }}
         </div>
       </div>
     </div>
   </section>
+  {% set contact = {
+    '#type':   'processed_text',
+    '#text':    node.field_inst_contact.value,
+    '#format': 'rich_text',
+  } %}
   <div class="most-requested well well-sm brdr-0">
     <div class="container">
       <div class="row">
         <div class="wb-eqht">
           <h2 class="col-lg-3 h3">{{ "About Transport Canada"|t }}</h2>
           <span class="clearfix"></span>
-          {{ node.field_inst_contact.value|raw }}
+          {{ contact }}
         </div>
       </div>
     </div>
