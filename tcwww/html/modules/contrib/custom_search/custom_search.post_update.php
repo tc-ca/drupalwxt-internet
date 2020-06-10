@@ -5,7 +5,7 @@
  * Post update functions for Custom Search.
  */
 
-use \Drupal\block\Entity\Block;
+use Drupal\block\Entity\Block;
 
 /**
  * @addtogroup updates-8.x.1.0.beta3-to-8.x.1.0.beta4
@@ -20,10 +20,10 @@ function custom_search_post_update_resave_custom_search_blocks() {
   $block_ids = \Drupal::entityQuery('block')
     ->condition('plugin', 'custom_search')
     ->execute();
-  $blocks = \Drupal::entityManager()
+  $blocks = \Drupal::entityTypeManager()
     ->getStorage('block')
     ->loadMultiple($block_ids);
-  array_walk($blocks, function(Block $block) {
+  array_walk($blocks, function (Block $block) {
     $block->save();
   });
 }

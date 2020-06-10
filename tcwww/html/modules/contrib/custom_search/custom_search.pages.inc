@@ -10,7 +10,7 @@ use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 
-/*
+/**
  * Presents links to filter the search results.
  */
 function custom_search_preprocess_item_list__search_results(&$variables) {
@@ -18,15 +18,15 @@ function custom_search_preprocess_item_list__search_results(&$variables) {
   $page_config = FALSE;
   $path = substr(\Drupal::request()->getPathInfo(), 8);
 
-  // Search for the config of this page
+  // Search for the config of this page.
   foreach ($config as $c) {
     if (isset($c['path']) && $c['path'] == $path) {
       $page_config = $c;
       break;
     }
   }
-  
-  $types = array();
+
+  $types = [];
   foreach ($variables['items'] as $key => $item) {
     // Render results.
     $variables['items'][$key]['value'] = \Drupal::service('renderer')->render($item['value']);
@@ -54,8 +54,8 @@ function custom_search_preprocess_item_list__search_results(&$variables) {
       // Get search arguments.
       $query = \Drupal::request()->server->get('QUERY_STRING');
       $query = explode('&', $query);
-      $keys = array();
-      $filters = array();
+      $keys = [];
+      $filters = [];
       foreach ($query as $key) {
         $key_exploded = explode('=', $key);
         // Exclude current types filters.
@@ -75,25 +75,25 @@ function custom_search_preprocess_item_list__search_results(&$variables) {
       }
       // Build menu.
       $node_types = node_type_get_names();
-      $filter_items = array();
-      $filter_item_url = Url::fromUri('base://search/' . $page_config['path'], array('query' => $keys));
+      $filter_items = [];
+      $filter_item_url = Url::fromUri('base://search/' . $page_config['path'], ['query' => $keys]);
       $filter_items[] = \Drupal::linkGenerator()->generate($page_config['filter']['any'], $filter_item_url);
       foreach ($types as $type => $num_results) {
-        $filter_item_url = Url::fromUri('base://search/' . $page_config['path'], array('query' => array_merge($keys, array('f[' . count($filters) . ']' => 'type:' . $type))));
+        $filter_item_url = Url::fromUri('base://search/' . $page_config['path'], ['query' => array_merge($keys, ['f[' . count($filters) . ']' => 'type:' . $type])]);
         $filter_items[] = \Drupal::linkGenerator()->generate($node_types[$type], $filter_item_url);
       }
       if (count($filter_items) > 1) {
-        $filter_list = array(
+        $filter_list = [
           '#theme'      => 'item_list',
           '#title'      => $page_config['filter']['label'],
           '#items'      => $filter_items,
           '#list_type'  => 'ul',
-          '#attributes' => array(
-            'class' => array(
-              'search-filter'
-            ),
-          ),
-        );
+          '#attributes' => [
+            'class' => [
+              'search-filter',
+            ],
+          ],
+        ];
         $variables['filter'] = \Drupal::service('renderer')->render($filter_list);
       }
     }
@@ -105,10 +105,10 @@ function custom_search_preprocess_item_list__search_results(&$variables) {
  * Implements hook_theme_suggestions_HOOK().
  */
 function custom_search_theme_suggestions_item_list__search_results(array $variables) {
-  return array('item_list__custom_search_results__' . $variables['plugin_id']);
+  return ['item_list__custom_search_results__' . $variables['plugin_id']];
 }
 
-/*
+/**
  * Customisation of the results info.
  */
 function custom_search_preprocess_search_result(&$variables) {
@@ -118,7 +118,7 @@ function custom_search_preprocess_search_result(&$variables) {
   $current_path = \Drupal::request()->getPathInfo();
   $path = substr($current_path, strpos($current_path, 'search/') + 7);
 
-  // Search for the config of this page
+  // Search for the config of this page.
   foreach ($config as $c) {
     if (isset($c['path']) && $c['path'] == $path) {
       $page_config = $c;
@@ -134,7 +134,7 @@ function custom_search_preprocess_search_result(&$variables) {
     $variables['content_attributes']['lang'] = $result['language'];
   }
 
-  $info = array();
+  $info = [];
   if (!empty($result['plugin_id'])) {
     $info['plugin_id'] = $result['plugin_id'];
   }
@@ -149,9 +149,9 @@ function custom_search_preprocess_search_result(&$variables) {
   }
   // Check for existence. User search does not include snippets.
   $variables['snippet'] = isset($result['snippet']) ? $result['snippet'] : '';
-  
+
   if ($page_config) {
-    $info = array();
+    $info = [];
     if (!empty($result['plugin_id'])) {
       $info['plugin_id'] = Html::escape($result['plugin_id']);
     }
@@ -162,7 +162,7 @@ function custom_search_preprocess_search_result(&$variables) {
       $info['user'] = $result['user'];
     }
     if (!empty($result['date']) && in_array('date', $page_config['info'], TRUE)) {
-      $info['date'] = format_date($result['date'], 'short');
+      $info['date'] = \Drupal::service('date.formatter')->format($result['date'], 'short');
     }
     if (isset($result['extra']) && is_array($result['extra'])) {
       $info = array_merge($info, $result['extra']);
@@ -171,16 +171,16 @@ function custom_search_preprocess_search_result(&$variables) {
 
   // Provide separated and grouped meta information..
   $variables['info_split'] = $info;
-  $variables['info'] = array(
+  $variables['info'] = [
     '#type' => 'inline_template',
     '#template' => '{{ info|safe_join(" - ") }}',
-    '#context' => array('info' => $info),
-  );
+    '#context' => ['info' => $info],
+  ];
 }
 
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
 function custom_search_theme_suggestions_search_result(array $variables) {
-  return array('custom_search_result__' . $variables['plugin_id']);
+  return ['custom_search_result__' . $variables['plugin_id']];
 }

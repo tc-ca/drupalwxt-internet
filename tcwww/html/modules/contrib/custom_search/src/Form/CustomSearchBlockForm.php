@@ -49,7 +49,8 @@ class CustomSearchBlockForm extends FormBase {
    */
   protected $entityRepository;
 
-  /**   * Constructs a new SearchBlockForm.
+  /**
+   * Constructs a new SearchBlockForm.
    *
    * @param \Drupal\search\SearchPageRepositoryInterface $search_page_repository
    *   The search page repository.
@@ -99,27 +100,27 @@ class CustomSearchBlockForm extends FormBase {
     $form['#method'] = 'post';
 
     // Popup.
-    $form['popup'] = array(
+    $form['popup'] = [
       '#type'       => 'fieldset',
       '#weight'     => 1 + $config['search_box']['weight'],
-      '#attributes' => array('class' => array('custom_search-popup')),
-    );
+      '#attributes' => ['class' => ['custom_search-popup']],
+    ];
 
     // Search box.
-    $form['keys'] = array(
+    $form['keys'] = [
       '#type'           => 'search',
       '#title'          => Html::escape($config['search_box']['label']),
       '#title_display'  => $config['search_box']['label_visibility'] ? 'before' : 'invisible',
       '#size'           => $config['search_box']['size'],
       '#maxlength'      => $config['search_box']['max_length'],
       '#default_value'  => '',
-      '#placeholder'    => array('title' => Html::escape($config['search_box']['placeholder'])),
-      '#attributes'     => array(
+      '#placeholder'    => ['title' => Html::escape($config['search_box']['placeholder'])],
+      '#attributes'     => [
         'title' => Html::escape($config['search_box']['title']),
-        'class' => array('custom_search-keys'),
-      ),
+        'class' => ['custom_search-keys'],
+      ],
       '#weight'         => $config['search_box']['weight'],
-    );
+    ];
 
     // Content.
     $toptions = [];
@@ -159,23 +160,23 @@ class CustomSearchBlockForm extends FormBase {
       else {
         $multiple = FALSE;
       }
-      $form['types'] = array(
+      $form['types'] = [
         '#type'           => $selector_type,
         '#multiple'       => $multiple,
         '#title'          => Html::escape($config['content']['selector']['label']),
         '#title_display'  => $config['content']['selector']['label_visibility'] ? 'before' : 'invisible',
         '#options'        => $options,
-        '#default_value'  => ($selector_type == 'checkboxes') ? array('c-all') : 'c-all',
-        '#attributes'     => array('class' => array('custom-search-selector', 'custom-search-types')),
+        '#default_value'  => ($selector_type == 'checkboxes') ? ['c-all'] : 'c-all',
+        '#attributes'     => ['class' => ['custom-search-selector', 'custom-search-types']],
         '#weight'         => $config['content']['weight'],
         '#validated'      => TRUE,
-      );
+      ];
       // If there's only one type, hide the selector.
       if (count($others) + count($types) == 1 && !$config['content']['any']['force']) {
         $form['custom_search_types']['#type'] = 'hidden';
         $form['custom_search_types']['#default_value'] = key(array_slice($options, count($options) - 1));
       }
-      else if ($config['content']['region'] == 'popup') {
+      elseif ($config['content']['region'] == 'popup') {
         $form['popup']['types'] = $form['types'];
         unset($form['types']);
       }
@@ -185,48 +186,49 @@ class CustomSearchBlockForm extends FormBase {
     // Taxonomy.
     $vocabularies = $this->entityTypeManager->getStorage('taxonomy_vocabulary')->loadMultiple();
     if (count($config['taxonomy']) > 0) {
-      $taxonomy_term_storage = \Drupal::entityManager()->getStorage('taxonomy_term');
+      $taxonomy_term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
 
       foreach ($vocabularies as $voc) {
         $vid = $voc->id();
-        if ($config['taxonomy'][$vid]['type'] != 'disabled') {
-          $options = array();
-          $options['c-all'] = $config['taxonomy'][$vid]['all_text'];
-          $vocabulary_depth = (!$config['taxonomy'][$vid]['depth']) ? NULL : $config['taxonomy'][$vid]['depth'];
-          $terms = $taxonomy_term_storage->loadTree($vid, 0, $vocabulary_depth, TRUE);
-          foreach ($terms as $term) {
-            $termName = Html::escape($this->entityRepository->getTranslationFromContext($term)->label());
-            $options['c-' . $term->id()] = (Unicode::substr($config['taxonomy'][$vid]['type'], 0, 6) == 'select') ? str_repeat('-', $term->depth) . ' ' . $termName : $termName;
-          }
-          $selector_type = $config['taxonomy'][$vid]['type'];
-          if ($selector_type == 'selectmultiple') {
-            $selector_type = 'select';
-            $multiple = TRUE;
-          }
-          else {
-            $multiple = FALSE;
-          }
-          $form['vocabulary_' . $vid] = array(
-            '#type'           => $selector_type,
-            '#multiple'       => $multiple,
-            '#title'          => Html::escape($config['taxonomy'][$vid]['label']),
-            '#title_display'  => $config['taxonomy'][$vid]['label_visibility'] ? 'before' : 'invisible',
-            '#options'        => $options,
-            '#default_value'  => ($selector_type == 'checkboxes') ? array('c-all') : 'c-all',
-            '#attributes'     => array('class' => array('custom-search-selector', 'custom-search-vocabulary')),
-            '#weight'         => $config['taxonomy'][$vid]['weight'],
-          );
+        if (empty($config['taxonomy'][$vid]['type']) || $config['taxonomy'][$vid]['type'] == 'disabled') {
+          continue;
+        }
+        $options = [];
+        $options['c-all'] = $config['taxonomy'][$vid]['all_text'];
+        $vocabulary_depth = (!$config['taxonomy'][$vid]['depth']) ? NULL : $config['taxonomy'][$vid]['depth'];
+        $terms = $taxonomy_term_storage->loadTree($vid, 0, $vocabulary_depth, TRUE);
+        foreach ($terms as $term) {
+          $termName = Html::escape($this->entityRepository->getTranslationFromContext($term)->label());
+          $options['c-' . $term->id()] = (Unicode::mb_substr($config['taxonomy'][$vid]['type'], 0, 6) == 'select') ? str_repeat('-', $term->depth) . ' ' . $termName : $termName;
+        }
+        $selector_type = $config['taxonomy'][$vid]['type'];
+        if ($selector_type == 'selectmultiple') {
+          $selector_type = 'select';
+          $multiple = TRUE;
+        }
+        else {
+          $multiple = FALSE;
+        }
+        $form['vocabulary_' . $vid] = [
+          '#type'           => $selector_type,
+          '#multiple'       => $multiple,
+          '#title'          => Html::escape($config['taxonomy'][$vid]['label']),
+          '#title_display'  => $config['taxonomy'][$vid]['label_visibility'] ? 'before' : 'invisible',
+          '#options'        => $options,
+          '#default_value'  => ($selector_type == 'checkboxes') ? ['c-all'] : 'c-all',
+          '#attributes'     => ['class' => ['custom-search-selector', 'custom-search-vocabulary']],
+          '#weight'         => $config['taxonomy'][$vid]['weight'],
+        ];
 
-          if ($config['taxonomy'][$vid]['region'] == 'popup') {
-            $form['popup']['vocabulary_' . $vid] = $form['vocabulary_' . $vid];
-            unset($form['vocabulary_' . $vid]);
-          }
+        if ($config['taxonomy'][$vid]['region'] == 'popup') {
+          $form['popup']['vocabulary_' . $vid] = $form['vocabulary_' . $vid];
+          unset($form['vocabulary_' . $vid]);
         }
       }
     }
 
     // Languages.
-    $options = array();
+    $options = [];
     $languages = array_keys(array_filter($config['languages']['languages']));
     if (count($languages)) {
       if (count($languages) > 1 || $config['languages']['any']['force']) {
@@ -237,14 +239,17 @@ class CustomSearchBlockForm extends FormBase {
       foreach ($languages as $language) {
         switch ($language) {
           case 'current':
-            $options['c-' . $language] = t('- Current language (@current) -', array('@current' => $current_language->getName()));
+            $options['c-' . $language] = t('- Current language (@current) -', ['@current' => $current_language->getName()]);
             break;
+
           case Language::LANGCODE_NOT_SPECIFIED:
             $options['c-' . $language] = t('- Not specified -');
             break;
+
           case Language::LANGCODE_NOT_APPLICABLE:
             $options['c-' . $language] = t('- Not applicable -');
             break;
+
           default:
             if ($language != $current_language_id || ($language != $current_language_id && !array_key_exists('c-' . $language, $options))) {
               $options['c-' . $language] = \Drupal::languageManager()->getLanguageName($language);
@@ -261,23 +266,23 @@ class CustomSearchBlockForm extends FormBase {
       else {
         $multiple = FALSE;
       }
-      $form['languages'] = array(
+      $form['languages'] = [
         '#type'           => $selector_type,
         '#multiple'       => $multiple,
         '#title'          => Html::escape($config['languages']['selector']['label']),
         '#title_display'  => $config['languages']['selector']['label_visibility'] ? 'before' : 'invisible',
         '#options'        => $options,
-        '#default_value'  => ($selector_type == 'checkboxes') ? array('c-all') : 'c-all',
-        '#attributes'     => array('class' => array('custom-search-selector', 'custom-search-language')),
+        '#default_value'  => ($selector_type == 'checkboxes') ? ['c-all'] : 'c-all',
+        '#attributes'     => ['class' => ['custom-search-selector', 'custom-search-language']],
         '#weight'         => $config['languages']['weight'],
         '#validated'      => TRUE,
-      );
+      ];
       // If there's only one type, hide the selector.
       if (count($languages) == 1 && !$config['languages']['any']['force']) {
         $form['languages']['#type'] = 'hidden';
         $form['languages']['#default_value'] = key(array_slice($options, count($options) - 1));
       }
-      else if ($config['languages']['region'] == 'popup') {
+      elseif ($config['languages']['region'] == 'popup') {
         $form['popup']['languages'] = $form['languages'];
         unset($form['languages']);
       }
@@ -286,27 +291,27 @@ class CustomSearchBlockForm extends FormBase {
     // Custom Paths.
     $paths = $config['paths']['list'];
     if ($paths != '') {
-      $options = array();
+      $options = [];
       $lines = explode("\n", $paths);
       foreach ($lines as $line) {
         $temp = explode('|', $line);
         $options[$temp[0]] = (count($temp) >= 2) ? t($temp[1]) : '';
       }
       if (count($options) == 1) {
-        $form['paths'] = array(
+        $form['paths'] = [
           '#type'           => 'hidden',
           '#default_value'  => key($options),
-        );
+        ];
       }
       else {
-        $form['paths'] = array(
+        $form['paths'] = [
           '#type'           => $config['paths']['selector']['type'],
           '#title'          => Html::escape($config['paths']['selector']['label']),
           '#title_display'  => $config['paths']['selector']['label_visibility'] ? 'before' : 'invisible',
           '#options'        => $options,
           '#default_value'  => key($options),
           '#weight'         => $config['paths']['weight'],
-        );
+        ];
         if ($config['paths']['region'] == 'popup') {
           $form['popup']['paths'] = $form['paths'];
           unset($form['paths']);
@@ -315,16 +320,16 @@ class CustomSearchBlockForm extends FormBase {
     }
 
     // Criteria.
-    $criteria = array('or', 'phrase', 'negative');
+    $criteria = ['or', 'phrase', 'negative'];
     foreach ($criteria as $c) {
       if ($config['criteria'][$c]['display']) {
-        $form['criteria_' . $c] = array(
+        $form['criteria_' . $c] = [
           '#type'       => 'textfield',
           '#title'      => Html::escape($config['criteria'][$c]['label']),
           '#size'       => 15,
           '#maxlength'  => 255,
           '#weight'     => $config['criteria'][$c]['weight'],
-        );
+        ];
         if ($config['criteria'][$c]['region'] == 'popup') {
           $form['popup']['criteria_' . $c] = $form['criteria_' . $c];
           unset($form['criteria_' . $c]);
@@ -333,25 +338,25 @@ class CustomSearchBlockForm extends FormBase {
     }
 
     // Actions.
-    $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array(
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
       '#type'   => 'submit',
       '#value'  => Html::escape($config['submit']['text']),
       // Prevent op from showing up in the query string.
       '#name'   => '',
       '#weight' => $config['submit']['weight'],
-    );
+    ];
     if ($config['submit']['image_path'] != '') {
       $form['actions']['submit']['#type'] = 'image_button';
       $form['actions']['submit']['#src'] = $config['submit']['image_path'];
-      $form['actions']['submit']['#attributes'] = array(
+      $form['actions']['submit']['#attributes'] = [
         'alt'   => Html::escape($config['submit']['text']),
-        'class' => array('custom-search-button'),
-      );
+        'class' => ['custom-search-button'],
+      ];
       unset($form['actions']['submit']['#value']);
     }
     elseif ($form['actions']['submit']['#value'] == '') {
-      $form['actions']['submit']['#attributes'] = array('style' => 'display:none;');
+      $form['actions']['submit']['#attributes'] = ['style' => 'display:none;'];
     }
 
     // If nothing has been added to the popup, don't output any markup.
@@ -373,22 +378,22 @@ class CustomSearchBlockForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $form_state->get('config');
-    $filters = array();
+    $filters = [];
 
     // Keywords.
     $keys = trim($form_state->getValue('keys'));
 
     // Filter Types.
-    $types = $form_state->hasValue('types') ? $form_state->getValue('types') : array();
+    $types = $form_state->hasValue('types') ? $form_state->getValue('types') : [];
     if (!is_array($types)) {
-      $types = array($types);
+      $types = [$types];
     }
 
     // Check if we're using another search (ie. Users).
     $first_type = current($types);
     if (substr($first_type, 0, 2) == 'o-') {
       $search_page_id = substr($first_type, 2);
-      $search_pages = $this->entityTypeManager->getStorage('search_page')->loadMultiple(array($search_page_id));
+      $search_pages = $this->entityTypeManager->getStorage('search_page')->loadMultiple([$search_page_id]);
       if (!empty($search_pages)) {
         $route = 'search.view_' . $search_page_id;
       }
@@ -397,15 +402,19 @@ class CustomSearchBlockForm extends FormBase {
       // Build route.
       $route = 'search.view_' . $config['content']['page'];
       // Types filters.
-      $types = array_map(function($val) { return $this->filterKeys($val);}, array_filter($types));
-      $excluded = array_map(function($val) { return $this->filterKeys($val);}, array_filter($config['content']['excluded']));
+      $types = array_map(function ($val) {
+        return $this->filterKeys($val);
+      }, array_filter($types));
+      $excluded = array_map(function ($val) {
+        return $this->filterKeys($val);
+      }, array_filter($config['content']['excluded']));
       if (count($types)) {
         if (in_array('all', $types)) {
           // If - Any - is set to restrict the search, grab the content types.
           if ($config['content']['any']['restricts']) {
             $types = array_keys(array_filter($config['content']['types']));
           }
-          // If exclusion has to be made, specify all the other types
+          // If exclusion has to be made, specify all the other types.
           if (!empty($excluded)) {
             $types = array_keys(node_type_get_names());
           }
@@ -424,7 +433,8 @@ class CustomSearchBlockForm extends FormBase {
           }
         }
       }
-      // If there's no type selector but exclusion has to be made, specify all the other types.
+      // If there's no type selector but exclusion has to be made, specify all
+      // the other types.
       elseif (!empty($excluded)) {
         $types = array_diff(array_keys(node_type_get_names()), $excluded);
         foreach ($types as $type) {
@@ -433,21 +443,23 @@ class CustomSearchBlockForm extends FormBase {
       }
       // Taxonomy filters.
       if ($this->moduleHandler->moduleExists('taxonomy')) {
-        $terms = array();
+        $terms = [];
         $vocabularies = $this->entityTypeManager->getStorage('taxonomy_vocabulary')->loadMultiple();
         foreach ($vocabularies as $voc) {
           $vid = $voc->id();
           if ($form_state->hasValue('vocabulary_' . $vid)) {
             $vterms = $form_state->getValue('vocabulary_' . $vid);
             if (!is_array($vterms)) {
-              $vterms = array($vterms);
+              $vterms = [$vterms];
             }
             $terms = array_merge($terms, $vterms);
           }
         }
-        // Uses array_values() to filter here to get numerical index,
-        // so we can splice the array later if needed (see line below the array_map()).
-        $terms = array_map(function($val) { return $this->filterKeys($val);}, array_values(array_filter($terms)));
+        // Uses array_values() to filter here to get numerical index, so we can
+        // splice the array later if needed (see line below the array_map()).
+        $terms = array_map(function ($val) {
+          return $this->filterKeys($val);
+        }, array_values(array_filter($terms)));
         // If one or more -Any- is selected, delete them.
         while (($index = array_search('all', $terms)) !== FALSE) {
           array_splice($terms, $index, 1);
@@ -469,13 +481,16 @@ class CustomSearchBlockForm extends FormBase {
         $keys .= ' "' . trim($form_state->getValue('criteria_phrase')) . '"';
       }
       // Language filters.
-      $languages = $form_state->hasValue('languages') ? $form_state->getValue('languages') : array();
+      $languages = $form_state->hasValue('languages') ? $form_state->getValue('languages') : [];
       if (!is_array($languages)) {
-        $languages = array($languages);
+        $languages = [$languages];
       }
-      $languages = array_map(function($val) { return $this->filterKeys($val);}, array_filter($languages));
+      $languages = array_map(function ($val) {
+        return $this->filterKeys($val);
+      }, array_filter($languages));
       if (count($languages)) {
-        // If - Any - is selected and - Any - is set to restrict the search, grab the languages.
+        // If - Any - is selected and - Any - is set to restrict the search,
+        // grab the languages.
         if (in_array('all', $languages) && $config['languages']['any']['restricts']) {
           $languages = array_keys(array_filter($config['languages']['languages']));
         }
@@ -505,7 +520,7 @@ class CustomSearchBlockForm extends FormBase {
         $route = str_replace('[terms]', (isset($terms) && count($terms)) ? implode($config['paths']['separator'], $terms) : '', $route);
       }
       // Check for a query string.
-      $query = array();
+      $query = [];
       $route_query_position = strpos($route, '?');
       if ($route_query_position !== FALSE) {
         $query_tmp = substr($route, 1 + $route_query_position);
@@ -518,34 +533,39 @@ class CustomSearchBlockForm extends FormBase {
         $route = substr($route, 0, $route_query_position);
       }
       // If not an external URL, add the base url scheme.
-      if (substr($route, 0, 4) != 'http') $route = 'base://' . $route;
+      if (substr($route, 0, 4) != 'http') {
+        $route = 'base://' . $route;
+      }
       // Generate the final url.
-      $url = Url::fromUri($route, array('query' => $query));
+      $url = Url::fromUri($route, ['query' => $query]);
       // Redirect.
-      if ($url->isExternal()){
+      if ($url->isExternal()) {
         $form_state->setResponse(new TrustedRedirectResponse($url->toUriString(), 302));
-      } else {
+      }
+      else {
         $form_state->setRedirectUrl($url);
       }
 
     }
     else {
       $query['keys'] = $keys;
-      if (count($filters)) $query['f'] = $filters;
+      if (count($filters)) {
+        $query['f'] = $filters;
+      }
       $form_state->setRedirect(
         $route,
-        array(),
-        array('query' => $query)
+        [],
+        ['query' => $query]
       );
     }
 
   }
 
-  /*
+  /**
    * Helper functions.
    */
   private static function filterKeys($val) {
-    return (strlen($val) > 2 && $val[1] == '-') ? Unicode::substr($val, 2) : $val;
+    return (strlen($val) > 2 && $val[1] == '-') ? Unicode::mb_substr($val, 2) : $val;
   }
 
 }

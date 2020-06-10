@@ -12,13 +12,13 @@ use Drupal\Core\Language\Language;
  */
 function custom_search_install() {
 
-	// Enable current node types and languages in advanced results
-	$types = node_type_get_names();
+  // Enable current node types and languages in advanced results.
+  $types = node_type_get_names();
   foreach ($types as $type => $name) {
     $types[$type] = $type;
   }
   $enabled_languages = \Drupal::languageManager()->getLanguages();
-  $languages = array();
+  $languages = [];
   foreach ($enabled_languages as $lid => $l) {
     $languages[$lid] = $lid;
   }
@@ -30,28 +30,37 @@ function custom_search_install() {
   foreach ($search_pages as $page) {
     if ($page->getPlugin()->getPluginId() == 'node_search') {
       $pageId = $page->id();
-      \Drupal::configFactory()->getEditable('custom_search.settings.results')->set($pageId, array(
+      \Drupal::configFactory()->getEditable('custom_search.settings.results')->set($pageId, [
         'path'      => $page->getPath(),
         'search'    => TRUE,
-        'advanced'  => array(
+        'advanced'  => [
           'visibility'  => TRUE,
           'collapsible' => TRUE,
           'collapsed'   => TRUE,
-          'criteria'    => array('or' => 'or', 'phrase' => 'phrase', 'negative' => 'negative'),
+          'criteria'    => [
+            'or' => 'or',
+            'phrase' => 'phrase',
+            'negative' => 'negative',
+          ],
           'types'       => $types,
           'languages'   => $languages,
-        ),
-        'info'      => array('type' => 'type', 'user' => 'user', 'date' => 'date', 'comment' => 'comment'),
-        'filter'    => array(
+        ],
+        'info'      => [
+          'type' => 'type',
+          'user' => 'user',
+          'date' => 'date',
+          'comment' => 'comment',
+        ],
+        'filter'    => [
           'position'  => 'disabled',
           'label'     => t('Filter the results'),
           'any'       => t('- Any -'),
-        )
-      ))->save();
+        ],
+      ])->save();
     }
   }
 
-  // Change module weight
+  // Change module weight.
   module_set_weight('custom_search', 50);
 
 }

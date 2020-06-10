@@ -2,11 +2,13 @@
 
 /**
  * @file
- * Bring customizations to the default search box
+ * Bring customizations to the default search box.
  *
- * Adds node types and taxonomy options to the search form
+ * Adds node types and taxonomy options to the search form.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Language\Language;
 
 /**
@@ -28,7 +30,7 @@ function custom_search_entity_bundle_create($entity_type, $bundle) {
 /**
  * Implements hook_entity_create().
  */
-function custom_search_configurable_language_create(\Drupal\Core\Entity\EntityInterface $entity) {
+function custom_search_configurable_language_create(EntityInterface $entity) {
   if ($entity->id()) {
     // Add default config for Advanced search fieldset settings.
     $search_pages = \Drupal::entityTypeManager()->getStorage('search_page')->loadMultiple();
@@ -45,7 +47,7 @@ function custom_search_configurable_language_create(\Drupal\Core\Entity\EntityIn
 /**
  * Implements hook_form_alter().
  */
-function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function custom_search_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   $config = \Drupal::config('custom_search.settings.results');
 
@@ -67,162 +69,171 @@ function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
             $types[$type] = $type;
           }
           $enabled_languages = \Drupal::languageManager()->getLanguages();
-          $languages = array();
+          $languages = [];
           foreach ($enabled_languages as $lid => $l) {
             $languages[$lid] = $lid;
           }
           $languages[Language::LANGCODE_NOT_SPECIFIED] = Language::LANGCODE_NOT_SPECIFIED;
           $languages[Language::LANGCODE_NOT_APPLICABLE] = Language::LANGCODE_NOT_APPLICABLE;
-          $config = array(
+          $config = [
             'search'    => TRUE,
-            'advanced'  => array(
+            'advanced'  => [
               'visibility'  => TRUE,
               'collapsible' => TRUE,
               'collapsed'   => TRUE,
-              'criteria'    => array('or' => 'or', 'phrase' => 'phrase', 'negative' => 'negative'),
+              'criteria'    => [
+                'or' => 'or',
+                'phrase' => 'phrase',
+                'negative' => 'negative',
+              ],
               'types'       => $types,
               'languages'   => $languages,
-            ),
-            'info'      => array('type' => 'type', 'user' => 'user', 'date' => 'date', 'comment' => 'comment'),
-            'filter'    => array(
+            ],
+            'info'      => [
+              'type' => 'type',
+              'user' => 'user',
+              'date' => 'date',
+              'comment' => 'comment',
+            ],
+            'filter'    => [
               'position'  => 'disabled',
               'label'     => t('Filter the results'),
               'any'       => t('- Any -'),
-            )
-          );
+            ],
+          ];
         }
 
-        $form['search_form'] = array(
-    	    '#type'   => 'details',
-    	    '#title'  => t('Search form'),
-    	    '#open'   => true,
-    	  );
-    	  $form['search_form']['custom_search_search'] = array(
-    	    '#type'           => 'checkbox',
-    	    '#title'          => t('Display basic search'),
-    	    '#default_value'  => $config['search'],
-    	  );
-    	  $form['search_form']['custom_search_advanced_search'] = array(
-    	    '#type'           => 'checkbox',
-    	    '#title'          => t('Display advanced search'),
-    	    '#default_value'  => $config['advanced']['visibility'],
-    	  );
-    	  $form['search_form']['advanced'] = array(
-    	    '#type'         => 'details',
-    	    '#title'        => t('Advanced search'),
-    	    '#states' => array(
-    	      'visible' => array(
-    	        ':input[name="custom_search_advanced_search"]' => array('checked' => TRUE),
-    	      ),
-    	    ),
-    	  );
-    	  $form['search_form']['advanced']['custom_search_collapsible'] = array(
-    	    '#type'           => 'checkbox',
-    	    '#title'          => t('Collapsible'),
-    	    '#default_value'  => $config['advanced']['collapsible'],
-    	  );
-    	  $form['search_form']['advanced']['custom_search_collapsed'] = array(
-    	    '#type'           => 'checkbox',
-    	    '#title'          => t('Collapsed'),
-    	    '#default_value'  => $config['advanced']['collapsed'],
-    	    '#states' => array(
-    	      'visible' => array(
-    	        ':input[name="custom_search_collapsible"]' => array('checked' => TRUE),
-    	      ),
-    	    ),
-    	  );
-    	  $form['search_form']['advanced']['custom_search_criteria'] = array(
-    	    '#type'           => 'checkboxes',
-    	    '#title'          => t('Criteria'),
-    	    '#options'        => array(
-      	    'or'        => t('Or'),
-      	    'phrase'    => t('Phrase'),
-      	    'negative'  => t('Negative'),
-    	    ),
-    	    '#default_value'  => $config['advanced']['criteria'],
-    	    '#description'    => t('Select the criteria to display on the advanced search form.'),
-    	  );
-    	  $options = node_type_get_names();
-    	  $form['search_form']['advanced']['custom_search_types'] = array(
-    	    '#type'           => 'checkboxes',
-    	    '#title'          => t('Content types'),
-    	    '#options'        => $options,
-    	    '#description'    => t('Select the content types to display on the advanced search form.'),
+        $form['search_form'] = [
+          '#type'   => 'details',
+          '#title'  => t('Search form'),
+          '#open'   => TRUE,
+        ];
+        $form['search_form']['custom_search_search'] = [
+          '#type'           => 'checkbox',
+          '#title'          => t('Display basic search'),
+          '#default_value'  => $config['search'],
+        ];
+        $form['search_form']['custom_search_advanced_search'] = [
+          '#type'           => 'checkbox',
+          '#title'          => t('Display advanced search'),
+          '#default_value'  => $config['advanced']['visibility'],
+        ];
+        $form['search_form']['advanced'] = [
+          '#type'         => 'details',
+          '#title'        => t('Advanced search'),
+          '#states' => [
+            'visible' => [
+              ':input[name="custom_search_advanced_search"]' => ['checked' => TRUE],
+            ],
+          ],
+        ];
+        $form['search_form']['advanced']['custom_search_collapsible'] = [
+          '#type'           => 'checkbox',
+          '#title'          => t('Collapsible'),
+          '#default_value'  => $config['advanced']['collapsible'],
+        ];
+        $form['search_form']['advanced']['custom_search_collapsed'] = [
+          '#type'           => 'checkbox',
+          '#title'          => t('Collapsed'),
+          '#default_value'  => $config['advanced']['collapsed'],
+          '#states' => [
+            'visible' => [
+              ':input[name="custom_search_collapsible"]' => ['checked' => TRUE],
+            ],
+          ],
+        ];
+        $form['search_form']['advanced']['custom_search_criteria'] = [
+          '#type'           => 'checkboxes',
+          '#title'          => t('Criteria'),
+          '#options'        => [
+            'or'        => t('Or'),
+            'phrase'    => t('Phrase'),
+            'negative'  => t('Negative'),
+          ],
+          '#default_value'  => $config['advanced']['criteria'],
+          '#description'    => t('Select the criteria to display on the advanced search form.'),
+        ];
+        $options = node_type_get_names();
+        $form['search_form']['advanced']['custom_search_types'] = [
+          '#type'           => 'checkboxes',
+          '#title'          => t('Content types'),
+          '#options'        => $options,
+          '#description'    => t('Select the content types to display on the advanced search form.'),
           '#default_value'  => $config['advanced']['types'],
-    	  );
-    	  $languages = \Drupal::languageManager()->getLanguages();
-    	  $languages_options = array();
+        ];
+        $languages = \Drupal::languageManager()->getLanguages();
+        $languages_options = [];
         foreach ($languages as $id => $language) {
           $languages_options[$id] = $language->getName();
         }
         $languages_options[Language::LANGCODE_NOT_SPECIFIED] = t('- Not specified -');
         $languages_options[Language::LANGCODE_NOT_APPLICABLE] = t('- Not applicable -');
-        $form['search_form']['advanced']['custom_search_languages'] = array(
+        $form['search_form']['advanced']['custom_search_languages'] = [
           '#type'           => 'checkboxes',
           '#title'          => t('Languages'),
           '#description'    => t('Select the languages to display on the advanced search form.'),
           '#default_value'  => $config['advanced']['languages'],
           '#options'        => $languages_options,
-        );
-    
-    	  $form['custom_search_info'] = array(
-    	    '#type'           => 'checkboxes',
-    	    '#title'          => t('Results information'),
-    	    '#options'        => array(
-      	    'type'  => t('Content type'),
-      	    'user'  => t('Author'),
-      	    'date'  => t('Date'),
-    	    ),
-    	    '#default_value'  => $config['info'],
-    	    '#description'    => t('Select data to display below each result.'),
-    	  );
-    	  if (\Drupal::moduleHandler()->moduleExists('comment')) {
-    	    $form['info']['#options']['comment'] = t('Comments');
-    	  }
-    
-    	  $form['filter'] = array(
-    	    '#type'         => 'details',
-    	    '#title'        => t('Filter'),
-    	    '#description'  => t('Add links to filter the results by content type.'),
-    	  );
-    	  $form['filter']['custom_search_filter_position'] = array(
-    	    '#type'           => 'select',
-    	    '#title'          => t('Position'),
-    	    '#options'        => array(
-    	      'disabled'  => t('Disabled'),
-    	      'above'     => t('Above results'),
-    	      'below'     => t('Below results'),
-    	    ),
-    	    '#default_value'  => $config['filter']['position'],
-    	  );
-    	  $form['filter']['custom_search_filter_label'] = array(
-    	    '#type'           => 'textfield',
-    	    '#title'          => t('Label text'),
-    	    '#default_value'  => $config['filter']['label'],
-    	    '#description'    => t('Enter the label text for the list. The default value is "Filter the results".'),
-    	    '#states' => array(
-    	      'invisible' => array(
-    	        ':input[name="custom_search_filter_position"]' => array('value' => 'disabled'),
-    	      ),
-    	    ),
-    	  );
-    	  $form['filter']['custom_search_filter_any'] = array(
+        ];
+
+        $form['custom_search_info'] = [
+          '#type'           => 'checkboxes',
+          '#title'          => t('Results information'),
+          '#options'        => [
+            'type'  => t('Content type'),
+            'user'  => t('Author'),
+            'date'  => t('Date'),
+          ],
+          '#default_value'  => $config['info'],
+          '#description'    => t('Select data to display below each result.'),
+        ];
+        if (\Drupal::moduleHandler()->moduleExists('comment')) {
+          $form['info']['#options']['comment'] = t('Comments');
+        }
+
+        $form['filter'] = [
+          '#type'         => 'details',
+          '#title'        => t('Filter'),
+          '#description'  => t('Add links to filter the results by content type.'),
+        ];
+        $form['filter']['custom_search_filter_position'] = [
+          '#type'           => 'select',
+          '#title'          => t('Position'),
+          '#options'        => [
+            'disabled'  => t('Disabled'),
+            'above'     => t('Above results'),
+            'below'     => t('Below results'),
+          ],
+          '#default_value'  => $config['filter']['position'],
+        ];
+        $form['filter']['custom_search_filter_label'] = [
+          '#type'           => 'textfield',
+          '#title'          => t('Label text'),
+          '#default_value'  => $config['filter']['label'],
+          '#description'    => t('Enter the label text for the list. The default value is "Filter the results".'),
+          '#states' => [
+            'invisible' => [
+              ':input[name="custom_search_filter_position"]' => ['value' => 'disabled'],
+            ],
+          ],
+        ];
+        $form['filter']['custom_search_filter_any'] = [
           '#type'           => 'textfield',
           '#title'          => t('- Any content type - text'),
           '#default_value'  => $config['filter']['any'],
           '#required'       => TRUE,
           '#description'    => t('Enter the text for "any content type" choice. The default value is "- Any -".'),
-          '#states' => array(
-    	      'invisible' => array(
-    	        ':input[name="custom_search_filter_position"]' => array('value' => 'disabled'),
-    	      ),
-    	    ),
-        );
+          '#states' => [
+            'invisible' => [
+              ':input[name="custom_search_filter_position"]' => ['value' => 'disabled'],
+            ],
+          ],
+        ];
 
         $form['actions']['submit']['#submit'][] = 'custom_search_search_page_submit';
 
       }
-      
+
       break;
 
     case 'search_form':
@@ -232,22 +243,22 @@ function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
       $current_path = \Drupal::request()->getPathInfo();
       $path = substr($current_path, strpos($current_path, 'search/') + 7);
 
-      // Search for the config of this page
+      // Search for the config of this page.
       foreach ($config as $c) {
         if (isset($c['path']) && $c['path'] == $path) {
           $page_config = $c;
           break;
         }
       }
-      
+
       if ($page_config) {
 
-        if (isset($form['advanced'])) { 
+        if (isset($form['advanced'])) {
 
-          // Analyse query so we can reselect options
+          // Analyse query so we can reselect options.
           $path = urldecode(\Drupal::request()->server->get('QUERY_STRING'));
           $args = explode('&', $path);
-          $reselect = array();
+          $reselect = [];
           foreach ($args as $arg) {
             $arg_parts = explode('=', $arg);
             if (isset($arg_parts[1])) {
@@ -284,7 +295,8 @@ function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
           }
           if (isset($form['advanced']['types-fieldset']) && !count($form['advanced']['types-fieldset']['type']['#options'])) {
             unset($form['advanced']['types-fieldset']);
-          } elseif (isset($reselect['type'])) {
+          }
+          elseif (isset($reselect['type'])) {
             // Reselect content types.
             $form['advanced']['types-fieldset']['type']['#default_value'] = $reselect['type'];
           }
@@ -297,14 +309,15 @@ function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
           }
           if (isset($form['advanced']['lang-fieldset']) && !count($form['advanced']['lang-fieldset']['language']['#options'])) {
             unset($form['advanced']['lang-fieldset']);
-          } elseif (isset($reselect['language'])) {
+          }
+          elseif (isset($reselect['language'])) {
             // Reselect languages.
             $form['advanced']['lang-fieldset']['language']['#default_value'] = $reselect['language'];
           }
 
         }
 
-        // Search blocks
+        // Search blocks.
         if (!$page_config['search']) {
           if (isset($form['basic']['keys'])) {
             // If basic search is hidden, import terms into advanced search.
@@ -339,10 +352,11 @@ function custom_search_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $
 /**
  * Search pages settings form callback.
  */
-function custom_search_search_page_submit($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+function custom_search_search_page_submit($form, FormStateInterface $form_state) {
   $pageId = $form_state->getValue('id');
-  // Save settings, and path as well so we can use it to retrieve the correct settings later.
-  \Drupal::configFactory()->getEditable('custom_search.settings.results')->set($pageId . '.path', $form_state->getValue('path')) 
+  // Save settings, and path as well so we can use it to retrieve the correct
+  // settings later.
+  \Drupal::configFactory()->getEditable('custom_search.settings.results')->set($pageId . '.path', $form_state->getValue('path'))
     ->set($pageId . '.search', $form_state->getValue('custom_search_search'))
     ->set($pageId . '.advanced.visibility', $form_state->getValue('custom_search_advanced_search'))
     ->set($pageId . '.advanced.collapsible', $form_state->getValue('custom_search_collapsible'))
@@ -362,11 +376,11 @@ function custom_search_search_page_submit($form, \Drupal\Core\Form\FormStateInte
  */
 function custom_search_page_build(&$page) {
   $page['#attached']['library'][] = 'custom_search/custom_search.front';
-  $page['#attached']['drupalSettings'][] = array(
-    'custom_search' => array(
+  $page['#attached']['drupalSettings'][] = [
+    'custom_search' => [
       'solr'  => (\Drupal::moduleHandler()->moduleExists('apachesolr_search') || \Drupal::moduleHandler()->moduleExists('search_api_solr')) ? 1 : 0,
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -384,7 +398,7 @@ function custom_search_preprocess_block(&$variables) {
  */
 function custom_search_theme($existing, $type, $theme, $path) {
 
-  $custom_search_theme_array = array(
+  $custom_search_theme_array = [
     'custom_search_results' => [
       'variables' => [
         'variables' => [
@@ -399,7 +413,7 @@ function custom_search_theme($existing, $type, $theme, $path) {
       ],
       'file' => 'custom_search.pages.inc',
     ],
-    'search_result' => array(
+    'search_result' => [
       'variables' => [
         'result' => NULL,
         'plugin_id' => NULL,
@@ -417,19 +431,26 @@ function custom_search_theme($existing, $type, $theme, $path) {
       ],
       'file'      => 'custom_search.pages.inc',
       'template'  => 'custom-search-result',
-    ),
-    'item_list__search_results' => array(
-      'variables' => array('items' => array(), 'title' => '', 'list_type' => 'ul', 'attributes' => array(), 'empty' => NULL),
+    ],
+    'item_list__search_results' => [
+      'variables' => [
+        'items' => [],
+        'title' => '',
+        'list_type' => 'ul',
+        'attributes' => [],
+        'empty' => NULL,
+      ],
       'file'      => 'custom_search.pages.inc',
       'template'  => 'custom-search-results',
-    ),
-  );
+    ],
+  ];
 
   return $custom_search_theme_array;
 }
 
 /**
  * Implements hook_theme_registry_alter().
+ *
  * @see https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!theme.api.php/function/hook_theme_registry_alter
  */
 function custom_search_theme_registry_alter(&$theme_registry) {
