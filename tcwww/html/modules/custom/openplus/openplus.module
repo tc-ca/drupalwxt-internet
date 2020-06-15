@@ -101,6 +101,11 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
       $new_links[] = Link::fromTextAndUrl(t('Transport Canada'), Url::fromRoute('<front>'));
     }
 
+    // remove search from breadcrumb    
+    if ($route_match->getRouteName() == 'view.site_search.page_1') {
+      $links = [];
+    }
+
     $breadcrumb = new Breadcrumb();
     $breadcrumb->setLinks(array_merge($new_links, $links));
     $breadcrumb->addCacheContexts(['route']);
