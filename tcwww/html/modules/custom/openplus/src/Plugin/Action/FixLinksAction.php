@@ -65,15 +65,17 @@ class FixLinksAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
         $parsed = parse_url($url);
         if (!isset($parsed['host'])) {
           $parsed['host'] = 'www.tc.gc.ca';
-          $parsed['scheme'] = 'https';
         }
         if (isset($parsed['fragment'])) {
           $fragment = $parsed['fragment'];
           unset($parsed['fragment']);
         }
-        $lookup = openplus_build_url($parsed);
+        if (isset($parsed['scheme'])) {
+          unset($parsed['scheme']);
+        }
+        $lookup = strtolower(openplus_build_url($parsed));
         $query = \Drupal::entityQuery('node')
-          ->condition('field_source_url.0.uri', $lookup);
+          ->condition('field_source_url.0.uri', '%' . $lookup . '%', 'LIKE');
         $nids = $query->execute();
         if (!empty($nids)) {
           $node = Node::load(array_pop($nids));
