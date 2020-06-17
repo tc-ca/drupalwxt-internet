@@ -63,6 +63,7 @@ class FixFragsAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
      $vars = [
        'mig_uuid' => $mig_uuid,
        'page' => $source[0]['uri'],
+       'ext_only' => TRUE,
      ];
 
     $uri = ConfigUtil::GetHarvesterBaseUrl() . 'get-harvest-links';

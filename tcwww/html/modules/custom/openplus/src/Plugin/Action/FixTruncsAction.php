@@ -46,6 +46,7 @@ class FixTruncsAction extends ViewsBulkOperationsActionBase implements ViewsBulk
     $vars = [
       'mig_uuid' => $mig_uuid,
       'page' => $source[0]['uri'],
+      'ext_only' => FALSE,
     ];
 
     $uri = ConfigUtil::GetHarvesterBaseUrl() . 'get-harvest-links';
@@ -63,7 +64,7 @@ class FixTruncsAction extends ViewsBulkOperationsActionBase implements ViewsBulk
 
     $body = $entity->get('body')->first()->getValue();
     $body = $body['value'];
-    $pattern = '/<a\s+([^>]*?\s+)?href="(http[^"]+)"\s?(.*?)>(.+?)<\/a>/s';
+    $pattern = '/<a\s+([^>]*?\s+)?href="([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);
 
