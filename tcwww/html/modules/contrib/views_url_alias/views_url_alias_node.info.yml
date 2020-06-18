@@ -1,0 +1,16 @@
+name: Views URL alias (Node)
+type: module
+description: Allows node-related Views be filtered by path aliases.
+# core: 8.x
+package: Views
+dependencies:
+  - path
+  - drupal:path (>=8.8)
+  - views
+# project: views_url_alias_node
+
+# Information added by Drupal.org packaging script on 2018-01-31
+version: '8.x-1.0'
+core: '8.x'
+project: 'views_url_alias'
+datestamp: 1517375885

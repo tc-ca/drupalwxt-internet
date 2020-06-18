@@ -1,0 +1,5 @@
+views_url_alias_node.config_tab:
+  route_name: views_url_alias_node.views_u_r_l_alias_node_admin_form
+  title: Rebuild alias node table
+  parent_id: views_ui.settings_tab
+  weight: 20

@@ -1,0 +1,93 @@
+diff --git a/views_url_alias_node.info.yml b/views_url_alias_node.info.yml
+index 41977ab..860b19a 100644
+--- a/views_url_alias_node.info.yml
++++ b/views_url_alias_node.info.yml
+@@ -5,5 +5,6 @@ core: 8.x
+ package: Views
+ dependencies:
+   - path
++  - drupal:path (>=8.8)
+   - views
+ project: views_url_alias_node
+diff --git a/views_url_alias_node.module b/views_url_alias_node.module
+index 180d235..885f096 100644
+--- a/views_url_alias_node.module
++++ b/views_url_alias_node.module
+@@ -7,7 +7,6 @@
+ 
+ use Drupal\Core\Form\FormStateInterface;
+ 
+-
+ ////////////////////////////////////////////////////////////////////////////////
+ // Pathauto hooks
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -50,14 +49,14 @@ function views_url_alias_node_form_pathauto_admin_delete_submit($form, FormState
+ /**
+  * Implements hook_form_FORM_ID_alter().
+  */
+-function views_url_alias_node_form_path_admin_add_alter(&$form, FormStateInterface $form_state, $form_id) {
+-  $form['#submit'][] = 'views_url_alias_node_form_path_admin_add_submit';
++function views_url_alias_node_form_path_alias_form_alter(&$form, FormStateInterface $form_state, $form_id) {
++  $form['#submit'][] = 'views_url_alias_node_form_path_alias_form_submit';
+ }
+ 
+-function views_url_alias_node_form_path_admin_add_submit($form, FormStateInterface $form_state) {
+-  $source = $form_state->getValue('source');
++function views_url_alias_node_form_path_alias_form_submit($form, FormStateInterface $form_state) {
++  $path = $form_state->getValue('path');
+   $alias = $form_state->getValue('alias');
+-  if (preg_match('#^/node/(\d+)$#', $source, $match)) {
++  if (preg_match('#^/node/(\d+)$#', $path, $match)) {
+     $nid = $match[1];
+     views_url_alias_node_save($nid, $alias);
+   }
+@@ -67,22 +66,18 @@ function views_url_alias_node_form_path_admin_add_submit($form, FormStateInterfa
+ /**
+  * Implements hook_form_FORM_ID_alter().
+  */
+-function views_url_alias_node_form_path_alias_delete_alter(&$form, FormStateInterface $form_state, $form_id) {
++function views_url_alias_node_form_path_alias_delete_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+   // we need info from the alias record before it's deleted.
+-  array_unshift($form['#submit'],'views_url_alias_node_form_path_alias_delete_submit');
++  array_unshift($form['#submit'],'views_url_alias_node_form_path_alias_delete_form_submit');
+ }
+ 
+-
+-function views_url_alias_node_form_path_alias_delete_submit($form, FormStateInterface $form_state) {
++function views_url_alias_node_form_path_alias_delete_form_submit($form, FormStateInterface $form_state) {
+   $build_info = $form_state->getBuildInfo();
+   if (isset($build_info['args'][0])) {
+     $alias_id = $build_info['args'][0];
+     /** @var \Drupal\Core\Path\AliasStorage $alias_storage */
+-    $alias_storage = \Drupal::service('path.alias_storage');
+-    $alias = $alias_storage->load([
+-      'pid' => $alias_id,
+-    ]);
+-    if (preg_match('#^/node/(\d+)$#', $alias['source'], $match)) {
++    $alias = \Drupal::entityTypeManager()->getStorage('path_alias')->load($alias_id);
++    if (preg_match('#^/node/(\d+)$#', $alias['path'], $match)) {
+       $nid = $match[1];
+       views_url_alias_node_delete($nid);
+     }
+@@ -168,10 +163,10 @@ function views_url_alias_node_rebuild() {
+   $database->truncate('views_url_alias_node')->execute();
+ 
+   // Build select query for insert.
+-  $query = $database->select('url_alias', 'ua');
+-  $query->join('node', 'n', "CONCAT('/node/', n.nid) = ua.source");
+-  $query->fields('n', array('nid'))
+-    ->fields('ua', array('alias'));
++  $query = $database->select('path_alias', 'pa');
++  $query->join('node', 'n', "CONCAT('/node/', n.nid) = pa.path");
++  $query->fields('n', ['nid'])
++    ->fields('pa', ['alias']);
+ 
+   // Populate view_url_alias_node table.
+   try {
+@@ -183,5 +178,5 @@ function views_url_alias_node_rebuild() {
+   }
+ 
+   // Display message
+-  drupal_set_message( t('The %table table has been successfully rebuilt.', array('%table' => 'views_url_alias_node')) );
++  \Drupal::messenger()->addMessage(t('The %table table has been successfully rebuilt.', ['%table' => 'views_url_alias_node']));
+ }

@@ -161,6 +161,10 @@
                 "3020922 - Overcome nondeterministic behaviour in mysql ORDER BY":
                 "https://www.drupal.org/files/issues/2019-03-13/vbo-3020922-11.patch"
             },
+            "drupal/views_url_alias": {
+                "3104606 - Implement path alias changes in 8.x-1.x":
+                "https://www.drupal.org/files/issues/2020-01-13/3104606-15.patch"
+            },
             "drupal/redis": {
                 "3004561 - Enable ssl scheme":
                 "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
@@ -237,7 +241,8 @@
         "drupal/library_manager": "^1.0",
         "drupal/codemirror_editor": "^1.5",
         "drupal/content_export_yaml": "^2.9",
-        "drupal/insert_view_adv": "^1.0@beta"
+        "drupal/insert_view_adv": "^1.0@beta",
+        "drupal/views_url_alias": "^1.0"
     },
     "replace": {
     },

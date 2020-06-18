@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * @file
+ * Allows node-related Views to be filtered by path aliases.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+////////////////////////////////////////////////////////////////////////////////
+// Pathauto hooks
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implements hook_pathauto_alias_alter().
+ */
+function views_url_alias_node_pathauto_alias_alter(&$alias, array &$context) {
+  // Save node alias during bulk update.
+  if ($context['module'] == 'node'
+    && $context['op'] == 'bulkupdate'
+    && preg_match('#^/node/(\d+)$#', $context['source'], $match)
+  ) {
+    $nid = $match[1];
+    views_url_alias_node_save($nid, $alias);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function views_url_alias_node_form_pathauto_admin_delete_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#submit'][] = 'views_url_alias_node_form_pathauto_admin_delete_submit';
+}
+
+
+/**
+ * Submit processing for bulk delete of aliases.
+ */
+function views_url_alias_node_form_pathauto_admin_delete_submit($form, FormStateInterface $form_state) {
+  // Purge view_url_alias_node table if delete all or node alises is requested.
+  if ($form_state->getValue('delete')['all_aliases'] ||
+    (isset($form_state->getValue('delete')['plugins']['canonical_entities:node']) &&
+      $form_state->getValue('delete')['plugins']['canonical_entities:node'])) {
+    $database = \Drupal::database();
+    $database->truncate('views_url_alias_node')->execute();
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function views_url_alias_node_form_path_alias_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#submit'][] = 'views_url_alias_node_form_path_alias_form_submit';
+}
+
+function views_url_alias_node_form_path_alias_form_submit($form, FormStateInterface $form_state) {
+  $path = $form_state->getValue('path');
+  $alias = $form_state->getValue('alias');
+  if (preg_match('#^/node/(\d+)$#', $path, $match)) {
+    $nid = $match[1];
+    views_url_alias_node_save($nid, $alias);
+  }
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function views_url_alias_node_form_path_alias_delete_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // we need info from the alias record before it's deleted.
+  array_unshift($form['#submit'],'views_url_alias_node_form_path_alias_delete_form_submit');
+}
+
+function views_url_alias_node_form_path_alias_delete_form_submit($form, FormStateInterface $form_state) {
+  $build_info = $form_state->getBuildInfo();
+  if (isset($build_info['args'][0])) {
+    $alias_id = $build_info['args'][0];
+    /** @var \Drupal\Core\Path\AliasStorage $alias_storage */
+    $alias = \Drupal::entityTypeManager()->getStorage('path_alias')->load($alias_id);
+    if (preg_match('#^/node/(\d+)$#', $alias['path'], $match)) {
+      $nid = $match[1];
+      views_url_alias_node_delete($nid);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Node hooks
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function views_url_alias_node_node_insert(Drupal\Core\Entity\EntityInterface $entity) {
+  views_url_alias_node_node_update($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function views_url_alias_node_node_update(Drupal\Core\Entity\EntityInterface $entity) {
+  try {
+    $alias = $entity->toUrl()->toString();
+  } catch (\Drupal\Core\Entity\EntityMalformedException $e) {
+    watchdog_exception('views_url_alias_node', $e);
+    return;
+  }
+  views_url_alias_node_save($entity->id(), $alias);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function views_url_alias_node_node_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  views_url_alias_node_delete($entity->id());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// API functions
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Save node URL alias.
+ */
+function views_url_alias_node_save($nid, $alias = NULL) {
+  $database = \Drupal::database();
+  $database->delete('views_url_alias_node')
+    ->condition('nid', $nid)
+    ->execute();
+
+  if (empty($alias)) {
+    return;
+  }
+
+  try {
+    $database->insert('views_url_alias_node')
+      ->fields([
+        'alias' => $alias,
+        'nid' => $nid,
+      ])
+      ->execute();
+  } catch (Exception $e) {
+    watchdog_exception('views_url_alias_node', $e);
+  }
+}
+
+/**
+ * Delete's node URL alias.
+ */
+function views_url_alias_node_delete($nid) {
+  views_url_alias_node_save($nid);
+}
+
+/**
+ * Rebuild view_url_alias_node table.
+ *
+ * This function typically only needs to be called when this module is installed.
+ */
+function views_url_alias_node_rebuild() {
+  $database = \Drupal::database();
+  // Purge view_url_alias_node table.
+  $database->truncate('views_url_alias_node')->execute();
+
+  // Build select query for insert.
+  $query = $database->select('path_alias', 'pa');
+  $query->join('node', 'n', "CONCAT('/node/', n.nid) = pa.path");
+  $query->fields('n', ['nid'])
+    ->fields('pa', ['alias']);
+
+  // Populate view_url_alias_node table.
+  try {
+    $database->insert('views_url_alias_node')
+      ->from($query)
+      ->execute();
+  } catch (Exception $e) {
+    watchdog_exception('views_url_alias_node', $e);
+  }
+
+  // Display message
+  \Drupal::messenger()->addMessage(t('The %table table has been successfully rebuilt.', ['%table' => 'views_url_alias_node']));
+}

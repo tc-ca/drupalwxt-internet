@@ -1,0 +1,9 @@
+
+views_url_alias_node.views_u_r_l_alias_node_admin_form:
+  path: 'admin/structure/views/settings/alias_node'
+  defaults:
+    _form: '\Drupal\views_url_alias_node\Form\ViewsURLAliasNodeAdminForm'
+    _title: 'Rebuild alias node table'
+  requirements:
+    _permission: 'administer views'
+  
