@@ -74,7 +74,7 @@ class FixTruncsAction extends ViewsBulkOperationsActionBase implements ViewsBulk
       foreach ($links as $key => $link) {
         $link_title = rtrim(preg_replace("/[\r\n]+/", '', $link->metadata));
         $drupal_link_title = rtrim($match[4]);
-        if (strpos($link_title, $drupal_link_title) !== FALSE && strlen($drupal_link_title) != strlen($link_title)) {
+        if (!empty($link_title) && !empty($drupal_link_title) && strpos($link_title, $drupal_link_title) !== FALSE && strlen($drupal_link_title) != strlen($link_title)) {
           $replacement = str_replace($drupal_link_title, $link_title, $match[0]); 
           $body = str_replace($match[0], $replacement, $body);
           $found_key = $key;
