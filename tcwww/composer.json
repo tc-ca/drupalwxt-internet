@@ -242,7 +242,9 @@
         "drupal/codemirror_editor": "^1.5",
         "drupal/content_export_yaml": "^2.9",
         "drupal/insert_view_adv": "^1.0@beta",
-        "drupal/views_url_alias": "^1.0"
+        "drupal/views_url_alias": "^1.0",
+        "drupal/purge": "^3.0",
+        "drupal/varnish_purge": "^2.0"
     },
     "replace": {
     },

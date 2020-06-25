@@ -1,0 +1,13 @@
+name: Varnish Purger
+type: module
+description: 'Purger for varnish. Purges page caches from varnish. Works together with the purge module.'
+package: "Purge - reverse proxies & CDNs"
+core_version_requirement: ^8 || ^9
+dependencies:
+  - purge:purge
+  - purge:purge_tokens
+
+# Information added by Drupal.org packaging script on 2020-05-25
+version: '8.x-2.0'
+project: 'varnish_purge'
+datestamp: 1590398139

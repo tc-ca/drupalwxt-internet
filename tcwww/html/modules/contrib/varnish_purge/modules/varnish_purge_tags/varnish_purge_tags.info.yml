@@ -1,0 +1,12 @@
+name: Varnish Purger Tags
+type: module
+description: 'Cache-Tags response header to support tag-based invalidation.'
+package: "Purge - reverse proxies & CDNs"
+core_version_requirement: ^8 || ^9
+dependencies:
+  - varnish_purger:varnish_purger
+
+# Information added by Drupal.org packaging script on 2020-05-25
+version: '8.x-2.0'
+project: 'varnish_purge'
+datestamp: 1590398139
