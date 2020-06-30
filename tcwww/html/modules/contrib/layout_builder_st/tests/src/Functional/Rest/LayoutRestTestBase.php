@@ -73,12 +73,17 @@ abstract class LayoutRestTestBase extends ResourceTestBase {
       'title' => 'A node at rest will stay at rest.',
     ]);
 
+    $add_block_text = 'Add block';
+    if (version_compare(\Drupal::VERSION, '8.8.0', '<')) {
+      $add_block_text = ucwords($add_block_text);
+    }
+
     $this->drupalGet('node/' . $this->node->id() . '/layout');
-    $page->clickLink('Add Block');
+    $page->clickLink($add_block_text);
     $page->clickLink('Powered by Drupal');
     $page->fillField('settings[label]', 'This is an override');
     $page->checkField('settings[label_display]');
-    $page->pressButton('Add Block');
+    $page->pressButton($add_block_text);
     $page->pressButton('Save layout');
     $assert_session->pageTextContains('This is an override');
 

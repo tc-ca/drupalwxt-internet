@@ -8,6 +8,7 @@ use Drupal\content_moderation\Plugin\Field\FieldWidget\ModerationStateWidget as 
 use Drupal\content_moderation\StateTransitionValidationInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\RevisionableStorageInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -116,11 +117,10 @@ class ModerationStateWidget extends BaseModerationStateWidget {
       $latest_revision = $entity;
     }
     else {
-      $latest_revision = $this->moderationInformation
-        ->getLatestRevision(
-          $entity->getEntityTypeId(),
-          $entity->id()
-        ) ?: $entity;
+      $latest_revision = $this->getLatestRevision(
+        $entity->getEntityTypeId(),
+        $entity->id()
+      ) ?: $entity;
     }
 
     $transition_set = new TransitionSet(
@@ -159,6 +159,35 @@ class ModerationStateWidget extends BaseModerationStateWidget {
     $this->entity = $entity;
 
     return $element;
+  }
+
+  /**
+   * Loads the latest revision of an entity.
+   *
+   * This is a shim around ModerationInformationInterface::getLatestRevision(),
+   * which was replaced by calling methods on the entity storage handler in
+   * Drupal 8.8.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID.
+   * @param mixed $entity_id
+   *   The entity ID.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The latest revision of the entity, if one exists.
+   */
+  private function getLatestRevision($entity_type_id, $entity_id) {
+    $storage = $this->entityTypeManager->getStorage($entity_type_id);
+
+    if ($storage instanceof RevisionableStorageInterface && method_exists($storage, 'getLatestRevisionId')) {
+      $revision_id = $storage->getLatestRevisionId($entity_id);
+      return isset($revision_id) ? $storage->loadRevision($revision_id) : NULL;
+    }
+    else {
+      // Use call_user_func() here because our deprecation testing tools are not
+      // smart enough to recognize the actual code path that leads here.
+      return call_user_func([$this->moderationInformation, 'getLatestRevision'], $entity_type_id, $entity_id);
+    }
   }
 
   /**

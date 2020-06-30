@@ -10,6 +10,6 @@ Source: https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-para
 
 
 2662060 - Created Terms can't be Translated
-Source: https://www.drupal.org/files/issues/2020-01-24/taxonomy_manager-translate_terms-2662060-5.patch
+Source: https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch
 
 

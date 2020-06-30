@@ -202,6 +202,25 @@ class QuickTransitionForm extends FormBase {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    $entity = $form_state->get('entity');
+
+    /** @var \Drupal\content_moderation\Entity\ContentModerationStateInterface[] $transitions */
+    $transitions = $this->validation->getValidTransitions($entity, $this->currentUser());
+    // Add custom discard draft transition handled by ::discardDraft.
+    $transitions['moderation-sidebar-discard-draft'] = '';
+
+    $element = $form_state->getTriggeringElement();
+
+    if (!isset($transitions[$element['#id']])) {
+      $form_state->setError($element, $this->t('Invalid transition selected.'));
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -212,11 +231,6 @@ class QuickTransitionForm extends FormBase {
     $transitions = $this->validation->getValidTransitions($entity, $this->currentUser());
 
     $element = $form_state->getTriggeringElement();
-
-    if (!isset($transitions[$element['#id']])) {
-      $form_state->setError($element, $this->t('Invalid transition selected.'));
-      return;
-    }
 
     /** @var \Drupal\content_moderation\ContentModerationState $state */
     $state = $transitions[$element['#id']]->to();

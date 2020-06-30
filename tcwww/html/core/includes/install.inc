@@ -80,9 +80,13 @@ const FILE_NOT_EXECUTABLE = 128;
  * Loads .install files for installed modules to initialize the update system.
  */
 function drupal_load_updates() {
+  /** @var \Drupal\Core\Extension\ModuleExtensionList $extension_list_module */
+  $extension_list_module = \Drupal::service('extension.list.module');
   foreach (drupal_get_installed_schema_version(NULL, FALSE, TRUE) as $module => $schema_version) {
-    if ($schema_version > -1) {
-      module_load_install($module);
+    if ($extension_list_module->exists($module) && !$extension_list_module->checkIncompatibility($module)) {
+      if ($schema_version > -1) {
+        module_load_install($module);
+      }
     }
   }
 }
@@ -166,7 +170,7 @@ function drupal_get_database_types() {
   $drivers = [];
 
   // The internal database driver name is any valid PHP identifier.
-  $mask = '/^' . DRUPAL_PHP_FUNCTION_PATTERN . '$/';
+  $mask = ExtensionDiscovery::PHP_FUNCTION_PATTERN;
   /** @var \Drupal\Core\File\FileSystemInterface $file_system */
   $file_system = \Drupal::service('file_system');
   $files = $file_system->scanDirectory(DRUPAL_ROOT . '/core/lib/Drupal/Core/Database/Driver', $mask, ['recurse' => FALSE]);
@@ -1124,7 +1128,6 @@ function install_profile_info($profile, $langcode = 'en') {
   if (!isset($cache[$profile][$langcode])) {
     $profile_path = drupal_get_path('profile', $profile);
     $info = \Drupal::service('extension.list.profile')->getExtensionInfo($profile);
-    $ancestors = \Drupal::service('extension.list.profile')->getAncestors($profile);
 
     $dependency_name_function = function ($dependency) {
       return Dependency::createFromString($dependency)->getName();
@@ -1144,9 +1147,6 @@ function install_profile_info($profile, $langcode = 'en') {
     // Merge dependencies, required modules and locale into install list and
     // remove any duplicates.
     $info['install'] = array_unique(array_merge($info['install'], $required, $info['dependencies'], $locale));
-
-    // Remove the base profiles from the install list.
-    $info['install'] = array_diff($info['install'], array_keys($ancestors));
 
     // If the profile has a config/sync directory use that to install drupal.
     if (is_dir($profile_path . '/config/sync')) {

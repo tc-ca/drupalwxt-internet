@@ -69,13 +69,19 @@ final class FieldContextHandler implements EntityContextHandlerInterface {
     $field_name = key($field_map[$entity_type_id]);
     $contexts = [];
 
-    if ($entity->hasField($field_name)) {
-      /** @var \Drupal\core_context\Plugin\Field\FieldType\ContextItem $item */
-      foreach ($entity->get($field_name) as $item) {
-        $contexts[$item->id] = $item->getValue();
-      }
+    if ($entity->hasField($field_name) === FALSE) {
+      return $contexts;
     }
 
+    $items = $entity->get($field_name);
+    if ($items->isEmpty()) {
+      return $contexts;
+    }
+
+    /** @var \Drupal\core_context\Plugin\Field\FieldType\ContextItem $item */
+    foreach ($items as $item) {
+      $contexts[$item->id] = $item->getValue();
+    }
     $contexts = $this->contextMapper->getContextValues($contexts);
     return $this->applyCaching($contexts, $entity);
   }

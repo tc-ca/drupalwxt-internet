@@ -39,6 +39,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       'ratio'        => 'fluid',
       'view_mode'    => 'default',
       'media_source' => 'remote_video',
+      'media_switch' => 'media',
       // @todo 'bundle' => 'entity_test',
     ];
 

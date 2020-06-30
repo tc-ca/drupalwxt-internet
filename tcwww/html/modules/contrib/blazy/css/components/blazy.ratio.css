@@ -3,15 +3,6 @@
  * The CSS and class names below are based on Slick media for easy migration.
  */
 
-.blazy,
-.blazy * {
-  box-sizing: border-box;
-}
-
-.media {
-  position: relative;
-}
-
 /**
  * Aspect ratio element wrapper. So can use dynamic/fluid ratio via JS which is
  * not possible using ::pseudo selector approach.
@@ -21,7 +12,13 @@
   height: 0;
   min-height: 1px;
   overflow: hidden;
+  position: relative;
   width: 100%;
+}
+
+/* Trying to be nice to minimize abrupt changes. */
+.media--ratio.is-b-loaded {
+  transition: padding-bottom .2s;
 }
 
 /* Aspect ratio element: IMG, IFRAME, DIV. */
@@ -61,9 +58,4 @@
 /* 16:9 ratio */
 .media--ratio--169 {
   padding-bottom: 56.25%;
-}
-
-/* Be sure to add width to the container accordingly, otherwise collapsed. */
-.field[data-blazy] {
-  min-width: 50%;
 }

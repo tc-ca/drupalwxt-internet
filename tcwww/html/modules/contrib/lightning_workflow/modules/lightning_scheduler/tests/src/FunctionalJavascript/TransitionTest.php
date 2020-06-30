@@ -23,6 +23,11 @@ class TransitionTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'block',
     'lightning_page',
@@ -68,7 +73,7 @@ class TransitionTest extends WebDriverTestBase {
     $this->createTransition('Published', time() - 10);
     $this->getSession()->getPage()->pressButton('Save');
     $this->cronRun();
-    $this->clickEditLink();
+    $this->drupalGet('/node/1/edit');
     $assert_session->pageTextContains('Current state Published');
     $assert_session->elementNotExists('css', '.scheduled-transition');
   }
@@ -86,7 +91,7 @@ class TransitionTest extends WebDriverTestBase {
     $this->createTransition('Archived', $now - 10);
     $this->getSession()->getPage()->pressButton('Save');
     $this->cronRun();
-    $this->clickEditLink();
+    $this->drupalGet('/node/1/edit');
     // It will still be in the draft state because the transition should resolve
     // to Draft -> Archived, which doesn't exist.
     $assert_session->pageTextContains('Current state Draft');
@@ -97,30 +102,28 @@ class TransitionTest extends WebDriverTestBase {
    * Tests that completed transitions are deleted.
    */
   public function testClearCompletedTransitions() {
-    $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
     $now = time();
 
     $page->selectFieldOption('moderation_state[0][state]', 'In review');
     $page->pressButton('Save');
-    $this->clickEditLink();
+    $this->drupalGet('/node/1/edit');
     $this->createTransition('Published', $now + 8);
     $page->pressButton('Save');
     $this->setRequestTime($now + 10);
     $this->cronRun();
-    $this->clickEditLink();
+    $this->drupalGet('/node/1/edit');
     $page->selectFieldOption('moderation_state[0][state]', 'Archived');
     $page->pressButton('Save');
     $this->cronRun();
-    $this->clickEditLink();
-    $assert_session->pageTextContains('Current state Archived');
+    $this->drupalGet('/node/1/edit');
+    $this->assertSession()->pageTextContains('Current state Archived');
   }
 
   /**
    * Tests automatically publishing a pending revision.
    */
   public function testPublishPendingRevision() {
-    $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
     $now = time();
 
@@ -130,7 +133,7 @@ class TransitionTest extends WebDriverTestBase {
     $page->clickLink('Promotion options');
     $page->checkField('Promoted to front page');
     $page->pressButton('Save');
-    $this->clickEditLink();
+    $this->drupalGet('/node/1/edit');
     $page->fillField('Title', 'MC Hammer');
     $page->selectFieldOption('moderation_state[0][state]', 'Draft');
     $this->createTransition('Published', $now + 8);
@@ -138,7 +141,7 @@ class TransitionTest extends WebDriverTestBase {
     $this->setRequestTime($now + 10);
     $this->cronRun();
     $this->drupalGet('/node');
-    $assert_session->linkExists('MC Hammer');
+    $this->assertSession()->linkExists('MC Hammer');
   }
 
   /**
@@ -174,7 +177,7 @@ class TransitionTest extends WebDriverTestBase {
     $this->cronRun($now + 12);
     $this->cronRun($now + 22);
 
-    $assert_session->elementExists('named', ['link', 'edit-form'])->click();
+    $this->drupalGet('/node/1/edit');
     $assert_session->pageTextContains('Current state Archived');
     $assert_session->elementNotExists('css', '.scheduled-transition');
   }

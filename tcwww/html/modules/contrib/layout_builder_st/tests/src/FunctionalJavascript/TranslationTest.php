@@ -28,6 +28,11 @@ class TranslationTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'classy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'content_translation',
     'layout_builder',

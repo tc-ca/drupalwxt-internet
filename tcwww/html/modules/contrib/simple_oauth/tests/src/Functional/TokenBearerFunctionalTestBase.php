@@ -3,8 +3,8 @@
 namespace Drupal\Tests\simple_oauth\Functional;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\Url;
 use Drupal\consumers\Entity\Consumer;
+use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
@@ -22,48 +22,71 @@ abstract class TokenBearerFunctionalTestBase extends BrowserTestBase {
   use RequestHelperTrait;
   use SimpleOauthTestTrait;
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'image',
     'node',
     'serialization',
     'simple_oauth',
     'text',
+    'user',
   ];
 
   /**
+   * The URL.
+   *
    * @var \Drupal\Core\Url
    */
   protected $url;
 
   /**
+   * The client.
+   *
    * @var \Drupal\consumers\Entity\Consumer
    */
   protected $client;
 
   /**
+   * The user.
+   *
    * @var \Drupal\user\UserInterface
    */
   protected $user;
 
   /**
+   * The client secret.
+   *
    * @var string
    */
   protected $clientSecret;
 
   /**
+   * The HTTP client to make requests.
+   *
    * @var \GuzzleHttp\ClientInterface
    */
   protected $httpClient;
 
   /**
+   * Additional roles used during tests.
+   *
    * @var \Drupal\user\RoleInterface[]
    */
   protected $additionalRoles;
 
   /**
+   * The request scope.
+   *
    * @var string
    */
   protected $scope;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
@@ -110,9 +133,11 @@ abstract class TokenBearerFunctionalTestBase extends BrowserTestBase {
     $this->user = $this->drupalCreateUser();
     $this->grantPermissions(Role::load(RoleInterface::ANONYMOUS_ID), [
       'access content',
+      'debug simple_oauth tokens',
     ]);
     $this->grantPermissions(Role::load(RoleInterface::AUTHENTICATED_ID), [
       'access content',
+      'debug simple_oauth tokens',
     ]);
 
     $this->setUpKeys();
@@ -142,7 +167,8 @@ abstract class TokenBearerFunctionalTestBase extends BrowserTestBase {
     $this->assertEquals(200, $response->getStatusCode());
     $parsed_response = Json::decode((string) $response->getBody());
     $this->assertSame('Bearer', $parsed_response['token_type']);
-    $expiration = $this->config('simple_oauth.settings')->get('access_token_expiration');
+    $expiration = $this->config('simple_oauth.settings')
+      ->get('access_token_expiration');
     $this->assertLessThanOrEqual($expiration, $parsed_response['expires_in']);
     $this->assertGreaterThanOrEqual($expiration - 10, $parsed_response['expires_in']);
     $this->assertNotEmpty($parsed_response['access_token']);

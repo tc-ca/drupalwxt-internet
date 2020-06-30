@@ -95,7 +95,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $settings = &$format['settings'];
 
-    $settings['breakpoints']     = $this->getDataBreakpoints(TRUE);
     $settings['bundle']          = $this->bundle;
     $settings['blazy']           = TRUE;
     $settings['grid']            = 0;

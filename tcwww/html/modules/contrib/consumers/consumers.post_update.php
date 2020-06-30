@@ -32,7 +32,6 @@ function consumers_post_update_make_consumer_entity_type_translatable(array &$sa
       'type' => 'language_select',
       'weight' => 2,
     ])
-    ->setRevisionable(TRUE)
     ->setTranslatable(TRUE)
     ->setName('langcode')
     ->setTargetEntityTypeId('consumer')

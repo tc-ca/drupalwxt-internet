@@ -75,7 +75,7 @@ abstract class CshsFormatterBase extends EntityReferenceFormatterBase {
    *   Parent terms of a given term.
    */
   protected function getTermParents(Term $term) {
-    return array_reverse($this->getTermStorage()->loadAllParents($term->id()));
+    return \array_reverse($this->getTermStorage()->loadAllParents($term->id()));
   }
 
 }

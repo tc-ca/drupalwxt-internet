@@ -51,14 +51,14 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
   protected $entityTypeManager;
 
   /**
-   * Webform submission storage.
+   * The webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
   protected $entityStorage;
 
   /**
-   * Webform element manager.
+   * The webform element manager.
    *
    * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
@@ -219,7 +219,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
    * {@inheritdoc}
    */
   public function getImportOption($name) {
-    return $this->importOptions[$name];
+    return $this->importOptions[$name] ?? NULL;
   }
 
   /**
@@ -416,7 +416,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
       // Get CSV values.
       $values = fgetcsv($handle);
       // Complete ignored empty rows.
-      if (empty($values) || $values == ['']) {
+      if (empty($values) || $values === ['']) {
         continue;
       }
       $index++;
@@ -636,7 +636,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
         $record[$element_key][$composite_key] = $value;
       }
       elseif ($element_plugin instanceof WebformCompositeBase) {
-        // Get the the composite element element and make sure it exists.
+        // Get the composite element and make sure it exists.
         $composite_elements = $element_plugin->getCompositeElements();
         if (!isset($composite_elements[$composite_key])) {
           continue;
@@ -766,7 +766,7 @@ class WebformSubmissionExportImportImporter implements WebformSubmissionExportIm
 
       // Check URL status code.
       $file_headers = @get_headers($new_file_uri);
-      if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+      if (!$file_headers || $file_headers[0] === 'HTTP/1.1 404 Not Found') {
         $errors[] = $this->t('[@element_key] URL (@url) returns 404 file not found.', $t_args);
         continue;
       }

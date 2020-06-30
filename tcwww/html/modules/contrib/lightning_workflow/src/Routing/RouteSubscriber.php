@@ -24,6 +24,23 @@ class RouteSubscriber extends RouteSubscriberBase {
     if ($route) {
       $route->setDefault('_controller', PanelizerIPEController::class . '::revertToDefault');
     }
+
+    // Ensure that certain routes use the latest revision, rather than the
+    // default revision. This can be removed when
+    // https://www.drupal.org/project/drupal/issues/2815221 is in core.
+    $load_latest_revision = function ($route) use ($collection) {
+      $route = $collection->get($route);
+
+      if ($route) {
+        $parameters = $route->getOption('parameters');
+        $parameters['entity']['load_latest_revision'] = TRUE;
+        $route->setOption('parameters', $parameters);
+      }
+    };
+    $load_latest_revision('editor.field_untransformed_text');
+    $load_latest_revision('image.upload');
+    $load_latest_revision('image.info');
+    $load_latest_revision('quickedit.field_form');
   }
 
 }

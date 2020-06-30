@@ -3,7 +3,7 @@
 namespace Drupal\entityqueue\Entity;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EditorialContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -13,7 +13,8 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\entityqueue\EntityQueueInterface;
 use Drupal\entityqueue\EntitySubqueueInterface;
-use Drupal\user\UserInterface;
+use Drupal\entityqueue\EntitySubqueueItemsFieldItemList;
+use Drupal\user\EntityOwnerTrait;
 
 /**
  * Defines the EntitySubqueue entity class.
@@ -21,8 +22,16 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "entity_subqueue",
  *   label = @Translation("Entity subqueue"),
+ *   label_collection = @Translation("Entity subqueues"),
+ *   label_singular = @Translation("subqueue"),
+ *   label_plural = @Translation("subqueues"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count subqueue",
+ *     plural = "@count subqueues"
+ *   ),
  *   bundle_label = @Translation("Entity queue"),
  *   handlers = {
+ *     "storage" = "\Drupal\entityqueue\EntitySubqueueStorage",
  *     "form" = {
  *       "default" = "Drupal\entityqueue\Form\EntitySubqueueForm",
  *       "delete" = "\Drupal\entityqueue\Form\EntitySubqueueDeleteForm",
@@ -30,24 +39,37 @@ use Drupal\user\UserInterface;
  *     },
  *     "access" = "Drupal\entityqueue\EntitySubqueueAccessControlHandler",
  *     "route_provider" = {
- *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
+ *       "html" = "Drupal\entityqueue\Routing\EntitySubqueueRouteProvider",
  *     },
  *     "list_builder" = "Drupal\entityqueue\EntitySubqueueListBuilder",
+ *     "translation" = "Drupal\content_translation\ContentTranslationHandler",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *   },
  *   base_table = "entity_subqueue",
+ *   data_table = "entity_subqueue_field_data",
+ *   revision_table = "entity_subqueue_revision",
+ *   revision_data_table = "entity_subqueue_field_revision",
+ *   translatable = TRUE,
  *   entity_keys = {
  *     "id" = "name",
+ *     "revision" = "revision_id",
  *     "bundle" = "queue",
  *     "label" = "title",
  *     "langcode" = "langcode",
  *     "uuid" = "uuid",
- *     "uid" = "uid"
+ *     "owner" = "uid",
+ *     "published" = "status",
+ *   },
+ *   revision_metadata_keys = {
+ *     "revision_user" = "revision_user",
+ *     "revision_created" = "revision_created",
+ *     "revision_log_message" = "revision_log_message",
  *   },
  *   bundle_entity_type = "entity_queue",
  *   field_ui_base_route = "entity.entity_queue.edit_form",
  *   permission_granularity = "bundle",
  *   links = {
+ *     "canonical" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}",
  *     "edit-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}",
  *     "delete-form" = "/admin/structure/entityqueue/{entity_queue}/{entity_subqueue}/delete",
  *     "collection" = "/admin/structure/entityqueue/{entity_queue}/list",
@@ -57,9 +79,10 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterface {
+class EntitySubqueue extends EditorialContentEntityBase implements EntitySubqueueInterface {
 
   use EntityChangedTrait;
+  use EntityOwnerTrait;
 
   /**
    * {@inheritdoc}
@@ -83,17 +106,25 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
     /** @var \Drupal\entityqueue\EntityQueueInterface $queue */
     $queue = $this->getQueue();
     $max_size = $queue->getMaximumSize();
-    $act_as_queue = $queue->getActAsQueue();
-
-    $items = $this->get('items')->getValue();
-    $number_of_items = count($items);
 
     // Remove extra items from the front of the queue if the maximum size is
     // exceeded.
-    if ($act_as_queue && $number_of_items > $max_size) {
-      $items = array_slice($items, -$max_size);
+    $items = $this->get('items')->getValue();
+    if ($queue->getActAsQueue() && count($items) > $max_size) {
+      if ($queue->isReversed()) {
+        $items = array_slice($items, 0, $max_size);
+      }
+      else {
+        $items = array_slice($items, -$max_size);
+      }
 
       $this->set('items', $items);
+    }
+
+    // If no revision author has been set explicitly, make the subqueue owner
+    // the revision author.
+    if (!$this->getRevisionUser()) {
+      $this->setRevisionUserId($this->getOwnerId());
     }
   }
 
@@ -146,28 +177,24 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+    $fields = parent::baseFieldDefinitions($entity_type);
+    $fields += static::ownerBaseFieldDefinitions($entity_type);
+
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
-      ->setDescription(t('The name of the subqueue.'))
+      ->setDescription(t('The ID (machine name) of the subqueue.'))
       ->setReadOnly(TRUE)
       // In order to work around the InnoDB 191 character limit on utf8mb4
       // primary keys, we set the character set for the field to ASCII.
       ->setSetting('is_ascii', TRUE);
 
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The subqueue UUID.'))
-      ->setReadOnly(TRUE);
-
-    $fields['queue'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Queue'))
-      ->setDescription(t('The queue (bundle) of this subqueue.'))
-      ->setSetting('target_type', 'entity_queue')
-      ->setReadOnly(TRUE);
+    $fields['queue']->setDescription(t('The queue (bundle) of this subqueue.'));
 
     $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Title'))
       ->setRequired(TRUE)
+      ->setTranslatable(TRUE)
+      ->setRevisionable(TRUE)
       ->setSetting('max_length', 191)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
@@ -183,12 +210,15 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
 
     $fields['items'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Items'))
+      ->setClass(EntitySubqueueItemsFieldItemList::class)
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       // This setting is overridden per bundle (queue) in
       // static::bundleFieldDefinitions(), but we need to default to a target
       // entity type that uses strings IDs, in order to allow both integers and
       // strings to be stored by the default entity reference field storage.
       ->setSetting('target_type', 'entity_subqueue')
+      ->setTranslatable(TRUE)
+      ->setRevisionable(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'entity_reference_label',
@@ -206,30 +236,25 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language'))
-      ->setDescription(t('The subqueue language code.'))
-      ->setDisplayOptions('view', [
-        'type' => 'hidden',
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'language_select',
-        'weight' => 2,
-      ]);
-
-    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Authored by'))
-      ->setDescription(t('The username of the subqueue author.'))
-      ->setSetting('target_type', 'user')
-      ->setDefaultValueCallback('Drupal\entityqueue\Entity\EntitySubqueue::getCurrentUserId');
+    $fields['uid']->setRevisionable(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
-      ->setDescription(t('The time that the subqueue was created.'));
+      ->setDescription(t('The time that the subqueue was created.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the subqueue was last edited.'));
+      ->setDescription(t('The time that the subqueue was last edited.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
+
+    // Keep this field hidden until we have a generic revision UI.
+    // @see https://www.drupal.org/project/drupal/issues/2350939
+    $fields['revision_log_message']->setDisplayOptions('form', [
+      'region' => 'hidden',
+    ]);
 
     return $fields;
   }
@@ -247,36 +272,6 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
       return $fields;
     }
     return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwner() {
-    return $this->get('uid')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwnerId() {
-    return $this->getEntityKey('uid');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwnerId($uid) {
-    $this->set('uid', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwner(UserInterface $account) {
-    $this->set('uid', $account->id());
-    return $this;
   }
 
   /**
@@ -302,15 +297,30 @@ class EntitySubqueue extends ContentEntityBase implements EntitySubqueueInterfac
   }
 
   /**
-   * Default value callback for 'uid' base field definition.
-   *
-   * @see ::baseFieldDefinitions()
-   *
-   * @return array
-   *   An array of default values.
+   * {@inheritdoc}
    */
-  public static function getCurrentUserId() {
-    return [\Drupal::currentUser()->id()];
+  public function reverseItems() {
+    $subqueue_items = $this->get('items')->getValue();
+    $this->get('items')->setValue(array_reverse($subqueue_items));
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shuffleItems() {
+    $subqueue_items = $this->get('items')->getValue();
+    shuffle($subqueue_items);
+    $this->get('items')->setValue($subqueue_items);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function clearItems() {
+    $this->get('items')->setValue(NULL);
+    return $this;
   }
 
   /**

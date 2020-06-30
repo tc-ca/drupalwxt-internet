@@ -29,6 +29,7 @@ use Drupal\layout_builder_styles\LayoutBuilderStyleInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
+ *     "weight" = "weight",
  *     "uuid" = "uuid"
  *   },
  *   config_export = {
@@ -36,6 +37,7 @@ use Drupal\layout_builder_styles\LayoutBuilderStyleInterface;
  *     "label" = "label",
  *     "classes" = "classes",
  *     "type" = "type",
+ *     "weight" = "weight",
  *     "block_restrictions" = "block_restrictions",
  *     "uuid" = "uuid"
  *   },
@@ -76,6 +78,13 @@ class LayoutBuilderStyle extends ConfigEntityBase implements LayoutBuilderStyleI
    * @var string
    */
   protected $type;
+
+  /**
+   * Order of style on the config page & in Layout Builder add/update forms.
+   *
+   * @var int
+   */
+  protected $weight = 0;
 
   /**
    * A list of blocks to limit this style to.

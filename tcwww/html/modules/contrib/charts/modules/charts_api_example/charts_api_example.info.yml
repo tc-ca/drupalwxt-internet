@@ -2,11 +2,12 @@ name: 'Charts API Example'
 type: module
 description: 'Demonstrates how to use the Charts module without Views.'
 core: 8.x
+core_version_requirement: ^8 || ^9
 package: Examples
 dependencies:
   - 'charts:charts'
 
-# Information added by Drupal.org packaging script on 2019-10-12
-version: '8.x-3.1'
+# Information added by Drupal.org packaging script on 2020-04-29
+version: '8.x-3.2'
 project: 'charts'
-datestamp: 1570850586
+datestamp: 1588134281

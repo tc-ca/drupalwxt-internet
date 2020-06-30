@@ -31,7 +31,7 @@ class WebformMapping extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     return [
       'title' => '',
       'default_value' => [],
@@ -66,15 +66,17 @@ class WebformMapping extends WebformElementBase {
       // Attributes.
       'wrapper_attributes' => [],
       'label_attributes' => [],
-    ] + $this->getDefaultBaseProperties();
+    ] + $this->defineDefaultBaseProperties();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTranslatableProperties() {
-    return array_merge(parent::getTranslatableProperties(), ['source', 'destination']);
+  protected function defineTranslatableProperties() {
+    return array_merge(parent::defineTranslatableProperties(), ['source', 'destination']);
   }
+
+  /****************************************************************************/
 
   /**
    * {@inheritdoc}
@@ -242,7 +244,7 @@ class WebformMapping extends WebformElementBase {
   public function buildExportHeader(array $element, array $options) {
     $header = [];
     foreach ($element['#source'] as $key => $label) {
-      $header[] = ($options['header_format'] == 'key') ? $key : $label;
+      $header[] = ($options['header_format'] === 'key') ? $key : $label;
     }
     return $this->prefixExportHeader($header, $element, $options);
   }

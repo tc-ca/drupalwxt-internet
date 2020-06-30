@@ -1,14 +1,16 @@
+# Todo
 name: Moderation Note
 type: module
 description: Provides the ability to notate elements of a moderated Entity.
 core: 8.x
+core_version_requirement: ^8 || ^9
 package: Other
 configure: moderation_note.settings
 dependencies:
   - drupal:content_moderation (>= 8.5)
   - drupal:user (>= 8.5)
 
-# Information added by Drupal.org packaging script on 2020-02-09
-version: '8.x-1.0-beta2'
+# Information added by Drupal.org packaging script on 2020-05-24
+version: '8.x-1.0-beta3'
 project: 'moderation_note'
-datestamp: 1581289931
+datestamp: 1590333148

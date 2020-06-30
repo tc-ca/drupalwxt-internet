@@ -27,6 +27,7 @@ trait CshsTaxonomyIndex {
     EntityTypeManagerInterface $entity_type_manager,
     EntityRepositoryInterface $entity_repository
   ) {
+    /* @see \Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTid::__construct() */
     parent::__construct(
       $configuration,
       $plugin_id,
@@ -110,7 +111,7 @@ trait CshsTaxonomyIndex {
       ];
     }
     elseif (static::ID === $this->options['type']) {
-      $form['value'] = array_merge($form['value'], $this->formElement(), [
+      $form['value'] = \array_merge($form['value'], $this->formElement(), [
         '#multiple' => FALSE,
         '#default_value' => (array) $form['value']['#default_value'],
       ]);
@@ -128,7 +129,7 @@ trait CshsTaxonomyIndex {
    * {@inheritdoc}
    */
   public function getSetting($key) {
-    return isset($this->options[$key]) ? $this->options[$key] : NULL;
+    return $this->options[$key] ?? NULL;
   }
 
   /**

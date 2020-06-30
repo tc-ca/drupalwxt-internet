@@ -16,6 +16,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -141,6 +142,7 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
       'display_name' => $display,
       'arguments' => $arguments,
       'parent_field' => $element['parent_field']['#value'],
+      'reference_parent_by_uuid' => $element['reference_parent_by_uuid']['#value'],
     ];
     $form_state->setValueForElement($element, $value);
   }
@@ -157,7 +159,6 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
    *   The updated field.
    */
   public static function updateDependentField(array $form, FormStateInterface $form_state) {
-
     $entity = $form_state->getFormObject()->getEntity();
     $trigger_field = $form_state->getTriggeringElement();
 
@@ -167,7 +168,8 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
     foreach ($children as $child) {
       $field_definition = $entity->getFieldDefinitions();
       if ($field_definition[$child]->getSetting('handler') == 'business_rules_views') {
-        $handle_settings = $field_definition[$child]->getSetting('handler_settings');
+        $handler_settings = $field_definition[$child]->getSetting('handler_settings');
+        $view = Views::getView($handler_settings['business_rules_view']['view_name']);
 
         $parent_field_value = $trigger_field['#value'];
         if ($trigger_field['#type'] === 'entity_autocomplete' && preg_match('/\((\d+)\)$/', $parent_field_value, $matches)) {
@@ -175,45 +177,24 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
           // string which contains the entity id.
           $parent_field_value = $matches[1];
         }
+
+        if (!empty($handler_settings['business_rules_view']['reference_parent_by_uuid'])) {
+          $parent_field_value = static::convertEntityIdsToUuids($parent_field_value, $view->getBaseEntityType()->id());
+        }
+
         // If we have an array with values we should implode those values and
         // enable Allow multiple values into our contextual filter.
         if (is_array($parent_field_value)) {
           $parent_field_value = implode(",", $parent_field_value);
         }
-        $arguments = $handle_settings['business_rules_view']['arguments'];
-        $args = !empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments;
-        $view_id = $handle_settings['business_rules_view']['view_name'];
-        $display_id = $handle_settings['business_rules_view']['display_name'];
 
         // Get values from the view.
-        $view = Views::getView($view_id);
-        $view->setArguments($args);
-        $view->setDisplay($display_id);
+        $arguments = $handler_settings['business_rules_view']['arguments'];
+        $view->setArguments(!empty($parent_field_value) ? [$parent_field_value] + $arguments : $arguments);
+        $view->setDisplay($handler_settings['business_rules_view']['display_name']);
         $view->preExecute();
         $view->build();
-
-        $options = [];
-
-        if ($view->execute()) {
-          $renderer = \Drupal::service('renderer');
-          $render_array = $view->style_plugin->render();
-          foreach ($render_array as $key => $value) {
-            $rendered_value = (string) $renderer->render($value);
-            $options[] = [
-              'key' => $key,
-              'value' => Html::decodeEntities(strip_tags($rendered_value)),
-            ];
-          }
-        }
-
-        uasort($options, function ($a, $b) {
-          return $a['value'] < $b['value'] ? -1 : 1;
-        });
-
-        array_unshift($options, [
-          'key' => '_none',
-          'value' => t('-Select-'),
-        ]);
+        $options = static::getViewOptions($view);
 
         $form_field = $form[$child];
         $form_field['widget']['#options'] = $options;
@@ -223,11 +204,46 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         $html_field_id = substr($child, strlen($child) - 1, 1) == '_' ? $html_field_id . '-' : $html_field_id;
 
         $response->addCommand(new UpdateOptionsCommand($html_field_id, $options));
+      }
+    }
+    return $response;
+  }
 
+  protected static function convertEntityIdsToUuids($entity_ids, string $entity_type) {
+    if (!is_array($entity_ids)) {
+      $entity_ids = [$entity_ids];
+    }
+
+    $uuids = [];
+    foreach ($entity_ids as $entity_id) {
+      $uuids[] = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id)->uuid();
+    }
+    return $uuids;
+  }
+
+  protected static function getViewOptions(ViewExecutable $view) {
+    $options = [];
+    if ($view->execute()) {
+      $renderer = \Drupal::service('renderer');
+      $render_array = $view->style_plugin->render();
+      foreach ($render_array as $key => $value) {
+        $rendered_value = (string) $renderer->render($value);
+        $options[] = [
+          'key' => $key,
+          'value' => Html::decodeEntities(strip_tags($rendered_value)),
+        ];
       }
     }
 
-    return $response;
+    uasort($options, function ($a, $b) {
+      return $a['value'] < $b['value'] ? -1 : 1;
+    });
+
+    array_unshift($options, [
+      'key' => '_none',
+      'value' => t('-Select-'),
+    ]);
+    return $options;
   }
 
   /**
@@ -305,6 +321,14 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         '#required' => TRUE,
         '#description' => t('The field which this field depends. When the parent field value is changed, the available options for this field will be updated using the parent field value as the first argument followed by any particular other argument imputed in the "Views arguments".'),
         '#default_value' => $default,
+      ];
+
+      $default = !empty($view_settings['reference_parent_by_uuid']) ? $view_settings['reference_parent_by_uuid'] : FALSE;
+      $form['business_rules_view']['reference_parent_by_uuid'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Reference parent by UUID instead of entity ID?'),
+        '#default_value' => $default,
+        '#description' => $this->t('Required if the parent argument in your view (selected above) accepts UUIDs instead of entity IDs (to ensure configuration portability between sites).'),
       ];
 
       $default = !empty($view_settings['arguments']) ? implode(', ', $view_settings['arguments']) : '';

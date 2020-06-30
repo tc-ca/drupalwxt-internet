@@ -120,6 +120,9 @@ function moderation_sidebar_toolbar() {
  */
 function moderation_sidebar_theme() {
   return [
+    'moderation_sidebar_container' => [
+      'render element' => 'element',
+    ],
     'moderation_sidebar_info' => [
       'variables' => [
         'state' => '',

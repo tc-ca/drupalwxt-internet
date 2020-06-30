@@ -39,7 +39,7 @@ abstract class PasswordConstraintBase extends PluginBase implements PasswordCons
    * {@inheritdoc}
    */
   public function getErrorMessage() {
-    return $this->pluginDefinition['error_message'];
+    return $this->pluginDefinition['errorMessage'];
   }
 
   /**

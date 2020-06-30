@@ -25,13 +25,14 @@ abstract class DateBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     return [
       // Form validation.
       'date_date_min' => '',
       'date_date_max' => '',
       'date_days' => ['0', '1', '2', '3', '4', '5', '6'],
-    ] + parent::getDefaultProperties() + $this->getDefaultMultipleProperties();
+    ] + parent::defineDefaultProperties()
+      + $this->defineDefaultMultipleProperties();
   }
 
   /****************************************************************************/
@@ -49,7 +50,7 @@ abstract class DateBase extends WebformElementBase {
     $element['#theme_wrappers'] = ['form_element'];
 
     // Must manually process #states.
-    // @see drupal_process_states().
+    // @see \Drupal\Core\Form\FormHelper::processStates
     if (!empty($element['#states'])) {
       $element['#attached']['library'][] = 'core/drupal.states';
       $element['#wrapper_attributes']['data-drupal-states'] = Json::encode($element['#states']);

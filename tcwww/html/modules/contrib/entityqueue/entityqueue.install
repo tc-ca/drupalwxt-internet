@@ -5,10 +5,8 @@
  * Install, update and uninstall functions for the Entityqueue module.
  */
 
-/**
- * @addtogroup updates-8.x-1.0-alpha
- * @{
- */
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Updates the internal structure of the entity queue config entities.
@@ -63,5 +61,86 @@ function entityqueue_update_8003() {
 }
 
 /**
- * @} End of "addtogroup updates-8.x-1.0-alpha".
+ * Add the publishing status field to subqueues.
  */
+function entityqueue_update_8007() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = $definition_update_manager->getEntityType('entity_subqueue');
+
+  // Add the 'published' entity key to the entity_subqueue entity type.
+  $entity_keys = $entity_type->getKeys();
+  $entity_keys['published'] = 'status';
+  $entity_type->set('entity_keys', $entity_keys);
+
+  $definition_update_manager->updateEntityType($entity_type);
+
+  // Add the status field.
+  $status = BaseFieldDefinition::create('boolean')
+    ->setLabel(t('Publishing status'))
+    ->setDescription(t('A boolean indicating the published state.'))
+    ->setRevisionable(TRUE)
+    ->setTranslatable(TRUE)
+    ->setDefaultValue(TRUE);
+
+  $has_content_translation_status_field = $definition_update_manager->getFieldStorageDefinition('content_translation_status', 'entity_subqueue');
+  if ($has_content_translation_status_field) {
+    $status->setInitialValueFromField('content_translation_status', TRUE);
+  }
+  else {
+    $status->setInitialValue(TRUE);
+  }
+  $definition_update_manager->installFieldStorageDefinition('status', 'entity_subqueue', 'entity_subqueue', $status);
+
+  // Uninstall the 'content_translation_status' field if needed.
+  if ($has_content_translation_status_field) {
+    $content_translation_status = $definition_update_manager->getFieldStorageDefinition('content_translation_status', 'entity_subqueue');
+    $definition_update_manager->uninstallFieldStorageDefinition($content_translation_status);
+  }
+
+  return t('The publishing status field has been added to Entity Subqueues.');
+}
+
+/**
+ * Add the revision metadata fields to subqueues.
+ */
+function entityqueue_update_8006() {
+  // We are adding these fields before the conversion to revisionable in order
+  // to be able to use initial values from the existing 'created' and 'uid'
+  // fields.
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_type = $definition_update_manager->getEntityType('entity_subqueue');
+
+  // Add the revision metadata keys to the entity_subqueue entity type.
+  $revision_metadata_keys = [
+    'revision_default' => 'revision_default',
+    'revision_user' => 'revision_user',
+    'revision_created' => 'revision_created',
+    'revision_log_message' => 'revision_log_message',
+  ];
+  $entity_type->set('revision_metadata_keys', $revision_metadata_keys);
+  $definition_update_manager->updateEntityType($entity_type);
+
+  $revision_created = BaseFieldDefinition::create('created')
+    ->setLabel(new TranslatableMarkup('Revision create time'))
+    ->setDescription(new TranslatableMarkup('The time that the current revision was created.'))
+    ->setRevisionable(TRUE)
+    ->setInitialValueFromField('created');
+  $definition_update_manager->installFieldStorageDefinition('revision_created', 'entity_subqueue', 'entity_subqueue', $revision_created);
+
+  $revision_user = BaseFieldDefinition::create('entity_reference')
+    ->setLabel(new TranslatableMarkup('Revision user'))
+    ->setDescription(new TranslatableMarkup('The user ID of the author of the current revision.'))
+    ->setSetting('target_type', 'user')
+    ->setRevisionable(TRUE)
+    ->setInitialValueFromField('uid');
+  $definition_update_manager->installFieldStorageDefinition('revision_user', 'entity_subqueue', 'entity_subqueue', $revision_user);
+
+  $revision_log_message = BaseFieldDefinition::create('string_long')
+    ->setLabel(new TranslatableMarkup('Revision log message'))
+    ->setDescription(new TranslatableMarkup('Briefly describe the changes you have made.'))
+    ->setRevisionable(TRUE)
+    ->setDefaultValue('');
+  $definition_update_manager->installFieldStorageDefinition('revision_log_message', 'entity_subqueue', 'entity_subqueue', $revision_log_message);
+
+  return t('The revision metadata fields have been added to Entity Subqueues.');
+}

@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\layout_builder_st\Functional\Rest;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Url;
 use Drupal\layout_builder\Plugin\SectionStorage\OverridesSectionStorage;
 use Drupal\node\Entity\Node;
@@ -14,6 +15,11 @@ use GuzzleHttp\RequestOptions;
  * @group rest
  */
 class OverrideSectionsTest extends LayoutRestTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
@@ -41,17 +47,25 @@ class OverrideSectionsTest extends LayoutRestTestBase {
       'GET',
       Url::fromRoute('rest.entity.node.GET', ['node' => $this->node->id()])
     );
+    $expected_cache_tags = [
+        'config:filter.format.plain_text',
+        'config:rest.resource.entity.node',
+        'http_response',
+        'node:1',
+    ];
+    // Drupal 8 has the rest.settings config object, and its cache tags are
+    // expected to be present in the response. In Drupal 9, the config does not
+    // exist.
+    // @todo Remove this when Drupal 9 is the minimum supported version of core.
+    $rest_settings = $this->config('rest.settings');
+    if (!$rest_settings->isNew()) {
+      $expected_cache_tags = Cache::mergeTags($expected_cache_tags, $rest_settings->getCacheTags());
+    }
     $this->assertResourceResponse(
       200,
       FALSE,
       $response,
-      [
-        'config:filter.format.plain_text',
-        'config:rest.resource.entity.node',
-        'config:rest.settings',
-        'http_response',
-        'node:1',
-      ],
+      $expected_cache_tags,
       [
         'languages:language_interface',
         'theme',

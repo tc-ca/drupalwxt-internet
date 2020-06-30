@@ -8,6 +8,7 @@ use Drupal\Core\Test\AssertMailTrait;
 use Drupal\Tests\field_ui\Traits\FieldUiTestTrait;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\filter\Entity\FilterFormat;
+use Drupal\Tests\Traits\Core\PathAliasTestTrait;
 
 /**
  * Tests storing contact messages and viewing them through UI.
@@ -20,6 +21,12 @@ class ContactStorageTest extends ContactStorageTestBase {
   use AssertMailTrait {
     getMails as drupalGetMails;
   }
+  use PathAliasTestTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
 
   /**
    * An administrative user with permission to administer contact forms.
@@ -257,7 +264,7 @@ class ContactStorageTest extends ContactStorageTestBase {
     $this->drupalGet('contact/test_id_2');
     $this->drupalPostForm(NULL, $edit, t('Submit the form'));
     $form = ContactForm::load('test_id_2');
-    $this->assertTrue($form->uuid());
+    $this->assertNotEmpty($form->uuid());
 
     // Try changing the options email label, field default value and setting it
     // to required.
@@ -274,7 +281,7 @@ class ContactStorageTest extends ContactStorageTestBase {
     $this->assertText('Category-2');
     $this->assertOption('edit-field-category', 'test_key1');
     $this->assertOption('edit-field-category', 'test_key2');
-    $this->assertTrue($this->xpath('//select[@id="edit-field-category" and @required="required"]//option[@value="test_key1" and @selected="selected"]'));
+    $this->assertNotEmpty($this->xpath('//select[@id="edit-field-category" and @required="required"]//option[@value="test_key1" and @selected="selected"]'));
 
     // Verify that the 'View messages' link exists for the 2 forms and that it
     // links to the correct view.
@@ -345,6 +352,13 @@ class ContactStorageTest extends ContactStorageTestBase {
     $this->assertResponse(200);
     $this->assertText('contactForm');
 
+    // Edit the contact form without changing anything. Verify that the existing
+    // alias continues to work.
+    $this->drupalPostForm('admin/structure/contact/manage/form_alias_2', [], 'Save');
+    $this->assertText('Contact form contactForm has been updated.');
+    $this->drupalGet('form51');
+    $this->assertResponse(200);
+
     // Edit the contact form by changing the alias. Verify that the new alias
     // is generated and the old one removed.
     $this->drupalPostForm('admin/structure/contact/manage/form_alias_2', ['contact_storage_url_alias' => '/form52'], 'Save');
@@ -369,8 +383,10 @@ class ContactStorageTest extends ContactStorageTestBase {
     $this->assertResponse(200);
     $this->assertText('contactForm');
     $this->drupalPostForm('admin/structure/contact/manage/form_alias_2/delete', [], 'Delete');
-    $alias = \Drupal::service('path.alias_storage')->load(['source' => '/contact/form_alias_2']);
-    $this->assertFalse($alias);
+    $alias = $this->loadPathAliasByConditions([
+      'path' => '/contact/form_alias_2',
+    ]);
+    $this->assertNull($alias);
   }
 
   public function testMaximumSubmissionLimit() {
@@ -408,8 +424,8 @@ class ContactStorageTest extends ContactStorageTestBase {
     // Verify that the auto-reply shows up in the field and only offers
     // one format (plain text), since html e-mails are disabled.
     $this->drupalGet('admin/structure/contact/manage/test_auto_reply_id_1');
-    $this->assertTrue($this->xpath('//textarea[@id="edit-reply-value" and text()=:text]', [':text' => "auto_reply_1\nsecond_line"]));
-    $this->assertFalse($this->xpath('//select[@name="reply[format]"]'));
+    $this->assertNotEmpty($this->xpath('//textarea[@id="edit-reply-value" and text()=:text]', [':text' => "auto_reply_1\nsecond_line"]));
+    $this->assertEmpty($this->xpath('//select[@name="reply[format]"]'));
 
     $this->drupalGet('contact');
     $edit = [
@@ -424,15 +440,15 @@ class ContactStorageTest extends ContactStorageTestBase {
     // Checks that the last captured email is the auto-reply, has a correct
     // body and is in html format.
     $this->assertEqual(end($captured_emails)['key'], 'page_autoreply');
-    $this->assertTrue(strpos(end($captured_emails)['body'], "auto_reply_1\nsecond_line") !== FALSE);
-    $this->assertTrue(strpos(end($captured_emails)['headers']['Content-Type'], 'text/plain') !== FALSE);
+    $this->assertContains("auto_reply_1\nsecond_line", end($captured_emails)['body']);
+    $this->assertContains('text/plain', end($captured_emails)['headers']['Content-Type']);
 
     // Enable sending messages in html format and verify that the available
     // formats correctly show up on the contact form edit page.
     $this->drupalPostForm('/admin/structure/contact/settings', ['send_html' => TRUE], t('Save configuration'));
     $this->drupalGet('admin/structure/contact/manage/test_auto_reply_id_1');
-    $this->assertTrue($this->xpath('//select[@name="reply[format]"]//option[@value="plain_text" and @selected="selected"]'));
-    $this->assertTrue($this->xpath('//select[@name="reply[format]"]//option[@value="full_html"]'));
+    $this->assertNotEmpty($this->xpath('//select[@name="reply[format]"]//option[@value="plain_text" and @selected="selected"]'));
+    $this->assertNotEmpty($this->xpath('//select[@name="reply[format]"]//option[@value="full_html"]'));
 
     // Use custom testing mail system to support HTML mails.
     $mail_config = $this->config('system.mail');
@@ -457,7 +473,7 @@ class ContactStorageTest extends ContactStorageTestBase {
     // properly set.
     $this->drupalPostForm('admin/structure/contact/manage/test_auto_reply_id_1', ['reply[format]' => 'full_html'], t('Save'));
     $this->drupalGet('admin/structure/contact/manage/test_auto_reply_id_1');
-    $this->assertTrue($this->xpath('//select[@name="reply[format]"]//option[@value="full_html" and @selected="selected"]'));
+    $this->assertNotEmpty($this->xpath('//select[@name="reply[format]"]//option[@value="full_html" and @selected="selected"]'));
 
   }
 

@@ -5,8 +5,6 @@ namespace Drupal\cshs;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Tags;
 use Drupal\Component\Utility\Html;
-use Drupal\taxonomy\Entity\Term;
-use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Defines a class for getting options for a cshs form element from vocabulary.
@@ -51,7 +49,7 @@ trait CshsOptionsFromHelper {
   /**
    * Returns the taxonomy vocabulary to work with.
    *
-   * @return Vocabulary
+   * @return \Drupal\taxonomy\Entity\Vocabulary
    *   Taxonomy vocabulary object.
    */
   abstract public function getVocabulary();
@@ -173,7 +171,7 @@ trait CshsOptionsFromHelper {
       ],
     ];
 
-    /** @var Term $term */
+    /* @var \Drupal\taxonomy\Entity\Term $term */
     foreach ($this->getTermStorage()->loadTree($vocabulary_id, $parent, NULL, TRUE) as $term) {
       $parents = array_values($term->parents);
 

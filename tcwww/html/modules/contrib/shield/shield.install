@@ -28,3 +28,38 @@ function shield_update_8002() {
     ->clear('pass')
     ->save(TRUE);
 }
+
+/**
+ * Enable shield conditionally after shield_enable option was added.
+ */
+function shield_update_8003() {
+  // Note: Get the currently effective value, instead of getEditable(), to make
+  // sure not to leave a site unprotected if config overridden in settings.php.
+  $config = \Drupal::configFactory()->get('shield.settings');
+
+  // Shield is considered to be enabled if user value is not empty, find
+  // the user value based on credential_provider.
+  switch ($config->get('credential_provider')) {
+    case 'shield':
+      $user = $config->get('credentials.shield.user');
+      break;
+
+    case 'key':
+      $user = $config->get('credentials.key.user');
+      break;
+
+    case 'multikey':
+      $storage = \Drupal::entityTypeManager()->getStorage('key');
+      $user_pass_key = $storage->load($config->get('credentials.multikey.user_pass_key'));
+      if ($user_pass_key) {
+        $values = $user_pass_key->getKeyValues();
+        $user = $values['username'];
+      }
+      break;
+  }
+
+  if (!empty($user)) {
+    $config = \Drupal::configFactory()->getEditable('shield.settings');
+    $config->set('shield_enable', TRUE)->save();
+  }
+}

@@ -194,7 +194,7 @@ function template_preprocess_views_view_charts(&$variables) {
   try {
     $plugin_definition = $chartOverridePluginManager->getDefinition($options['library'] . '_overrides');
     if (!empty($plugin_definition)) {
-      $chartOverridePlugin = $chartOverridePluginManager->createInstance($options['library'] . '_overrides');
+      $chartOverridePlugin = $chartOverridePluginManager->createInstance($plugin_definition['id']);
       $chartOverrideOptions = $chartOverridePlugin->chartOverrides($variables['options']);
     }
   } catch (PluginNotFoundException $e) {

@@ -3,25 +3,27 @@
 namespace Drupal\inline_entity_form\Form;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\RevisionableInterface;
-use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Render\Element;
 use Drupal\inline_entity_form\InlineFormInterface;
-use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Generic entity inline form handler.
  */
 class EntityInlineForm implements InlineFormInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The entity field manager.
@@ -93,10 +95,10 @@ class EntityInlineForm implements InlineFormInterface {
    * {@inheritdoc}
    */
   public function getEntityTypeLabels() {
-    $lowercase_label = $this->entityType->getLowercaseLabel();
+    $lowercase_label = $this->entityType->getSingularLabel();
     return [
       'singular' => $lowercase_label,
-      'plural' => t('@entity_type entities', ['@entity_type' => $lowercase_label]),
+      'plural' => $this->t('@entity_type entities', ['@entity_type' => $lowercase_label]),
     ];
   }
 
@@ -113,12 +115,12 @@ class EntityInlineForm implements InlineFormInterface {
   public function getTableFields($bundles) {
     $definitions = $this->entityFieldManager->getBaseFieldDefinitions($this->entityType->id());
     $label_key = $this->entityType->getKey('label');
-    $label_field_label = t('Label');
+    $label_field_label = $this->t('Label');
     if ($label_key && isset($definitions[$label_key])) {
       $label_field_label = $definitions[$label_key]->getLabel();
     }
     $bundle_key = $this->entityType->getKey('bundle');
-    $bundle_field_label = t('Type');
+    $bundle_field_label = $this->t('Type');
     if ($bundle_key && isset($definitions[$bundle_key])) {
       $bundle_field_label = $definitions[$bundle_key]->getLabel();
     }
@@ -183,6 +185,14 @@ class EntityInlineForm implements InlineFormInterface {
         if (isset($entity_form[$field_name]) && $field_name != $langcode_key) {
           $entity_form[$field_name]['#access'] = $definition->isTranslatable();
         }
+      }
+    }
+
+    // Hide the log message field for revisionable entity types. It cannot be
+    // disabled in UI and does not make sense in inline entity form context.
+    if (($this->entityType instanceof ContentEntityTypeInterface)) {
+      if ($log_message_key = $this->entityType->getRevisionMetadataKey('revision_log_message')) {
+        $entity_form[$log_message_key]['#access'] = FALSE;
       }
     }
 
@@ -264,15 +274,7 @@ class EntityInlineForm implements InlineFormInterface {
   /**
    * {@inheritdoc}
    */
-  public function save(EntityInterface $entity, FormStateInterface $form_state) {
-    if ($this->shouldSaveNewRevision($entity, $form_state)) {
-      $entity->setNewRevision();
-      if ($entity instanceof RevisionLogInterface) {
-        // If a new revision is created, save the current user as revision author.
-        $entity->setRevisionUserId(\Drupal::currentUser()->id());
-        $entity->setRevisionCreationTime(REQUEST_TIME);
-      }
-    }
+  public function save(EntityInterface $entity) {
     $entity->save();
   }
 
@@ -351,35 +353,6 @@ class EntityInlineForm implements InlineFormInterface {
    */
   protected function getFormDisplay(ContentEntityInterface $entity, $form_mode) {
     return EntityFormDisplay::collectRenderDisplay($entity, $form_mode);
-  }
-
-  /**
-   * Determines whether we should save a new revision.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   *
-   * @return bool
-   */
-  protected function shouldSaveNewRevision(EntityInterface $entity, FormStateInterface $form_state) {
-    $new_revision = FALSE;
-    if ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) {
-      if ($entity->isNewRevision()) {
-        $new_revision = TRUE;
-      }
-
-      // Most of the time we don't know yet if the host entity is going to be
-      // saved as a new revision using RevisionableInterface::isNewRevision().
-      // Most entity types (at least nodes) however use a boolean property named
-      // "revision" to indicate whether a new revision should be saved. Use that
-      // property.
-      elseif ($form_state->getValue('revision')) {
-        $new_revision = TRUE;
-      }
-    }
-    return $new_revision;
   }
 
 }

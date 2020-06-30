@@ -18,11 +18,11 @@
   font-weight: normal;
   font-size: 14px;
   margin: 0 0 10px 0;
-  padding: 10px 6px;
+  padding: 10px 16px;
   color: white;
-  border: 0;
+  border: 1px solid white;
   border-radius: 2px;
-  text-align: center;
+  text-align: left;
   transition: .2s;
 }
 
@@ -77,25 +77,24 @@
   border: none !important;
 }
 
-.ui-dialog-off-canvas #drupal-off-canvas a.moderation-sidebar-link.button {
-  background: #7b7b7b;
-}
-
-.ui-dialog-off-canvas #drupal-off-canvas a.moderation-sidebar-link.button:hover {
-  background: #888;
-}
-
-.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link:hover {
-  color: white;
+.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link:hover,
+.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link:focus {
+  color: black;
+  text-decoration: none;
+  background: #ddd;
 }
 
 .ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button.button--danger {
+  color: white;
   background: #bd2727;
+  border: 1px solid #bd2727;
 }
 
 .ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button.button--danger:hover,
 .ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button.button--danger:focus {
-  background: #da2e2e;
+  color: white;
+  background: #a51f1f;
+  border: 1px solid #a51f1f;
 }
 
 .quick-moderation-form select {
@@ -175,6 +174,15 @@
   color: white;
 }
 
+.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button--primary {
+  border: 1px solid #277abd;
+}
+
+.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button--primary:hover,
+.ui-dialog-off-canvas #drupal-off-canvas .moderation-sidebar-link.button--primary:focus {
+  border: 1px solid #236aaf;
+}
+
 .toolbar-icon-moderation-sidebar.moderation-label-published:after {
   background: #269e2c;
 }
@@ -208,4 +216,17 @@
   .toolbar-icon-moderation-sidebar.moderation-label-draft-available {
     background: #ffae00;
   }
+}
+
+.moderation-sidebar-primary-tasks {
+  padding-bottom: 10px;
+}
+
+.moderation-sidebar-secondary-tasks {
+  padding-top: 20px;
+  border-top: 1px solid #7b7b7b;
+}
+
+.moderation-sidebar-actions {
+  margin-top: 20px;
 }

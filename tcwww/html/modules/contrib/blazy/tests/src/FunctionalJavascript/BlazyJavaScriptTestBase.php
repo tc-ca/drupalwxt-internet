@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\blazy\FunctionalJavascript;
 
+use Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
@@ -20,6 +21,11 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
    * {@inheritdoc}
    */
   protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $minkDefaultDriverClass = DrupalSelenium2Driver::class;
 
   /**
    * {@inheritdoc}

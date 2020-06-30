@@ -3,4 +3,4 @@ services:
     class: '\Drupal\lightning_roles\ContentRoleManager'
     arguments:
       - '@config.factory'
-      - '@entity.query'
+      - '@entity_type.manager'

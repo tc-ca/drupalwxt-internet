@@ -25,6 +25,11 @@ class ContextBlockTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'block',
     'core_context',
@@ -45,8 +50,8 @@ class ContextBlockTest extends BrowserTestBase {
 
     $this->drupalPlaceBlock('context_block', [
       'context_mapping' => [
-        'value' => '@core_context.entity:value',
-        'letter' => '@core_context.entity:letter',
+        'value' => '@core_context:value',
+        'letter' => '@core_context:letter',
       ],
     ]);
   }

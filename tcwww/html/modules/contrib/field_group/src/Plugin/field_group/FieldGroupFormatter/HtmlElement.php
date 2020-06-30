@@ -71,7 +71,7 @@ class HtmlElement extends FieldGroupFormatterBase {
     $element['#attributes'] = $element_attributes;
     if ($this->getSetting('show_label')) {
       $element['#title_element'] = $this->getSetting('label_element');
-      $element['#title'] = $this->getLabel();
+      $element['#title'] = t($this->getLabel());
       $element['#title_attributes'] = new Attribute();
 
       if (!empty($this->getSetting('label_element_classes'))) {

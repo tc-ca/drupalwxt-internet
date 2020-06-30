@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\Tests\devel_php\Functional;
 
 use Drupal\Core\Url;
@@ -13,11 +15,19 @@ use Drupal\Tests\BrowserTestBase;
 class PermissionsTest extends BrowserTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['devel', 'devel_php'];
+  public static $modules = [
+    'devel',
+    'devel_php',
+  ];
 
   /**
    * Tests user permissions to execute code.

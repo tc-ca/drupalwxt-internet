@@ -1,5 +1,6 @@
 name: 'Lightning Roles'
 core: 8.x
+core_version_requirement: '^8 || ^9'
 type: module
 package: Lightning
 description: 'Automatically manages user roles and permissions.'
@@ -7,7 +8,7 @@ dependencies:
   - drupal:node
 configure: lightning_roles.settings
 
-# Information added by Drupal.org packaging script on 2019-12-04
-version: '8.x-5.0'
+# Information added by Drupal.org packaging script on 2020-05-20
+version: '8.x-5.2'
 project: 'lightning_core'
-datestamp: 1575473901
+datestamp: 1589997192

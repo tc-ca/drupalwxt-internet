@@ -6,23 +6,24 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\Xss;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
 use Drupal\webform\Plugin\WebformElementEntityReferenceInterface;
 use Drupal\webform\Plugin\WebformElement\WebformComputedBase;
+use Drupal\webform\Plugin\WebformElement\WebformMarkupBase;
 use Drupal\webform\Utility\WebformDateHelper;
+use Drupal\webform\Utility\WebformHtmlHelper;
 use Drupal\webform\Utility\WebformLogicHelper;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Drupal\Core\Url;
 
 /**
  * Implements hook_token_info().
@@ -423,12 +424,12 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
   }
 
   $replacements = [];
-  if ($type == 'webform_role' && !empty($data['webform_role'])) {
+  if ($type === 'webform_role' && !empty($data['webform_role'])) {
     $roles = $data['webform_role'];
     $any_role = in_array('authenticated', $roles) ? TRUE : FALSE;
     foreach ($tokens as $role_name => $original) {
       if ($any_role || in_array($role_name, $roles)) {
-        if ($role_name == 'authenticated') {
+        if ($role_name === 'authenticated') {
           // Get all active authenticated users.
           $query = \Drupal::database()->select('users_field_data', 'u');
           $query->fields('u', ['mail']);
@@ -454,7 +455,7 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
     }
 
   }
-  elseif ($type == 'webform_submission' && !empty($data['webform_submission'])) {
+  elseif ($type === 'webform_submission' && !empty($data['webform_submission'])) {
     /** @var \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager */
     $element_manager = \Drupal::service('plugin.manager.webform.element');
 
@@ -757,7 +758,7 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
     }
 
   }
-  elseif ($type == 'webform' && !empty($data['webform'])) {
+  elseif ($type === 'webform' && !empty($data['webform'])) {
 
     /** @var \Drupal\webform\WebformInterface $webform */
     $webform = $data['webform'];
@@ -817,7 +818,7 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
             $token_value = \Drupal::service('renderer')->renderPlain($token_value);
           }
           else {
-            $token_value = Markup::create(Xss::filter($token_value));
+            $token_value = WebformHtmlHelper::toHtmlMarkup($token_value);
           }
           $replacements[$original] = $token_value;
         }
@@ -831,7 +832,7 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
         $key_exists = NULL;
         $value = NestedArray::getValue($webform_handler, $parents, $key_exists);
         // A handler response is always considered safe markup.
-        $replacements[$original] = ($key_exists) ? Markup::create($value) : $original;
+        $replacements[$original] = ($key_exists && is_scalar($value)) ? Markup::create($value) : $original;
       }
     }
 
@@ -893,7 +894,7 @@ function _webform_token_get_submission_value($value_token, array $options, Webfo
   $element_key = array_shift($keys);
 
   // Build HTML values.
-  if ($element_key == 'html' && empty($keys)) {
+  if ($element_key === 'html' && empty($keys)) {
     $options['html'] = TRUE;
     return _webform_token_get_submission_values($options, $webform_submission);
   }
@@ -929,6 +930,14 @@ function _webform_token_get_submission_value($value_token, array $options, Webfo
     return $element_plugin->getValue($element, $webform_submission);
   }
 
+  // Always get rendered markup for a markup element.
+  if ($element_plugin instanceof WebformMarkupBase) {
+    $format_method = (empty($options['html'])) ? 'buildText' : 'buildHtml';
+    $element['#display_on'] = WebformMarkupBase::DISPLAY_ON_BOTH;
+    $token_value = $element_manager->invokeMethod($format_method, $element, $webform_submission, $options);
+    return \Drupal::service('renderer')->renderPlain($token_value);
+  }
+
   // Exit if no submission data and form element is not a container.
   if (!isset($submission_data[$element_key]) && !$element_plugin->isContainer($element)) {
     return NULL;
@@ -957,7 +966,7 @@ function _webform_token_get_submission_value($value_token, array $options, Webfo
   /****************************************************************************/
 
   // Set entity reference chaining.
-  if ($keys && $keys[0] == 'entity' && $element_plugin instanceof WebformElementEntityReferenceInterface) {
+  if ($keys && $keys[0] === 'entity' && $element_plugin instanceof WebformElementEntityReferenceInterface) {
     // Remove entity from keys.
     array_shift($keys);
 
@@ -1091,14 +1100,21 @@ function _webform_token_render_more($more_title, $more) {
     '#more_title' => $more_title,
   ];
 
-  // Token info might be called via CLI and not all modules are loaded and
-  // this would throw 'The theme implementations may not be rendered until all
-  // modules are loaded.' exception.
+  // Token info might be called via CLI and not all modules are loaded
+  // or an active theme is defined.
+  //
+  // Prevent the below expections:
+  // - The theme implementations may not be rendered until all modules
+  //   are loaded.
+  // - Call to a member function setParser() on array in Twig\Parser->parse().
+  //
   // @see \Drupal\Core\Theme\ThemeManager::render
   /** @var \Drupal\Core\Extension\ModuleHandlerInterface $module_handler */
   $module_handler = \Drupal::service('module_handler');
-  if (!$module_handler->isLoaded()) {
-    $module_handler->loadAll();
+  /** @var \Drupal\webform\WebformThemeManagerInterface $theme_manager */
+  $theme_manager = \Drupal::service('webform.theme_manager');
+  if (!$module_handler->isLoaded() || !$theme_manager->hasActiveTheme()) {
+    return '';
   }
 
   return (string) \Drupal::service('renderer')->renderPlain($build);
@@ -1126,7 +1142,8 @@ function _webform_token_get_interval_wait($interval_setting, BubbleableMetadata 
   // Get last submission completed time.
   /** @var \Drupal\webform\WebformSubmissionStorageInterface $submission_storage */
   $submission_storage = \Drupal::entityTypeManager()->getStorage('webform_submission');
-  $last_submission = $submission_storage->getLastSubmission($webform, $source_entity, $account);
+  $options = ['access_check' => FALSE];
+  $last_submission = $submission_storage->getLastSubmission($webform, $source_entity, $account, $options);
   if (!$last_submission) {
     return '';
   }

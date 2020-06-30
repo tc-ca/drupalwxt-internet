@@ -2,13 +2,9 @@
 
 namespace Drupal\layout_builder_st;
 
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\layout_builder\InlineBlockEntityOperations as CoreInlineBlockEntityOperations;
-use Drupal\layout_builder\InlineBlockUsageInterface;
 use Drupal\layout_builder\SectionComponent;
-use Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface;
 
 /**
  * Overrides cores InlineBlockEntityOperations to provide translation operations.
@@ -16,18 +12,6 @@ use Drupal\layout_builder\SectionStorage\SectionStorageManagerInterface;
 final class InlineBlockEntityOperations extends CoreInlineBlockEntityOperations {
 
   use TranslationsHelperTrait;
-
-  /**
-   * The block plugin manager.
-   *
-   * @var \Drupal\Core\Block\BlockManagerInterface
-   */
-  protected $blockManager;
-
-  public function __construct(EntityTypeManagerInterface $entityTypeManager, InlineBlockUsageInterface $usage, Connection $database, SectionStorageManagerInterface $section_storage_manager = NULL) {
-    parent::__construct($entityTypeManager, $usage, $database, $section_storage_manager);
-    $this->blockManager = \Drupal::service('plugin.manager.block');
-  }
 
   /**
    * Saves a translated inline block.
@@ -47,7 +31,7 @@ final class InlineBlockEntityOperations extends CoreInlineBlockEntityOperations 
     // Create a InlineBlock plugin from the translated configuration in order to
     // save the block.
     /** @var \Drupal\layout_builder\Plugin\Block\InlineBlock $plugin */
-    $plugin = $this->blockManager->createInstance('inline_block:' . $block->bundle(), $translated_component_configuration);
+    $plugin = \Drupal::service('plugin.manager.block')->createInstance('inline_block:' . $block->bundle(), $translated_component_configuration);
     $plugin->saveBlockContent($new_revision);
     // Remove serialized block after the block has been saved.
     unset($translated_component_configuration['block_serialized']);

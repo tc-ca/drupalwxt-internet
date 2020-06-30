@@ -1,7 +1,7 @@
 {
   "name": "drupal/openapi",
   "type": "drupal-module",
-  "description": "Creates OpenAPI specification for Drupal REST resources.",
+  "description": "Creates OpenAPI specification for Drupal resources.",
   "keywords": ["Drupal"],
   "license": "GPL-2.0+",
   "homepage": "https://www.drupal.org/project/openapi",
@@ -11,9 +11,9 @@
     "source": "http://cgit.drupalcode.org/openapi"
   },
   "require": {
-    "drupal/schemata": "^1.0"
+      "drupal/core": "^8.7.0 || ^9"
   },
   "require-dev": {
-    "drupal/core": "^8.7.0"
+    "vijaycs85/drupal-quality-checker": "^1.2"
   }
 }

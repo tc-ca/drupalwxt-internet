@@ -79,7 +79,6 @@ class BlazyAdminExtendedUnitTest extends UnitTestCase {
    * @covers ::fieldableForm
    * @covers ::mediaSwitchForm
    * @covers ::gridForm
-   * @covers ::breakpointsForm
    * @covers ::closingForm
    * @covers ::finalizeForm
    * @dataProvider providerTestBuildSettingsForm

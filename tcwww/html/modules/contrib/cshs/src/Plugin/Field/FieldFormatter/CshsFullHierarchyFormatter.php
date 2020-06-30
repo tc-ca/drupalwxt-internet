@@ -73,7 +73,7 @@ class CshsFullHierarchyFormatter extends CshsFormatterBase {
         $terms[] = $linked ? $parent->link() : $this->getTranslationFromContext($parent)->label();
       }
 
-      $elements[$delta]['#markup'] = implode($separator, $reverse ? array_reverse($terms) : $terms);
+      $elements[$delta]['#markup'] = \implode($separator, $reverse ? \array_reverse($terms) : $terms);
     }
 
     return $elements;

@@ -15,12 +15,11 @@ use Drupal\layout_builder_styles\LayoutBuilderStyleInterface;
  */
 function layout_builder_styles_form_alter(&$form, FormStateInterface $formState) {
   if ($form['#form_id'] === 'layout_builder_add_block' || $form['#form_id'] === 'layout_builder_update_block') {
-    // Form object will be AddBlockForm or UpdateBlockForm, depending on
-    // the operation.
+    /** @var \Drupal\layout_builder\Form\ConfigureBlockFormBase $formObject */
     $formObject = $formState->getFormObject();
 
     $blockPluginId = $formObject
-      ->getBlock()
+      ->getCurrentComponent()
       ->getPluginId();
 
     $bundle = FALSE;
@@ -31,11 +30,7 @@ function layout_builder_styles_form_alter(&$form, FormStateInterface $formState)
         ->bundle();
     }
 
-    $allStyles = \Drupal::entityTypeManager()
-      ->getStorage('layout_builder_style')
-      ->loadByProperties([
-        'type' => LayoutBuilderStyleInterface::TYPE_COMPONENT,
-      ]);
+    $allStyles = _layout_builder_styles_retrieve_by_type(LayoutBuilderStyleInterface::TYPE_COMPONENT);
 
     $styleOptions = [];
     foreach ($allStyles as $style) {
@@ -53,11 +48,7 @@ function layout_builder_styles_form_alter(&$form, FormStateInterface $formState)
     }
 
     if (!empty($styleOptions)) {
-      /** @var \Drupal\layout_builder\SectionComponent $component */
-      $component = $formObject
-        ->getSectionStorage()
-        ->getSection($formObject->getDelta())
-        ->getComponent($formObject->getUuid());
+      $component = $formObject->getCurrentComponent();
 
       $selectedStyle = $component->get('layout_builder_styles_style');
       _layout_builder_styles_add_style_selection_form_element($form, $styleOptions, $selectedStyle);
@@ -77,14 +68,10 @@ function layout_builder_styles_form_alter(&$form, FormStateInterface $formState)
  * which is later persisted to section storage by layout builder's base form.
  */
 function _layout_builder_styles_submit_block_form(array $form, FormStateInterface $formState) {
+  /** @var \Drupal\layout_builder\Form\ConfigureBlockFormBase $formObject */
   $formObject = $formState->getFormObject();
 
-  /** @var \Drupal\layout_builder\SectionComponent $component */
-  $component = $formObject
-    ->getSectionStorage()
-    ->getSection($formObject->getDelta())
-    ->getComponent($formObject->getUuid());
-
+  $component = $formObject->getCurrentComponent();
   $component->set('layout_builder_styles_style', $formState->getValue('layout_builder_style'));
 }
 
@@ -96,11 +83,7 @@ function _layout_builder_styles_submit_block_form(array $form, FormStateInterfac
 function layout_builder_styles_form_layout_builder_configure_section_alter(&$form, FormStateInterface $form_state, $form_id) {
   $formObject = $form_state->getFormObject();
 
-  $allStyles = \Drupal::entityTypeManager()
-    ->getStorage('layout_builder_style')
-    ->loadByProperties([
-      'type' => LayoutBuilderStyleInterface::TYPE_SECTION,
-    ]);
+  $allStyles = _layout_builder_styles_retrieve_by_type(LayoutBuilderStyleInterface::TYPE_SECTION);
 
   $styleOptions = [];
   foreach ($allStyles as $style) {
@@ -121,6 +104,26 @@ function layout_builder_styles_form_layout_builder_configure_section_alter(&$for
 }
 
 /**
+ * Helper function to load style entities by type.
+ *
+ * @param string $type
+ *   The entity type (either 'section' or 'component')
+ *
+ * @return array
+ *   The style entities, sorted by label.
+ */
+function _layout_builder_styles_retrieve_by_type($type) {
+  $query = \Drupal::entityTypeManager()
+    ->getStorage('layout_builder_style')
+    ->getQuery()
+    ->condition('type', $type)
+    ->sort('weight', 'ASC');
+  $ids = $query->execute();
+  $allStyles = \Drupal::entityTypeManager()->getStorage('layout_builder_style')->loadMultiple($ids);
+  return $allStyles;
+}
+
+/**
  * Custom submit handler for submitting LB section forms.
  *
  * This is used to persist the selected style to the layout configuration
@@ -129,10 +132,15 @@ function layout_builder_styles_form_layout_builder_configure_section_alter(&$for
  */
 function _layout_builder_styles_submit_section_form(array $form, FormStateInterface $formState) {
   $formObject = $formState->getFormObject();
+  $config = $formObject->getLayout()->getConfiguration();
+  if (!$config) {
+    $config = [];
+  }
+  $config = array_merge($config, ['layout_builder_styles_style' => $formState->getValue('layout_builder_style')]);
 
   $formObject
     ->getLayout()
-    ->setConfiguration(['layout_builder_styles_style' => $formState->getValue('layout_builder_style')]);
+    ->setConfiguration($config);
 }
 
 /**
@@ -223,6 +231,12 @@ function layout_builder_styles_preprocess_layout(&$variables) {
     // Retrieve all styles from selection(s).
     $grouped_classes = [];
     foreach ($selected as $stylename) {
+      // Account for incorrectly configured section configuration which may
+      // have a NULL style ID. We cannot pass NULL to the storage handler or
+      // it will throw an exception.
+      if (empty($stylename)) {
+        continue;
+      }
       if ($layout_style = \Drupal::entityTypeManager()->getStorage('layout_builder_style')->load($stylename)) {
         $classes = \preg_split('(\r\n|\r|\n)', $layout_style->getClasses());
         $grouped_classes = array_merge($grouped_classes, $classes);

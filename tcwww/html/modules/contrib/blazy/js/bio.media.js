@@ -61,41 +61,6 @@
   var _proto = BioMedia.prototype = Object.create(Bio.prototype);
   _proto.constructor = BioMedia;
 
-  _proto.prepare = (function (_bio) {
-    return function () {
-      var me = this;
-
-      // DIV elements with multi-serving CSS background images.
-      // @todo remove custom breakpoints anytime before 2.x.
-      if (me.options.breakpoints) {
-        var _bgSrcs = [];
-
-        _db.forEach(me.options.breakpoints, function (object) {
-          _bgSources.push(object.src.replace('data-', ''));
-
-          // We have several values here, the last wins, but not good.
-          // The original bLazy uses max-width, stick to it. The custom aspect
-          // ratio works were also already based on this decision.
-          if (object.width >= me.windowWidth) {
-            _bgSrc = object.src;
-            _bgSrcs.push(_bgSrc);
-            return false;
-          }
-        });
-
-        // This part is the betterment to the original bLazy.
-        // Fetches the nearest to window width, not the farthest/ largest.
-        // Not always available when the window is larger than the last item.
-        // In such cases, this is easily fixed via configuration UI.
-        if (_bgSrcs.length > 0) {
-          _bgSrc = _bgSrcs[0];
-        }
-      }
-
-      return _bio.call(this);
-    };
-  })(_proto.prepare);
-
   _proto.lazyLoad = (function (_bio) {
     return function (el) {
       // Image may take time to load after being hit, and it may be intersected

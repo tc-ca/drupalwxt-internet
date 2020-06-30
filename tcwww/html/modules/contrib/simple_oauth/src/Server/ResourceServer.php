@@ -9,19 +9,28 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * The resource server.
+ */
 class ResourceServer implements ResourceServerInterface {
 
   /**
+   * The decorated resource server.
+   *
    * @var \League\OAuth2\Server\ResourceServer
    */
   protected $subject;
 
   /**
+   * The message factory.
+   *
    * @var \Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface
    */
   protected $messageFactory;
 
   /**
+   * The HTTP foundation factory.
+   *
    * @var \Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface
    */
   protected $foundationFactory;
@@ -56,6 +65,11 @@ class ResourceServer implements ResourceServerInterface {
    * {@inheritdoc}
    */
   public function validateAuthenticatedRequest(Request $request) {
+    if (!$this->subject) {
+      throw new \LogicException(
+        'Unable to create resource server. Make sure public and private keys are correctly configured.'
+      );
+    }
     // Create a PSR-7 message from the request that is compatible with the OAuth
     // library.
     $psr7_request = $this->messageFactory->createRequest($request);

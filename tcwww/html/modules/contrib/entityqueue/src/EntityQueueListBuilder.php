@@ -194,12 +194,12 @@ class EntityQueueListBuilder extends ConfigEntityListBuilder {
         ->count()
         ->execute();
 
-      $items = $this->t('@count subqueues', ['@count' => $subqueues_count]);
+      $items = $this->formatPlural($subqueues_count, '@count subqueue', '@count subqueues');
     }
     else {
       $subqueue = EntitySubqueue::load($queue->id());
 
-      $items = $this->t('@count items', ['@count' => count($subqueue->items)]);
+      $items = $this->formatPlural(count($subqueue->items), '@count item', '@count items');
     }
 
     return $items;

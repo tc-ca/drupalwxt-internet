@@ -14,7 +14,8 @@ namespace Drupal\blazy;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Media integration is being reworked.
  *
- * @todo rework this for core Media, and refine for theme_blazy().
+ * @todo rework this for core Media, and refine for theme_blazy(). One big TODO
+ * for the next releases is to replace ImageItem references into just $settings.
  */
 interface BlazyMediaInterface {
 
@@ -47,21 +48,23 @@ interface BlazyMediaInterface {
   public static function wrap(array $field = []);
 
   /**
-   * Extracts image item for the main background/stage, image or video.
+   * Extracts image from File for the main background/stage, image or video.
    *
    * Main image can be separate image item from video thumbnail for highres.
-   * Fallback to default thumbnail if any, which has no file API.
+   * Fallback to default thumbnail if any, which has no file API. This used to
+   * be for non-media File Entity Reference at 1.x, things changed since then.
+   * This is no longer needed nor functional since BlazyFileFormatter is already
+   * deprecated for BlazyMediaFormatter.
    *
    * @param array $element
    *   The element array might contain item and settings.
    * @param object $entity
    *   The file entity or entityreference which might have image item.
    *
-   * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem()
-   *   since BlazyFileFormatter is already deprecated.
-   * @todo compare and merge with BlazyOEmbed::getImageItem(). This used to
-   *   be for non-media Entity Reference at 1.x, things changed since then.
-   * @todo make it non-static method.
+   * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1+. Use
+   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
+   * @see https://www.drupal.org/node/3103018
+   * @see \Drupal\blazy\Dejavu\BlazyEntityMediaBase::buildElement
    */
   public static function imageItem(array &$element, $entity);
 

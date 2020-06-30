@@ -90,7 +90,7 @@ abstract class WebformHandlerBase extends PluginBase implements WebformHandlerIn
   protected $loggerFactory;
 
   /**
-   * Webform submission storage.
+   * The webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
@@ -365,14 +365,14 @@ abstract class WebformHandlerBase extends PluginBase implements WebformHandlerIn
    * {@inheritdoc}
    */
   public function isSubmissionOptional() {
-    return ($this->pluginDefinition['submission'] === self::SUBMISSION_OPTIONAL);
+    return ($this->pluginDefinition['submission'] === WebformHandlerInterface::SUBMISSION_OPTIONAL);
   }
 
   /**
    * {@inheritdoc}
    */
   public function isSubmissionRequired() {
-    return ($this->pluginDefinition['submission'] === self::SUBMISSION_REQUIRED);
+    return ($this->pluginDefinition['submission'] === WebformHandlerInterface::SUBMISSION_REQUIRED);
   }
 
   /**
@@ -483,10 +483,14 @@ abstract class WebformHandlerBase extends PluginBase implements WebformHandlerIn
    */
   protected function applyFormStateToConfiguration(FormStateInterface $form_state) {
     $values = $form_state->getValues();
+    $default_configuration = $this->defaultConfiguration();
     foreach ($values as $key => $value) {
       if (array_key_exists($key, $this->configuration)) {
-        if (is_bool($this->configuration[$key])) {
-          $this->configuration[$key] = (int) $value;
+        if (is_bool($default_configuration[$key])) {
+          $this->configuration[$key] = (boolean) $value;
+        }
+        elseif (is_int($default_configuration[$key])) {
+          $this->configuration[$key] = (integer) $value;
         }
         else {
           $this->configuration[$key] = $value;

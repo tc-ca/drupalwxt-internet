@@ -5,12 +5,12 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-@trigger_error('The ' . __NAMESPACE__ . '\BlazyFileFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyFileFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
 
 /**
  * Plugin implementation of the 'Blazy File' to get VEF/VEM within images/files.
  *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+ * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
  *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
  * @see https://www.drupal.org/node/3103018
  */

@@ -16,7 +16,7 @@ trait RevocableTokenRepositoryTrait {
    *
    * @var string
    */
-  protected static $entity_type_id = 'oauth2_token';
+  protected static $entityTypeId = 'oauth2_token';
 
   /**
    * The entity type manager.
@@ -49,12 +49,12 @@ trait RevocableTokenRepositoryTrait {
    * {@inheritdoc}
    */
   public function persistNew($token_entity) {
-    if (!is_a($token_entity, static::$entity_interface)) {
-      throw new \InvalidArgumentException(sprintf('%s does not implement %s.', get_class($token_entity), static::$entity_interface));
+    if (!is_a($token_entity, static::$entityInterface)) {
+      throw new \InvalidArgumentException(sprintf('%s does not implement %s.', get_class($token_entity), static::$entityInterface));
     }
     $values = $this->serializer->normalize($token_entity);
-    $values['bundle'] = static::$bundle_id;
-    $new_token = $this->entityTypeManager->getStorage(static::$entity_type_id)->create($values);
+    $values['bundle'] = static::$bundleId;
+    $new_token = $this->entityTypeManager->getStorage(static::$entityTypeId)->create($values);
 
     if ($token_entity instanceof RefreshTokenEntityInterface) {
       $access_token = $token_entity->getAccessToken();
@@ -72,7 +72,7 @@ trait RevocableTokenRepositoryTrait {
   public function revoke($token_id) {
     if (!$tokens = $this
       ->entityTypeManager
-      ->getStorage(static::$entity_type_id)
+      ->getStorage(static::$entityTypeId)
       ->loadByProperties(['value' => $token_id])) {
       return;
     }
@@ -88,7 +88,7 @@ trait RevocableTokenRepositoryTrait {
   public function isRevoked($token_id) {
     if (!$tokens = $this
       ->entityTypeManager
-      ->getStorage(static::$entity_type_id)
+      ->getStorage(static::$entityTypeId)
       ->loadByProperties(['value' => $token_id])) {
       return TRUE;
     }
@@ -102,7 +102,7 @@ trait RevocableTokenRepositoryTrait {
    * {@inheritdoc}
    */
   public function getNew() {
-    $class = static::$entity_class;
+    $class = static::$entityClass;
     return new $class();
   }
 

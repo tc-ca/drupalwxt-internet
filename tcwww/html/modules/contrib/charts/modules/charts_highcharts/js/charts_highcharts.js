@@ -33,8 +33,9 @@
             hc.tooltip.formatter = function () {
               var sliceIndex = this.point.index;
               var sliceName = this.series.chart.axes[0].categories[sliceIndex];
+              var sliceSuffix = this.series.tooltipOptions.valueSuffix;
               return '' + sliceName +
-                  ' : ' + this.y + '';
+                  ' : ' + this.y + sliceSuffix;
             };
 
           }

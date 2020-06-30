@@ -3,6 +3,7 @@
 namespace Drupal\Tests\testing_subsubprofile\Functional;
 
 use Drupal\FunctionalTests\Installer\InstallerTestBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Tests installing from an inherited profile whose parent is also inherited.
@@ -15,6 +16,13 @@ class DeepInheritedProfileTest extends InstallerTestBase {
    * {@inheritdoc}
    */
   protected $profile = 'testing_subsubprofile';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function installDefaultThemeFromClassProperty(ContainerInterface $container) {
+    // This functionality interferes with this test, so don't do anything.
+  }
 
   /**
    * Tests sub-sub-profile inherited installation.

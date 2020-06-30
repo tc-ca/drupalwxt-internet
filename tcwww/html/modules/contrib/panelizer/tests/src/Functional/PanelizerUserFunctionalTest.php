@@ -15,6 +15,11 @@ use Drupal\Tests\BrowserTestBase;
 class PanelizerUserFunctionalTest extends BrowserTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * A custom block created for the test.
    *
    * @var \Drupal\block_content\BlockContentInterface
@@ -68,6 +73,7 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
       // Allow managing the user entity fields and display settings.
       'administer user display',
       'administer user fields',
+      'configure any layout',
     ]);
     $this->drupalLogin($user);
 
@@ -213,6 +219,8 @@ class PanelizerUserFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each user to have its display customized');
+    $page->clickLink('Manage layout');
+    $page->pressButton('Save layout');
 
     $this->drupalGet($default_layout_account->toUrl());
     $assert_session->statusCodeEquals(200);

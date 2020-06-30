@@ -99,11 +99,17 @@ class LayoutBuilderStyleForm extends EntityForm implements ContainerInjectionInt
     $blockDefinitions = $this->blockManager->getDefinitions();
     $blockDefinitions = $this->blockManager->getGroupedDefinitions($blockDefinitions);
 
-    // Relabel the inline block type listing as generic "Custom block types".
-    // This category will apply to inline blocks & reusable blocks.
-    $blockDefinitions['Custom block types'] = $blockDefinitions['Inline blocks'];
-    unset($blockDefinitions['Inline blocks']);
-    ksort($blockDefinitions);
+    // Remove individual reusable blocks from list.
+    unset($blockDefinitions['Custom']);
+
+    if (isset($blockDefinitions['Inline blocks'])) {
+      // Relabel the inline block type listing as generic "Custom block types".
+      // This category will apply to inline blocks & reusable blocks.
+      $blockDefinitions['Custom block types'] = $blockDefinitions['Inline blocks'];
+      unset($blockDefinitions['Inline blocks']);
+      ksort($blockDefinitions);
+    }
+
 
     $form['block_restrictions'] = [
       '#type' => 'details',
@@ -118,8 +124,10 @@ class LayoutBuilderStyleForm extends EntityForm implements ContainerInjectionInt
 
     foreach ($blockDefinitions as $category => $blocks) {
       $category_form = [
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => $category,
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
       ];
       foreach ($blocks as $blockId => $block) {
         $machine_name = $blockId;

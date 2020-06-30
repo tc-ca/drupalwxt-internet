@@ -36,6 +36,17 @@ created by [Acquia][acquia] to provide developers with a powerful base toolchain
 upon which to extend. Due to this strict dependency we also align much of our
 workflow with the best practice established patterns `Acquia` has provided.
 
+### Lightning
+
+Lightning is something that is being used by and built for governments, and provides
+much of what is needed to create a Drupal-based content management system that meets
+the needs of the Government of Canada. It's also used as the basis of government
+Drupal platforms around the world.
+
+* https://www.acquia.com/blog/building-drupal-8-sites-acquia-lightning-cuts-costs-100000
+* https://www.drupal.org/docs/8/distributions/degov/about-degov
+* https://github.com/govcms/govcms8
+
 ## 8.x - Recommended Installation
 
 We highly recommend using <a href="https://getcomposer.org" rel="nofollow">Composer</a>
@@ -56,7 +67,7 @@ see our [WxT Project README][project].
 
 If you have a config export of a site built with Lighting, you can install it using the
 Config Installer profile. You can find more information about installing WxT (Lightning)
-from exported config [config-install][here]</a>.
+from exported config [here][config-install].
 
 ### Tarball Installation
 
@@ -72,8 +83,10 @@ Once you extract the tarball, run the following command from within your web roo
 install the required dependencies:
 
 ```sh
-composer require j7mbo/twitter-api-php league/oauth2-server:~6.0 webflo/drupal-core-strict:~8.7.0 'phpdocumentor/reflection-docblock:^3.0||^4.0'
+composer require 'j7mbo/twitter-api-php' 'league/oauth2-server:~7.1' 'drupal/core-recommended:8.8.2' 'phpdocumentor/reflection-docblock:^3.0||^4.0'
 ```
+
+> Note: Please see our [tarball.sh](tarball.sh) script for how we are doing this.
 
 ## Site Installation
 
@@ -140,6 +153,43 @@ drush migrate:import --group gcweb --tag 'Group'
 
 > Note: Make sure to only have one set of menu's imported for each of the supported themes. Leverage migrate:rollback to assist with this requirement.
 
+
+### Container
+
+For the (optional) container based development workflow this is roughly the steps that are followed.
+
+> Note: That [docker-sync](docker-sync) is installed on a MacOSX host to fix performance issues related to volume mounting. Linux and Windows do not have this restriction.
+
+```sh
+# Composer install
+export COMPOSER_MEMORY_LIMIT=-1 && composer install
+
+# Make our base docker image
+make build
+
+# MacOSX only (docker-sync)
+docker volume create --name=docroot-sync && docker volume create --name=root-sync && docker-sync start
+
+# Bring up the dev stack
+# Use docker-compose.sync.yml for MacOSX
+docker-compose -f docker-compose.yml up -d
+
+# Install Drupal
+make drupal_install
+
+# Development configuration
+./docker/bin/drush config-set system.performance js.preprocess 0 -y && \
+./docker/bin/drush config-set system.performance css.preprocess 0 -y && \
+./docker/bin/drush php-eval 'node_access_rebuild();' && \
+./docker/bin/drush config-set wxt_library.settings wxt.theme theme-gcweb -y && \
+./docker/bin/drush cr
+
+# Migrate default content
+./docker/bin/drush migrate:import --group wxt --tag 'Core' && \
+./docker/bin/drush migrate:import --group gcweb --tag 'Core' && \
+./docker/bin/drush migrate:import --group gcweb --tag 'Menu'
+```
+
 ## Version History
 
 ### Changelog
@@ -163,6 +213,7 @@ Contributor(s): https://github.com/drupalwxt/wxt/graphs/contributors
 [demo]:                 https://drupalwxt.govcloud.ca
 [docsite]:              http://drupalwxt.github.io
 [docker-hub]:           https://hub.docker.com/r/drupalwxt/site-wxt
+[docker-sync]:          https://github.com/EugenMayer/docker-sync
 [drupal]:               http://drupal.org/project/wxt
 [drupal7]:              http://drupal.org/project/wetkit
 [github-helm]:          https://github.com/drupalwxt/helm-drupal

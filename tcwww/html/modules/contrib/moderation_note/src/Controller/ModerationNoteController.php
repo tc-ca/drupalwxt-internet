@@ -7,44 +7,16 @@ use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Url;
 use Drupal\moderation_note\Entity\ModerationNote;
 use Drupal\moderation_note\ModerationNoteInterface;
 use Drupal\user\UserInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Endpoints for the Moderation Note module.
  */
 class ModerationNoteController extends ControllerBase {
-
-  /**
-   * The QueryFactory service.
-   *
-   * @var \Drupal\Core\Entity\Query\QueryFactory
-   */
-  protected $queryFactory;
-
-  /**
-   * Constructs a ModerationNoteController.
-   *
-   * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
-   *   The QueryFactory service.
-   */
-  public function __construct(QueryFactory $query_factory) {
-    $this->queryFactory = $query_factory;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity.query')
-    );
-  }
 
   /**
    * Returns the form for a new Moderation Note.
@@ -147,7 +119,7 @@ class ModerationNoteController extends ControllerBase {
   public function listNotes(EntityInterface $entity) {
     $build = [];
 
-    $ids = $this->queryFactory->get('moderation_note')
+    $ids =  $this->entityTypeManager()->getStorage('moderation_note')->getQuery()
       ->condition('entity_type', $entity->getEntityTypeId())
       ->condition('entity_id', $entity->id())
       ->condition('entity_langcode', $this->languageManager()->getCurrentLanguage()->getId())
@@ -182,7 +154,7 @@ class ModerationNoteController extends ControllerBase {
   public function listAssignedNotes(UserInterface $user) {
     $build = [];
 
-    $ids = $this->queryFactory->get('moderation_note')
+    $ids = $this->entityTypeManager()->getStorage('moderation_note')->getQuery()
       ->condition('assignee', $user->id())
       ->condition('published', 1)
       ->execute();

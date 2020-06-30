@@ -8,7 +8,7 @@ The Drupal 7 version of this module implemented the Drupal 6 behaviour of
 using the menu position of the current page for the breadcrumb.  It also
 added an option to append the page title to the breadcrumb (either as
 a clickable url or not), saving the trouble of doing this in the theme,
-and hiding the breadcrumb if it only contains the link to the front page.
+and hiding the breadcrumb if it only contained the link to the front page.
 
 The Drupal 8 version also supports "Taxonomy Attachment" for each
 menu, which provides the same breadcrumb trail to the current
@@ -22,23 +22,39 @@ add the current page title, linked or not, as an additional breadcrumb
 when a taxonomy attachment has taken place.  More detailed options are
 given for dealing with the front page, allowing it to be added or removed.
 
-Installation
-------------
+Installation & Upgrading - RECOMMENDED
+--------------------------------------
+Follow current instructions on this Drupal documentation page
+to install Menu Breadcrumb as a site dependency and upgrade it
+along with other site dependencies (as well as Drupal Core itself):
+
+https://www.drupal.org/docs/develop/using-composer/using-composer-to-manage-drupal-site-dependencies
+
+IF YOU SEE AN ERROR PAGE similar to the following after up- or down-grading the module:
+
+TypeError: Argument <X> passed to Drupal\menu_breadcrumb\MenuBasedBreadcrumbBuilder::__construct() ...
+
+... you probably just need to rebuild the cache between two versions that use
+different argument lists (i.e. system services).  See here for how to rebuild cache:
+
+https://www.drupal.org/docs/user_guide/en/prevent-cache-clear.html
+
+Installation & Upgrading - without Composer
+-------------------------------------------
+
+Installation, on older Drupal versions & sites:
 1. Copy the menu_breadcrumb folder to your modules/contrib directory.
 2. At Administer -> Extend (admin/modules) enable the module.
 3. Configure the module settings at Administer -> Configuration ->
      User Interface (admin/config/user-interface/menu-breadcrumb).
 
-Upgrading
----------
+Upgrading on older Drupal versions & sites:
 Recommended: install drush and run "drush up"
 
 Manually: replace the older menu_breadcrumb folder with the newer version;
 then run "update.php" if present (to install any configuration changes).
 
-NOTES if you have installed a Drupal 8 development version:
-If upgrading from the Alpha to the Beta version of the module, or to a
-newer Beta, if option settings are not producing the desired effect:
+Since different versions of the module may use different services, if you see errors:
 
 - Try clearing the cache, which fixes breacrumb on taxonomy pages (since this
   module's breadcrumb builder needs to be acknolwedged as higher priority).

@@ -31,6 +31,11 @@ class ModeratedTranslationTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'classy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'content_translation',
     'content_moderation',

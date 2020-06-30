@@ -16,6 +16,11 @@ class ModerationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'block',
     'lightning_workflow',
@@ -137,38 +142,6 @@ class ModerationTest extends BrowserTestBase {
     $assert_session->linkExists('Alpha');
     $assert_session->linkNotExists('Beta');
     $assert_session->linkNotExists('Charlie');
-  }
-
-  /**
-   * Tests examining the moderation history for a piece of content.
-   */
-  public function testModerationHistory() {
-    $assert_session = $this->assertSession();
-    $page = $this->getSession()->getPage();
-
-    $account = $this->drupalCreateUser([
-      'access content overview',
-      'edit any moderated content',
-      'use editorial transition create_new_draft',
-      'use editorial transition publish',
-      'use editorial transition review',
-      'view all revisions',
-      'view any unpublished content',
-    ]);
-    $this->drupalLogin($account);
-
-    $this->drupalGet('/admin/content');
-    $page->clickLink('Charlie');
-    $assert_session->elementExists('named', ['link', 'edit-form'])->click();
-    $page->selectFieldOption('moderation_state[0][state]', 'In review');
-    $page->pressButton('Save');
-    $assert_session->elementExists('named', ['link', 'edit-form'])->click();
-    $page->selectFieldOption('moderation_state[0][state]', 'Published');
-    $page->pressButton('Save');
-    $page->clickLink('History');
-    $assert_session->pageTextContains('Set to draft');
-    $assert_session->pageTextContains('Set to review');
-    $assert_session->pageTextContains('Set to published');
   }
 
 }

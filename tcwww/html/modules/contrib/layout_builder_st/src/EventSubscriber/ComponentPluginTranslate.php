@@ -76,23 +76,20 @@ final class ComponentPluginTranslate implements EventSubscriberInterface {
     }
 
     // @todo Change to 'entity' in https://www.drupal.org/node/3018782.
-   if (isset($contexts['layout_builder.entity'])) {
-      $entity = $contexts['layout_builder.entity']->getContextValue();
-      $configuration = $plugin->getConfiguration();
-      if ($event->inPreview()) {
-        $section_storage = $this->routeMatch->getParameter('section_storage');
-      }
-      else {
-        $section_storage = $this->getSectionStorageForEntity($entity);
-      }
+    $entity = $contexts['layout_builder.entity']->getContextValue();
+    $configuration = $plugin->getConfiguration();
+    if ($event->inPreview()) {
+      $section_storage = $this->routeMatch->getParameter('section_storage');
+    }
+    else {
+      $section_storage = $this->getSectionStorageForEntity($entity);
+    }
 
-      if ($section_storage != NULL && static::isTranslation($section_storage)) {
-        if ($translated_plugin_configuration = $section_storage->getTranslatedComponentConfiguration($component->getUuid())) {
-          $translated_plugin_configuration += $configuration;
-          $plugin->setConfiguration($translated_plugin_configuration);
-        }
+    if (static::isTranslation($section_storage)) {
+      if ($translated_plugin_configuration = $section_storage->getTranslatedComponentConfiguration($component->getUuid())) {
+        $translated_plugin_configuration += $configuration;
+        $plugin->setConfiguration($translated_plugin_configuration);
       }
-
     }
   }
 

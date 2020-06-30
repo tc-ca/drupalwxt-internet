@@ -22,6 +22,11 @@ class ApiTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = ['lightning_api', 'taxonomy'];
 
   /**
@@ -263,7 +268,7 @@ class ApiTest extends BrowserTestBase {
     // Cannot get unauthorized data (not in role/scope) even when authenticated.
     $response = $this->request('/jsonapi/user_role/user_role', 'get', $this->getCreator('page'));
     $body = $this->decodeResponse($response);
-    $this->assertInternalType('array', $body['meta']['omitted']['links']);
+    $this->assertSame('array', gettype($body['meta']['omitted']['links']));
     $this->assertNotEmpty($body['meta']['omitted']['links']);
     unset($body['meta']['omitted']['links']['help']);
 
@@ -279,9 +284,11 @@ class ApiTest extends BrowserTestBase {
     $unpublished_node = $this->drupalCreateNode()->setUnpublished();
     $unpublished_node->save();
     $url = $this->buildUrl('/jsonapi/node/page/' . $unpublished_node->uuid());
+
     // Unlike the roles test which requests a list, JSON API sends a 403 status
     // code when requesting a specific unauthorized resource instead of list.
-    $this->setExpectedException(ClientException::class, "Client error: `GET $url` resulted in a `403 Forbidden`");
+    $this->expectException(ClientException::class);
+    $this->expectExceptionMessage("Client error: `GET $url` resulted in a `403 Forbidden`");
     $this->container->get('http_client')->get($url);
   }
 

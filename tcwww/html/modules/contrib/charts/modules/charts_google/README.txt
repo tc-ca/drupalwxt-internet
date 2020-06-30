@@ -10,7 +10,7 @@ If you use Composer to manage dependencies, edit "/composer.json" as follows.
 
   2. Add the following to the "installer-paths" section of "composer.json":
 
-"libraries/{$name}": ["type:drupal-library"],
+     "libraries/{$name}": ["type:drupal-library"],
 
   3. Add the following to the "repositories" section of "composer.json":
 

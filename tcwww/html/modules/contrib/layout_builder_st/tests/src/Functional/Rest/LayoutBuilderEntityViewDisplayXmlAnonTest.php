@@ -17,6 +17,11 @@ class LayoutBuilderEntityViewDisplayXmlAnonTest extends LayoutBuilderEntityViewD
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $format = 'xml';
 
   /**

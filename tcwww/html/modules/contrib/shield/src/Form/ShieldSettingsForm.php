@@ -4,6 +4,7 @@ namespace Drupal\shield\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Render\Markup;
 
 /**
  * Configure site information settings for this site.
@@ -44,11 +45,28 @@ class ShieldSettingsForm extends ConfigFormBase {
       '#title' => $this->t('General settings'),
     );
 
+    $form['general']['shield_enable'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Shield'),
+      '#description' => $this->t('Enable/Disable shield functionality. All other settings are ignored if this is not checked.'),
+      '#default_value' => $shield_config->get('shield_enable'),
+    );
+
     $form['general']['shield_allow_cli'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Allow command line access'),
       '#description' => $this->t('When the site is accessed from command line (e.g. from Drush, cron), the shield should not work.'),
       '#default_value' => $shield_config->get('allow_cli'),
+    );
+
+    $form['general']['whitelist'] = array(
+      '#type' => 'textarea',
+      '#title' => $this->t('IP Whitelist'),
+      '#description' => $this->t("Enter list of IP's for which shield should not be shown, one per line. You can use Network ranges in the format 'IP/Range'.<br><em>Warning: Whitelist interferes with reverse proxy caching! @strong_style_tag Do not use whitelist if reverse proxy caching is in use!</strong></em>", [
+          '@strong_style_tag' => Markup::create("<strong style='color:red'>"),
+        ]),
+      '#default_value' => $shield_config->get('whitelist'),
+      '#placeholder' => $this->t("Example:\n192.168.0.1/24\n127.0.0.1")
     );
 
     $form['credentials'] = array(
@@ -157,9 +175,15 @@ class ShieldSettingsForm extends ConfigFormBase {
     $credential_provider = $form_state->getValue(['credentials', 'credential_provider']);
     $shield_config
       ->set('allow_cli', $form_state->getValue(['general', 'shield_allow_cli']))
+      ->set('shield_enable', $form_state->getValue(['general', 'shield_enable']))
+      ->set('whitelist', $form_state->getValue(['general', 'whitelist']))
       ->set('print', $form_state->getValue('shield_print'))
       ->set('credential_provider', $credential_provider);
-    $credentials = $form_state->getValue(['credentials', 'providers', $credential_provider]);
+    $credentials = $form_state->getValue([
+      'credentials',
+      'providers',
+      $credential_provider,
+    ]);
     $shield_config->set('credentials', [$credential_provider => $credentials]);
     $shield_config->save();
 

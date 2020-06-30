@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
-use \Drupal\user\Entity\User;
+use Drupal\user\Entity\User;
 
 /**
  * Enforces password reset functionality.
@@ -25,14 +25,17 @@ class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
     if ($account->id() > 0) {
       /* @var $user \Drupal\user\UserInterface */
       $user = User::load($account->id());
-      $route_name = \Drupal::request()->attributes->get(RouteObjectInterface::ROUTE_NAME);
+      $request = \Drupal::request();
 
-      // system/ajax.
-      $ignored_routes = [
+      $route_name = $request->attributes->get(RouteObjectInterface::ROUTE_NAME);
+      $ignore_route = in_array($route_name, [
         'entity.user.edit_form',
         'system.ajax',
         'user.logout',
-      ];
+        'admin_toolbar_tools.flush',
+      ]);
+
+      $is_ajax = $request->headers->get('X_REQUESTED_WITH') == 'XMLHttpRequest';
 
       $user_expired = FALSE;
       if ($user->get('field_password_expiration')->get(0)) {
@@ -43,11 +46,11 @@ class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
       }
 
       // TODO - Consider excluding admins here.
-      if ($user_expired and !in_array($route_name, $ignored_routes)) {
+      if ($user_expired && !$ignore_route && !$is_ajax) {
         $url = new Url('entity.user.edit_form', ['user' => $user->id()]);
         $url = $url->setAbsolute(TRUE)->toString();
         $event->setResponse(new RedirectResponse($url));
-        drupal_set_message('Your password has expired, please update it', 'error');
+        drupal_set_message(t('Your password has expired, please update it'), 'error');
       }
     }
   }
@@ -55,7 +58,7 @@ class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  static public function getSubscribedEvents() {
+  public static function getSubscribedEvents() {
     // TODO - Evaluate if there is a better place to add this check.
     $events[KernelEvents::REQUEST][] = ['checkForUserPasswordExpiration'];
     return $events;

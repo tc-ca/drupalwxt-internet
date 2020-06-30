@@ -17,6 +17,11 @@ class ModerationDashboardPermissionTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'moderation_dashboard',
   ];

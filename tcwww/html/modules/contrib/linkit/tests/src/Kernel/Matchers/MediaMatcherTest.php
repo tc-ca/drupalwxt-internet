@@ -36,6 +36,7 @@ class MediaMatcherTest extends LinkitKernelTestBase {
 
     $this->installEntitySchema('file');
     $this->installEntitySchema('media');
+    $this->installConfig(['media']);
     $this->installSchema('system', ['key_value_expire']);
     $this->installSchema('file', ['file_usage']);
 
@@ -89,16 +90,17 @@ class MediaMatcherTest extends LinkitKernelTestBase {
 
     // Verify suggestion paths.
     foreach ($suggestions->getSuggestions() as $key => $suggestion) {
-      $this->assertEquals('/media/' . ($key + 1) . '/edit', $suggestion->getPath());
+      $this->assertEquals('/media/' . ($key + 1), $suggestion->getPath());
     }
 
     // Enable stand-alone URLs for media entities.
     $config = \Drupal::service('config.factory')->getEditable('media.settings');
     $config->set('standalone_url', TRUE)->save();
+    drupal_flush_all_caches();
 
     $suggestions = $plugin->execute('image-test');
 
-    // Re-verify suggestion paths.
+    // Re-verify suggestion paths, they should not contain /edit.
     foreach ($suggestions->getSuggestions() as $key => $suggestion) {
       $this->assertEquals('/media/' . ($key + 1), $suggestion->getPath());
     }

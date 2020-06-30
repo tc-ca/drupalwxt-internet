@@ -9,7 +9,7 @@ ckeditor_templates_ui.ckeditor_template.*:
       type: label
       label: 'Title'
     image:
-      type: string
+      type: label
       label: 'Image'
     description:
       type: label
@@ -21,13 +21,8 @@ ckeditor_templates_ui.ckeditor_template.*:
       type: array 
       label: 'Languages'
     html:
-      mapping:
-        value:
-          type: text
-          label: 'Body'
-        format:
-          type: string
-          label: 'Text format'
+      type: text_format
+      label: 'HTML'
     weight:
       type: integer
       label: 'Weight'

@@ -67,15 +67,15 @@
       t[$select.val() === '' ? 'removeClass' : 'addClass']('form--media-switch-' + $select.val());
     }).change();
 
-    t.on('mouseenter touchstart', '.hint', function () {
+    t.on('mouseenter touchstart', '.b-hint', function () {
       $(this).closest('.form-item').addClass('is-hovered');
     });
 
-    t.on('mouseleave touchend', '.hint', function () {
+    t.on('mouseleave touchend', '.b-hint', function () {
       $(this).closest('.form-item').removeClass('is-hovered');
     });
 
-    t.on('click', '.hint', function () {
+    t.on('click', '.b-hint', function () {
       $('.form-item.is-selected', t).removeClass('is-selected');
       $(this).parent().toggleClass('is-selected');
     });
@@ -105,12 +105,12 @@
     var $tip = $(elm);
 
     // Claro removed description for BEM form-item__description.
-    if ($tip.hasClass('form-item__description')) {
+    if (!$tip.hasClass('description')) {
       $tip.addClass('description');
     }
 
-    if (!$tip.siblings('.hint').length) {
-      $tip.closest('.form-item').append('<span class="hint">?</span>');
+    if (!$tip.siblings('.b-hint').length) {
+      $tip.closest('.form-item').append('<span class="b-hint">?</span>');
     }
   }
 
@@ -138,7 +138,7 @@
     attach: function (context) {
       var $form = $('.form--slick', context);
 
-      $('.description, .form-item__description', $form).once('blazy-tooltip').each(blazyTooltip);
+      $('.description, .form-item__description', context).once('blazy-tooltip').each(blazyTooltip);
       $('.form-checkbox', $form).once('blazy-checkbox').each(blazyCheckbox);
 
       $form.once('blazy-admin').each(blazyForm);

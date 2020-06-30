@@ -163,8 +163,9 @@ class Telemetry {
 
     foreach ($acquia_extensions as $name => $extension) {
       // Version is unset for dev versions. In order to generate reports, we
-      // need some value for version, even if it is just the major version.
-      $version = isset($extension['version']) ? $extension['version'] : $extension['core'];
+      // need some value for version, even if it is just the supported
+      // version(s) of core.
+      $version = $extension['version'] ?? $extension['core_version_requirement'] ?? $extension['core'];
       $extension_info[$name]['version'] = $version;
     }
 

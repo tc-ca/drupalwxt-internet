@@ -28,8 +28,8 @@ class CshsGroupByRootFormatter extends CshsFormatterBase {
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $term) {
       $parents = $this->getTermParents($term);
-      $parents = $reverse ? array_reverse($parents) : $parents;
-      $root = array_shift($parents);
+      $parents = $reverse ? \array_reverse($parents) : $parents;
+      $root = \array_shift($parents);
       $terms = [];
 
       foreach ($parents as $parent) {

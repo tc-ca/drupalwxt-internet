@@ -4,6 +4,7 @@ namespace Drupal\ckeditor_templates_ui\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,10 +15,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class CkeditorTemplateForm extends EntityForm {
 
   /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, FileSystemInterface $file_system) {
     $this->entityTypeManager = $entityTypeManager;
+    $this->fileSystem = $file_system;
   }
 
   /**
@@ -25,7 +34,8 @@ class CkeditorTemplateForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('file_system')
     );
   }
 
@@ -152,10 +162,10 @@ class CkeditorTemplateForm extends EntityForm {
     if ($file) {
       $file_dir = 'public://ckeditor-templates';
       if (!is_dir($file_dir)) {
-        file_prepare_directory($file_dir, FILE_CREATE_DIRECTORY);
+        $this->fileSystem->prepareDirectory($file_dir, FileSystemInterface::CREATE_DIRECTORY);
       }
       $file_destination = 'public://ckeditor-templates/' . $file->getFilename();
-      $filename = file_unmanaged_copy($file->getFileUri(), $file_destination);
+      $filename = $this->fileSystem->copy($file->getFileUri(), $file_destination);
       if ($filename) {
         $template->set('image', $filename);
       }
@@ -164,12 +174,12 @@ class CkeditorTemplateForm extends EntityForm {
     $status = $template->save();
 
     if ($status) {
-      drupal_set_message($this->t('Saved the %label Ckeditor Template.', [
+      $this->messenger()->addMessage($this->t('Saved the %label Ckeditor Template.', [
         '%label' => $template->label(),
       ]));
     }
     else {
-      drupal_set_message($this->t('The %label Ckeditor Template was not saved.', [
+      $this->messenger()->addMessage($this->t('The %label Ckeditor Template was not saved.', [
         '%label' => $template->label(),
       ]));
     }

@@ -2,27 +2,52 @@
 
 namespace Drupal\Tests\lightning_workflow\Functional;
 
-use Drupal\node\NodeInterface;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
 
 /**
+ * Tests the moderation_history view.
+ *
  * @group lightning_workflow
  */
 class ModerationHistoryTest extends BrowserTestBase {
 
-  use ContentTypeCreationTrait;
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
    */
   protected static $modules = [
+    'block',
     'lightning_workflow',
     'views',
   ];
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+    $this->drupalPlaceBlock('local_tasks_block');
+  }
+
+  /**
+   * Tests the moderation_history view for a node with revisions.
+   */
   public function testModerationHistory() {
-    $node_type = $this->createContentType();
+    $page = $this->getSession()->getPage();
+    $assert_session = $this->assertSession();
+
+    // Create a content type with moderation enabled.
+    $node_type = $this->createContentType([
+      'third_party_settings' => [
+        'lightning_workflow' => [
+          'workflow' => 'editorial',
+        ],
+      ],
+    ]);
 
     $user_permissions = [
       'administer nodes',
@@ -35,54 +60,37 @@ class ModerationHistoryTest extends BrowserTestBase {
     $user_a = $this->createUser($user_permissions, 'userA');
     $user_b = $this->createUser($user_permissions, 'userB');
 
-    // Enable moderation for the content type.
-    $node_type->setThirdPartySetting('lightning_workflow', 'workflow', 'editorial');
-    lightning_workflow_node_type_insert($node_type);
-
     $node = $this->createNode([
       'type' => $node_type->id(),
       'title' => 'Foo',
       'moderation_state' => 'draft',
     ]);
 
+    $timestamp_a = time();
+    $timestamp_b = $timestamp_a + 10;
+
     // Make two revisions with two different users.
-    $timestamp = (new \DateTime())->getTimestamp();
-    $timestamp_a = $timestamp + 10;
-    $timestamp_b = $timestamp + 20;
-    $this->createRevision($node, $user_a->id(), $timestamp_a, 'review');
-    $this->createRevision($node, $user_b->id(), $timestamp_b, 'published');
-
     $this->drupalLogin($user_a);
-    $this->drupalGet('/node/' . $node->id() . '/moderation-history');
-    $this->assertSession()->statusCodeEquals(200);
-    $date_formatter = \Drupal::service('date.formatter');
-    $this->assertSession()->pageTextContainsOnce('Set to review on ' . $date_formatter->format($timestamp_a, 'long') . ' by ' . $user_a->getAccountName());
-    $this->assertSession()->pageTextContainsOnce('Set to published on ' . $date_formatter->format($timestamp_b, 'long') . ' by ' . $user_b->getAccountName());
-  }
+    $this->drupalGet($node->toUrl('edit-form'));
+    $page->selectFieldOption('moderation_state[0][state]', 'review');
+    $page->fillField('Date', date('Y-m-d', $timestamp_a));
+    $page->fillField('Time', date('H:i:s', $timestamp_a));
+    $page->pressButton('Save');
+    $this->drupalLogout();
 
-  /**
-   * Creates a new revision of the given $node.
-   *
-   * @param \Drupal\node\NodeInterface $node
-   *   The node which should receive a new revision.
-   * @param int $user_id
-   *   The ID of the user who created the revision.
-   * @param int $timestamp
-   *   The time that the revision was created.
-   * @param string $state
-   *   The desired moderation state.
-   * @param string $revision_log
-   *   The revision log message.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   */
-  private function createRevision(NodeInterface $node, $user_id, $timestamp, $state, $revision_log = 'Created revision.') {
-    $node->setNewRevision();
-    $node->setRevisionUserId($user_id);
-    $node->setRevisionCreationTime($timestamp);
-    $node->revision_log = $revision_log;
-    $node->moderation_state = $state;
-    $node->save();
+    $this->drupalLogin($user_b);
+    $this->drupalGet($node->toUrl('edit-form'));
+    $page->selectFieldOption('moderation_state[0][state]', 'published');
+    $page->fillField('Date', date('Y-m-d', $timestamp_b));
+    $page->fillField('Time', date('H:i:s', $timestamp_b));
+    $page->pressButton('Save');
+
+    $page->clickLink('History');
+    $assert_session->addressEquals('/node/' . $node->id() . '/moderation-history');
+    $assert_session->statusCodeEquals(200);
+    $date_formatter = $this->container->get('date.formatter');
+    $assert_session->pageTextContainsOnce('Set to In review on ' . $date_formatter->format($timestamp_a, 'long') . ' by ' . $user_a->getAccountName());
+    $assert_session->pageTextContainsOnce('Set to Published on ' . $date_formatter->format($timestamp_b, 'long') . ' by ' . $user_b->getAccountName());
   }
 
 }

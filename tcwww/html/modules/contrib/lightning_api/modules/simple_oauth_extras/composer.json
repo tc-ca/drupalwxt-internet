@@ -1,0 +1,6 @@
+{
+    "name": "drupal/lightning_api-simple_oauth_extras",
+    "type": "drupal-module",
+    "description": "Placeholder for the old Simple OAuth Extras module which was merged into the Simple OAuth module.",
+    "license": "GPL-2.0-or-later"
+}

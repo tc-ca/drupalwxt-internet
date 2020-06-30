@@ -13,11 +13,18 @@ use Drupal\Core\Template\Attribute;
  * Implements hook_theme().
  */
 function button_link_theme() {
-  return array(
-    'link_formatter_button_link' => array(
-      'variables' => array('title' => NULL, 'url_title' => NULL, 'url' => NULL, 'type' => NULL, 'size' => NULL, 'icon_class' => NULL),
-    ),
-  );
+  return [
+    'link_formatter_button_link' => [
+      'variables' => [
+        'title' => NULL, 
+        'url_title' => NULL, 
+        'url' => NULL, 
+        'type' => NULL, 
+        'size' => NULL,
+        'block' => NULL,
+        'icon_class' => NULL],
+    ],
+  ];
 }
 
 /**
@@ -37,10 +44,14 @@ function button_link_theme() {
 function template_preprocess_link_formatter_button_link(&$variables) {
   $url = $variables['url'];
   $attributes = $url->getOption('attributes');
-  $attributes['role'] = 'button';
+  if (isset($variables['disable_btn_role']) && !$variables['disable_btn_role']) {
+    $attributes['role'] = 'button';
+  }
   $attributes['class'][] = 'btn';
   $attributes['class'][] = $variables['type'];
   $attributes['class'][] = $variables['size'];
+  $attributes['class'][] = $variables['block'];
+  
   $attributes['href'] = $url->toString();
   $url->setOption('attributes', $attributes);
   $variables['link'] = Link::fromTextAndUrl($variables['title'], $url )->toString();

@@ -38,7 +38,7 @@ class LayoutBuilderStyleDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
 
-    drupal_set_message(
+    $this->messenger()->addMessage(
       $this->t('Deleted the %label style.',
         [
           '@type' => $this->entity->bundle(),

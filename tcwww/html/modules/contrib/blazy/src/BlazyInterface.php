@@ -77,7 +77,7 @@ interface BlazyInterface {
    * @return array
    *   The iframe attributes.
    */
-  public static function iframeAttributes(array $settings);
+  public static function iframeAttributes(array &$settings);
 
   /**
    * Modifies variables for iframes, those only handled by theme_blazy().

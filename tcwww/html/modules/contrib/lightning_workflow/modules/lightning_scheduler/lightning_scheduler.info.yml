@@ -1,5 +1,6 @@
 name: Scheduler
 core: 8.x
+core_version_requirement: '^8 || ^9'
 type: module
 description: 'Allows you to schedule changes in moderation state.'
 package: Lightning
@@ -9,7 +10,7 @@ dependencies:
   - drupal:datetime
   - lightning_core:lightning_core
 
-# Information added by Drupal.org packaging script on 2019-11-15
-version: '8.x-3.14'
+# Information added by Drupal.org packaging script on 2020-05-15
+version: '8.x-3.15'
 project: 'lightning_workflow'
-datestamp: 1573837396
+datestamp: 1589573839

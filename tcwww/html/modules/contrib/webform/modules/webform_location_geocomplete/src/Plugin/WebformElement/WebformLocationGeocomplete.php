@@ -28,20 +28,23 @@ class WebformLocationGeocomplete extends WebformLocationBase {
   /**
    * {@inheritdoc}
    */
-  public function getPluginLabel() {
-    return $this->elementManager->isExcluded('webform_location_places') ? $this->t('Location') : parent::getPluginLabel();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultProperties() {
-    return parent::getDefaultProperties() + [
+  protected function defineDefaultProperties() {
+    return [
       'geolocation' => FALSE,
       'hidden' => FALSE,
       'map' => FALSE,
       'api_key' => '',
-    ] + $this->getDefaultBaseProperties();
+    ] + parent::defineDefaultProperties()
+      + $this->defineDefaultBaseProperties();
+  }
+
+  /****************************************************************************/
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPluginLabel() {
+    return $this->elementManager->isExcluded('webform_location_places') ? $this->t('Location') : parent::getPluginLabel();
   }
 
   /**
@@ -56,7 +59,7 @@ class WebformLocationGeocomplete extends WebformLocationBase {
     }
 
     $format = $this->getItemFormat($element);
-    if ($format == 'map') {
+    if ($format === 'map') {
       $google_map_url = UrlGenerator::fromUri('http://maps.google.com/', ['query' => ['q' => $value['value']]]);
 
       $location = $value['location'];

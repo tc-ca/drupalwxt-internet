@@ -709,6 +709,10 @@
   margin-left: 20px;
 }
 
+.media-library-add-form__fields {
+  flex-grow: 1;
+}
+
 /**
  * @todo Remove [type="submit"] when styles are moved to the seven theme in
  *   https://www.drupal.org/project/drupal/issues/2980769
@@ -717,53 +721,14 @@
 .media-library-add-form__remove-button[type="submit"] {
   position: absolute;
   top: 25px;
-  right: 6px; /* LTR */
-  width: auto;
-  margin: 0;
-  padding: 2px 20px 2px 2px; /* LTR */
-  text-transform: lowercase;
-  color: transparent;
-  border: 0;
-  border-radius: 0;
-  background: transparent url(../../../../misc/icons/787878/ex.svg) right 2px no-repeat; /* LTR */
-  font-weight: normal;
-  line-height: 16px;
+  right: 6px;
+  margin-right: 0;
 }
 
 [dir="rtl"] .media-library-add-form__remove-button[type="submit"] {
   right: auto;
   left: 13px;
-  padding: 2px 2px 2px 20px;
-  background-position: left 2px;
-}
-
-.media-library-add-form__remove-button:focus,
-.media-library-add-form__remove-button.button:disabled,
-.media-library-add-form__remove-button.button:disabled:active,
-.media-library-add-form__remove-button.button:focus {
-  color: #787878;
-  border: 0;
-  background: transparent url(../../../../misc/icons/787878/ex.svg) right 2px no-repeat; /* LTR */
-}
-
-[dir="rtl"] .media-library-add-form__remove-button:focus,
-[dir="rtl"] .media-library-add-form__remove-button.button:disabled,
-[dir="rtl"] .media-library-add-form__remove-button.button:disabled:active,
-[dir="rtl"] .media-library-add-form__remove-button.button:focus {
-  background-position: left 2px;
-}
-
-.media-library-add-form__remove-button:hover,
-.media-library-add-form__remove-button.button:hover {
-  color: #e00;
-  border: 0;
-  background: transparent url(../../../../misc/icons/ee0000/ex.svg) right 2px no-repeat; /* LTR */
-  box-shadow: none;
-}
-
-[dir="rtl"] .media-library-add-form__remove-button:hover,
-[dir="rtl"] .media-library-add-form__remove-button.button:hover {
-  background-position: left 2px;
+  margin-left: 0;
 }
 
 /* @todo Remove in https://www.drupal.org/project/drupal/issues/3064914 */

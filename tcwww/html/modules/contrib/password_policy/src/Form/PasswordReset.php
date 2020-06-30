@@ -35,7 +35,7 @@ class PasswordReset extends FormBase {
   public static function create(ContainerInterface $container) {
     /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
     $entity_manager = $container->get('entity.manager');
-    return new static ($entity_manager->getStorage('user_role'), $entity_manager->getStorage('user'));
+    return new static($entity_manager->getStorage('user_role'), $entity_manager->getStorage('user'));
   }
 
   /**

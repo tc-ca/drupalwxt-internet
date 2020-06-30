@@ -22,12 +22,13 @@
  * - static_map_type: Type of map to use for static map (Google code, such as
  *  'roadmap' or 'satellite')
  * - apikey: Google Maps API key (used for static maps only).
+ * - title: A title attribute for the iframe
  *
  * @ingroup themeable
  */
 #}
 {% if include_map %}
-  <iframe width="{{ width }}" height="{{ height }}" frameborder="0" style="border:0" src="https://maps.google.com/maps?hl={{ langcode }}&amp;q={{ url_suffix }}&amp;t={{ map_type }}&amp;z={{ zoom }}&amp;output=embed"></iframe>
+  <iframe width="{{ width }}" height="{{ height }}" title="{{ iframe_title }}" frameborder="0" style="border:0" src="https://maps.google.com/maps?hl={{ langcode }}&amp;q={{ url_suffix }}&amp;t={{ map_type }}&amp;z={{ zoom }}&amp;output=embed"></iframe>
 {% endif %}
 {% if include_static_map %}
   <div class="simple-gmap-static-map">

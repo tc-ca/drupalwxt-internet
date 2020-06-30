@@ -15,7 +15,7 @@ libraries:
   - wxt_library/wet-boew
   - wxt_library/wet-boew-dev
 
-# Information added by Drupal.org packaging script on 2019-12-01
-version: '8.x-1.12'
+# Information added by Drupal.org packaging script on 2020-05-09
+version: '8.x-1.17'
 project: 'wxt_library'
-datestamp: 1575231803
+datestamp: 1589007479

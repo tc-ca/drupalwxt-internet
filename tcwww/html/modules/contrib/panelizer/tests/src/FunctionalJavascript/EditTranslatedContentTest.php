@@ -3,7 +3,7 @@
 namespace Drupal\Tests\panelizer\FunctionalJavascript;
 
 use Behat\Mink\Driver\Selenium2Driver;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\Tests\panels_ipe\FunctionalJavascript\PanelsIPETestTrait;
 
 /**
@@ -11,7 +11,7 @@ use Drupal\Tests\panels_ipe\FunctionalJavascript\PanelsIPETestTrait;
  *
  * @group panelizer
  */
-class EditTranslatedContentTest extends JavascriptTestBase {
+class EditTranslatedContentTest extends WebDriverTestBase {
 
   use PanelsIPETestTrait;
 

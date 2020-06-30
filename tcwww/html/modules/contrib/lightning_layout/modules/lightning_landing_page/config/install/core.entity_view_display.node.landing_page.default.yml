@@ -19,7 +19,7 @@ third_party_settings:
     enable: true
   layout_builder_restrictions:
     entity_view_mode_restriction:
-      allowed_blocks: {  }
+      whitelisted_blocks: {  }
       allowed_layouts:
         - layout_onecol
         - layout_twocol_section

@@ -58,3 +58,25 @@ oauth2_token.token:
   methods: [POST]
   requirements:
     _access: 'TRUE'
+oauth2_token.authorize:
+  path: '/oauth/authorize'
+  defaults:
+    _controller: 'Drupal\simple_oauth\Controller\Oauth2AuthorizeController::authorize'
+    _title: 'Grant Access to Client'
+  methods: [GET, POST]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+
+oauth2_token.user_debug:
+  path: '/oauth/debug'
+  defaults:
+    _controller: 'Drupal\simple_oauth\Controller\DebugController::debug'
+  methods: [GET]
+  requirements:
+    _permission: 'debug simple_oauth tokens'
+    _format: 'json'
+  options:
+    _auth: ['oauth2']
+    no_cache: TRUE

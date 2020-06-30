@@ -34,9 +34,9 @@ class BlazyAlter {
         }
       }
 
-      // @todo remove custom breakpoints anytime before 2.x as per #3105243.
+      // @todo remove custom breakpoints anytime before 3.x as per #3105243.
       if (isset($mappings['breakpoints'])) {
-        foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
+        foreach (['xs', 'sm', 'md', 'lg', 'xl'] as $breakpoint) {
           $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
           foreach (['breakpoint', 'width', 'image_style'] as $item) {
             $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['type']  = 'string';
@@ -82,7 +82,7 @@ class BlazyAlter {
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
-      $settings['view_plugin_id'] = $view->style_plugin->getPluginId();
+      $settings['view_plugin_id'] = empty($settings['view_plugin_id']) ? $view->style_plugin->getPluginId() : $settings['view_plugin_id'];
     }
   }
 
@@ -91,7 +91,11 @@ class BlazyAlter {
    */
   public static function isCkeditorApplicable(Editor $editor) {
     foreach (['entity_embed', 'media_embed'] as $filter) {
-      if ($editor->getFilterFormat()->filters()->has($filter) && $editor->getFilterFormat()->filters($filter)->getConfiguration()['status']) {
+      if (!$editor->isNew()
+        && $editor->getFilterFormat()->filters()->has($filter)
+        && $editor->getFilterFormat()
+          ->filters($filter)
+          ->getConfiguration()['status']) {
         return TRUE;
       }
     }

@@ -15,6 +15,11 @@ class StandardInstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected $profile = 'standard';
 
   /**

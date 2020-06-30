@@ -19,6 +19,11 @@ class PageBlockDisplayVariantContextualLinksTest extends WebDriverTestBase {
   use UserCreationTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * Testing content block.
    *
    * @var \Drupal\block_content\BlockContentInterface

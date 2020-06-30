@@ -187,18 +187,28 @@ class ModerationNoteResolveForm extends ContentEntityConfirmFormBase {
     // Toggle publishing status of the note and its children.
     /** @var \Drupal\moderation_note\ModerationNoteInterface $child */
     foreach ($note->getChildren() as $child) {
-      $child->setPublished(!$note->isPublished());
+      if ($note->isPublished()) {
+        $child->setUnpublished();
+      }
+      else {
+        $child->setPublished();
+      }
       $child->setValidationRequired(FALSE);
       $child->save();
     }
-    $note->setPublished(!$note->isPublished());
+    if ($note->isPublished()) {
+      $note->setUnpublished();
+    }
+    else {
+      $note->setPublished();
+    }
     $note->setValidationRequired(FALSE);
     $note->save();
 
     // Clear the Drupal messages, as this form uses AJAX to display its
     // results. Displaying a deletion message on the next page the user visits
     // is awkward.
-    drupal_get_messages();
+    $this->messenger()->deleteAll();
   }
 
 }

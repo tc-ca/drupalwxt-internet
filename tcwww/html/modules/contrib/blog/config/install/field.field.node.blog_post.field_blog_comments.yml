@@ -1,4 +1,3 @@
-uuid: f373caf9-c1d8-4153-8a01-1b6557ad7277
 langcode: en
 status: true
 dependencies:
@@ -16,8 +15,7 @@ description: 'Comments against a blog post.'
 required: false
 translatable: false
 default_value:
-  -
-    status: 2
+  - status: 2
     cid: 0
     last_comment_timestamp: 0
     last_comment_name: null

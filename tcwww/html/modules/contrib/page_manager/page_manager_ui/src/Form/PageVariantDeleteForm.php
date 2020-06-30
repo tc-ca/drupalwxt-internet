@@ -94,8 +94,7 @@ class PageVariantDeleteForm extends ConfirmFormBase {
 
     // Add to a list to remove for real later.
     $cached_values['deleted_variants'][$variant_machine_name] = $page_variant;
-
-    drupal_set_message($this->t('The variant %label has been removed.', [
+    $this->messenger()->addMessage($this->t('The variant %label has been removed.', [
       '%label' => $page_variant->label(),
     ]));
 

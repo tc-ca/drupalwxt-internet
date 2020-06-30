@@ -80,6 +80,10 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form = parent::form($form, $form_state);
     $queue = $this->entity;
 
+    $form['#title'] = $this->t('Configure <em>@queue</em> entity queue', [
+      '@queue' => $queue->label(),
+    ]);
+
     // Default to nodes as the queue target entity type.
     $target_entity_type_id = $queue->getTargetEntityTypeId() ?: 'node';
 
@@ -105,7 +109,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     $handler_plugin = $this->getHandlerPlugin($queue, $form_state);
     $form['handler'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Type'),
+      '#title' => $this->t('Queue type'),
       '#options' => $this->entityQueueHandlerManager->getAllEntityQueueHandlers(),
       '#default_value' => $handler_plugin->getPluginId(),
       '#required' => TRUE,
@@ -116,6 +120,12 @@ class EntityQueueForm extends BundleEntityFormBase {
         'trigger_as' => ['name' => 'handler_change'],
       ],
     ];
+    foreach ($this->entityQueueHandlerManager->getDefinitions() as $handler_id => $definition) {
+      if (!empty($definition['description'])) {
+        $form['handler'][$handler_id]['#description'] = $definition['description'];
+      }
+    }
+
     $form['handler_change'] = [
       '#type' => 'submit',
       '#name' => 'handler_change',
@@ -137,7 +147,13 @@ class EntityQueueForm extends BundleEntityFormBase {
 
     $form['handler_settings_wrapper']['handler_settings'] = [];
     $subform_state = SubformState::createForSubform($form['handler_settings_wrapper']['handler_settings'], $form, $form_state);
-    $form['handler_settings_wrapper']['handler_settings'] = $handler_plugin->buildConfigurationForm($form['handler_settings_wrapper']['handler_settings'], $subform_state);
+    if ($handler_settings = $handler_plugin->buildConfigurationForm($form['handler_settings_wrapper']['handler_settings'], $subform_state)) {
+      $form['handler_settings_wrapper']['handler_settings'] = $handler_settings + [
+        '#type' => 'details',
+        '#title' => $this->t('@handler settings', ['@handler' => $handler_plugin->getPluginDefinition()['title']]),
+        '#open' => TRUE,
+      ];
+    }
 
     $form['settings'] = [
       '#type' => 'vertical_tabs',
@@ -154,7 +170,7 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#type' => 'container',
       '#attributes' => ['class' => ['form--inline', 'clearfix']],
       '#process' => [
-        [EntityReferenceItem::class, 'formProcessMergeParent']
+        [EntityReferenceItem::class, 'formProcessMergeParent'],
       ],
     ];
     $form['queue_settings']['size']['min_size'] = [
@@ -173,18 +189,18 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Act as queue'),
       '#default_value' => $queue->getActAsQueue(),
-      '#description' => $this->t('When enabled, adding more than the maximum number of items will remove extra items from the top of the queue.'),
+      '#description' => $this->t('When enabled, adding more than the maximum number of items will remove extra items from the queue.'),
       '#states' => [
         'invisible' => [
           ':input[name="queue_settings[max_size]"]' => ['value' => 0],
         ],
       ],
     ];
-    $form['queue_settings']['reverse_in_admin'] = [
+    $form['queue_settings']['reverse'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Reverse order in admin view'),
-      '#default_value' => $queue->getReverseInAdmin(),
-      '#description' => $this->t('Ordinarily queues are arranged with the front of the queue (where items will be removed) on top and the back (where items will be added) on the bottom. If checked, this will display the queue such that items will be added to the top and removed from the bottom.'),
+      '#title' => $this->t('Reverse'),
+      '#default_value' => $queue->isReversed(),
+      '#description' => $this->t('By default, new items are added to the bottom of the queue. If this option is checked, new items will be added to the top of the queue.'),
     ];
 
     // We have to duplicate all the code from
@@ -271,6 +287,12 @@ class EntityQueueForm extends BundleEntityFormBase {
       $form['entity_settings']['settings']['handler_settings']['target_bundles']['#required'] = FALSE;
     }
 
+    // Also, the 'auto-create' option is mostly useless and confusing in the
+    // entityqueue UI.
+    if (isset($form['entity_settings']['settings']['handler_settings']['auto_create'])) {
+      $form['entity_settings']['settings']['handler_settings']['auto_create']['#access'] = FALSE;
+    }
+
     return $form;
   }
 
@@ -295,6 +317,7 @@ class EntityQueueForm extends BundleEntityFormBase {
       $handler_configuration = $handler_id === $stored_handler_id ? $entity->getHandlerConfiguration() : [];
 
       $handler_plugin = $this->entityQueueHandlerManager->createInstance($handler_id, $handler_configuration);
+      $handler_plugin->setQueue($entity);
       $form_state->set('handler_plugin', $handler_plugin);
     }
     return $handler_plugin;

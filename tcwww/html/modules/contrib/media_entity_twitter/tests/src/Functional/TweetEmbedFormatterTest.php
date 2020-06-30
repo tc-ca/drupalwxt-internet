@@ -22,6 +22,11 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Tests adding and editing a twitter embed formatter.
    */
   public function testManageEmbedFormatter() {
@@ -44,7 +49,7 @@ class TweetEmbedFormatterTest extends MediaFunctionalTestBase {
 
     // @todo Replace entity_get_form_display() when #2367933 is done.
     // https://www.drupal.org/node/2872159.
-    entity_get_form_display('media', $bundle->id(), 'default')
+    \Drupal::service('entity_display.repository')->getFormDisplay('media', $bundle->id(), 'default')
       ->setComponent($source_field->getName(), $component)
       ->save();
 

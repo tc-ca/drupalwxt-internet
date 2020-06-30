@@ -6,19 +6,18 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\Context\Context;
-use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\EntityContextDefinition;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\ctools\Context\AutomaticContext;
 use Drupal\panelizer\Exception\PanelizerException;
 use Drupal\panelizer\PanelizerInterface;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\panels\Storage\PanelsStorageBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\TranslatableInterface;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Panels storage service that stores Panels displays in the Panelizer field.
@@ -90,7 +89,7 @@ class PanelizerFieldPanelsStorage extends PanelsStorageBase implements Container
    * @return \Drupal\Core\Entity\EntityInterface|NULL
    */
   protected function loadEntity($id) {
-    list ($entity_type, $id, , $revision_id) = array_pad(explode(':', $id), 4, NULL);
+    [$entity_type, $id, , $revision_id] = array_pad(explode(':', $id), 4, NULL);
 
     $storage = $this->entityTypeManager->getStorage($entity_type);
     if ($revision_id) {
@@ -124,7 +123,7 @@ class PanelizerFieldPanelsStorage extends PanelsStorageBase implements Container
    *   The context.
    */
   protected function getEntityContext($entity_type_id, EntityInterface $entity) {
-    return new AutomaticContext(new ContextDefinition('entity:' . $entity_type_id, NULL, TRUE), $entity);
+    return new AutomaticContext(new EntityContextDefinition('entity:' . $entity_type_id, NULL, TRUE), $entity);
   }
 
   /**
@@ -132,7 +131,7 @@ class PanelizerFieldPanelsStorage extends PanelsStorageBase implements Container
    */
   public function load($id) {
     if ($entity = $this->loadEntity($id)) {
-      list ($entity_type_id, , $view_mode) = explode(':', $id);
+      [$entity_type_id, , $view_mode] = explode(':', $id);
       if ($panels_display = $this->panelizer->getPanelsDisplay($entity, $view_mode)) {
         // Set the entity as a context on the Panels display.
         $contexts = [
@@ -150,7 +149,7 @@ class PanelizerFieldPanelsStorage extends PanelsStorageBase implements Container
   public function save(PanelsDisplayVariant $panels_display) {
     $id = $panels_display->getStorageId();
     if ($entity = $this->loadEntity($id)) {
-      list (,, $view_mode) = explode(':', $id);
+      [,, $view_mode] = explode(':', $id);
       // If we're dealing with an entity that has a documented default, we
       // don't want to lose that information when we save our customizations.
       // This enables us to revert to the correct default at a later date.
@@ -199,7 +198,7 @@ class PanelizerFieldPanelsStorage extends PanelsStorageBase implements Container
       $access->orIf(isset($entity_operations[$op]) ? $entity->access($entity_operations[$op], $account, TRUE) : AccessResult::forbidden());
 
       if (!$access->isForbidden() && $entity instanceof FieldableEntityInterface) {
-        list (,, $view_mode) = explode(':', $id);
+        [,, $view_mode] = explode(':', $id);
         if ($op == 'change layout') {
           if ($this->panelizer->hasEntityPermission('change layout', $entity, $view_mode, $account)) {
             return $access->orIf(AccessResult::allowed());

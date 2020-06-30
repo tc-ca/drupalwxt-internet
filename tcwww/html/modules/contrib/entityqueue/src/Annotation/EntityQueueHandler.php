@@ -7,7 +7,7 @@ use Drupal\Component\Annotation\Plugin;
 /**
  * Defines a EntityQueueHandler annotation object.
  *
- * Plugin Namespace: Plugin\EntityQueueHandler
+ * Plugin Namespace: Plugin\EntityQueueHandler.
  *
  * @see \Drupal\entityqueue\EntityQueueHandlerInterface
  * @see \Drupal\entityqueue\EntityQueueHandlerManager
@@ -33,5 +33,14 @@ class EntityQueueHandler extends Plugin {
    * @var \Drupal\Core\Annotation\Translation
    */
   public $title;
+
+  /**
+   * The description of the queue handler plugin.
+   *
+   * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
+   */
+  public $description;
 
 }

@@ -68,7 +68,7 @@ class PasswordPolicyConstraintForm extends FormBase {
     }
 
     $form['add_constraint_title'] = [
-      '#markup' => '<h2>Add Constraint</h2>',
+      '#markup' => '<h2>' . $this->t('Add Constraint') . '</h2>',
     ];
 
     $form['constraint'] = [
@@ -90,7 +90,7 @@ class PasswordPolicyConstraintForm extends FormBase {
     ];
 
     $form['constraint_list'] = [
-      '#markup' => '<h2>Policy Constraints</h2>',
+      '#markup' => '<h2>' . $this->t('Policy Constraints') . '</h2>',
     ];
 
     $form['items'] = [
@@ -151,7 +151,7 @@ class PasswordPolicyConstraintForm extends FormBase {
    * @return array
    *   Constraint rows rendered for the policy.
    */
-  public function renderRows($cached_values) {
+  public function renderRows(array $cached_values) {
     /** @var \Drupal\password_policy\Entity\PasswordPolicy $policy */
     $policy = $cached_values['password_policy'];
     $configured_conditions = [];

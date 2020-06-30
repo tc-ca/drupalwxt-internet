@@ -8,6 +8,8 @@ use Drupal\charts_chartjs\Settings\Chartjs\ChartjsData;
 use Drupal\charts_chartjs\Settings\Chartjs\ChartjsOptions;
 use Drupal\charts_chartjs\Settings\Chartjs\ChartjsScales;
 use Drupal\charts_chartjs\Settings\Chartjs\ChartjsStacking;
+use Drupal\charts_chartjs\Settings\Chartjs\ChartjsTickConfigurationOptions;
+use Drupal\charts_chartjs\Settings\Chartjs\ChartjsTicks;
 
 /**
  * Define a concrete class for a Chart.
@@ -96,18 +98,21 @@ class Chartjs extends AbstractChart {
     $chartjsOptions = new ChartjsOptions();
     $chartjsScales = new ChartjsScales();
     $chartjsStacking = new ChartjsStacking();
+    $ticks = new ChartjsTicks();
+    $tickOptions = new ChartjsTickConfigurationOptions();
 
     // Determines if chart is stacked.
     if (!empty($options['grouping'] && $options['grouping'] == TRUE)) {
-      $chartjsStacking->setStacking(TRUE);
-      $chartjsScales->setXAxes([$chartjsStacking]);
-      $chartjsScales->setYAxes([$chartjsStacking]);
+      $grouping = TRUE;
     }
     else {
-      $chartjsStacking->setStacking(FALSE);
-      $chartjsScales->setXAxes([$chartjsStacking]);
-      $chartjsScales->setYAxes([$chartjsStacking]);
+      $grouping = FALSE;
     }
+    $chartjsStacking->setStacking($grouping);
+    $chartjsScales->setXAxes([$chartjsStacking]);
+    $ticks->setTicks($tickOptions);
+    $ticks->setStacked($grouping);
+    $chartjsScales->setYAxes([$ticks]);
     $chartjsOptions->setScales($chartjsScales);
     $tooltip = new \stdClass();
     if($options['tooltips'] == 'TRUE') {

@@ -4,7 +4,7 @@ namespace Drupal\Tests\moderation_note\FunctionalJavascript;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\moderation_note\Entity\ModerationNote;
 use Drupal\Tests\content_moderation\Traits\ContentModerationTestTrait;
 
@@ -13,7 +13,7 @@ use Drupal\Tests\content_moderation\Traits\ContentModerationTestTrait;
  *
  * @group moderation_note
  */
-class ModerationNoteTest extends JavascriptTestBase {
+class ModerationNoteTest extends WebDriverTestBase {
 
   use ContentModerationTestTrait;
 
@@ -21,6 +21,11 @@ class ModerationNoteTest extends JavascriptTestBase {
    * {@inheritdoc}
    */
   public static $modules = ['block', 'node', 'moderation_note'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

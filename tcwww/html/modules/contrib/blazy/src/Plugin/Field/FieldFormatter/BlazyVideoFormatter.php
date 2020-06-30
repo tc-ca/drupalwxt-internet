@@ -6,6 +6,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\Dejavu\BlazyVideoBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyVideoFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
 
@@ -15,12 +16,20 @@ use Drupal\blazy\Dejavu\BlazyVideoBase;
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
  * @todo make is useful for local video instead?
+ * @todo remove ContainerFactoryPluginInterface since D8.8 has it by default.
  */
 class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterTrait;
   use BlazyFormatterViewTrait;
-  use BlazyFormatterOEmbedTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'entity');
+  }
 
   /**
    * {@inheritdoc}

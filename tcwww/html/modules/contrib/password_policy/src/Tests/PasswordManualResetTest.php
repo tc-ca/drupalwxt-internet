@@ -42,7 +42,7 @@ class PasswordManualResetTest extends WebTestBase {
     $this->drupalPostForm("admin/config/security/password-policy/reset", $edit, t('Save'));
 
     // Verify expiration.
-    $user = \Drupal::entityManager()->getStorage('user')->load($user1->id());
+    $user = \Drupal::entityTypeManager()->getStorage('user')->load($user1->id());
     $this->assertEqual($user->get('field_password_expiration')[0]->value, "1", 'User password is expired after manual reset');
   }
 

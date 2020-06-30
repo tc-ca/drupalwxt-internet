@@ -36,7 +36,6 @@ Framework managers
 
 Release managers
 - Nathaniel Catchpole 'catch' https://www.drupal.org/u/catch
-- Chris McCafferty 'cilefen' https://www.drupal.org/u/cilefen
 - Jess Myrbo 'xjm' https://www.drupal.org/u/xjm
 
 Committer team facilitators
@@ -301,6 +300,7 @@ Menu UI
 - ?
 
 Migrate
+- Benji Fisher 'benjifisher' https://www.drupal.org/u/benjifisher
 - Adam Globus-Hoenich 'phenaproxima' https://www.drupal.org/u/phenaproxima
 - Lucas Hedding 'heddn' https://www.drupal.org/u/heddn
 - Michael Lutz 'mikelutz' https://www.drupal.org/u/mikelutz
@@ -506,7 +506,6 @@ API-first Initiative
 - Gabe Sullice 'gabesullice' https://www.drupal.org/u/gabesullice
 
 Admin UI & JavaScript Modernisation Initiative
-- Angela Byron 'webchick' https://www.drupal.org/u/webchick
 - Cristina Chumillas 'ckrina' https://www.drupal.org/u/ckrina
 - Sally Young 'justafish' https://www.drupal.org/u/justafish
 

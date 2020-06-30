@@ -39,14 +39,13 @@ class BlazyUnitTest extends UnitTestCase {
    *   The expected output.
    *
    * @covers ::buildIframe
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerTestBuildIframe
    */
   public function testBuildIframe(array $data, $expected) {
     $variables             = ['attributes' => [], 'image' => []];
     $settings              = BlazyDefault::entitySettings();
     $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
-    $settings['scheme']    = 'youtube';
     $settings['type']      = 'video';
     $settings['bundle']    = 'remote_video';
 
@@ -66,7 +65,7 @@ class BlazyUnitTest extends UnitTestCase {
           'media_switch' => 'media',
           'ratio' => 'fluid',
         ],
-        'iframe_attributes',
+        'iframe',
       ],
       [
         [
@@ -75,7 +74,7 @@ class BlazyUnitTest extends UnitTestCase {
           'width' => 640,
           'height' => 360,
         ],
-        'iframe_attributes',
+        'iframe',
       ],
     ];
   }
@@ -94,7 +93,7 @@ class BlazyUnitTest extends UnitTestCase {
    *
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
   public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {
@@ -103,7 +102,6 @@ class BlazyUnitTest extends UnitTestCase {
     $settings  = array_merge($build['settings'], $settings);
     $settings += BlazyDefault::itemSettings();
 
-    $settings['breakpoints']     = [];
     $settings['blazy']           = TRUE;
     $settings['lazy']            = 'blazy';
     $settings['image_style']     = '';
@@ -119,7 +117,7 @@ class BlazyUnitTest extends UnitTestCase {
     Blazy::preprocessBlazy($variables);
 
     $image = $expected_image == TRUE ? !empty($variables['image']) : empty($variables['image']);
-    $iframe = $expected_iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
+    $iframe = $expected_iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);
 
     $this->assertTrue($image);
     $this->assertTrue($iframe);

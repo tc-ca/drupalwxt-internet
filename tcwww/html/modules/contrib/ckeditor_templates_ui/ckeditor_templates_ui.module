@@ -49,7 +49,7 @@ function ckeditor_templates_ui_js_settings_alter(array &$settings, AttachedAsset
   if (in_array('ckeditor_templates/ckeditor.templates.dialog', $libraries, TRUE)) {
     $query = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->getQuery();
     $templates_ids = $query->execute();
-    $ckeditor_templates = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->loadMultipleOverrideFree($templates_ids);
+    $ckeditor_templates = \Drupal::entityTypeManager()->getStorage('ckeditor_template')->loadMultiple($templates_ids);
     // Sorting in postLoad does not stick.
     uasort($ckeditor_templates, 'Drupal\Core\Config\Entity\ConfigEntityBase::sort');
     $i = 0;

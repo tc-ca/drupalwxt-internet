@@ -21,6 +21,11 @@ class InlineBlockTranslationTest extends InlineBlockTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'classy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'content_translation',
     'layout_builder_st'

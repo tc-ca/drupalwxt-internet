@@ -13,65 +13,6 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 trait BlazyDeprecatedTrait {
 
   /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use
-   *   self::imageAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildImageAttributes(array &$variables) {
-    @trigger_error('buildImageAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use \Drupal\blazy\Blazy::imageAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::imageAttributes($variables);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use
-   *   self::buildIframe() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildIframeAttributes(array &$variables) {
-    self::buildIframe($variables);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use
-   *   self::lazyAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildLazyAttributes(array &$attributes, array $settings = []) {
-    @trigger_error('buildLazyAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use \Drupal\blazy\Blazy::lazyAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::lazyAttributes($attributes, $settings);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use
-   *   self::aspectRatioAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildAspectRatio(array &$attributes, array $settings = []) {
-    @trigger_error('buildAspectRatio is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use \Drupal\blazy\Blazy::aspectRatioAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::aspectRatioAttributes($attributes, $settings);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use
-   *   self::urlAndDimensions() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
-    @trigger_error('buildUrlAndDimensions is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Use \Drupal\blazy\Blazy::urlAndDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::urlAndDimensions($settings, $item);
-  }
-
-  /**
    * Implements hook_field_formatter_info_alter().
    *
    * @todo remove from blazy:8.x-2.1 for

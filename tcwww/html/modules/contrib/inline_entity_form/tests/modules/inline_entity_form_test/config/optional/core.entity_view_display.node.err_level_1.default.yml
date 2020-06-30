@@ -12,6 +12,15 @@ targetEntityType: node
 bundle: err_level_1
 mode: default
 content:
+  field_level_2_entity_no_bundle:
+    weight: 102
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
+    region: content
   field_level_2_items:
     weight: 101
     label: above

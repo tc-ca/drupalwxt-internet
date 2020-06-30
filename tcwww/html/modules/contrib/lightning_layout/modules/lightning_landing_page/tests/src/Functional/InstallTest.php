@@ -8,10 +8,17 @@ use Drupal\node\Entity\Node;
 use Drupal\Tests\BrowserTestBase;
 
 /**
+ * Tests install-time logic of Lightning Landing Page.
+ *
  * @group lightning_layout
  * @group lightning_landing_page
  */
 class InstallTest extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

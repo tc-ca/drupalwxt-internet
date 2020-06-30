@@ -548,9 +548,10 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
     // contain a flattened response. Otherwise performance suffers.
     // @see \Drupal\rest\EventSubscriber\ResourceResponseSubscriber::flattenResponse()
     $cache_items = $this->container->get('database')
-      ->query("SELECT cid, data FROM {cache_dynamic_page_cache} WHERE cid LIKE :pattern", [
-        ':pattern' => '%[route]=rest.%',
-      ])
+      ->select('cache_dynamic_page_cache', 'c')
+      ->fields('c', ['cid', 'data'])
+      ->condition('c.cid', '%[route]=rest.%', 'LIKE')
+      ->execute()
       ->fetchAllAssoc('cid');
     if (!$is_cacheable_by_dynamic_page_cache) {
       $this->assertCount(0, $cache_items);
@@ -1412,7 +1413,7 @@ abstract class EntityResourceTestBase extends ResourceTestBase {
     };
     $keys_are_field_names = Inspector::assertAllStrings(array_keys(static::$patchProtectedFieldNames));
     $values_are_expected_access_denied_reasons = Inspector::assertAll($is_null_or_string, static::$patchProtectedFieldNames);
-    $this->assertTrue($keys_are_field_names && $values_are_expected_access_denied_reasons, 'In Drupal 8.6, the structure of $patchProtectectedFieldNames changed. It used to be an array with field names as values. Now those values are the keys, and their values should be either NULL or a string: a string containing the reason for why the field cannot be PATCHed, or NULL otherwise.');
+    $this->assertTrue($keys_are_field_names && $values_are_expected_access_denied_reasons, 'In Drupal 8.6, the structure of $patchProtectedFieldNames changed. It used to be an array with field names as values. Now those values are the keys, and their values should be either NULL or a string: a string containing the reason for why the field cannot be PATCHed, or NULL otherwise.');
   }
 
   /**

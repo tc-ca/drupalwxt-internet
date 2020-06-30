@@ -13,7 +13,7 @@ use Drupal\password_policy\PasswordPolicyValidation;
  *   id = "password_length",
  *   title = @Translation("Password character length"),
  *   description = @Translation("Verifying that a password has a minimum character length"),
- *   error_message = @Translation("The length of your password is too short.")
+ *   errorMessage = @Translation("The length of your password is too short.")
  * )
  */
 class PasswordLength extends PasswordConstraintBase {
@@ -62,7 +62,7 @@ class PasswordLength extends PasswordConstraintBase {
     $form['character_operation'] = [
       '#type' => 'select',
       '#title' => $this->t('Operation'),
-      '#options' => ['minimum' => 'Minimum length', 'maximum' => 'Maximum length'],
+      '#options' => ['minimum' => $this->t('Minimum length'), 'maximum' => $this->t('Maximum length')],
       '#default_value' => $this->getConfiguration()['character_operation'],
     ];
     return $form;
@@ -91,11 +91,11 @@ class PasswordLength extends PasswordConstraintBase {
   public function getSummary() {
     switch ($this->configuration['character_operation']) {
       case 'minimum':
-        $operation = 'at least';
+        $operation = $this->t('at least');
         break;
 
       case 'maximum':
-        $operation = 'at most';
+        $operation = $this->t('at most');
         break;
     }
     return $this->t('Password character length of @operation @characters', ['@operation' => $operation, '@characters' => $this->configuration['character_length']]);

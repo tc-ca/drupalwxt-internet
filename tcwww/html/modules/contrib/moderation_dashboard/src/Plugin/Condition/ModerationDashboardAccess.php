@@ -10,7 +10,7 @@ use Drupal\Core\Condition\ConditionPluginBase;
  * @Condition(
  *   id = "moderation_dashboard_access",
  *   label = @Translation("Moderation Dashboard Access"),
- *   context = {
+ *   context_definitions = {
  *     "dashboard_user" = @ContextDefinition("entity:user", label = @Translation("Dashboard owner")),
  *     "current_user" = @ContextDefinition("entity:user", label = @Translation("Current user")),
  *   }

@@ -211,7 +211,7 @@ class ParameterEditForm extends FormBase {
     }
 
     $this->setTempstore($cache_values);
-    drupal_set_message($this->t('The %label parameter has been updated.', ['%label' => $label ?: $name]));
+    $this->messenger()->addMessage($this->t('The %label parameter has been updated.', ['%label' => $label ?: $name]));
     list($route_name, $route_parameters) = $this->getParentRouteInfo($cache_values);
     $form_state->setRedirect($route_name, $route_parameters);
   }
@@ -230,13 +230,15 @@ class ParameterEditForm extends FormBase {
       return ['entity.page.add_step_form', [
         'machine_name' => $this->machine_name,
         'step' => 'parameters',
-      ]];
+      ],
+      ];
     }
     else {
       return ['entity.page.edit_form', [
         'machine_name' => $this->machine_name,
         'step' => 'parameters',
-      ]];
+      ],
+      ];
     }
   }
 

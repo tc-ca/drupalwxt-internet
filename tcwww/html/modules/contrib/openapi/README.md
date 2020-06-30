@@ -5,7 +5,9 @@ This module provides a [OpenAPI](https://github.com/OAI/OpenAPI-Specification)
 about Drupal Site.
 
 This module supports and integrates with Drupal Core's REST endpoints and
-the [JsonApi](https://drupal.org/project/jsonapi) module.
+the [JSON:API](https://drupal.org/project/jsonapi) module. You need to install
+the integration modules [OpenAPI REST](https://drupal.org/project/openapi_rest)
+and/or [OpenAPI JSON:API](https://drupal.org/project/openapi_jsonapi).
 
 ## Setup
 
@@ -14,8 +16,11 @@ https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules).
 
 ### Module Dependencies
 
-The OpenAPI module leverages the [schemata](https://drupal.org/project/schemata)
-module to derive the entity schema for the project.
+This module has no dependencies outside of Drupal core.
+
+The OpenAPI integration modules may leverate the
+[schemata](https://drupal.org/project/schemata) module to derive the entity
+schema for the project.
 
 ## Documentation
 
@@ -28,13 +33,14 @@ Openapi is a standard for documenting api functionality.
 ### Using OpenAPI
 
 In order to view the schema documents you will need to have a supported module
-enabled in your site. The module provides support for the REST module, found in
-Drupal Core, and the contributed [JsonAPI module](https://www.drupal.org/project/jsonapi).
+enabled in your site. The module provides support for the REST module and
+JSON:API module, found in Drupal Core.
+
 Once a supported module is installed, you can navigate to the schema url to
 view the entity schema. For the two supplied modules, these urls are below.
 
-- REST - /openapi/rest?_format=json
-- JsonAPI - /openapi/json?_format=json
+- REST - /openapi/rest
+- JSON:API - /openapi/jsonapi
 
 If you don't have one of these modules enabled, you will need to do so in order
 to use the functionality provided by this module.
@@ -53,13 +59,14 @@ nstalled, see "Using OpenAPI" above. You can then navigate to the respective url
 for the api.
 
 - REST - `/admin/config/services/openapi/redoc/rest`
-- JsonAPI -  `/admin/config/services/openapi/redoc/jsonapi`
+- JSON:API -  `/admin/config/services/openapi/redoc/jsonapi`
 
 ### Adding support for a custom api
 
 You can write additional integrations for other rest modules and contributed
 functionality. OpenAPI leverages plugins to detect and generate the download
-documents. Please take a look a the source for the jsonapi and rest module
-integrations, which are found in this module. For support and assistance with
-custom integrations, please open a support request issue for the OpenAPI module
-on Drupal.org.
+documents. Please take a look a the source for the
+[JSON:API](https://drupal.org/project/openapi_jsonapi) and
+[REST](https://drupal.org/project/openapi_rest) module integrations, which are
+found in this module. For support and assistance with custom integrations,
+please open a support request issue for the OpenAPI module on Drupal.org.

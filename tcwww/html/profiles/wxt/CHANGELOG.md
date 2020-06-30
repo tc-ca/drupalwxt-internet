@@ -1,3 +1,290 @@
+## v3.0.12
+Security updates:
+
+* Update Drupal Core to [8.8.8](https://www.drupal.org/project/drupal/releases/8.8.8)
+  * [SA-CORE-2020-004](https://www.drupal.org/sa-core-2020-004)
+  * [SA-CORE-2020-005](https://www.drupal.org/sa-core-2020-005)
+  * [SA-CORE-2020-006](https://www.drupal.org/sa-core-2020-006)
+
+Features/Updates:
+  - Update Lightning [4.1.5](https://github.com/acquia/lightning/releases/tag/4.1.5)
+  - Update acquia_connector to 1.22
+  - Update admin_toolbar to 2.3
+  - Update bootstrap_layouts to 5.2
+  - Update button_link to 1.2
+  - Update ckeditor_codemirror to 2.3
+  - Update config_rewrite to 1.3
+    **Note** If you are rewriting OPTIONAL configuration, then you need to read the [1.2 release notes](https://www.drupal.org/project/config_rewrite/releases/8.x-1.2)
+  - Update core_context to 1.0-beta4
+  - Update ctools to 3.4.0
+  - Update embed to 1.4
+  - Update inline_entity_form to 1.0-rc6
+  - Update linkit to 5.0-beta11
+  - Update media_entity_instagram to 2.1
+  - Update media_entity_slideshow to 2.0
+  - Update menu_block to 1.6.0
+  - Update menu_breadcrumb to 1.13
+  - Update page_manager to 4.0-beta6
+  - Update panelizer to 5.0-beta3
+  - Update paragraphs to 1.12
+  - Update search_api to 1.17
+  - Update token_filter to 1.2
+  - Update webform to 5.16
+
+**Note:** Many of the above module updates now include Drupal 9 support. We are working towards moving to Drupal 9 in the near future.
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.11
+Security updates:
+
+* Update Drupal Core to [8.8.6](https://www.drupal.org/project/drupal/releases/8.8.6)
+  * [SA-core-2020-002](https://www.drupal.org/sa-core-2020-002)
+
+Features/Updates:
+
+- Drupal core to 8.8.6
+- Update Lightning [4.1.4](https://github.com/acquia/lightning/releases/tag/4.1.4)
+- Update blazy to 2.1
+- Update conflict to 2.0-alpha2
+- Update lightning_core to 5.2
+- Update lightning_workflow to 3.15
+- Update moderation_dashboard to 1.0-beta2
+- Update moderation_sidebar to 1.4
+- Update redirect to 1.6
+- Update webform to 5.13
+- Update lightning to 4.104
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.10
+
+Features/Updates:
+
+- Update wxt make files to fix issue with tarballs from drupal.org and github (missing gcweb 6.1).
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.9
+
+Security updates:
+
+- Update minimum webform version to 5.11 ([SA-CONTRIB-2020-011](https://www.drupal.org/sa-contrib-2020-011), [SA-CONTRIB-2020-012](https://www.drupal.org/sa-contrib-2020-012), [SA-CONTRIB-2020-013](https://www.drupal.org/sa-contrib-2020-013), [SA-CONTRIB-2020-014](https://www.drupal.org/sa-contrib-2020-011))
+
+Features/Updates:
+
+- Drupal core 8.8.5
+- Updates for Contributed modules
+  - Update acquia_connector to 1.21
+  - Update admin_toolbar = 2.2
+  - Update bg_image_formatter = 1.14
+  - Update blog to 2.0-beta1
+    - To address [this](https://www.drupal.org/project/wxt/issues/3124528) build issue
+  - Update consumers to 1.11
+  - Update core_context to 1.0-beta1
+  - Update crop to 2.1
+  - Update diff to 1.0
+  - Update entity_browser to 2.5
+  - Update entity_embed to 1.1
+  - Update entityqueue to 1.0
+  - Update fontawesome to 2.16
+  - Update image_widget_crop to 2.3
+  - Update layout_builder_restrictions to 2.7
+  - Update layout_builder_st to 1.0-alpha2
+  - Update layout_builder_styles to 1.0-beta2
+  - Update lightning_core to 5.1
+  - Update lightning_layout to 2.6
+  - Update media_entity_twitter to 2.4
+  - Update metatag to 1.13
+  - Update openapi to 2.0-rc3
+  - Update openapi_rest to 2.0-rc2
+  - Update pathauto to 1.8
+  - Update schemata to 1.0-beta2
+  - Update search_api to 1.16
+  - Update simple_gmap to 2.1-rc1
+  - Update simple_oauth to 4.5
+  - Update token to 1.7
+  - Update video_embed_field to 2.4
+  - Update webform to 5.11
+  - Update lightning to 4.103
+- Update WxT Library 1.17.0
+  - Update wet-boew to v4.0.35
+  - Update gcweb theme to v6.1.0
+  - Update for Drupal 9
+- Port drush wxt-cex command to Drush 9
+
+**Note:** The following modules are no longer provided or used by WXT (they were removed in Lightning 3.0.0). If you use these modules you will need to add them to your project's composer.json file or include them in your codebase using another method.
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+
+* Scheduled Updates (`scheduled_updates`)
+* Features (`features`)
+* Configuration Update Manager (`config_update`)
+* Media Entity (`media_entity`)
+* Media Entity Document (`media_entity_document`)
+* Media Entity Image (`media_entity_image`)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.8
+
+Features/Updates:
+
+- Update Drupal Core to 8.8.4
+- Update Lightning [4.1.3](https://github.com/acquia/lightning/releases/tag/4.1.3)
+  - Updated Lightning API to 4.5
+  - Updated Lightning Media to 3.16
+- Updates for WxT
+  - Now provide alternate styles support for slideshow blocks
+  - Formatting fixes and alignment of composer.json
+- Updates for WxT Bootstrap
+  - Update README.md
+  - Fix CDN Footer for GCWEB
+  - Unexpected breadcrumb padding on some of the WxT supported themes
+- Updates for Contributed modules
+  - Update core_context to 1.0-beta2 + patch for fieldable entities
+  - Update password policy to 3.0-alpha5 + patch for helpful translation
+  - Update entity_reference_revisions to 1.8
+  - Update inline_entity_form to 1.0-rc3
+  - Update paragraphs to 1.11
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.7
+
+Features/Updates:
+
+- Update Drupal Core to 8.8.2
+- Update Lightning [4.1.2](https://github.com/acquia/lightning/releases/tag/4.1.2)
+- Moved docker logic into [docker-scaffold](https://github.com/drupalwxt/docker-scaffold)
+- Drupal.org + Tarball generated builds now against [drupal/legacy-project](https://github.com/drupal/legacy-project)
+- Updates for WxT
+  - Update Coder and CodeSniffer
+- Updates for WxT Bootstrap
+  - Accessibility fix for Signed in as
+  - PHPCS code linting fix
+  - Added class for display-inline
+  - Additional documentation for subtheme
+- Updates for WxT Library
+  - Correct issues with language negotiation
+- Updates for Contributed modules
+  - Update Webform to 3.8
+  - Update autosave_form to 1.1
+  - Update bg_image_formatter to 1.12
+  - Update entity_block to 1.0-beta2
+  - Update group to 1.0-rc5
+  - Update layout_builder_restrictions to 2.5
+  - Update media_entity_twitter to 2.3
+- Pathauto must be updated first if below Pathauto 8.x-1.5 to prevent data loss
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
 ## v3.0.6
 
 Features/Updates:

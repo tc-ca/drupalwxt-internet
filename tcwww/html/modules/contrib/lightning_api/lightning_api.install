@@ -5,7 +5,9 @@
  * Contains installation and update routines for Lightning API.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\views\Entity\View;
 
@@ -125,14 +127,92 @@ function lightning_api_update_8302() {
 }
 
 /**
- * Implements hook_update_dependencies().
+ * Uninstalls Simple OAuth Extras.
  */
-function lightning_api_update_dependencies() {
-  return [
-    'lightning_api' => [
-      8300 => [
-        'openapi' => 8100,
-      ],
-    ],
-  ];
+function lightning_api_update_8401() {
+  Drupal::service('module_installer')->uninstall(['simple_oauth_extras']);
+
+  /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $schema */
+  $schema = Drupal::service('entity.last_installed_schema.repository');
+  $entity_updater = Drupal::entityDefinitionUpdateManager();
+  $installed_storages = $schema->getLastInstalledFieldStorageDefinitions('consumer');
+
+  if (empty($installed_storages['redirect_uri'])) {
+    $storage_definition = BaseFieldDefinition::create('uri')
+      ->setLabel(new TranslatableMarkup('Redirect URI'))
+      ->setDescription(new TranslatableMarkup('The URI this client will redirect to when needed.'))
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'weight' => 4,
+      ])
+      ->setDisplayOptions('form', [
+        'weight' => 4,
+      ])
+      ->setDisplayConfigurable('view', TRUE)
+      ->setTranslatable(TRUE)
+      ->setSetting('max_length', 255);
+
+    $entity_updater->installFieldStorageDefinition('redirect', 'consumer', 'simple_oauth', $storage_definition);
+  }
+  if (empty($installed_storages['user_id'])) {
+    $storage_definition = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('User'))
+      ->setDescription(new TranslatableMarkup('When no specific user is authenticated Drupal will use this user as the author of all the actions made.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'entity_reference_label',
+        'weight' => 1,
+      ])
+      ->setCardinality(1)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 0,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'autocomplete_type' => 'tags',
+          'placeholder' => '',
+        ],
+      ]);
+
+    $entity_updater->installFieldStorageDefinition('user_id', 'consumer', 'simple_oauth', $storage_definition);
+  }
+
+  if (isset($installed_storages['langcode'])) {
+    $storage_definitions = Drupal::service('entity_field.manager')
+      ->getFieldStorageDefinitions('consumer');
+    $entity_updater->updateFieldStorageDefinition($storage_definitions['langcode']);
+  }
+}
+
+/**
+ * Installs OpenAPI generators for REST and JSON:API.
+ */
+function lightning_api_update_8402() {
+  Drupal::service('module_installer')->install([
+    'openapi_jsonapi',
+    'openapi_rest',
+  ]);
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function lightning_api_requirements($phase) {
+  $requirements = [];
+
+  if ($phase === 'runtime' && Drupal::moduleHandler()->moduleExists('openapi_rest')) {
+    $requirements['openapi_rest_deprecated_dependency'] = [
+      'title' => t('Deprecated dependency: OpenAPI REST'),
+      'description' => t('The OpenAPI REST module currently ships with Lightning API, but it will not in Lightning API 5.0. If you intend to continue using it, you should explicitly add it to your project now, for example: <code>composer require drupal/openapi_rest</code>. Otherwise, you may want to <a href=":uninstall_url">uninstall it now</a>.', [
+        ':uninstall_url' => Url::fromRoute('system.modules_uninstall')->toString(),
+      ]),
+      'severity' => REQUIREMENT_WARNING,
+    ];
+  }
+  return $requirements;
 }

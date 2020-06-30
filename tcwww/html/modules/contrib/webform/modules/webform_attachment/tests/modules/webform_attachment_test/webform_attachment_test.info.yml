@@ -1,12 +1,12 @@
-name: 'Webform Attachment Test'
+name: 'Webform Attachment test'
 type: module
-description: 'Support module for webform attachment element that provides test webforms.'
-package: Testing
-core: 8.x
+description: 'Support module for webform attachment element testing.'
+package: 'Webform Testing'
+core_version_requirement: ^8.8
 dependencies:
   - 'webform:webform_attachment'
 
-# Information added by Drupal.org packaging script on 2020-01-21
-version: '8.x-5.8'
+# Information added by Drupal.org packaging script on 2020-06-24
+version: '8.x-5.18'
 project: 'webform'
-datestamp: 1579637592
+datestamp: 1593034091

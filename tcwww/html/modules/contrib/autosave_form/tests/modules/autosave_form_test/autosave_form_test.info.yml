@@ -2,6 +2,7 @@ name: 'Autosave Form Test Module'
 type: module
 package: Testing
 core: 8.x
+core_version_requirement: '^8 || ^9'
 
 # Information added by Drupal.org packaging script on 2020-01-14
 version: '8.x-1.1'

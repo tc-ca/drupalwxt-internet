@@ -3,7 +3,10 @@
 namespace Drupal\Tests\moderation_sidebar\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
-use Drupal\Tests\taxonomy\Functional\TaxonomyTestTrait;
+use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
+if (!trait_exists('\Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait')) {
+  class_alias('\Drupal\Tests\taxonomy\Functional\TaxonomyTestTrait', '\Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait');
+}
 
 /**
  * Contains Moderation Sidebar integration tests.
@@ -31,6 +34,11 @@ class ModerationSidebarTaxonomyTermTest extends WebDriverTestBase {
    * @var \Drupal\taxonomy\Entity\Vocabulary
    */
   protected $vocabulary;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

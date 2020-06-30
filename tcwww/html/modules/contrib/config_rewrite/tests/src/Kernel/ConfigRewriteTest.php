@@ -56,7 +56,7 @@ class ConfigRewriteTest extends KernelTestBase {
    * @covers ::rewriteModuleConfig
    * @covers ::rewriteConfig
    */
-  function testConfigRewrite() {
+  public function testConfigRewrite() {
     $expected_original_data = [
       'label' => 'Test 1',
       'is_admin' => FALSE,
@@ -115,7 +115,7 @@ class ConfigRewriteTest extends KernelTestBase {
       'label' => 'Test 3 replaced',
       // Unchanged.
       'is_admin' => FALSE,
-      // Replaced.
+      // Rewritten.
       'permissions' => [
         'change own username',
       ],
@@ -133,6 +133,25 @@ class ConfigRewriteTest extends KernelTestBase {
     ];
     $user_role = $this->languageConfigFactoryOverride->getOverride('fr', 'user.role.test4')->get();
     $this->assertEquals($user_role['label'], $expected_rewritten_data['label']);
+
+    // Test a rewrite where config_rewrite.replace contains keys.
+    // Test that data is rewritten as expected.
+    $expected_rewritten_data = [
+      //rewritten
+      'label' => 'Test 5 rewritten & replaced',
+      //removed.
+      //'is_admin' => FALSE,
+      // Replaced.
+      'permissions' => [
+        'change own username',
+      ],
+    ];
+    $user_role = $this->activeConfigStorage->read('user.role.test5');
+    $this->assertEquals($user_role['label'], $expected_rewritten_data['label']);
+    $this->assertArrayNotHasKey('is_admin', $user_role);
+    $this->assertEquals($user_role['permissions'], $expected_rewritten_data['permissions']);
+    // Test that the "config_rewrite" key was unset.
+    $this->assertFalse(isset($user_role['config_rewrite']));
   }
 
 }

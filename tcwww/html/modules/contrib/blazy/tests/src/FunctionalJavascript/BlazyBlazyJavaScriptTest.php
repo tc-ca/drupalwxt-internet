@@ -24,8 +24,9 @@ class BlazyBlazyJavaScriptTest extends BlazyJavaScriptTestBase {
     $this->drupalGet('node/' . $this->entity->id());
 
     // Ensures Blazy is not loaded on page load.
-    $this->assertSession()->elementNotExists('css', '.b-loaded');
-
+    // @todo with Native lazyload, b-loaded is enforced on page load. And
+    // since the testing browser Chrome support it, it is irrelevant.
+    // @todo $this->assertSession()->elementNotExists('css', '.b-loaded');
     $this->doTestFormatterDisplay();
   }
 

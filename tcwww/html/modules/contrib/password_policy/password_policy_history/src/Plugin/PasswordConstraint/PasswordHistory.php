@@ -17,7 +17,7 @@ use Drupal\Core\Password\PasswordInterface;
  *   id = "password_policy_history_constraint",
  *   title = @Translation("Password History"),
  *   description = @Translation("Provide restrictions on previously used passwords."),
- *   error_message = @Translation("You have used the same password previously and cannot."),
+ *   errorMessage = @Translation("You have used the same password previously and cannot."),
  * )
  */
 class PasswordHistory extends PasswordConstraintBase implements ContainerFactoryPluginInterface {
@@ -106,7 +106,7 @@ class PasswordHistory extends PasswordConstraintBase implements ContainerFactory
     $form['history_repeats'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Number of allowed repeated passwords'),
-      '#description' => 'A value of 0 represents no allowed repeats',
+      '#description' => $this->t('A value of 0 represents no allowed repeats'),
       '#default_value' => $this->getConfiguration()['history_repeats'],
     ];
     return $form;

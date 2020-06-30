@@ -3,8 +3,18 @@
  * Rating element styles.
  */
 
-html.js .form-webform-rating {
-  display: none;
+/**
+ * Visually hide the rating input.
+ */
+html.js .form-webform-rating,
+html.js .form-webform-rating[style*="display: none"] {
+  display: inline !important;
+  position: absolute !important;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  width: 1px;
+  height: 1px;
+  word-wrap: normal;
 }
 
 div.svg div.rateit-range {
@@ -46,8 +56,8 @@ div.svg.rateit-small div.rateit-preset {
 }
 
 div.svg.rateit-small button.rateit-reset {
-  height: 16px;
   width: 16px;
+  height: 16px;
   background-size: 16px 16px;
 }
 
@@ -66,8 +76,8 @@ div.svg.rateit-medium div.rateit-preset {
 }
 
 div.svg.rateit-medium button.rateit-reset {
-  height: 24px;
   width: 24px;
+  height: 24px;
   background-size: 24px 24px;
 }
 
@@ -86,7 +96,7 @@ div.svg.rateit-large div.rateit-preset {
 }
 
 div.svg.rateit-large button.rateit-reset {
-  height: 32px;
   width: 32px;
+  height: 32px;
   background-size: 32px 32px;
 }

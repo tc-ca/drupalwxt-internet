@@ -369,6 +369,20 @@ entity.webform.results_submissions.custom:
     _entity_access: 'webform.update'
     _custom_access: '\Drupal\webform\Access\WebformEntityAccess:checkResultsAccess'
 
+entity.webform.results_submissions.custom.user:
+  path: '/admin/structure/webform/manage/{webform}/results/submissions/custom/user'
+  defaults:
+    _form: 'Drupal\webform\Form\WebformResultsCustomForm'
+    _title: 'Customize my table'
+    type: 'user'
+  options:
+    parameters:
+      webform:
+        type: 'entity:webform'
+  requirements:
+    _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformEntityAccess:checkResultsAccess'
+
 entity.webform.results_export:
   path: '/admin/structure/webform/manage/{webform}/results/download'
   defaults:
@@ -804,6 +818,17 @@ entity.webform.variant.test_form:
     _form: '\Drupal\webform\Form\WebformVariantViewForm'
     _title: 'Test webform variants'
     operation: 'test'
+  requirements:
+    _permission: 'edit webform variants'
+    _entity_access: 'webform.update'
+    _custom_access: '\Drupal\webform\Access\WebformVariantAccess::checkVariantSettingsAccess'
+
+entity.webform.variant.share_form:
+  path: '/admin/structure/webform/manage/{webform}/variants/share'
+  defaults:
+    _form: '\Drupal\webform\Form\WebformVariantViewForm'
+    _title: 'Share webform variants'
+    operation: 'share'
   requirements:
     _permission: 'edit webform variants'
     _entity_access: 'webform.update'

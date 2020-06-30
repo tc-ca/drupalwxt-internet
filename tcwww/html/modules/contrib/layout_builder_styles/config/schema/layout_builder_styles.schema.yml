@@ -19,6 +19,9 @@ layout_builder_styles.style.*:
       label: 'Block restrictions'
       sequence:
         type: string
+    weight:
+      type: integer
+      label: 'Weight'
     uuid:
       type: string
 layout_builder_styles.settings:

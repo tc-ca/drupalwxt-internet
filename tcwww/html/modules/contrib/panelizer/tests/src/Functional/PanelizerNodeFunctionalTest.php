@@ -20,6 +20,11 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     // Modules for core functionality.
     'core_context_test',
@@ -275,6 +280,8 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each content item to have its display customized');
+    $page->clickLink('Manage layout');
+    $page->pressButton('Save layout');
 
     $page->clickLink('Teaser');
     $assert_session->checkboxChecked('Panelize this view mode');
@@ -293,6 +300,8 @@ class PanelizerNodeFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each content item to have its display customized');
+    $page->clickLink('Manage layout');
+    $page->pressButton('Save layout');
 
     // No new revisions should have been created during the migration.
     $this->assertSame('4', $revision_count_query->execute());

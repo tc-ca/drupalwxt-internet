@@ -14,9 +14,18 @@ cd "$(dirname "$0")"
 # Reuse ORCA's own includes.
 source ../../../orca/bin/travis/_includes.sh
 
-[[ -d "$ORCA_FIXTURE_DIR" ]] && composer require drupal/inline_entity_form weitzman/drupal-test-traits --working-dir "$ORCA_FIXTURE_DIR"
+[[ -d "$ORCA_FIXTURE_DIR" ]] && composer require drupal/inline_entity_form --working-dir "$ORCA_FIXTURE_DIR"
 
 [[ "$ORCA_JOB" = "DEPRECATED_CODE_SCAN" ]] && composer require drupal/panelizer --working-dir "$ORCA_FIXTURE_DIR"
+
+# This is a temporary workaround for a change in BLT 11.x which causes
+# mikey179/vfsstream to be absent from the fixture, which breaks all
+# kernel tests.
+if [ -d $ORCA_FIXTURE_DIR ]; then
+  cd $ORCA_FIXTURE_DIR
+  composer require --dev mikey179/vfsstream
+fi
+# End temporary workaround.
 
 # Exit early if no DB fixture is specified.
 [[ "$DB_FIXTURE" ]] || exit 0

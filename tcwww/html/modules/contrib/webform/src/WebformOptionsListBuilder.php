@@ -225,7 +225,7 @@ class WebformOptionsListBuilder extends ConfigEntityListBuilder {
     $options = WebformOptions::getElementOptions($element);
     $options = OptGroup::flattenOptions($options);
     foreach ($options as $key => &$value) {
-      if ($key != $value) {
+      if ($key !== $value) {
         $value .= ' (' . $key . ')';
       }
     }
