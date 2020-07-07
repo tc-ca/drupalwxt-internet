@@ -13,6 +13,15 @@ use Drupal\Core\Render\BubbleableMetadata;
 
 function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
+    $option = [
+      'attributes' => [
+        'class' => ['btn', 'btn-primary'],
+        'target' => '_blank',
+       ]
+    ];
+    $url = Url::fromUri('internal:/node/' . $entity->id() . '/node-links', $option);
+    $link = Link::fromTextAndUrl(t('View pages with links to this page'), $url);
+    $build['linked_nodes'] = $link->toRenderable();
     $build['page_info'] = views_embed_view('page_information', 'block_1', $entity->id());
     //unset($build['actions']);
   }
