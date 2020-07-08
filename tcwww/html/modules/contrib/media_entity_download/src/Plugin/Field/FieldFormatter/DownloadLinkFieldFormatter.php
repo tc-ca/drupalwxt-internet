@@ -45,19 +45,34 @@ class DownloadLinkFieldFormatter extends LinkFormatter {
         $route_parameters['query']['delta'] = $delta;
       }
 
-      $url = Url::fromRoute('media_entity_download.download', $route_parameters);
-
-
       // @todo: replace with DI when this issue is fixed: https://www.drupal.org/node/2053415
-      $filename = \Drupal::entityTypeManager()
-        ->getStorage('file')
-        ->load($item->getValue()['target_id'])
-        ->getFilename();
+      /** @var \Drupal\file\FileInterface $file */
+      $file = \Drupal::entityTypeManager()->getStorage('file')->load($item->target_id);
+      $filename = $file->getFilename();
+      $mime_type = $file->getMimeType();
+
+      $options = [
+        'attributes' => [
+          'type' => "$mime_type; length={$file->getSize()}",
+          'title' => $filename,
+          // Classes to add to the file field for icons.
+          'class' => [
+            'file',
+            // Add a specific class for each and every mime type.
+            'file--mime-' . strtr($mime_type, ['/' => '-', '.' => '-']),
+            // Add a more general class for groups of well known MIME types.
+            'file--' . file_icon_class($mime_type),
+          ],
+        ],
+      ];
+
+      $url = Url::fromRoute('media_entity_download.download', $route_parameters, $options);
 
       $elements[$delta] = [
         '#type' => 'link',
         '#url' => $url,
-        '#title' => $filename
+        '#title' => $filename,
+        '#options' => $options,
       ];
     }
 

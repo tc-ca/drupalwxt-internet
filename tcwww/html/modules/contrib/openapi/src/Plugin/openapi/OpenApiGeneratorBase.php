@@ -12,7 +12,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\schemata\SchemaFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -58,13 +57,6 @@ abstract class OpenApiGeneratorBase extends PluginBase implements OpenApiGenerat
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $fieldManager;
-
-  /**
-   * The Schemata SchemaFactory.
-   *
-   * @var \Drupal\schemata\SchemaFactory
-   */
-  protected $schemaFactory;
 
   /**
    * The serializer.
@@ -116,8 +108,6 @@ abstract class OpenApiGeneratorBase extends PluginBase implements OpenApiGenerat
    *   The routing provider.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $field_manager
    *   The field manager.
-   * @param \Drupal\schemata\SchemaFactory $schema_factory
-   *   The schema factory.
    * @param \Symfony\Component\Serializer\SerializerInterface $serializer
    *   The serializer.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
@@ -127,14 +117,13 @@ abstract class OpenApiGeneratorBase extends PluginBase implements OpenApiGenerat
    * @param \Drupal\Core\Authentication\AuthenticationCollectorInterface $authentication_collector
    *   The authentication collector.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RouteProviderInterface $routing_provider, EntityFieldManagerInterface $field_manager, SchemaFactory $schema_factory, SerializerInterface $serializer, RequestStack $request_stack, ConfigFactoryInterface $config_factory, AuthenticationCollectorInterface $authentication_collector) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RouteProviderInterface $routing_provider, EntityFieldManagerInterface $field_manager, SerializerInterface $serializer, RequestStack $request_stack, ConfigFactoryInterface $config_factory, AuthenticationCollectorInterface $authentication_collector) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->label = $this->getPluginDefinition()["label"];
     $this->entityTypeManager = $entity_type_manager;
     $this->routingProvider = $routing_provider;
     $this->fieldManager = $field_manager;
-    $this->schemaFactory = $schema_factory;
     $this->serializer = $serializer;
     $this->request = $request_stack->getCurrentRequest();
     $this->configFactory = $config_factory;
@@ -153,7 +142,6 @@ abstract class OpenApiGeneratorBase extends PluginBase implements OpenApiGenerat
       $container->get('entity_type.manager'),
       $container->get('router.route_provider'),
       $container->get('entity_field.manager'),
-      $container->get('schemata.schema_factory'),
       $container->get('serializer'),
       $container->get('request_stack'),
       $container->get('config.factory'),
@@ -370,36 +358,10 @@ abstract class OpenApiGeneratorBase extends PluginBase implements OpenApiGenerat
    *
    * @return array
    *   The JSON schema.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getJsonSchema($described_format, $entity_type_id, $bundle_name = NULL) {
-    if ($entity_type_id !== $bundle_name) {
-      $schema = $this->schemaFactory->create($entity_type_id, $bundle_name);
-    }
-    else {
-      $schema = $this->schemaFactory->create($entity_type_id);
-    }
-
-    if ($schema) {
-      $json_schema = $this->serializer->normalize($schema, "schema_json:$described_format");
-      unset($json_schema['$schema'], $json_schema['id']);
-      $json_schema = $this->cleanSchema($json_schema);
-      if (!$bundle_name) {
-        // Add discriminator field.
-        $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
-        if ($bundle_field = $entity_type->getKey('bundle')) {
-          $json_schema['discriminator'] = $bundle_field;
-        }
-      }
-    }
-    else {
-      $json_schema = [
-        'type' => 'object',
-        'title' => $this->t('@entity_type Schema', ['@entity_type' => $entity_type_id]),
-        'description' => $this->t('Describes the payload for @entity_type entities.', ['@entity_type' => $entity_type_id]),
-      ];
-    }
-    return $json_schema;
-  }
+  abstract protected function getJsonSchema($described_format, $entity_type_id, $bundle_name = NULL);
 
   /**
    * Cleans JSON schema definitions for OpenAPI.

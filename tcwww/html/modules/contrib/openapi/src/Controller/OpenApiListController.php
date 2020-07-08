@@ -5,7 +5,6 @@ namespace Drupal\openapi\Controller;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,7 +27,7 @@ class OpenApiListController extends ControllerBase {
    * @param \Drupal\Component\Plugin\PluginManagerInterface $openapi_ui_manager
    *   ui library plugin manager instance. NULL if the module is not enabled.
    */
-  public function __construct(PluginManagerInterface $openapi_generator_manager, PluginManagerInterface $openapi_ui_manager) {
+  public function __construct(PluginManagerInterface $openapi_generator_manager, PluginManagerInterface $openapi_ui_manager = NULL) {
     $this->openapiGeneratorManager = $openapi_generator_manager;
     $this->openapiUiManager = $openapi_ui_manager;
   }
@@ -72,6 +71,7 @@ class OpenApiListController extends ControllerBase {
         '#header' => [
           'module' => $this->t('Module'),
           'specification' => $this->t('Specification'),
+          'explore' => $this->t('Explore'),
         ],
       ];
 
@@ -82,30 +82,24 @@ class OpenApiListController extends ControllerBase {
       $ui_message = $this->t("Please visit the <a href=':openapi_ui_link'>OpenAPI UI module</a> for information on these interfaces and to discover others.", $openapi_ui_context) . '</p>';
 
       $ui_plugins = [];
+      $build['ui'] = [];
       if ($this->openapiUiManager !== NULL && ($ui_plugins = $this->openapiUiManager->getDefinitions())  && count($ui_plugins)) {
-        // Add a column for links to the docs uis.
-        $build['documentation']['#header']['explore'] = $this->t('Explore') . '*';
         $ui_message = '<strong>*</strong> ' . $ui_message;
       }
       else {
         // If we don't have openapi_ui plugins, give the user info on them.
         $build['ui']['#title'] = $this->t('No UI plugins available');
         $no_ui_message = $this->t('There are no plugins available for exploring the OpenAPI documentation.') . ' ';
-        $no_ui_message = $this->t('You can install one of the below projects to view the API Specifications from with your site.') . ' ';
+        $no_ui_message .= $this->t('You can install one of the below projects to view the API Specifications from with your site.') . ' ';
         $ui_message = $no_ui_message . $ui_message;
       }
 
-      $build['ui'] = [
+      $build['ui'] += [
         '#type' => 'item',
         '#markup' => '<p>' . $ui_message . '</p>',
       ];
 
-      $json_format = [
-        'query' => [
-          '_format' => 'json'
-        ]
-      ];
-      $open_api_links = [];
+      $json_format = ['query' => ['_format' => 'json']];
       foreach ($plugins as $generator_id => $generator) {
         $link_args = [
           'openapi_generator' => $generator_id,
@@ -150,6 +144,9 @@ class OpenApiListController extends ControllerBase {
             ];
           }
         }
+        else {
+          $row['explore'] = ['#markup' => $this->t('No UI available.')];
+        }
 
         // Add row to table.
         $build['documentation'][] = $row;
@@ -158,12 +155,12 @@ class OpenApiListController extends ControllerBase {
     else {
       // If there are no doc plugins, give info on getting a plugin.
       $links = [
-        ':rest_link' => 'https://www.drupal.org/docs/8/core/modules/rest',
-        ':jsonapi_link' => 'https://www.drupal.org/project/jsonapi',
+        ':rest_link' => 'https://www.drupal.org/project/openapi_rest',
+        ':jsonapi_link' => 'https://www.drupal.org/project/openapi_jsonapi',
       ];
       $no_plugins_message = '<strong>' . $this->t('No OpenApi generator plugins are currently available.') . '</strong> ';
-      $no_plugins_message .= $this->t('You must enable a REST or API module which supports OpenApi Downloads, such as the <a href=":rest_link">Core Rest</a> and <a href=":jsonapi_link">Json API</a> modules.', $links);
-      drupal_set_message(['#markup' => $no_plugins_message], 'warning');
+      $no_plugins_message .= $this->t('You must enable a REST or API module which supports OpenApi Downloads, such as the <a href=":rest_link">Core Rest</a> and <a href=":jsonapi_link">JSON:API</a> modules.', $links);
+      $this->messenger()->addWarning($no_plugins_message);
     }
 
     return $build;

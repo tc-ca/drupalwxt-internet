@@ -14,6 +14,11 @@ use Drupal\views\Tests\ViewTestData;
 class BulkFormTest extends ContactStorageTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to be enabled.
    *
    * @var array

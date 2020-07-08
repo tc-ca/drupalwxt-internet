@@ -38,6 +38,8 @@ abstract class SchemataBrowserTestBase extends BrowserTestBase {
    */
   protected $schemaCache = [];
 
+  protected $defaultTheme = 'classy';
+
   /**
    * {@inheritdoc}
    */

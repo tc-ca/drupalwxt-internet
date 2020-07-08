@@ -78,6 +78,12 @@ class BlockComponentRenderArraySubscriber implements EventSubscriberInterface {
       }
       $build['#layout_builder_style'] = [];
       foreach ($selected as $stylename) {
+        // Account for incorrectly configured component configuration which may
+        // have a NULL style ID. We cannot pass NULL to the storage handler or
+        // it will throw an exception.
+        if (empty($stylename)) {
+          continue;
+        }
         /** @var \Drupal\layout_builder_styles\LayoutBuilderStyleInterface $style */
         $style = $this->entityTypeManager->getStorage('layout_builder_style')->load($stylename);
         if ($style) {

@@ -243,7 +243,7 @@ function _moderation_note_access(EntityInterface $entity) {
   // @todo When Quick Edit is rendering an entity after an edit, the revision
   // ID is null. Investigate and/or file a core issue.
   $has_permission = \Drupal::currentUser()->hasPermission('access moderation notes');
-  $is_latest_revision = ($entity->getRevisionId() === NULL || $moderation_information->isLatestRevision($entity));
+  $is_latest_revision = ($entity->getRevisionId() === NULL || $entity->isLatestRevision());
   return $has_permission && $is_moderated_entity && $is_latest_revision && !$entity->isNew();
 }
 
@@ -294,6 +294,7 @@ function moderation_note_theme_suggestions_moderation_note(array $variables) {
 function template_preprocess_moderation_note(array &$variables) {
   /** @var \Drupal\content_moderation\ModerationInformation $information */
   $information = \Drupal::service('content_moderation.moderation_information');
+  $userViewBuilder = \Drupal::entityTypeManager()->getViewBuilder('user');
 
   $variables['moderation_note'] = $variables['elements']['#moderation_note'];
   /** @var \Drupal\moderation_note\ModerationNoteInterface $note */
@@ -307,7 +308,7 @@ function template_preprocess_moderation_note(array &$variables) {
   $owner = $note->getOwner();
   $variables['author_name'] = $owner->getDisplayName();
   $variables['author_link'] = $owner->toLink()->toRenderable();
-  $variables['author_picture'] = user_view($owner, 'compact');
+  $variables['author_picture'] = $userViewBuilder->view($owner, 'compact');
   $variables['parent'] = $note->getParent();
   $variables['published'] = $note->isPublished();
 
@@ -322,7 +323,7 @@ function template_preprocess_moderation_note(array &$variables) {
   if ($assignee = $note->getAssignee()) {
     $variables['assignee_name'] = $assignee->getDisplayName();
     $variables['assignee_link'] = $assignee->toLink()->toRenderable();
-    $variables['assignee_picture'] = user_view($assignee, 'compact');
+    $variables['assignee_picture'] = $userViewBuilder->view($assignee, 'compact');
   }
 
   // Attributes.

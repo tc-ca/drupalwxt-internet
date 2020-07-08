@@ -17,6 +17,11 @@ use Drupal\Tests\BrowserTestBase;
 class PanelizerTermFunctionalTest extends BrowserTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * A custom block created for the test.
    *
    * @var \Drupal\block_content\BlockContentInterface
@@ -69,6 +74,7 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
       'administer panelizer',
       'access panels in-place editing',
       'administer taxonomy_term fields',
+      'configure any layout',
     ]);
     $this->drupalLogin($user);
 
@@ -212,6 +218,8 @@ class PanelizerTermFunctionalTest extends BrowserTestBase {
     $assert_session->fieldNotExists('Panelize this view mode');
     $assert_session->fieldNotExists('Allow users to select which display to use');
     $assert_session->fieldNotExists('Allow each taxonomy term to have its display customized');
+    $page->clickLink('Manage layout');
+    $page->pressButton('Save layout');
 
     $this->drupalGet($default_layout_term->toUrl());
     $assert_session->statusCodeEquals(200);

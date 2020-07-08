@@ -1646,7 +1646,6 @@ function install_profile_themes(&$install_state) {
  *   An array of information about the current installation state.
  */
 function install_install_profile(&$install_state) {
-  \Drupal::service('module_installer')->install([$install_state['parameters']['profile']], FALSE);
   // Install all the profiles.
   $profiles = \Drupal::service('extension.list.profile')->getAncestors();
   \Drupal::service('module_installer')->install(array_keys($profiles), FALSE);
@@ -2330,7 +2329,13 @@ function install_config_import_batch() {
   // Match up the site UUIDs, the install_base_system install task will have
   // installed the system module and created a new UUID.
   $system_site = $sync->read('system.site');
-  \Drupal::configFactory()->getEditable('system.site')->set('uuid', $system_site['uuid'])->save();
+  // When installing from configuration it is possible that system.site
+  // configuration is not present. If this occurs a ConfigImporterException will
+  // by thrown when $config_importer->initialize() is called below and the error
+  // will be reported to the user.
+  if ($system_site !== FALSE) {
+    \Drupal::configFactory()->getEditable('system.site')->set('uuid', $system_site['uuid'])->save();
+  }
 
   // Create the storage comparer and the config importer.
   $storage_comparer = new StorageComparer($sync, \Drupal::service('config.storage'));

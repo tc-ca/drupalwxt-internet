@@ -95,49 +95,35 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $enforced = isset($definition['enforced']) ? $definition['enforced'] : $enforced;
     $settings = array_filter($definition['settings']);
 
-    // @todo deprecated and remove post 2.x.
-    $breakpoints = isset($settings['breakpoints']) && is_array($settings['breakpoints']) ? array_filter($settings['breakpoints']) : [];
-
     foreach ($definition['settings'] as $key => $setting) {
       $title   = Unicode::ucfirst(str_replace('_', ' ', $key));
       $vanilla = !empty($settings['vanilla']);
 
-      // @todo deprecated and remove post 2.x.
+      // @todo remove deprecated breakpoints anytime before 3.x.
       if ($key == 'breakpoints') {
-        $widths = [];
-        if ($breakpoints) {
-          foreach ($breakpoints as $breakpoint) {
-            if (!empty($breakpoint['width'])) {
-              $widths[] = $breakpoint['width'];
-            }
-          }
-        }
-
-        $title   = 'Breakpoints';
-        $setting = $widths ? implode(', ', $widths) : 'none';
+        continue;
       }
-      else {
-        if ($vanilla && !in_array($key, $enforced)) {
-          continue;
-        }
 
-        if ($key == 'override' && empty($setting)) {
-          unset($settings['overridables']);
-        }
+      if ($vanilla && !in_array($key, $enforced)) {
+        continue;
+      }
 
-        if (is_bool($setting) && $setting) {
-          $setting = 'yes';
-        }
-        elseif (is_array($setting)) {
-          $setting = array_filter($setting);
-          if (!empty($setting)) {
-            $setting = implode(', ', $setting);
-          }
-        }
+      if ($key == 'override' && empty($setting)) {
+        unset($settings['overridables']);
+      }
 
-        if ($key == 'cache') {
-          $setting = $this->getCacheOptions()[$setting];
+      if (is_bool($setting) && $setting) {
+        $setting = 'yes';
+      }
+      elseif (is_array($setting)) {
+        $setting = array_filter($setting);
+        if (!empty($setting)) {
+          $setting = implode(', ', $setting);
         }
+      }
+
+      if ($key == 'cache') {
+        $setting = $this->getCacheOptions()[$setting];
       }
 
       if (empty($setting)) {
@@ -163,6 +149,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $plugin_id    = isset($definition['plugin_id']) ? $definition['plugin_id'] : '';
     $blazy        = $plugin_id && strpos($plugin_id, 'blazy') !== FALSE;
     $image_styles = $this->getEntityAsOptions('image_style');
+    $lightboxes   = $this->blazyManager->getLightboxes();
 
     $excludes['current_view_mode'] = TRUE;
 
@@ -170,14 +157,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $excludes['optionset'] = TRUE;
     }
 
-    if (!empty($settings['responsive_image_style'])) {
-      foreach (['ratio', 'breakpoints', 'background', 'sizes'] as $key) {
+    if (empty($settings['grid'])) {
+      foreach (['grid', 'grid_medium', 'grid_small', 'visible_items'] as $key) {
         $excludes[$key] = TRUE;
       }
     }
 
-    if (empty($settings['grid'])) {
-      foreach (['grid', 'grid_medium', 'grid_small', 'visible_items'] as $key) {
+    if ($lightboxes && !empty($settings['media_switch']) && !in_array($settings['media_switch'], $lightboxes)) {
+      foreach (['box_style', 'box_media_style', 'box_caption'] as $key) {
         $excludes[$key] = TRUE;
       }
     }

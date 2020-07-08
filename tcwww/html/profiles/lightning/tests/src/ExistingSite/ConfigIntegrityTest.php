@@ -46,8 +46,8 @@ class ConfigIntegrityTest extends ExistingSiteBase {
     $this->assertSame('claro', $theme_config->get('admin'));
     $this->assertTrue($this->config('node.settings')->get('use_admin_theme'));
     $theme_global = $this->config('system.theme.global');
-    $this->assertContains('/lightning/lightning.png', $theme_global->get('logo.path'));
-    $this->assertContains('/lightning/favicon.ico', $theme_global->get('favicon.path'));
+    $this->assertStringContainsString('/lightning/lightning.png', $theme_global->get('logo.path'));
+    $this->assertStringContainsString('/lightning/favicon.ico', $theme_global->get('favicon.path'));
     /* @todo: Assert changes to the frontpage view were made. */
 
     // lightning_core_update_8002() marks a couple of core view modes as
@@ -131,13 +131,6 @@ class ConfigIntegrityTest extends ExistingSiteBase {
     // Assert that bundled content types have meta tags enabled.
     $this->assertMetatag(['page', 'landing_page']);
 
-    // Assert that basic blocks expose a Body field.
-    $account = $this->createUser(['administer blocks']);
-    $this->drupalLogin($account);
-    $this->assertAllowed('/block/add/text');
-    $assert_session->fieldExists('Body');
-    $this->drupalLogout();
-
     // Assert that Lightning configuration pages are accessible to users who
     // have an administrative role.
     $this->assertForbidden('/admin/config/system/lightning');
@@ -156,6 +149,47 @@ class ConfigIntegrityTest extends ExistingSiteBase {
     $this->assertAllowed('/admin/config/system/lightning/api/keys');
     $this->assertAllowed('/admin/config/system/lightning/layout');
     $this->assertAllowed('/admin/config/system/lightning/media');
+  }
+
+  /**
+   * Data provider for testModeratedContentTypes().
+   *
+   * @return array[]
+   *   Sets of arguments to pass to the test method.
+   */
+  public function providerModeratedContentTypes() {
+    return [
+      ['page', 'page_creator'],
+      ['page', 'administrator'],
+      ['landing_page', 'landing_page_creator'],
+      ['landing_page', 'administrator'],
+    ];
+  }
+
+  /**
+   * Tests that moderated content types do not show a Published checkbox.
+   *
+   * @param string $node_type
+   *   The machine name of the content type to test.
+   * @param string $role
+   *   The machine name of the user role to log in with.
+   *
+   * @dataProvider providerModeratedContentTypes
+   */
+  public function testModeratedContentTypes($node_type, $role) {
+    $assert_session = $this->assertSession();
+
+    $account = $this->createUser();
+    $account->addRole($role);
+    $account->save();
+
+    $this->drupalLogin($account);
+    $this->drupalGet("/node/add/$node_type");
+    $assert_session->statusCodeEquals(200);
+    $assert_session->buttonExists('Save');
+    $assert_session->fieldNotExists('status[value]');
+    $assert_session->buttonNotExists('Save and publish');
+    $assert_session->buttonNotExists('Save as unpublished');
   }
 
   /**

@@ -1,3 +1,4 @@
+shield_enable: true
 credential_provider: 'shield'
 credentials:
   shield:

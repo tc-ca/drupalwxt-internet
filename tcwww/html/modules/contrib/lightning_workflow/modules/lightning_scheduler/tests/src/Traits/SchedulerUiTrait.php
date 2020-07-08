@@ -116,13 +116,4 @@ trait SchedulerUiTrait {
     $this->container->get('state')->set('lightning_scheduler.request_time', $request_time);
   }
 
-  /**
-   * Clicks the link to the edit form for an entity.
-   */
-  protected function clickEditLink() {
-    $this->assertSession()
-      ->elementExists('named', ['link', 'edit-form'])
-      ->click();
-  }
-
 }

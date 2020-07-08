@@ -133,7 +133,6 @@ class PageVariantAddForm extends FormBase {
     parent::validateForm($form, $form_state);
   }
 
-
   /**
    * {@inheritdoc}
    */

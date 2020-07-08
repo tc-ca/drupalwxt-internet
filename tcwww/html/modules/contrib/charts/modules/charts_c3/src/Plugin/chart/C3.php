@@ -65,14 +65,6 @@ class C3 extends AbstractChart {
     $seriesCount = count($seriesData);
     $attachmentCount = count($attachmentDisplayOptions);
     $noAttachmentDisplays = $attachmentCount === 0;
-    $types = [];
-
-    if($attachmentCount != 0) {
-      for ($i = 0; $i <= $attachmentCount; $i++) {
-        $types[$seriesData[$i]['name']] = $this->processChartType($attachmentDisplayOptions[$i]['style']['options']['type']);
-      }
-    }
-
 
     // Set the chart type.
     $c3Chart = new ChartType();
@@ -182,7 +174,8 @@ class C3 extends AbstractChart {
     }
 
     // Set the chart types.
-    for ($i = 0; $i < count($seriesData); $i++) {
+    $types = [];
+    for ($i = 0; $i < $seriesCount; $i++) {
       $types[$seriesData[$i]['name']] = $this->processChartType($seriesData[$i]['type']);
     }
     $chartData->types = $types;

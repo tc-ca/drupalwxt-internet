@@ -97,8 +97,6 @@ class ExpiredCollector {
       ]));
     }
     catch (QueryException $exception) {
-      // This happens when simple_oauth_extras is not enabled because the
-      // 'user_id' field is not available.
       return $output;
     }
     // Append all the tokens for each of the clients having this account as the

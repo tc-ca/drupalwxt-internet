@@ -20,48 +20,6 @@ trait BlazyUnitTestTrait {
   protected $formatterSettings = [];
 
   /**
-   * Add empty data for breakpoints.
-   *
-   * @return array
-   *   The dummy breakpoints.
-   */
-  protected function getEmptyBreakpoints() {
-    $build = [];
-
-    foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
-      $build[$breakpoint]['image_style'] = '';
-      $build[$breakpoint]['width'] = '';
-    }
-
-    return $build;
-  }
-
-  /**
-   * Add partially empty data for breakpoints.
-   *
-   * @param string $clean
-   *   The flag for clean breakpoints.
-   *
-   * @return array
-   *   The dummy breakpoints.
-   */
-  protected function getDataBreakpoints($clean = FALSE) {
-    $build  = [];
-    $widths = ['xs' => 210, 'sm' => 1024, 'md' => 1900];
-    $styles = ['xs' => 'blazy_crop', 'sm' => 'blazy_crop', 'md' => 'blazy_crop'];
-
-    foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
-      if ($clean && (!isset($styles[$breakpoint]) || !isset($widths[$breakpoint]))) {
-        continue;
-      }
-      $build[$breakpoint]['image_style'] = isset($styles[$breakpoint]) ? $styles[$breakpoint] : '';
-      $build[$breakpoint]['width'] = isset($widths[$breakpoint]) ? $widths[$breakpoint] : '';
-    }
-
-    return $build;
-  }
-
-  /**
    * Returns sensible formatter settings for testing purposes.
    *
    * @return array
@@ -71,7 +29,6 @@ trait BlazyUnitTestTrait {
     $defaults = [
       'box_caption'     => 'custom',
       'box_style'       => 'large',
-      'breakpoints'     => $this->getDataBreakpoints(),
       'cache'           => 0,
       'image_style'     => 'blazy_crop',
       'media_switch'    => 'blazy_test',
@@ -148,7 +105,6 @@ trait BlazyUnitTestTrait {
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
-      'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => ['alt' => 'Alt', 'title' => 'Title'],
       'classes'           => ['field_class' => 'Classes'],
       'multimedia'        => TRUE,

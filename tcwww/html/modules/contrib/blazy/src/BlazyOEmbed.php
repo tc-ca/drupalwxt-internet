@@ -8,7 +8,6 @@ use Drupal\Core\Url;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\file\Entity\File;
 use Drupal\media\IFrameUrlHelper;
-use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -145,73 +144,58 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function build(array &$settings = []) {
-    $resource = NULL;
-    try {
-      $this->blazyManager->getCommonSettings($settings);
-      $settings['input_url'] = UrlHelper::stripDangerousProtocols($settings['input_url']);
-      $resource = $this->getResource($settings['input_url']);
-
-      // @todo support other types (link, photo), if reasonable for Blazy.
-      if ($resource && ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH)) {
-        $width = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
-        $height = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
-        $url = Url::fromRoute('media.oembed_iframe', [], [
-          'query' => [
-            'url' => $settings['input_url'],
-            'max_width' => $width,
-            'max_height' => $height,
-            'hash' => $this->iframeUrlHelper->getHash($settings['input_url'], $width, $height),
-            'blazy' => 1,
-            'autoplay' => empty($settings['media_switch']) ? 0 : 1,
-          ],
-        ]);
-
-        if ($domain = $this->blazyManager->configLoad('iframe_domain', 'media.settings')) {
-          $url->setOption('base_url', $domain);
-        }
-
-        // The top level iframe url relative to the site, or iframe_domain.
-        $settings['embed_url'] = $url->toString();
-
-        // Extracts the actual video url from html, and provides autoplay url.
-        $settings = array_merge($settings, $this->getAutoPlayUrl($resource));
-
-        // Only applies when Image style is empty, no file API, no $item,
-        // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-        // Prevents 404 warning when video thumbnail missing for a reason.
-        if (empty($settings['image_style']) && !empty($settings['uri'])) {
-          if ($data = @getimagesize($settings['uri'])) {
-            list($settings['width'], $settings['height']) = $data;
-          }
-        }
-      }
-    }
-    catch (\Exception $e) {
-      // Do nothing, likely local work without internet, or the site is down.
+    if (empty($settings['_input_url'])) {
+      $this->checkInputUrl($settings);
     }
 
-    return $resource;
+    // @todo revisit if any issue with other resource types.
+    $url = Url::fromRoute('media.oembed_iframe', [], [
+      'query' => [
+        'url' => $settings['input_url'],
+        'max_width' => 0,
+        'max_height' => 0,
+        'hash' => $this->iframeUrlHelper->getHash($settings['input_url'], 0, 0),
+        'blazy' => 1,
+        'autoplay' => empty($settings['media_switch']) ? 0 : 1,
+      ],
+    ]);
+
+    if (!empty($settings['iframe_domain'])) {
+      $url->setOption('base_url', $settings['iframe_domain']);
+    }
+
+    // The top level iframe url relative to the site, or iframe_domain.
+    $settings['embed_url'] = $url->toString();
+    if (isset($settings['media_source'])) {
+      $settings['type'] = $settings['media_source'] == 'oembed:video' ? 'video' : $settings['media_source'];
+    }
+  }
+
+  /**
+   * Checks the given input URL.
+   */
+  public function checkInputUrl(array &$settings = []) {
+    $settings['input_url'] = UrlHelper::stripDangerousProtocols(trim($settings['input_url']));
+
+    // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
+    if (strpos($settings['input_url'], 'youtube.com/embed') !== FALSE) {
+      $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
+      $replace = "youtube.com/watch?v=$1";
+      $settings['input_url'] = preg_replace($search, $replace, $settings['input_url']);
+    }
+    $settings['_input_url'] = TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAutoPlayUrl(Resource $resource, \DOMDocument $dom = NULL) {
+  public function getAutoPlayUrl($url = '') {
     $data = [];
-    if ($dom || $resource->getHtml()) {
-      $dom = $dom ?: Html::load($resource->getHtml());
-      $iframe = $dom->getElementsByTagName('iframe');
-      $url = $iframe->length > 0 ? $iframe->item(0)->getAttribute('src') : NULL;
-
-      if (!empty($url)) {
-        $data['oembed_url'] = $url;
-        $data['scheme']     = mb_strtolower($resource->getProvider()->getName());
-        $data['type']       = $resource->getType();
-
-        // Adds autoplay for media URL on lightboxes, saving another click.
-        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-          $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-        }
+    if (!empty($url)) {
+      $data['oembed_url'] = $url;
+      // Adds autoplay for media URL on lightboxes, saving another click.
+      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
       }
     }
     return $data;
@@ -235,9 +219,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       case 'oembed':
       case 'oembed:video':
         // Input url != embed url. For Youtube, /watch != /embed.
-        $input_url = $media->getSource()->getSourceFieldValue($media);
-        $input_url = trim(strip_tags($input_url));
-        if ($input_url) {
+        if ($input_url = $media->getSource()->getSourceFieldValue($media)) {
           $settings['input_url'] = $input_url;
 
           $this->build($settings);
@@ -261,6 +243,25 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // Collect what's needed for clarity.
     $data['settings'] = $settings;
+  }
+
+  /**
+   * Returns external image item from resource relevant to BlazyFilter.
+   */
+  public function getExternalImageItem(array &$settings) {
+    // Iframe URL may be valid, but not stored as a Media entity.
+    if (($resource = $this->getResource($settings['input_url'])) && $resource->getThumbnailUrl()) {
+      // All we have here is external images. URI validity is not crucial.
+      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+      $settings['type'] = $resource->getType();
+      // Respect hard-coded width and height since no UI for all these here.
+      if (empty($settings['width'])) {
+        $settings['width'] = $resource->getThumbnailWidth() ?: $resource->getWidth();
+        $settings['height'] = $resource->getThumbnailHeight() ?: $resource->getHeight();
+      }
+      return Blazy::image($settings);
+    }
+    return NULL;
   }
 
   /**
@@ -288,8 +289,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Overrides variables for media-oembed-iframe.html.twig templates.
-   *
-   * @todo recheck this in case core provides a more flexible way post 8.8+.
    */
   public function preprocessMediaOembedIframe(array &$variables) {
     // Without internet, this may be empty, bail out.
@@ -310,13 +309,13 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
         $iframe = $dom->getElementsByTagName('iframe');
-        $resource = $this->getResource($url);
-
-        // Fetches autoplay_url.
-        $settings = $this->getAutoPlayUrl($resource, $dom);
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
         if ($iframe->length > 0) {
+          // Fetches autoplay_url.
+          $embed_url = $iframe->item(0)->getAttribute('src');
+          $settings = $this->getAutoPlayUrl($embed_url);
+
           // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
           if ($is_autoplay == 1 && !empty($settings['autoplay_url'])) {
             $iframe->item(0)->setAttribute('src', $settings['autoplay_url']);

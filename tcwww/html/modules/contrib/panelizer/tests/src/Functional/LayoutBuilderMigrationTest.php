@@ -16,6 +16,11 @@ class LayoutBuilderMigrationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'layout_builder',
     'node',

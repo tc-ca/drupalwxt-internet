@@ -124,11 +124,11 @@
 
       $.each(options, function (i, option) {
         // Do not add "_none" option (already added by code above).
-        if (option.value != that.settings.noneValue) {
+        if (option.value !== that.settings.noneValue) {
           var $option = $('<option>')
             .val(option.value)
             // Remove dashes from the beginning, then set the label.
-            .text(option.label.replace(/(- )+/, ''));
+            .text(option.label.trim().replace(new RegExp("^(- ){" + level + "}"), ''));
 
           if (option.children.length) {
             $option.addClass('has-children');

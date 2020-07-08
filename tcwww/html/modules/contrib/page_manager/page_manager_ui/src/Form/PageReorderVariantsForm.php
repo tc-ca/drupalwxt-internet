@@ -1,16 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\page_manager_ui\Form\PageReorderVariantsForm.
- */
-
 namespace Drupal\page_manager_ui\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\page_manager\Entity\PageVariant;
-use Drupal\page_manager\PageInterface;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -83,7 +76,8 @@ class PageReorderVariantsForm extends FormBase {
         'action' => 'order',
         'relationship' => 'sibling',
         'group' => 'variant-weight',
-      ]],
+      ],
+      ],
     ];
 
     $variants = $page->getVariants();

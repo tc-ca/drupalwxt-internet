@@ -3,11 +3,15 @@
 namespace Drupal\media_entity_download\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Drupal\media\MediaInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -23,13 +27,33 @@ class DownloadController extends ControllerBase {
   protected $requestStack;
 
   /**
+   * File system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * The stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   */
+  protected $streamWrapperManager;
+
+  /**
    * DownloadController constructor.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request object.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system service.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   *   The stream wrapper manager.
    */
-  public function __construct(RequestStack $request_stack) {
+  public function __construct(RequestStack $request_stack, FileSystemInterface $file_system, StreamWrapperManagerInterface $stream_wrapper_manager) {
     $this->requestStack = $request_stack;
+    $this->fileSystem = $file_system;
+    $this->streamWrapperManager = $stream_wrapper_manager;
   }
 
   /**
@@ -37,7 +61,9 @@ class DownloadController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('file_system'),
+      $container->get('stream_wrapper_manager')
     );
   }
 
@@ -96,19 +122,39 @@ class DownloadController extends ControllerBase {
 
     $uri = $file->getFileUri();
     $filename = $file->getFilename();
+    $scheme = $this->streamWrapperManager->getScheme($uri);
 
     // Or item does not exist on disk.
-    if (!file_exists($uri)) {
+    if (!$this->streamWrapperManager->isValidScheme($scheme) || !file_exists($uri)) {
       throw new NotFoundHttpException("The file {$uri} does not exist.");
     }
 
-    $response = new BinaryFileResponse($uri);
-    $response->setContentDisposition(
-      ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-      $filename
-    );
+    // Let other modules provide headers and controls access to the file.
+    $headers = $this->moduleHandler()->invokeAll('file_download', [$uri]);
 
-    return $response;
+    foreach ($headers as $result) {
+      if ($result == -1) {
+        throw new AccessDeniedHttpException();
+      }
+    }
+
+    if (count($headers)) {
+      // \Drupal\Core\EventSubscriber\FinishResponseSubscriber::onRespond()
+      // sets response as not cacheable if the Cache-Control header is not
+      // already modified. We pass in FALSE for non-private schemes for the
+      // $public parameter to make sure we don't change the headers.
+      $response = new BinaryFileResponse($uri, Response::HTTP_OK, $headers, $scheme !== 'private');
+      if (empty($headers['Content-Disposition'])) {
+        $response->setContentDisposition(
+          ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+          $filename
+        );
+      }
+
+      return $response;
+    }
+
+    throw new AccessDeniedHttpException();
   }
 
 }

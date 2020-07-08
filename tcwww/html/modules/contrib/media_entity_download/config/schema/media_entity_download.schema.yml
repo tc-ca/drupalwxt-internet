@@ -1,0 +1,3 @@
+field.formatter.settings.media_entity_download_download_link:
+  type: field.formatter.settings.link
+  label: 'Download link formatter settings'

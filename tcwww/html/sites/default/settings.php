@@ -447,14 +447,7 @@ $settings['update_free_access'] = FALSE;
  * Be aware, however, that it is likely that this would allow IP
  * address spoofing unless more advanced precautions are taken.
  */
- $settings['reverse_proxy'] = getenv('DRUPAL_REVERSE_PROXY');
 
-/**
- * Specify every reverse proxy IP address in your environment.
- * This setting is required if $settings['reverse_proxy'] is TRUE.
- */
- $settings['reverse_proxy_addresses'] = [getenv('REMOTE_ADDR')];
- 
 /**
  * Reverse proxy trusted headers.
  *

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\page_manager\Plugin\DisplayVariant\PageBlockDisplayVariant.
- */
-
 namespace Drupal\page_manager\Plugin\DisplayVariant;
 
 use Drupal\Component\Render\HtmlEscapedText;
@@ -20,6 +15,7 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Utility\Token;
 use Drupal\ctools\Plugin\DisplayVariant\BlockDisplayVariant;
@@ -36,7 +32,7 @@ use Drupal\Core\Block\TitleBlockPluginInterface;
  *   admin_label = @Translation("Block page")
  * )
  */
-class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizardInterface {
+class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizardInterface, TrustedCallbackInterface {
 
   /**
    * The module handler.
@@ -91,6 +87,13 @@ class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizar
       $container->get('plugin.manager.condition'),
       $container->get('module_handler')
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['buildRegions', 'buildBlock'];
   }
 
   /**
@@ -239,8 +242,7 @@ class PageBlockDisplayVariant extends BlockDisplayVariant implements PluginWizar
     // Don't call VariantBase::buildConfigurationForm() on purpose, because it
     // adds a 'Label' field that we don't actually want to use - we store the
     // label on the page variant entity.
-    //$form = parent::buildConfigurationForm($form, $form_state);
-
+    // $form = parent::buildConfigurationForm($form, $form_state);
     // Allow to configure the page title, even when adding a new display.
     // Default to the page label in that case.
     $form['page_title'] = [

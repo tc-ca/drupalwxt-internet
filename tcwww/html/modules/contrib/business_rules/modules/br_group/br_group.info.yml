@@ -8,7 +8,7 @@ dependencies:
   - business_rules:business_rules
   - group:group
 
-# Information added by Drupal.org packaging script on 2020-02-07
-version: '8.x-1.0-beta9'
+# Information added by Drupal.org packaging script on 2020-04-27
+version: '8.x-1.0-beta10'
 project: 'business_rules'
-datestamp: 1581088862
+datestamp: 1588003784

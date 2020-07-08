@@ -201,7 +201,7 @@ abstract class WebformHandlerFormBase extends FormBase {
       '#return_value' => TRUE,
       '#default_value' => $this->webformHandler->isEnabled(),
       // Disable broken plugins.
-      '#disabled' => ($this->webformHandler->getPluginId() == 'broken'),
+      '#disabled' => ($this->webformHandler->getPluginId() === 'broken'),
     ];
 
     $form['#parents'] = [];
@@ -234,6 +234,7 @@ abstract class WebformHandlerFormBase extends FormBase {
           'disabled' => $this->t('Disabled'),
         ],
         '#selector_options' => $webform->getElementsSelectorOptions(['excluded_elements' => []]),
+        '#selector_sources' => $webform->getElementsSelectorSourceValues(),
         '#multiple' => FALSE,
         '#default_value' => $this->webformHandler->getConditions(),
       ];

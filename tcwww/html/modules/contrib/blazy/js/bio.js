@@ -178,8 +178,8 @@
   _proto.loaded = function (el, status, parent) {
     var me = this;
 
-    me[status === me._ok ? 'success' : 'error'](el, status, parent);
     el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
+    me[status === me._ok ? 'success' : 'error'](el, status, parent);
   };
 
   _proto.observe = function () {

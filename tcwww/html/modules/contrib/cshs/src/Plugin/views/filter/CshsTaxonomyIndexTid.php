@@ -16,7 +16,7 @@ class CshsTaxonomyIndexTid extends TaxonomyIndexTid {
   /**
    * Option ID.
    */
-  const ID = 'cshs';
+  public const ID = 'cshs';
 
   use CshsTaxonomyIndex;
 

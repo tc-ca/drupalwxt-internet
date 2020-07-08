@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\page_manager_ui\Form\VariantPluginAddBlockForm.
- */
-
 namespace Drupal\page_manager_ui\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;

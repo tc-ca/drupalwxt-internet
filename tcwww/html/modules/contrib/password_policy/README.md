@@ -36,7 +36,7 @@ of Password Policy)
 
 -  Enable all plugin modules
 -  Go to Password Policy's configuration page 
-(/admin/config/security/password/settings)
+(/admin/config/security/password-policy)
 -  Add policies by clicking on the tab for each plugin
 -  Go to the permissions page (/admin/people/permissions)
 -  Select which roles the policies applies to

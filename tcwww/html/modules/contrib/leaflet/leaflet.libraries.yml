@@ -22,9 +22,10 @@ leaflet-drupal:
   js:
     leaflet.drupal.js: {}
   dependencies:
-    - leaflet/leaflet
     - core/jquery
+    - core/jquery.once
     - core/drupal
+    - leaflet/leaflet
 
 # Control Fullscreen
 leaflet.fullscreen:
@@ -40,6 +41,23 @@ leaflet.fullscreen:
       'https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css': { type: external}
   js:
     'https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js': { type: external, minified: true }
+  dependencies:
+    - leaflet/leaflet
+
+# Gesture Handling Leaflet Library
+leaflet.gesture_handling:
+  header: true
+  remote: https://github.com/elmarquis/Leaflet.GestureHandling
+  version: '1.0.1'
+  license:
+    name: MIT License
+    url: https://raw.githubusercontent.com/elmarquis/Leaflet.GestureHandling/master/LICENSE
+    gpl-compatible: no
+  css:
+    component:
+      'https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css': { type: external}
+  js:
+    'https://unpkg.com/leaflet-gesture-handling': { type: external, minified: true }
   dependencies:
     - leaflet/leaflet
 

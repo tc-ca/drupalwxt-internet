@@ -17,7 +17,7 @@ class BlazyMedia implements BlazyMediaInterface {
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
       try {
-        \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
+        \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 3]);
       }
       catch (\Exception $e) {
         return FALSE;
@@ -109,18 +109,6 @@ class BlazyMedia implements BlazyMediaInterface {
       // Pass through image item including poster image overrides.
       $data['item'] = $item;
     }
-
-    // If the expected fails, at least check for metadata, likely unknown media.
-    // @todo remove if we know Media better.
-    if (empty($settings['uri'])) {
-      try {
-        // Without internet, this screwed up the site.
-        $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
-      }
-      catch (\Exception $ignore) {
-        // Do nothing, no need to be chatty on this.
-      }
-    }
   }
 
   /**
@@ -143,23 +131,22 @@ class BlazyMedia implements BlazyMediaInterface {
   public static function fakeImageItem(array &$data, $entity, $image) {
     /** @var \Drupal\file\Entity\File $entity */
     list($type,) = explode('/', $entity->getMimeType(), 2);
-    $uri = $entity->getFileUri();
-
     if ($type == 'image' && $image->isValid()) {
-      $item            = new \stdClass();
-      $item->target_id = $entity->id();
-      $item->width     = $image->getWidth();
-      $item->height    = $image->getHeight();
-      $item->uri       = $uri;
-      $settings        = (array) $item;
-      $item->alt       = $entity->getFilename();
-      $item->title     = $entity->getFilename();
-      $item->entity    = $entity;
+      $settings = [
+        'uri'       => $entity->getFileUri(),
+        'target_id' => $entity->id(),
+        'width'     => $image->getWidth(),
+        'height'    => $image->getHeight(),
+        'alt'       => $entity->getFilename(),
+        'title'     => $entity->getFilename(),
+        'type'      => 'image',
+      ];
 
       // Build item and settings.
-      $settings['type'] = 'image';
+      $item             = Blazy::image($settings);
+      $item->entity     = $entity;
       $data['item']     = $item;
-      $data['settings'] = $settings;
+      $data['settings'] = empty($data['settings']) ? $settings : array_merge($data['settings'], $settings);
       unset($item);
     }
   }
@@ -178,7 +165,7 @@ class BlazyMedia implements BlazyMediaInterface {
     if (isset($entity->{$stage}) && $file = $entity->get($stage)) {
       $value = $file->getValue();
 
-      // Do not proceed if it is a Media entity video.
+      // Do not proceed if it is a Media entity video. This means File here.
       if (isset($value[0]) && !empty($value[0]['target_id'])) {
         // If image, even if multi-value, we can only have one stage per slide.
         if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {

@@ -15,6 +15,11 @@ class LayoutBuilderEntityViewDisplayJsonAnonTest extends LayoutBuilderEntityView
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $format = 'json';
 
   /**

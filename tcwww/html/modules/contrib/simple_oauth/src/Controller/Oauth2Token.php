@@ -21,6 +21,7 @@ class Oauth2Token extends ControllerBase {
    * Oauth2Token constructor.
    *
    * @param \Drupal\simple_oauth\Plugin\Oauth2GrantManagerInterface $grant_manager
+   *   The grant manager.
    */
   public function __construct(Oauth2GrantManagerInterface $grant_manager) {
     $this->grantManager = $grant_manager;
@@ -42,10 +43,23 @@ class Oauth2Token extends ControllerBase {
     // Extract the grant type from the request body.
     $body = $request->getParsedBody();
     $grant_type_id = !empty($body['grant_type']) ? $body['grant_type'] : 'implicit';
+    $client_drupal_entity = NULL;
+    if (!empty($body['client_id'])) {
+      $consumer_storage = $this->entityTypeManager()->getStorage('consumer');
+      $client_drupal_entities = $consumer_storage
+        ->loadByProperties([
+          'uuid' => $body['client_id'],
+        ]);
+      if (empty($client_drupal_entities)) {
+        return OAuthServerException::invalidClient()
+          ->generateHttpResponse(new Response());
+      }
+      $client_drupal_entity = reset($client_drupal_entities);
+    }
     // Get the auth server object from that uses the League library.
     try {
       // Respond to the incoming request and fill in the response.
-      $auth_server = $this->grantManager->getAuthorizationServer($grant_type_id);
+      $auth_server = $this->grantManager->getAuthorizationServer($grant_type_id, $client_drupal_entity);
       $response = $this->handleToken($request, $auth_server);
     }
     catch (OAuthServerException $exception) {
@@ -59,8 +73,14 @@ class Oauth2Token extends ControllerBase {
    * Handles the token processing.
    *
    * @param \Psr\Http\Message\ServerRequestInterface $psr7_request
+   *   The psr request.
+   * @param \League\OAuth2\Server\AuthorizationServer $auth_server
+   *   The authorization server.
    *
    * @return \Psr\Http\Message\ResponseInterface
+   *   The response.
+   *
+   * @throws \League\OAuth2\Server\Exception\OAuthServerException
    */
   protected function handleToken(ServerRequestInterface $psr7_request, AuthorizationServer $auth_server) {
     // Instantiate a new PSR-7 response object so the library can fill it.

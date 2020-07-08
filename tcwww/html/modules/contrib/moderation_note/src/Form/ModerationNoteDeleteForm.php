@@ -177,7 +177,7 @@ class ModerationNoteDeleteForm extends ContentEntityDeleteForm {
     // Clear the Drupal messages, as this form uses AJAX to display its
     // results. Displaying a deletion message on the next page the user visits
     // is awkward.
-    drupal_get_messages();
+    $this->messenger()->deleteAll();
   }
 
 }

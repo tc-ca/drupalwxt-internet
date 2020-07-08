@@ -16,7 +16,8 @@ class PanelizerLayoutIDUpdateTest extends UpdatePathTestBase {
    */
   protected function setDatabaseDumpFiles() {
     $this->databaseDumpFiles = [
-      __DIR__ . '/../../../fixtures/update/drupal-8.panelizer.minimal.php.gz',
+      $this->getDrupalRoot() . '/core/modules/system/tests/fixtures/update/drupal-8.8.0.bare.standard.php.gz',
+      __DIR__ . '/../../../fixtures/update/drupal-8.8.panelizer.minimal.php.gz',
     ];
   }
 
@@ -26,12 +27,14 @@ class PanelizerLayoutIDUpdateTest extends UpdatePathTestBase {
   public function testUpdate() {
     $module_handler = $this->container->get('module_handler');
     $this->assertFalse($module_handler->moduleExists('layout_builder'));
+    $this->assertFalse($module_handler->moduleExists('core_context'));
     $this->assertFalse($module_handler->moduleExists('layout_library'));
 
     $this->runUpdates();
 
     $module_handler = $this->container->get('module_handler');
     $this->assertTrue($module_handler->moduleExists('layout_builder'));
+    $this->assertTrue($module_handler->moduleExists('core_context'));
     $this->assertTrue($module_handler->moduleExists('layout_library'));
 
     $this->drupalLogin($this->rootUser);

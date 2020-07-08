@@ -4,4 +4,5 @@ media_entity_download.download:
     _controller: '\Drupal\media_entity_download\Controller\DownloadController::download'
     _title: 'Download Media'
   requirements:
+    _entity_access: media.view
     _permission: 'download media'

@@ -65,8 +65,8 @@ global-styling:
     - core/modernizr
 
 # Drupal throws an IncompleteLibraryDefinitionException if a base theme defined
-# library is set to false in a subtheme's libraries-override.
-# We use this dummy library as workaround.
+# library is set to false in a subtheme's libraries-override. This empty
+# library is used as a workaround.
 # @see https://www.drupal.org/node/3098375
 empty:
   version: VERSION

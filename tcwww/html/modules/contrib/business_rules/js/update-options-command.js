@@ -5,7 +5,7 @@
   Drupal.AjaxCommands.prototype.updateOptionsCommand = function (ajax, response, status) {
     var elementId = response.elementId;
     var options = response.options;
-    var select = document.getElementById(elementId);
+    var select = $("select[id^=" + elementId + "]")[0];
 
     select.options.length = 0;
     for (var i = 0; i <= options.length; i++) {

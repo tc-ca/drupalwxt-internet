@@ -17,6 +17,11 @@ class InstallTest extends BrowserTestBase {
   protected static $modules = ['lightning_contact_form'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Tests the site-wide contact form.
    */
   public function test() {

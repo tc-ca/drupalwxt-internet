@@ -143,10 +143,6 @@
                 "2662060 - Created Terms can't be Translated":
                 "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
             },
-            "drupal/smtp": {
-                "3114989 - SMTP Error Could not authenticate":
-                "https://www.drupal.org/files/issues/2020-03-01/3114989-18.patch"
-            },
             "drupal/linkit": {
                 "2895153 - Linkit filter should honour the URL query and fragment":
                 "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
@@ -156,10 +152,6 @@
                 "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch",
                 "3143565 - Condition logic issue skips libraries that should be attached":
                 "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
-            },
-            "drupal/views_bulk_operations": {
-                "3020922 - Overcome nondeterministic behaviour in mysql ORDER BY":
-                "https://www.drupal.org/files/issues/2019-03-13/vbo-3020922-11.patch"
             },
             "drupal/views_url_alias": {
                 "3104606 - Implement path alias changes in 8.x-1.x":
@@ -178,6 +170,14 @@
                 "2914389 - Allow profiles to exclude dependencies of their parent":
                 "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
               }
+            },
+            "drupal/lightning": {
+                "drupal/core": {
+                    "1356276 - Allow profiles to define a base/parent profile and load them in the correct order":
+                    "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
+                    "2914389 - Allow profiles to exclude dependencies of their parent":
+                    "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
+                }
             }
         }
     },
@@ -187,8 +187,8 @@
         "oomphinc/composer-installers-extender": "^1.1",
         "drupal-composer/drupal-scaffold": "^2.0.0",
         "drush/drush": "^9.0",
-        "drupalwxt/wxt": "3.0.6",
-        "acquia/lightning": "4.1.1",
+        "drupalwxt/wxt": "3.0.12",
+        "acquia/lightning": "4.1.5",
         "drupal/shield": "^1.2",
         "drupal/ckeditor_templates": "^1.1",
         "drupal/ckeditor_templates_ui": "^1.2",
@@ -223,7 +223,7 @@
         "drupal/allowed_formats": "^1.2",
         "drupal/bulk_update_fields": "^2.0@alpha",
         "drupal/geofield": "^1.8",
-        "drupal/linkit": "dev-5.x#4a5834c as 5.0.0-beta10",
+        "drupal/linkit": "5.0.0-beta11",
         "drupal/smtp": "^1.0@beta",
         "drupal/administration_language_negotiation": "^1.8",
         "drupal/prepopulate": "^2.2",
@@ -244,7 +244,8 @@
         "drupal/insert_view_adv": "^1.0@beta",
         "drupal/views_url_alias": "^1.0",
         "drupal/purge": "^3.0",
-        "drupal/varnish_purge": "^2.0"
+        "drupal/varnish_purge": "^2.0",
+        "drupal/devel_entity_updates": "^3.0"
     },
     "replace": {
     },

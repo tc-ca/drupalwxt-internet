@@ -8,4 +8,5 @@ cshs.base:
       css/cshs.css: {}
   dependencies:
     - core/jquery
+    - core/jquery.once
     - core/drupalSettings

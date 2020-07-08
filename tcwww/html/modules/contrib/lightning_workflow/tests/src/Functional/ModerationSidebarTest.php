@@ -13,6 +13,11 @@ class ModerationSidebarTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_page',
     'lightning_roles',

@@ -21,18 +21,20 @@ class WebformSame extends Checkbox {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     $properties = [
       'source' => '',
       'destination' => '',
       'destination_state' => 'visible',
-    ] + parent::getDefaultProperties();
+    ] + parent::defineDefaultProperties();
     unset(
       $properties['required'],
       $properties['required_error']
     );
     return $properties;
   }
+
+  /****************************************************************************/
 
   /**
    * {@inheritdoc}
@@ -44,7 +46,6 @@ class WebformSame extends Checkbox {
     $form = parent::form($form, $form_state);
 
     // Get element's as options.
-    // @todo Add more element types that should ignored.
     $ignored_types = [
       'webform_same',
     ];

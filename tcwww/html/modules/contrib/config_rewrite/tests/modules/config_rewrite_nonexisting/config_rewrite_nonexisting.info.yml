@@ -1,0 +1,12 @@
+name: Configuration Rewrite Nonexisting
+type: module
+description: 'Test module for Configuration Rewrite testing. Provides a rewrite the intent to rewrite nonexistent config.'
+core: 8.x
+package: Testing
+dependencies:
+ - config_rewrite
+
+# Information added by Drupal.org packaging script on 2020-05-22
+version: '8.x-1.3'
+project: 'config_rewrite'
+datestamp: 1590160271

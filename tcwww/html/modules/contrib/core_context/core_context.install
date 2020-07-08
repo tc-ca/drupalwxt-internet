@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function core_context_requirements() {
+  $requirements = [];
+
+  // @todo Delete this entire check when Page Manager 4.0-beta6 or later is
+  // released, and conflict with 4.0-beta5 in our composer.json.
+  $page_manager_incompatible = (
+    Drupal::moduleHandler()->moduleExists('page_manager') &&
+    version_compare(Drupal::VERSION, '9', '>=') &&
+    is_subclass_of('\Drupal\page_manager\Plugin\DisplayVariant\PageBlockDisplayVariant', '\Drupal\Core\Security\TrustedCallbackInterface') === FALSE
+  );
+
+  if ($page_manager_incompatible) {
+    $requirements['core_context__page_manager_incompatible'] = [
+      'title' => t('Incompatible module'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => t('The installed version of Page Manager is incompatible with Core Context and may cause unexpected behavior. Update Page Manager to its latest version or development snapshot to make this error go away.'),
+    ];
+  }
+  return $requirements;
+}

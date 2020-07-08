@@ -28,15 +28,17 @@ class ButtonLinkFormatter extends LinkFormatter {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'trim_length' => 80,
       'rel' => '',
       'target' => '',
       'link_text' => '',
       'btn_type' => 'btn-default',
       'btn_size' => '',
+      'btn_block' => NULL,
       'icon_class' => '',
-    ) + parent::defaultSettings();
+      'disable_btn_role' => 0,
+    ] + parent::defaultSettings();
   }
 
   public function settingsForm(array $parentForm, FormStateInterface $form_state) {
@@ -48,7 +50,7 @@ class ButtonLinkFormatter extends LinkFormatter {
       '#title' => $this->t('Link text, leave empty for default'),
       '#default_value' => $settings['link_text'],
     ];
-	
+
     $form['btn_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Button type'),
@@ -56,10 +58,14 @@ class ButtonLinkFormatter extends LinkFormatter {
       '#options' => [
         'btn-default' => $this->t('Default'),
         'btn-primary' => $this->t('Primary'),
+        'btn-secondary' => $this->t('Secondary'),
         'btn-success' => $this->t('Success'),
         'btn-info' => $this->t('Info'),
         'btn-warning' => $this->t('Warning'),
         'btn-danger' => $this->t('Danger'),
+        'btn-light' => $this->t('Light'),
+        'btn-dark' => $this->t('Dark'),
+        'btn-link' => $this->t('Link'),
       ],
       '#required' => TRUE,
     ];
@@ -82,6 +88,19 @@ class ButtonLinkFormatter extends LinkFormatter {
       '#default_value' => $settings['icon_class'],
     ];
 
+    $form['disable_btn_role'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t("Disable default role 'button'"),
+      '#default_value' => $settings['disable_btn_role'],
+    ];
+
+    $form['btn_block'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Block level?'),
+      '#return_value' => 'btn-block',
+      '#default_value' => $settings['btn_block'],
+    ];
+
     return $form + $parentForm;
   }
 
@@ -98,6 +117,9 @@ class ButtonLinkFormatter extends LinkFormatter {
     if (!empty($settings['rel'])) {
       $summary[] = $this->t('Add rel="@rel"', ['@rel' => $settings['rel']]);
     }
+    if (!empty($settings['btn_block'])) {
+      $summary[] = $this->t('Block level button: @text', ['@text' => $settings['btn_block']]);
+    }
     if (!empty($settings['icon_class'])) {
       $summary[] = $this->t('Icon class: "@rel"', ['@rel' => $settings['icon_class']]);
     }
@@ -107,7 +129,7 @@ class ButtonLinkFormatter extends LinkFormatter {
 
     return $summary;
   }
-  
+
   /**
    * {@inheritdoc}
    */
@@ -153,6 +175,7 @@ class ButtonLinkFormatter extends LinkFormatter {
         '#url' => $url,
         '#type' => $settings['btn_type'],
         '#size' => $settings['btn_size'],
+        '#block' => $settings['btn_block'],
         '#icon_class' => $settings['icon_class'],
       );
 

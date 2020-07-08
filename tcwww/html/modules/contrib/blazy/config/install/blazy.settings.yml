@@ -1,9 +1,7 @@
 admin_css: true
 fx: ''
-native: true
 noscript: false
 responsive_image: false
-unbreakpoints: true
 one_pixel: true
 placeholder: ''
 extras: {}

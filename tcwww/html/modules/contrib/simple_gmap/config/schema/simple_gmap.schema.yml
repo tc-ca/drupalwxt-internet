@@ -20,6 +20,9 @@ field.formatter.settings.simple_gmap:
     iframe_width:
       type: string
       label: 'Width of embedded map'
+    iframe_title:
+      type: string
+      label: 'A title for describing the iframe for accessibility reasons'
     static_scale:
       type: integer
       label: 'Whether to scale static map image for retina displays'

@@ -67,10 +67,15 @@ class BlazyEntity implements BlazyEntityInterface {
     }
 
     // Supports core Media via Drupal\blazy\BlazyOEmbed::getMediaItem().
+    $data['settings'] = empty($data['settings']) ? [] : $data['settings'];
+    $this->blazyManager->getCommonSettings($data['settings']);
     $this->oembed->getMediaItem($data, $entity);
-
     $settings = &$data['settings'];
-    $this->blazyManager->getCommonSettings($settings);
+
+    // Made Responsive image also available outside formatters here.
+    if (!empty($settings['resimage']) && $settings['ratio'] == 'fluid') {
+      $this->blazyManager->setResponsiveImageDimensions($settings, FALSE);
+    }
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
@@ -86,11 +91,6 @@ class BlazyEntity implements BlazyEntityInterface {
       // This is still here for non-supported Views style plugins, etc.
       if (empty($settings['_detached'])) {
         $load = $this->blazyManager->attach($settings);
-
-        // Enforces loading elements hidden by EB "Show selected" button.
-        // @todo figure out to limit to EB plugins to avoid loadInvisible here,
-        // currently relying on ambiguous `_detached` flag.
-        $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
         $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
       }
     }
@@ -153,10 +153,11 @@ class BlazyEntity implements BlazyEntityInterface {
       $settings['media_source'] = 'video_file';
       $settings['source_field'] = 'field_media_video_file';
     }
-    if (isset($settings['source_field'], $settings['media_source'])
+    if (!empty($settings['source_field']) && isset($settings['media_source'])
       && $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['source_field'] => ['fid' => $file->id()]])) {
-      $media = reset($media);
-      return $use_file ? BlazyMedia::build($media, $settings) : $media;
+      if ($media = reset($media)) {
+        return $use_file ? BlazyMedia::build($media, $settings) : $media;
+      }
     }
     return [];
   }

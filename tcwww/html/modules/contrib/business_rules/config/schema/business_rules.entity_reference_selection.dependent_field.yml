@@ -17,6 +17,9 @@ entity_reference_selection.business_rules_views:
         parent_field:
           type: string
           label: 'Parent field'
+        reference_parent_by_uuid:
+          type: boolean
+          label: 'Reference parent by UUID instead of entity ID'
         arguments:
           type: sequence
           label: 'View arguments'

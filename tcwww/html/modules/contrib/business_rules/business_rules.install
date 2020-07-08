@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\business_rules\Entity\Action;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
@@ -43,4 +44,37 @@ function business_rules_update_8102() {
 
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('event', 'business_rules_schedule', 'business_rules', $fields['event']);
+}
+
+/**
+ * Add dependent field configuration option for referencing the parent by UUID.
+ */
+function business_rules_update_8103() {
+  if (!$field_storage_configs = \Drupal::entityTypeManager()
+    ->getStorage('field_storage_config')
+    ->loadByProperties(array('type' => 'entity_reference'))) {
+    return;
+  }
+
+  foreach ($field_storage_configs as $field_storage) {
+    $field_name = $field_storage->getName();
+    if (!$fields = \Drupal::entityTypeManager()
+      ->getStorage('field_config')
+      ->loadByProperties(['field_name' => $field_name])) {
+      continue;
+    }
+
+    foreach ($fields as $field) {
+      if ($field->toArray()['settings']['handler'] != 'business_rules_views') {
+        continue;
+      }
+
+      $new_field = $field->toArray();
+      $new_field['settings']['handler_settings']['business_rules_view']['reference_parent_by_uuid'] = FALSE;
+      $new_field = FieldConfig::create($new_field);
+      $new_field->original = $field;
+      $new_field->enforceIsNew(FALSE);
+      $new_field->save();
+    }
+  }
 }

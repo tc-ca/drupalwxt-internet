@@ -8,15 +8,6 @@ namespace Drupal\blazy\Plugin\Filter;
 interface BlazyFilterInterface {
 
   /**
-   * Checks if Blazy filter is still applicable.
-   *
-   * Blazy Filter is useless and broken if Entity/Media Embed presents.
-   * This serves to warn users to disable Blazy Filter instead in favor of Blazy
-   * formatters embedded within Entity/Media Embed.
-   */
-  public function isApplicable();
-
-  /**
    * Returns the main settings.
    *
    * @param string $text

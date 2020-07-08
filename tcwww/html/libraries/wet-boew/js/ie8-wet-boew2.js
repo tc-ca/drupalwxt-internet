@@ -1,7 +1,7 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.32 - 2019-11-13
+ * v4.0.35 - 2020-04-16
  *
  *//**
  * @title WET-BOEW JQuery Helper Methods
@@ -75,6 +75,62 @@ wb.download = function( blob, filename, title ) {
 		}
 	}, 40000 ); // The revoking time is arbitrary
 
+};
+
+/* ---------------------------------
+@extension: shuffleDOM
+@returns: [list] shuffles a list of items randomly
+-------------------------------- */
+wb.shuffleDOM = function( $elm ) {
+	var allElems = $elm.get(),
+		shuffled = $.map( allElems, function() {
+			var random = Math.floor( Math.random() * allElems.length ),
+				randEl = $( allElems[ random ] ).clone( true )[ 0 ];
+			allElems.splice( random, 1 );
+			return randEl;
+		} ),
+		elm_len = $elm.length,
+		i;
+
+	for ( i = 0; i < elm_len; i++ ) {
+		$( $elm[ i ] ).replaceWith( $( shuffled[ i ] ) );
+	}
+
+	return $( shuffled );
+};
+
+/* ---------------------------------
+@extension: pickElements
+@returns: [collection] of randoms elements
+-------------------------------- */
+wb.pickElements = function( $elm, numOfElm ) {
+	var nbElm = $elm.size(),
+		elmCopies,
+		i, swap;
+
+	numOfElm = numOfElm || 1;
+
+	// Special cases
+	if ( numOfElm > nbElm ) {
+		return $elm.pushStack( $elm );
+	} else if ( numOfElm === 1 ) {
+		return $elm.filter( ":eq(" + Math.floor( Math.random() * nbElm ) + ")" );
+	}
+
+	// Create a randomized copy of the set of elements,
+	// using Fisher-Yates sorting
+	elmCopies = $elm.get();
+
+	for ( i = 0; i < nbElm - 1; i++ ) {
+		swap = Math.floor( Math.random() * ( nbElm - i ) ) + i;
+		elmCopies[ swap ] = elmCopies.splice( i, 1, elmCopies[ swap ] )[ 0 ];
+	}
+	elmCopies = elmCopies.slice( 0, numOfElm );
+
+	// Finally, filter jQuery stack
+	return $elm.filter( function( idx ) {
+		return $.inArray( $elm.get( idx ), elmCopies ) > -1;
+	} );
 };
 
 } )( jQuery, wb );
@@ -1387,6 +1443,150 @@ $document.on( "ajax-fetch.wb", function( event ) {
 			}, this );
 	}
 } );
+
+} )( jQuery, wb );
+
+/**
+ * @title WET-BOEW Set background image sourceset
+ * @overview Detects the change in screen width and replace the background image accordingly
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @namjohn920
+ */
+( function( $, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var $document = wb.doc,
+	$window = wb.win,
+	componentName = "wb-bgimg-srcset",
+	selector = ".provisional[data-bgimg-srcset]",
+	inputs = {},
+	elm,
+	ids = [],
+
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		elm = wb.init( event, componentName, selector );
+
+		if ( elm ) {
+			ids.push( elm.id );
+			var userInputs;
+			if ( elm.dataset.bgimgSrcset ) {
+				userInputs = elm.dataset.bgimgSrcset.split( "," );
+			};
+
+			var i_len = userInputs.length;
+			inputs[ elm.id ] = [];
+
+			for ( var i = 0; i < i_len; i++ ) {
+				userInputs[ i ] = userInputs[ i ].trim();
+				userInputs[ i ] = userInputs[ i ].split( " " );
+				userInputs[ i ][ 1 ] = parseInt( userInputs[ i ][ 1 ].substring( 0, userInputs[ i ][ 1 ].length - 1 ) );
+				inputs[ elm.id ].push( userInputs[ i ] );
+			}
+
+			inputs[ elm.id ].sort(
+				function( a, b ) {
+					return a[ 1 ] > b[ 1 ] ? 1 : -1;
+				}
+			);
+
+			selectImage();
+
+				// Identify that initialization has completed
+			wb.ready( $( elm ), componentName );
+		}
+	},
+
+	selectImage = function() {
+		var screenWidth = window.innerWidth,
+			optimizedLink = {},
+			i_len = ids.length;
+
+		for ( var i = 0; i < i_len; i++ ) {
+			var optimizedSize = Infinity,
+				currentId = inputs[ ids[ i ] ],
+				currentId_len = inputs[ ids[ i ] ].length;
+
+			for ( var j = 0; j < currentId_len; j++ ) {
+				var currentInput = currentId[ j ];
+				if ( currentInput[ 1 ] >= screenWidth ) {
+					if ( optimizedSize > currentInput[ 1 ] ) {
+						optimizedSize = currentInput[ 1 ];
+						optimizedLink[ ids[ i ] ] = currentInput[ 0 ];
+					}
+				}
+			}
+			if ( optimizedSize === Infinity ) {
+				optimizedLink[ ids[ i ] ] = currentId[ currentId_len - 1 ][ 0 ];
+			}
+		}
+
+		for ( var link in optimizedLink ) {
+			var elm = document.getElementById( link );
+			elm.style.backgroundImage = "url(" + optimizedLink[ link ] + ")";
+		}
+	};
+
+$window.on( "resize", selectImage );
+
+	// Bind the init event of the plugin
+$document.on( "timerpoke.wb wb-init." + componentName, selector, init );
+
+	// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, wb );
+
+/**
+ * @title WET-BOEW Set background image
+ * @overview to be replaced by CSS 4: background-image:attr(data-bgimg, url)
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @duboisp
+ */
+( function( $, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var $document = wb.doc,
+	componentName = "wb-bgimg",
+	selector = ".provisional[data-bgimg], .provisional [data-bgimg], [data-bgimg]",
+
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector );
+
+		if ( elm ) {
+
+			//to be replaced by CSS 4: background-image:attr(data-bgimg, url)
+			elm.style.backgroundImage = "url(" + elm.dataset.bgimg + ")";
+
+			// Identify that initialization has completed
+			wb.ready( $( elm ), componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb wb-init." + componentName, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
 
 } )( jQuery, wb );
 
@@ -5411,10 +5611,11 @@ var componentName = "wb-filter",
 			$elm, elmTagName, filterUI, prependUI,
 			settings, setDefault,
 			inptId, totalEntries;
+
 		if ( elm ) {
 			$elm = $( elm );
-
 			elmTagName = elm.nodeName;
+
 			if ( [ "DIV", "SECTION", "ARTICLE" ].indexOf( elm.nodeName ) >= 0 ) {
 				setDefault = defaults.grp;
 				prependUI = true;
@@ -5631,7 +5832,7 @@ var componentName = "wb-fnote",
 		// returns DOM object = proceed with init
 		// returns undefined = do not proceed with init (e.g., already initialized)
 		var elm = wb.init( event, componentName, selector ),
-			$elm, footnoteDd, footnoteDt, i, len, dd, dt, dtId;
+			$elm, footnoteDd, footnoteDt, i, len, dd, dt;
 
 		if ( elm ) {
 			$elm = $( elm );
@@ -5643,10 +5844,8 @@ var componentName = "wb-fnote",
 			for ( i = 0; i !== len; i += 1 ) {
 				dd = footnoteDd[ i ];
 				dt = footnoteDt[ i ];
-				dtId = dd.id + "-dt";
 				dd.setAttribute( "tabindex", "-1" );
-				dd.setAttribute( "aria-labelledby", dtId );
-				dt.id = dtId;
+				dt.id = dd.id + "-dt";
 			}
 
 			// Remove "first/premier/etc"-style text from certain footnote return links (via the child spans that hold those bits of text)
@@ -6502,7 +6701,10 @@ $document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {
 
 // Event handler for closing a modal popup
 $( document ).on( "click", ".popup-modal-dismiss", function( event ) {
-	event.preventDefault();
+	if ( !this.hasAttribute( "target" ) ) {
+		event.preventDefault();
+	}
+
 	$.magnificPopup.close();
 } );
 
@@ -9805,17 +10007,9 @@ var componentName = "wb-share",
 
 			// The definitions of the available bookmarking sites, in URL use
 			// '{u}' for the page URL, '{t}' for the page title, {i} for the image, and '{d}' for the description
-			bitly: {
-				name: "bitly",
-				url: "https://bitly.com/a/bitmarklet?u={u}"
-			},
 			blogger: {
 				name: "Blogger",
 				url: "https://www.blogger.com/blog_this.pyra?t=&amp;u={u}&amp;n={t}"
-			},
-			digg: {
-				name: "Digg",
-				url: "http://digg.com/submit?phase=2&amp;url={u}&amp;title={t}"
 			},
 			diigo: {
 				name: "Diigo",
@@ -9845,6 +10039,10 @@ var componentName = "wb-share",
 				name: "reddit",
 				url: "https://reddit.com/submit?url={u}&amp;title={t}"
 			},
+			tinyurl: {
+				name: "TinyURL",
+				url: "https://tinyurl.com/create.php?url={u}"
+			},
 			tumblr: {
 				name: "tumblr",
 				url: "https://www.tumblr.com/share/link?url={u}&amp;name={t}&amp;description={d}"
@@ -9856,6 +10054,10 @@ var componentName = "wb-share",
 			yahoomail: {
 				name: "Yahoo! Mail",
 				url: "https://compose.mail.yahoo.com/?to=&subject={t}&body={u}%0A{d}"
+			},
+			whatsapp: {
+				name: "Whatsapp",
+				url: "https://api.whatsapp.com/send?text={t}%0A{d}%0A{u}"
 			}
 		}
 	},
@@ -9979,6 +10181,231 @@ var componentName = "wb-share",
 
 			// Identify that initialization has completed
 			wb.ready( $elm, componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, window, document, wb );
+
+/**
+ * @title WET-BOEW step form
+ * @overview Provide ability for a form to be broken into steps.
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @kodecount
+ */
+( function( $, window, document, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-steps",
+	selector = ".provisional." + componentName,
+	initEvent = "wb-init" + selector,
+	$document = wb.doc,
+	i18n, i18nText,
+	btnPrevious, btnNext, btnSubmit,
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} evt Event that triggered the function call
+	 */
+	init = function( evt ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( evt, componentName, selector );
+
+		if ( elm ) {
+
+			// Ensure there is a unique id on the element
+			if ( !elm.id ) {
+				elm.id = wb.getId();
+			}
+
+			// Only initialize the i18nText once
+			if ( !i18nText ) {
+				i18n = wb.i18n;
+				i18nText = {
+					prv: i18n( "prv" ),
+					nxt: i18n( "nxt" )
+				};
+			}
+
+			/*
+			 * Variable and function definitions
+			 * These will be initialized once per instance of plugin.
+			 */
+			var form = elm.getElementsByTagName( "FORM" )[ 0 ],
+				fieldsets = ( form ) ? $( form ).children( "fieldset" ) : 0,
+				hasStepsInitialized;
+
+			// Initialize navigation buttons
+			btnPrevious = createStepsButton( "prev", "mrgn-rght-sm mrgn-bttm-md", i18nText.prv );
+			btnNext = createStepsButton( "next", "mrgn-bttm-md", i18nText.nxt );
+			btnSubmit = form.querySelector( "input[type=submit], button[type=submit]" );
+			btnSubmit.classList.add( "mrgn-bttm-md" );
+
+			/*
+			 * Determines if html is correctly formatted and initialize all fieldsets/legend combinations into steps.
+			 */
+			for ( var i = 0, len = fieldsets.length; i < len; i++ ) {
+
+				/*
+				 * Variable and function definitions
+				 * These well be initialized once per instance of each fieldset.
+				 * Determines the following business rules:
+				 *  -Only allow steps if elements are in proper order fieldset -> legend -> div
+				 *  -Only allow NEXT button on first step
+				 *  -Only allow final SUBMIT button on last step
+				 */
+				var fieldset = fieldsets[ i ],
+					isFirstFieldset = ( i === 0 ) ? true : false,
+					isLastFieldset = ( i === ( len - 1 ) ) ? true : false,
+					legend = fieldset.firstElementChild,
+					div = ( legend && legend.tagName === "LEGEND" ) ? legend.nextElementSibling : false,
+					buttonGroup = document.createElement( "div" ),
+					wrapper = document.createElement( "div" ),
+					buttonGroupClassList = buttonGroup.classList,
+					divClassList = div.classList;
+
+				buttonGroupClassList.add( "buttons" );
+				fieldset.parentNode.insertBefore( wrapper, fieldset );
+				wrapper.appendChild( fieldset );
+				wrapper.classList.add( "steps-wrapper" );
+
+				if ( div && div.tagName === "DIV" ) {
+					var btnClone;
+					hasStepsInitialized = true;
+
+					if ( !isFirstFieldset ) {
+						btnClone = btnPrevious.cloneNode( true );
+						setStepsBtnEvent( btnClone );
+						buttonGroup.appendChild( btnClone );
+						wrapper.appendChild( buttonGroup );
+					}
+
+					if ( !isLastFieldset ) {
+						btnClone = btnNext.cloneNode( true );
+						setStepsBtnEvent( btnClone );
+						buttonGroup.appendChild( btnClone );
+					} else {
+						buttonGroup.appendChild( btnSubmit );
+					}
+
+					wrapper.appendChild( buttonGroup );
+
+					fieldset.classList.add( "wb-tggle-fildst" );
+					divClassList.add( "hidden" );
+					buttonGroupClassList.add( "hidden" );
+
+					if ( isFirstFieldset ) {
+						legend.classList.add( "wb-steps-active" );
+						btnClone.classList.remove( "hidden" );
+						divClassList.remove( "hidden" );
+						buttonGroupClassList.remove( "hidden" );
+					}
+				}
+			}
+
+			/*
+			 * if steps has initialized hide any precreated submit or reset buttons
+			 */
+			if ( form && hasStepsInitialized ) {
+				$( form ).children( "input" ).hide();
+			}
+		}
+	},
+
+	/**
+	 * @method createStepsButton
+	 * @param {string var} tagName, {string var} type, {boolean var} isPrimary, {string var} style, {string var} text
+	 * @returns {Object} A ready-to-use button element
+	 */
+	createStepsButton = function( type, style, text ) {
+		var control = document.createElement( "BUTTON" );
+
+		// set default attributes
+		control.className = ( type === "prev" ? "btn btn-md btn-default" : "btn btn-md btn-primary" ) + " " + style;
+		control.innerHTML = text;
+
+		return control;
+	},
+
+	/**
+	 * @method setStepsBtnEvent
+	 * @param {JavaScript element} elm
+	 */
+	setStepsBtnEvent = function( elm ) {
+		elm.addEventListener( "click", function( evt ) {
+			evt.preventDefault();
+			var classes = ( this.className ) ? this.className : false,
+				isNext = ( classes && classes.indexOf( "btn-primary" ) > -1 ),
+				isFormValid = true,
+				parentElement = this.parentElement,
+				parentParentElement = parentElement.parentElement,
+				parentPreviousClassList = parentElement.previousElementSibling.classList;
+
+			// confirm if form is valid
+			if ( isNext && jQuery.validator && jQuery.validator !== "undefined" ) {
+				isFormValid =  $( "#" + parentParentElement.parentElement.id ).valid();
+			}
+
+			// continue if valid
+			if ( isFormValid ) {
+				showSteps( parentParentElement, isNext );
+				if ( isNext ) {
+					parentPreviousClassList.remove( "wb-steps-error" );
+				}
+			} else if ( isNext && !isFormValid ) {
+				parentPreviousClassList.add( "wb-steps-error" );
+			}
+		} );
+	},
+
+	/**
+	 * @method showSteps
+	 * @param {JavaScript element} elm and {boolean var} isNext
+	 */
+	showSteps = function( elm, isNext ) {
+		var fieldsetElement = elm.getElementsByTagName( "FIELDSET" )[ 0 ],
+			fields = fieldsetElement.getElementsByTagName( "div" )[ 0 ],
+			legend = fieldsetElement.getElementsByTagName( "legend" )[ 0 ],
+			buttonGroup = elm.querySelector( "div.buttons" ),
+			fieldset;
+
+		if ( elm ) {
+			fields.classList.add( "hidden" );
+			buttonGroup.classList.add( "hidden" );
+
+			if ( legend ) {
+				legend.classList.remove( "wb-steps-active" );
+			}
+
+			fieldset = ( !isNext ) ? elm.previousElementSibling : elm.nextElementSibling;
+			if ( fieldset ) {
+				legend = fieldset.getElementsByTagName( "LEGEND" )[ 0 ];
+				elm = fieldset.getElementsByTagName( "DIV" )[ 0 ];
+				buttonGroup = fieldset.querySelector( "div.buttons" );
+				if ( legend ) {
+					legend.classList.add( "wb-steps-active" );
+				}
+				if ( elm ) {
+					elm.classList.remove( "hidden" );
+				}
+				if ( buttonGroup ) {
+					buttonGroup.classList.remove( "hidden" );
+				}
+			}
 		}
 	};
 
@@ -10124,11 +10551,28 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 	var $elm = $( event.target ),
 		pagination = $elm.next( ".bottom" ).find( "div:first-child" ),
 		paginate_buttons = $elm.next( ".bottom" ).find( ".paginate_button" ),
+		pbLength = paginate_buttons.length,
+		pHasLF = pagination.find( ".last, .first" ).length === 2,
+		pHasPN = pagination.find( ".previous, .next" ).length === 2,
 		ol = document.createElement( "OL" ),
 		li = document.createElement( "LI" );
 
 	// Determine if Pagination required
-	if ( paginate_buttons.length === 1 || ( pagination.find( ".previous, .next" ).length === 2 && paginate_buttons.length < 4 ) ) {
+	if (
+		pbLength === 1 ||
+		(
+			pbLength === 3 &&
+			(
+				pHasLF ||
+				pHasPN
+			)
+		) ||
+		(
+			pbLength === 5 &&
+			pHasLF &&
+			pHasPN
+		)
+	) {
 		pagination.addClass( "hidden" );
 	} else {
 
@@ -11323,7 +11767,7 @@ var componentName = "wb-txthl",
 				searchCriteria = "(?=([^>]*<))([\\s'])?(" + searchCriteria + ")(?!>)";
 
 				newText = elm.innerHTML.replace( new RegExp( searchCriteria, "gi" ), function( match, group1, group2, group3 ) {
-					return ( !group2 ? "" : group2 ) + "<mark class='txthl'>" + group3 + "</mark>";
+					return ( !group2 ? "" : group2 ) + "<mark>" + group3 + "</mark>";
 				} );
 				elm.innerHTML = newText;
 			}
@@ -12113,6 +12557,155 @@ $document.on( clickEvents, linkSelector, function( event ) {
 } );
 
 } )( jQuery, wb );
+
+/**
+ * @title WET-BOEW wb-postback
+ * @overview This plugin implements AJAX request for form data to submit on same page without refresh
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @masterbee, @namjohn920, @GormFrank
+ **/
+( function( $, wb ) {
+"use strict";
+
+var $document = wb.doc,
+	componentName = "wb-postback",
+	selector = ".provisional." + componentName,
+	initEvent = "wb-init" + selector,
+	defaults = {},
+
+	init = function( event ) {
+		var elm = wb.init( event, componentName, selector );
+
+		if ( elm ) {
+			var $elm = $( elm ),
+				settings = $.extend(
+					true,
+					{},
+					defaults,
+					wb.getData( $elm, componentName )
+				),
+				attrClick = "data-wb-clicked",
+				$buttons = $( "[type=submit]", $elm ),
+				classToggle = settings.toggle || "hide",
+				selectorContent = settings.content,
+				selectorSuccess = settings.success,
+				selectorFailure;
+
+			// Success selector is strict minimum
+			if ( !selectorContent ) {
+				throw componentName + " success setting is mandatory";
+			}
+
+			// Use success selector if no failure selector is provided
+			selectorFailure = settings.failure || selectorSuccess;
+
+			// Set "clicked" attribute on element that initiated the form submit
+			$buttons.on( "click", function() {
+				$buttons.removeAttr( attrClick );
+				$( this ).attr( attrClick, "" );
+			} );
+
+			elm.addEventListener( "submit", function( e ) {
+
+				// Prevent regular form submit
+				e.preventDefault();
+
+				var data = $elm.serializeArray(),
+					$btn = $( "[type=submit][" + attrClick + "]", $elm ),
+					$selectorSuccess = $( selectorSuccess ),
+					$selectorFailure = $( selectorFailure );
+
+				if ( $btn ) {
+					data.push( { name: $btn.attr( "name" ), value: $btn.val() } );
+				}
+
+				$.ajax( {
+					type: this.method,
+					url: this.attr,
+					data: $.param( data )
+				} )
+				.done( function() {
+					$selectorFailure.addClass( classToggle );
+					$selectorSuccess.removeClass( classToggle );
+				} )
+				.fail( function() {
+					$selectorSuccess.addClass( classToggle );
+					$selectorFailure.removeClass( classToggle );
+				} )
+				.always( function() {
+					if ( selectorContent ) {
+						$( selectorContent ).addClass( classToggle );
+					}
+				} );
+			} );
+
+			wb.ready( $( elm ), componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, wb );
+
+/**
+ * @title WET-BOEW Randomize
+ * @overview This plugin randomly picks one of the child component to be shown on the browser.
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @masterbee @namjohn920
+ */
+( function( $, window, wb ) {
+"use strict";
+
+var $document = wb.doc,
+	componentName = "wb-randomize",
+	selector = ".provisional[data-wb-randomize]",
+	initEvent = "wb-init" + selector,
+	defaults = {},
+
+	init = function( event ) {
+		var elm = wb.init( event, componentName, selector ),
+			$elm, settings, $selectedElm;
+
+		if ( elm ) {
+			$elm = $( elm );
+			settings = $.extend(
+				true,
+				{},
+				defaults,
+				window[ componentName ],
+				wb.getData( $elm, componentName )
+			);
+
+			$selectedElm = settings.selector ? $( settings.selector, $elm ) : $elm.children();
+
+			if ( !$selectedElm.length ) {
+				throw componentName + " selector setting is invalid or no children";
+			}
+
+			if ( settings.shuffle ) {
+				$selectedElm = wb.shuffleDOM( $selectedElm );
+			}
+
+			if ( settings.toggle ) {
+				$selectedElm = wb.pickElements( $selectedElm, settings.number );
+				$selectedElm.toggleClass( settings.toggle );
+			}
+
+			wb.ready( $elm, componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, window, wb );
 
 /**
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)

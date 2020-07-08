@@ -27,5 +27,5 @@
 
 * [?] Optimization and solidification.
 
-  Whys is it the last plan? It should make sense, if you have heard **premature
+  Why is it the last plan? It should make sense, if you have heard **premature
   optimization** in software developments.

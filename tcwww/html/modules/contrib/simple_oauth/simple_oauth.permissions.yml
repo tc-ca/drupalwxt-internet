@@ -13,3 +13,12 @@ update own simple_oauth entities:
 
 view own simple_oauth entities:
   title: 'View Access Token entities'
+
+debug simple_oauth tokens:
+  title: 'Debug OAuth2 tokens'
+  description: 'Allows accessing to extended information about the token and the access it grants under /oauth/debug.'
+  restrict access: TRUE
+
+grant simple_oauth codes:
+  title: 'Grant OAuth2 codes'
+  description: 'Allow using the AuthCode grant'

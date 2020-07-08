@@ -66,7 +66,6 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
    * @covers ::imageStyleForm
    * @covers ::mediaSwitchForm
    * @covers ::gridForm
-   * @covers ::breakpointsForm
    * @covers ::closingForm
    * @covers ::finalizeForm
    */
@@ -109,7 +108,6 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $settings['overridables']           = ['foo' => 'foo', 'bar' => '0'];
     $settings['responsive_image_style'] = $responsive_image_style;
     $settings['caption']                = ['alt' => 'alt', 'title' => 'title'];
-    $settings['breakpoints']            = $this->getDataBreakpoints(TRUE);
 
     $definition['settings'] = $use_settings ? $settings : [];
 

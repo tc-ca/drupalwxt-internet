@@ -19,6 +19,7 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []) {
+    $settings  += BlazyDefault::htmlSettings();
     $style      = empty($settings['style']) ? '' : $settings['style'];
     $is_grid    = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
     $class_item = $is_grid ? 'grid' : 'blazy__item';

@@ -1,3 +1,11 @@
+## 3.15.0
+* Added compatibility with Drupal 9.
+* Added the ability to opt into moderation when creating a new content type in
+  the UI.
+* Updated Conflict to 2.0-alpha2.
+* Removed a deprecated Views relationship from the moderation history view
+  (Issue #3102417).
+
 ## 3.14.0
 * Made Lightning Workflow compatible any installation profile.
   (Issue #3089223)

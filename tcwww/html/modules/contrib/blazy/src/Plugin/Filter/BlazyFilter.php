@@ -6,8 +6,6 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\UrlHelper;
-use Drupal\Component\Plugin\FallbackPluginManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -32,7 +30,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   settings = {
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
- *     "use_data_uri" = false,
+ *     "use_data_uri" = "0",
  *   },
  *   weight = 3
  * )
@@ -63,10 +61,9 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, FallbackPluginManagerInterface $filter_plugin_manager, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->root = $root;
-    $this->filterPluginManager = $filter_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
@@ -81,7 +78,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $plugin_id,
       $plugin_definition,
       $container->get('app.root'),
-      $container->get('plugin.manager.filter'),
       $container->get('entity_field.manager'),
       $container->get('blazy.oembed')
     );
@@ -99,29 +95,14 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     }
 
     $dom = Html::load($text);
-    $settings = $this->buildSettings($text);
-
-    $valid_nodes = [];
-    foreach ($allowed_tags as $allowed_tag) {
-      $nodes = $dom->getElementsByTagName($allowed_tag);
-      if ($nodes->length > 0) {
-        foreach ($nodes as $node) {
-          if ($node->hasAttribute('data-unblazy')) {
-            continue;
-          }
-
-          $valid_nodes[] = $node;
-        }
-      }
-    }
-
     $attachments = [];
+    $settings = $this->buildSettings($text);
+    $valid_nodes = $this->validNodes($dom, $allowed_tags);
     if (count($valid_nodes) > 0) {
       $elements = $grid_nodes = [];
-      $item_settings = $settings;
-      $item_settings['count'] = $nodes->length;
       foreach ($valid_nodes as $delta => $node) {
         // Build Blazy elements with lazyloaded image, or iframe.
+        $item_settings = $settings;
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
         $this->buildItemSettings($item_settings, $node);
@@ -179,8 +160,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
           $all[$switch] = $settings[$switch];
         }
 
-        // @todo remove first_uri for _uri for consistency.
-        $settings['_uri'] = $settings['first_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
+        $settings['_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
       }
 
@@ -196,18 +176,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ->addAttachments($attachments);
 
     return $result;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isApplicable() {
-    foreach (['entity_embed', 'media_embed'] as $plugin_id) {
-      if ($this->filterPluginManager->hasDefinition($plugin_id)) {
-        return FALSE;
-      }
-    }
-    return TRUE;
   }
 
   /**
@@ -234,17 +202,44 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   }
 
   /**
+   * Return valid nodes based on the allowed tags.
+   */
+  private function validNodes(\DOMDocument $dom, array $allowed_tags = []) {
+    $valid_nodes = [];
+    foreach ($allowed_tags as $allowed_tag) {
+      $nodes = $dom->getElementsByTagName($allowed_tag);
+      if ($nodes->length > 0) {
+        foreach ($nodes as $node) {
+          if ($node->hasAttribute('data-unblazy')) {
+            continue;
+          }
+
+          $valid_nodes[] = $node;
+        }
+      }
+    }
+    return $valid_nodes;
+  }
+
+  /**
+   * Removes nodes.
+   */
+  private function removeNodes($nodes) {
+    foreach ($nodes as $node) {
+      if ($node->parentNode) {
+        $node->parentNode->removeChild($node);
+      }
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function cleanupNodes(\DOMDocument &$dom) {
     $xpath = new \DOMXPath($dom);
     $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
     if ($nodes->length > 0) {
-      foreach ($nodes as $node) {
-        if ($node->parentNode) {
-          $node->parentNode->removeChild($node);
-        }
-      }
+      $this->removeNodes($nodes);
     }
   }
 
@@ -281,16 +276,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $altered_html = $this->blazyManager->getRenderer()->render($output);
 
       if ($first = $grid_nodes[0]) {
-
         // Create the parent grid container, and put it before the first.
+        // This extra container ensures hook_blazy_build_alter() aint screw up.
         $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+        $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
 
         $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
           ->item(0)
           ->childNodes;
 
-        // This extra container ensures hook_blazy_build_alter() aint screw up.
-        $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
         foreach ($updated_nodes as $updated_node) {
           // Import the updated from the new DOMDocument into the original
           // one, importing also the child nodes of the updated node.
@@ -299,11 +293,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         }
 
         // Cleanups old nodes already moved into grids.
-        foreach ($grid_nodes as $node) {
-          if ($node->parentNode) {
-            $node->parentNode->removeChild($node);
-          }
-        }
+        $this->removeNodes($grid_nodes);
       }
     }
   }
@@ -313,22 +303,38 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    */
   public function buildImageItem(array &$build, &$node) {
     $settings = &$build['settings'];
-    $item = new \stdClass();
+    $item = NULL;
 
     // Checks if we have a valid file entity, not hard-coded image URL.
     if ($src = $node->getAttribute('src')) {
-      // If starts with 2 slashes, it is always external.
-      if (strpos($src, '//') === 0) {
-        // We need to query stored SRC, https is enforced.
-        $src = 'https:' . $src;
-      }
+      // Prevents data URI from screwing up.
+      $data_uri = mb_substr($src, 0, 10) === 'data:image';
+      if (!$data_uri) {
+        // If starts with 2 slashes, it is always external.
+        if (mb_substr($src, 0, 2) === '//') {
+          // We need to query stored SRC, https is enforced.
+          $src = 'https:' . $src;
+        }
 
-      if ($node->tagName == 'img') {
-        $item = $this->getImageItemFromImageSrc($settings, $node, $src);
+        if ($node->tagName == 'img') {
+          $item = $this->getImageItemFromImageSrc($settings, $node, $src);
+        }
+        elseif ($node->tagName == 'iframe') {
+          try {
+            // Prevents invalid video URL (404, etc.) from screwing up.
+            $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
+          }
+          catch (\Exception $ignore) {
+            // Do nothing, likely local work without internet, or the site is
+            // down. No need to be chatty on this.
+          }
+        }
       }
-      elseif ($node->tagName == 'iframe') {
-        $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
-      }
+    }
+
+    if ($item) {
+      $item->alt = $node->getAttribute('alt') ?: (isset($item->alt) ? $item->alt : '');
+      $item->title = $node->getAttribute('title') ?: (isset($item->title) ? $item->title : '');
     }
 
     // Responsive image with aspect ratio requires an extra container to work
@@ -387,16 +393,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    * {@inheritdoc}
    */
   public function getImageItemFromImageSrc(array &$settings, $node, $src) {
-    $item = new \stdClass();
+    $data['item'] = NULL;
     $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
 
     // Uploaded image has UUID with file API.
     if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
       $data = $this->blazyOembed->getImageItem($file);
-      $item = $data['item'];
-      $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : ($item ? $item->alt : '');
-      $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : ($item ? $item->title : '');
-      $settings = array_merge($settings, $data['settings']);
+      if (isset($data['settings'])) {
+        $settings = array_merge($settings, $data['settings']);
+      }
     }
     else {
       // Manually hard-coded image has no UUID, nor file API.
@@ -404,67 +409,61 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
       // Attempts to get the correct URI with hard-coded URL if applicable.
       if ($uri = BlazyUtil::buildUri($src)) {
-        $settings['uri'] = $item->uri = $uri;
+        $settings['uri'] = $uri;
+        $data['item'] = Blazy::image($settings);
+      }
+      else {
+        // At least provide root URI to figure out image dimensions.
+        $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
 
-    return $item;
+    if (isset($data['item'])) {
+      return $data['item'];
+    }
+
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getImageItemFromIframeSrc(array &$settings, &$node, $src) {
-    $item = new \stdClass();
-
     // Iframe with data: alike scheme is a serious kidding, strip it earlier.
-    $src = UrlHelper::stripDangerousProtocols($src);
     $settings['input_url'] = $src;
+    $this->blazyOembed->checkInputUrl($settings);
+    $data['item'] = NULL;
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
-    $media = [];
     if (!empty($settings['is_media_library'])) {
-      $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $src]);
+      $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $settings['input_url']]);
+      $media = reset($media);
     }
 
-    if (count($media) && $media = reset($media)) {
-      // We have media entity.
+    // We have media entity.
+    if (isset($media) && $media) {
       $data['settings'] = $settings;
       $this->blazyOembed->getMediaItem($data, $media);
 
       // Update data with local image.
       $settings = array_merge($settings, $data['settings']);
-      $item = $data['item'];
     }
     // Attempts to build safe embed URL directly from oEmbed resource.
-    elseif ($resource = $this->blazyOembed->build($settings)) {
-      // All we have here is external images.
-      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
-      $settings['width'] = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
-      $settings['height'] = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
-    }
+    else {
+      $data['item'] = $this->blazyOembed->getExternalImageItem($settings);
 
-    $settings['ratio'] = empty($settings['width']) ? '16:9' : 'fluid';
-    return $item;
+      // Runs after type, width and height set, if any, to not recheck them.
+      $this->blazyOembed->build($settings);
+    }
+    return $data['item'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildItemSettings(array &$settings, $node) {
-    $width = $node->getAttribute('width');
-    $height = $node->getAttribute('height');
-    $src = $node->getAttribute('src');
-
-    if (!$width && $node->tagName == 'img') {
-      if ($src && $data = @getimagesize($this->root . $src)) {
-        list($width, $height) = $data;
-      }
-    }
-
-    $settings['width'] = $width;
-    $settings['height'] = $height;
-    $settings['ratio'] = !$width ? '' : 'fluid';
+    $settings['width'] = $node->getAttribute('width');
+    $settings['height'] = $node->getAttribute('height');
     $settings['media_switch'] = $this->settings['media_switch'];
   }
 
@@ -506,11 +505,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ],
       '#default_value' => empty($this->settings['filter_tags']) ? [] : array_values((array) $this->settings['filter_tags']),
       '#description' => $this->t('Recommended placement after Align / Caption images. To disable Blazy per individual item, add attribute <code>data-unblazy</code>.'),
+      '#prefix' => '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for privileged users, authors, editors, admins, alike. Or when Entity/Media Embed is disabled. Or when editors prefer pasting embed codes from video providers rather than creating media entities.') . '</p>',
     ];
-
-    if (!$this->isApplicable()) {
-      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for privileged users, editors, admins, alike. Or when Entity/Media Embed is disabled.') . '</p>';
-    }
 
     $form['media_switch'] = [
       '#type' => 'select',

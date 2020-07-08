@@ -185,10 +185,10 @@ class PageManagerController extends ControllerBase {
     $page->$op()->save();
 
     if ($op == 'enable') {
-      drupal_set_message($this->t('The %label page has been enabled.', ['%label' => $page->label()]));
+      $this->messenger()->addMessage($this->t('The %label page has been enabled.', ['%label' => $page->label()]));
     }
     elseif ($op == 'disable') {
-      drupal_set_message($this->t('The %label page has been disabled.', ['%label' => $page->label()]));
+      $this->messenger()->addMessage($this->t('The %label page has been disabled.', ['%label' => $page->label()]));
     }
 
     return $this->redirect('entity.page.collection');

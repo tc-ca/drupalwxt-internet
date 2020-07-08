@@ -24,7 +24,7 @@ class DateTime extends DateBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     $date_format = '';
     $time_format = '';
 
@@ -48,14 +48,25 @@ class DateTime extends DateBase {
       'date_date_datepicker_button' => FALSE,
       'date_date_element' => 'date',
       'date_year_range' => '1900:2050',
+      'date_date_placeholder' => '',
       // Time settings.
       'date_time_format' => $time_format,
       'date_time_element' => 'time',
       'date_time_min' => '',
       'date_time_max' => '',
       'date_time_step' => '',
-    ] + parent::getDefaultProperties();
+      'date_time_placeholder' => '',
+    ] + parent::defineDefaultProperties();
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defineTranslatableProperties() {
+    return array_merge(parent::defineTranslatableProperties(), ['date_date_placeholder', 'date_time_placeholder']);
+  }
+
+  /****************************************************************************/
 
   /**
    * {@inheritdoc}
@@ -174,7 +185,6 @@ class DateTime extends DateBase {
           [':input[name="properties[date_date_element]"]' => ['value' => 'datepicker']],
         ],
       ],
-
     ];
     $form['date']['date_date_element_datetime_warning'] = [
       '#type' => 'webform_message',
@@ -197,6 +207,18 @@ class DateTime extends DateBase {
       '#states' => [
         'visible' => [
           ':input[name="properties[date_date_element]"]' => ['value' => 'none'],
+        ],
+      ],
+    ];
+    $form['date']['date_date_placeholder'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Date placeholder'),
+      '#description' => $this->t('The placeholder will be shown in the element until the user starts entering a value.'),
+      '#states' => [
+        'visible' => [
+          [':input[name="properties[date_date_element]"]' => ['value' => 'text']],
+          'or',
+          [':input[name="properties[date_date_element]"]' => ['value' => 'datepicker']],
         ],
       ],
     ];
@@ -255,6 +277,18 @@ class DateTime extends DateBase {
           [':input[name="properties[date_date_element]"]' => ['value' => 'datetime']],
           'or',
           [':input[name="properties[date_date_element]"]' => ['value' => 'datetime-local']],
+        ],
+      ],
+    ];
+    $form['time']['date_time_placeholder'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Time placeholder'),
+      '#description' => $this->t('The placeholder will be shown in the element until the user starts entering a value.'),
+      '#states' => [
+        'visible' => [
+          [':input[name="properties[date_time_element]"]' => ['value' => 'text']],
+          'or',
+          [':input[name="properties[date_time_element]"]' => ['value' => 'timepicker']],
         ],
       ],
     ];

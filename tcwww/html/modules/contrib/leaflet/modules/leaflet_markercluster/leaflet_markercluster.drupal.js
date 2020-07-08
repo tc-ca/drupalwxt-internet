@@ -20,7 +20,7 @@
           lFeature = this.create_feature(groupFeature);
           if (lFeature !== undefined) {
             if (lFeature.setStyle) {
-              feature.path = feature.path ? JSON.parse(feature.path) : {};
+              feature.path = feature.path ? (feature.path instanceof Object ? feature.path : JSON.parse(feature.path)) : {};
               lFeature.setStyle(feature.path);
             }
             if (groupFeature.popup) {
@@ -37,7 +37,7 @@
         lFeature = this.create_feature(feature);
         if (lFeature !== undefined) {
           if (lFeature.setStyle) {
-            feature.path = feature.path ? JSON.parse(feature.path) : {};
+            feature.path = feature.path ? (feature.path instanceof Object ? feature.path : JSON.parse(feature.path)) : {};
             lFeature.setStyle(feature.path);
             collections_cluster_layers[i] = new L.MarkerClusterGroup(leaflet_markercluster_options);
             collections_cluster_layers[i].addLayer(lFeature);

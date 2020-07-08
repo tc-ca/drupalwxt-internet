@@ -17,6 +17,11 @@ class SearchTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = ['block', 'lightning_search'];
 
   /**

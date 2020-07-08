@@ -6,11 +6,12 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\ctools\Form\ManageContext;
 use Drupal\ctools\TypedDataResolver;
-use Drupal\user\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Url;
 
 /**
  * Simple wizard step form.
@@ -25,7 +26,7 @@ class PanelizerWizardContextForm extends ManageContext {
   /**
    * The shared temp store factory.
    *
-   * @var \Drupal\user\SharedTempStoreFactory
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
    */
   protected $tempstoreFactory;
 
@@ -37,7 +38,7 @@ class PanelizerWizardContextForm extends ManageContext {
       $container->get('typed_data_manager'),
       $container->get('form_builder'),
       $container->get('ctools.typed_data.resolver'),
-      $container->get('user.shared_tempstore')
+      $container->get('tempstore.shared')
     );
   }
 
@@ -50,7 +51,7 @@ class PanelizerWizardContextForm extends ManageContext {
    *   The form builder.
    * @param \Drupal\ctools\TypedDataResolver $typed_data_resolver
    *   The typed data resolver.
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore_factory
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore_factory
    *   Shared user tempstore factory.
    */
   public function __construct(TypedDataManagerInterface $typed_data_manager, FormBuilderInterface $form_builder, TypedDataResolver $typed_data_resolver, SharedTempStoreFactory $tempstore_factory) {
@@ -145,7 +146,7 @@ class PanelizerWizardContextForm extends ManageContext {
     $content = $this->formBuilder->getForm($this->getContextClass($cached_values), $context, $this->getTempstoreId(), $this->machine_name);
     $content['#attached']['library'][] = 'core/drupal.dialog.ajax';
     list(, $route_parameters) = $this->getContextOperationsRouteInfo($cached_values, $this->machine_name, $context);
-    $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = $this->url($this->getContextAddRoute($cached_values), $route_parameters, ['query' => [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]]);
+    $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = Url::fromUri($this->getContextAddRoute($cached_values), ['query' => [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]]);
     $response = new AjaxResponse();
     $response->addCommand(new OpenModalDialogCommand($this->t('Add new context'), $content, ['width' => '700']));
     return $response;

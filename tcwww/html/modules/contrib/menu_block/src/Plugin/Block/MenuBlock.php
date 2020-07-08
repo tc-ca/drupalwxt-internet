@@ -2,9 +2,13 @@
 
 namespace Drupal\menu_block\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Menu\MenuParentFormSelectorInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\system\Entity\Menu;
 use Drupal\system\Plugin\Block\SystemMenuBlock;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides an extended Menu block.
@@ -13,10 +17,43 @@ use Drupal\system\Plugin\Block\SystemMenuBlock;
  *   id = "menu_block",
  *   admin_label = @Translation("Menu block"),
  *   category = @Translation("Menus"),
- *   deriver = "Drupal\menu_block\Plugin\Derivative\MenuBlock"
+ *   deriver = "Drupal\menu_block\Plugin\Derivative\MenuBlock",
+ *   forms = {
+ *     "settings_tray" = "\Drupal\system\Form\SystemMenuOffCanvasForm",
+ *   },
  * )
  */
 class MenuBlock extends SystemMenuBlock {
+
+  /**
+   * The menu parent form selector service.
+   *
+   * @var \Drupal\Core\Menu\MenuParentFormSelectorInterface
+   */
+  protected $menuParentFormSelector;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->setMenuParentFormSelector($container->get('menu.parent_form_selector'));
+
+    return $instance;
+  }
+
+  /**
+   * Set menu parent form selector service.
+   *
+   * @param \Drupal\Core\Menu\MenuParentFormSelectorInterface $menu_parent_form_selector
+   *   The menu parent form selector service.
+   *
+   * @return $this
+   */
+  public function setMenuParentFormSelector(MenuParentFormSelectorInterface $menu_parent_form_selector) {
+    $this->menuParentFormSelector = $menu_parent_form_selector;
+    return $this;
+  }
 
   /**
    * {@inheritdoc}
@@ -41,90 +78,15 @@ class MenuBlock extends SystemMenuBlock {
       '#description' => $this->t('All menu links that have children will "Show as expanded".'),
     ];
 
-    $form['advanced']['expand_only_active_trails'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('<strong>Expand only active tree</strong>'),
-      '#default_value' => $config['expand_only_active_trails'],
-      '#description' => $this->t('All menu links that are in active trails will "Show as expanded".'),
-      '#states' => [
-        'visible' => [
-          ':input[name="settings[expand]"]' => ['checked' => TRUE],
-        ]
-      ]
-    ];
-
     $menu_name = $this->getDerivativeId();
-    $menus = Menu::loadMultiple(array($menu_name));
+    $menus = Menu::loadMultiple([$menu_name]);
     $menus[$menu_name] = $menus[$menu_name]->label();
 
-    /** @var \Drupal\Core\Menu\MenuParentFormSelectorInterface $menu_parent_selector */
-    $menu_parent_selector = \Drupal::service('menu.parent_form_selector');
-    if (strpos($config['parent'], 'active_trail') === FALSE) {
-      $form['advanced']['parent'] = $menu_parent_selector->parentSelectElement($config['parent'], '', $menus);
-    }
-    else {
-      $form['advanced']['parent'] = [
-        '#type' => 'select',
-        '#options' => $menu_parent_selector->getParentSelectOptions('', $menus),
-        '#default_value' => $config['parent'],
-      ];
-    }
-    $form['advanced']['parent']['#options'] += [
-      $menu_name . ':active_trail' => $this->t('<Active trail>')->render(),
-      $menu_name . ':active_trail_parent' => $this->t('<Active trail parent>')->render(),
-      $menu_name . ':active_trail_custom' => $this->t('<Active trail custom depth>')->render(),
-    ];
+    $form['advanced']['parent'] = $this->menuParentFormSelector->parentSelectElement($config['parent'], '', $menus);
 
     $form['advanced']['parent'] += [
       '#title' => $this->t('Fixed parent item'),
       '#description' => $this->t('Alter the options in “Menu levels” to be relative to the fixed parent item. The block will only contain children of the selected menu link.'),
-      '#attributes' => [
-        'class' => ['active-trail'],
-      ],
-    ];
-
-    $form['advanced']['custom_level'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Set custom depth, set dynamically relative to the active trail.'),
-      '#default_value' => $config['custom_level'],
-      '#options' => range(0, 9),
-      '#states' => [
-        'visible' => [
-          '.active-trail' => ['value' => $menu_name . ':active_trail_custom'],
-        ],
-      ],
-    ];
-
-    $form['advanced']['hide_children'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Hide children of parent in active trail?'),
-      '#default_value' => $config['hide_children'],
-      '#states' => [
-        'visible' => [
-          '.active-trail' => [
-            ['value' => $menu_name . ':active_trail'],
-            ['value' => $menu_name . ':active_trail_parent'],
-            ['value' => $menu_name . ':active_trail_custom'],
-          ],
-        ],
-      ],
-    ];
-
-    $form['advanced']['render_parent'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('<strong>Render parent item</strong>'),
-      '#default_value' => $config['render_parent'],
-      '#description' => $this->t('Parent menu link will be rendered together with children items.'),
-      '#states' => array(
-        'disabled' => array(
-          ':input[name="settings[level]"]' => array('!value' => '1'),
-        ),
-        'checked' => array(
-          ':input[name="settings[level]"]' => array('value' => '1'),
-          ':input[name="settings[render_parent]"]' => array('checked' => TRUE),
-
-        ),
-      ),
     ];
 
     $form['style'] = [
@@ -136,9 +98,25 @@ class MenuBlock extends SystemMenuBlock {
 
     $form['advanced']['follow'] = [
       '#type' => 'checkbox',
-      '#title' => "<strong>" . $this->t('Follow active trail') . "</strong>",
+      '#title' => $this->t('<strong>Make the initial visibility level follow the active menu item.</strong>'),
       '#default_value' => $config['follow'],
-      '#description' => $this->t('Follow current active trail.'),
+      '#description' => $this->t('If the active menu item is deeper than the initial visibility level set above, the initial visibility level will be relative to the active menu item. Otherwise, the initial visibility level of the tree will remain fixed.'),
+    ];
+
+    $form['advanced']['follow_parent'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Initial visibility level will be'),
+      '#description' => $this->t('When following the active menu item, select whether the initial visibility level should be set to the active menu item, or its children.'),
+      '#default_value' => $config['follow_parent'],
+      '#options' => [
+        'active' => $this->t('Active menu item'),
+        'child' => $this->t('Children of active menu item'),
+      ],
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[follow]"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $form['style']['suggestion'] = [
@@ -149,6 +127,7 @@ class MenuBlock extends SystemMenuBlock {
       '#description' => $this->t('A theme hook suggestion can be used to override the default HTML and CSS classes for menus found in <code>menu.html.twig</code>.'),
       '#machine_name' => [
         'error' => $this->t('The theme hook suggestion must contain only lowercase letters, numbers, and underscores.'),
+        'exists' => [$this, 'suggestionExists'],
       ],
     ];
 
@@ -178,15 +157,12 @@ class MenuBlock extends SystemMenuBlock {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['follow'] = $form_state->getValue('follow');
+    $this->configuration['follow_parent'] = $form_state->getValue('follow_parent');
     $this->configuration['level'] = $form_state->getValue('level');
-    $this->configuration['custom_level'] = $form_state->getValue('custom_level');
-    $this->configuration['hide_children'] = $form_state->getValue('hide_children');
     $this->configuration['depth'] = $form_state->getValue('depth');
     $this->configuration['expand'] = $form_state->getValue('expand');
-    $this->configuration['expand_only_active_trails'] = $form_state->getValue('expand_only_active_trails');
     $this->configuration['parent'] = $form_state->getValue('parent');
-    $this->configuration['render_parent'] = $form_state->getValue('render_parent');
-    $this->configuration['follow'] = $form_state->getValue('follow');
     $this->configuration['suggestion'] = $form_state->getValue('suggestion');
   }
 
@@ -199,107 +175,102 @@ class MenuBlock extends SystemMenuBlock {
 
     // Adjust the menu tree parameters based on the block's configuration.
     $level = $this->configuration['level'];
-    $custom_level = $this->configuration['custom_level'];
     $depth = $this->configuration['depth'];
     $expand = $this->configuration['expand'];
-    $expand_only_active_trails = $this->configuration['expand_only_active_trails'];
     $parent = $this->configuration['parent'];
-    $render_parent = $this->configuration['render_parent'];
-    $hide_children = $this->configuration['hide_children'];
     $follow = $this->configuration['follow'];
+    $follow_parent = $this->configuration['follow_parent'];
+    $following = FALSE;
 
-    $trail_ids = $parameters->activeTrail;
-    $trail_ids = array_reverse(array_filter($trail_ids));
+    $parameters->setMinDepth($level);
 
-    if ($parent == $menu_name . ':' . 'active_trail_custom') {
-      $level = $this->setActiveTrailLevel($level, $custom_level, $trail_ids);
-    }
-    $max_depth = $level + $depth - 1;
-    // Parent item will be included by default if mi depth is NULL.
-    if (!($render_parent && (int) $level === 1)) {
-      $parameters->setMinDepth($level);
-    }
-
-    if ($follow) {
-      $level += count($parameters->activeTrail) - 1;
-      end($parameters->activeTrail);
-      $root_item = current($parameters->activeTrail);
-      if (empty($root_item) && count($parameters->activeTrail) > 1) {
-        $root_item = prev($parameters->activeTrail);
-        $level--;
-      }
-      $parameters->setRoot($root_item);
+    // If we're following the active trail and the active trail is deeper than
+    // the initial starting level, we update the level to match the active menu
+    // item's level in the menu.
+    if ($follow && count($parameters->activeTrail) > $level) {
+      $level = count($parameters->activeTrail);
+      $following = TRUE;
     }
 
     // When the depth is configured to zero, there is no depth limit. When depth
     // is non-zero, it indicates the number of levels that must be displayed.
     // Hence this is a relative depth that we must convert to an actual
     // (absolute) depth, that may never exceed the maximum depth.
-    if ($max_depth > 0) {
-      $parameters->setMaxDepth(min($max_depth, $this->menuTree->maxDepth()));
+    if ($depth > 0) {
+      $parameters->setMaxDepth(min($level + $depth - 1, $this->menuTree->maxDepth()));
     }
-    // If expandedParents is empty, the whole menu tree is built.
-    if ($expand && !$expand_only_active_trails) {
-      $parameters->expandedParents = array();
-    }
-    // When a fixed parent item is set, root the menu tree at the given ID.
-    if ($menuLinkID = str_replace($menu_name . ':', '', $parent)) {
-      if (strpos($menuLinkID, 'custom') == FALSE) {
-        // Active trail or Active trail parent option.
-        if (strpos($menuLinkID, 'active_trail') !== FALSE) {
-          // $trail_ids = $this->menuActiveTrail->getActiveTrailIds($menu_name);
-          // $trail_ids = array_reverse(array_filter($trail_ids));
-          if ($menuLinkID == 'active_trail') {
-            $menuLinkID = end($trail_ids);
-          }
-          // Active trail parent.
-          else {
-            array_pop($trail_ids);
-            $menuLinkID = end($trail_ids);
-          }
-        }
-        if ($menuLinkID) {
-          $parameters->setRoot($menuLinkID);
-        }
 
-        // If the starting level is 1, we always want the child links to appear,
-        // but the requested tree may be empty if the tree does not contain the
-        // active trail.
-        if ($level === 1 || $level === '1') {
-          // Check if the tree contains links.
-          $tree = $this->menuTree->load(NULL, $parameters);
-          if (empty($tree)) {
-            // Change the request to expand all children and limit the depth to
-            // the immediate children of the root.
-            $parameters->expandedParents = array();
-            // Parent item will be included by default if mi depth is NULL.
-            if (!$render_parent) {
-              $parameters->setMinDepth(1);
-            }
-            $parameters->setMaxDepth(1);
-            // Re-load the tree.
-            $tree = $this->menuTree->load(NULL, $parameters);
-          }
+    // If we're currently following an active menu item, or for menu blocks with
+    // start level greater than 1, only show menu items from the current active
+    // trail. Adjust the root according to the current position in the menu in
+    // order to determine if we can show the subtree. If we're not following an
+    // active trail and using a fixed parent item, we'll skip this step.
+    $fixed_parent_menu_link_id = str_replace($menu_name . ':', '', $parent);
+    if ($following || ($level > 1 && !$fixed_parent_menu_link_id)) {
+      if (count($parameters->activeTrail) >= $level) {
+        // Active trail array is child-first. Reverse it, and pull the new menu
+        // root based on the parent of the configured start level.
+        $menu_trail_ids = array_reverse(array_values($parameters->activeTrail));
+        $offset = ($following && $follow_parent == 'active') ? 2 : 1;
+        $menu_root = $menu_trail_ids[$level - $offset];
+        $parameters->setRoot($menu_root)->setMinDepth(1);
+        if ($depth > 0) {
+          $parameters->setMaxDepth(min($depth, $this->menuTree->maxDepth()));
         }
       }
-      // end custom
+      else {
+        return [];
+      }
+    }
+
+    // If expandedParents is empty, the whole menu tree is built.
+    if ($expand) {
+      $parameters->expandedParents = [];
+    }
+
+    // When a fixed parent item is set, root the menu tree at the given ID.
+    if ($fixed_parent_menu_link_id) {
+      // Clone the parameters so we can fall back to using them if we're
+      // following the active menu item and the current page is part of the
+      // active menu trail.
+      $fixed_parameters = clone $parameters;
+      $fixed_parameters->setRoot($fixed_parent_menu_link_id);
+      $tree = $this->menuTree->load($menu_name, $fixed_parameters);
+
+      // Check if the tree contains links.
+      if (empty($tree)) {
+        // If the starting level is 1, we always want the child links to appear,
+        // but the requested tree may be empty if the tree does not contain the
+        // active trail. We're accessing the configuration directly since the
+        // $level variable may have changed by this point.
+        if ($this->configuration['level'] === 1 || $this->configuration['level'] === '1') {
+          // Change the request to expand all children and limit the depth to
+          // the immediate children of the root.
+          $fixed_parameters->expandedParents = [];
+          $fixed_parameters->setMinDepth(1);
+          $fixed_parameters->setMaxDepth(1);
+          // Re-load the tree.
+          $tree = $this->menuTree->load($menu_name, $fixed_parameters);
+        }
+      }
+      elseif ($following) {
+        // If we're following the active menu item, and the tree isn't empty
+        // (which indicates we're currently in the active trail), we unset
+        // the tree we made and just let the active menu parameters from before
+        // do their thing.
+        unset($tree);
+      }
     }
 
     // Load the tree if we haven't already.
     if (!isset($tree)) {
       $tree = $this->menuTree->load($menu_name, $parameters);
     }
-    $manipulators = array(
-      array('callable' => 'menu.default_tree_manipulators:checkAccess'),
-      array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
-    );
-
+    $manipulators = [
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+      ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+    ];
     $tree = $this->menuTree->transform($tree, $manipulators);
-    // Hide parent children if it is set in config.
-    if ($hide_children) {
-      $tree = $this->hideParentChildren($tree);
-    }
-
     $build = $this->menuTree->build($tree);
 
     if (!empty($build['#theme'])) {
@@ -310,45 +281,22 @@ class MenuBlock extends SystemMenuBlock {
       $build['#theme'] = 'menu';
     }
 
+    $build['#contextual_links']['menu'] = [
+      'route_parameters' => ['menu' => $menu_name],
+    ];
+
     return $build;
   }
 
   /**
-   * Set the menu level relative to the active trail.
+   * {@inheritdoc}
    */
-  public function setActiveTrailLevel($level, $custom_level, $trail_ids) {
-    $dynamic_level = count($trail_ids) - $custom_level;
-    if ($dynamic_level >= 1) {
-      $level = $dynamic_level;
+  public function blockAccess(AccountInterface $account) {
+    $build = $this->build();
+    if (empty($build['#items'])) {
+      return AccessResult::forbidden();
     }
-
-    return $level;
-  }
-
-  /**
-   * Hide the children of the active parent.
-   */
-  public function hideParentChildren($tree) {
-    $not_active_items = [];
-    $unset = FALSE;
-    if (count($tree)) {
-      foreach ($tree as $id => $branch) {
-        if (!$branch->inActiveTrail) {
-          $not_active_items[$id] = $id;
-        }
-        if ($branch->inActiveTrail && $branch->hasChildren) {
-          $unset = TRUE;
-        }
-      }
-    }
-
-    if ($unset) {
-      foreach ($not_active_items as $not_active_item) {
-        unset($tree[$not_active_item]);
-      }
-    }
-
-    return $tree;
+    return parent::blockAccess($account);
   }
 
   /**
@@ -356,17 +304,24 @@ class MenuBlock extends SystemMenuBlock {
    */
   public function defaultConfiguration() {
     return [
+      'follow' => 0,
+      'follow_parent' => 'child',
       'level' => 1,
-      'custom_level' => 1,
-      'hide_children' => 0,
       'depth' => 0,
       'expand' => 0,
-      'expand_only_active_trails' => 0,
       'parent' => $this->getDerivativeId() . ':',
-      'render_parent' => 0,
-      'follow' => 0,
       'suggestion' => strtr($this->getDerivativeId(), '-', '_'),
     ];
+  }
+
+  /**
+   * Checks for an existing theme hook suggestion.
+   *
+   * @return bool
+   *   Returns FALSE because there is no need of validation by unique value.
+   */
+  public function suggestionExists() {
+    return FALSE;
   }
 
 }

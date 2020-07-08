@@ -66,14 +66,17 @@ final class ContextItem extends FieldItemBase {
       'columns' => [
         'id' => [
           'type' => 'varchar',
+          'length' => 255,
           'not null' => TRUE,
         ],
         'type' => [
           'type' => 'varchar',
+          'length' => 255,
           'not null' => TRUE,
         ],
         'label' => [
           'type' => 'varchar',
+          'length' => 255,
           'not null' => TRUE,
         ],
         'description' => [

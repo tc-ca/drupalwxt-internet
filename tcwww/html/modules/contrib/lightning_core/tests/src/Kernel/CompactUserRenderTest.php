@@ -61,9 +61,9 @@ class CompactUserRenderTest extends KernelTestBase {
     // we need to assert things in the final rendered output.
     $output = (string) $this->container->get('renderer')->renderRoot($build);
 
-    $this->assertContains($user->getDisplayName(), $output);
-    $this->assertContains($picture->getFilename(), $output);
-    $this->assertContains($user->toUrl()->toString(), $output);
+    $this->assertStringContainsString($user->getDisplayName(), $output);
+    $this->assertStringContainsString($picture->getFilename(), $output);
+    $this->assertStringContainsString($user->toUrl()->toString(), $output);
   }
 
 }

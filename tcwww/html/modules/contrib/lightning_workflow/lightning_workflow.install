@@ -82,23 +82,6 @@ function lightning_workflow_update_8005() {
 
   $display_options = 'display.default.display_options';
 
-  // Add a relationship to the moderation state.
-  $key = "$display_options.relationships.moderation_state";
-  $relationship = $config->get($key);
-  if (empty($relationship)) {
-    $config->set($key, [
-      'id' => 'moderation_state',
-      'table' => $entity_type_manager->getDefinition('node')->getRevisionDataTable(),
-      'field' => 'moderation_state',
-      'relationship' => 'none',
-      'group_type' => 'group',
-      'admin_label' => 'Moderation state',
-      'required' => TRUE,
-      'entity_type' => 'node',
-      'plugin_id' => 'standard',
-    ]);
-  }
-
   // Update the nid argument, if it exists.
   $key = "$display_options.arguments.nid";
   $argument = $config->get($key);
@@ -113,16 +96,14 @@ function lightning_workflow_update_8005() {
   $key = "$display_options.fields.moderation_state";
   $field = $config->get($key);
   if ($field) {
-    $field['table'] = $entity_type_manager->hasDefinition('content_moderation_state')
-      ? $entity_type_manager->getDefinition('content_moderation_state')->getRevisionDataTable()
-      : 'content_moderation_state_field_revision';
-    $field['relationship'] = 'moderation_state';
+    $field['table'] = $entity_type_manager->getDefinition('node')->getRevisionDataTable();
+    $field['relationship'] = 'none';
     $field['admin_label'] = 'Moderation state';
     $field['click_sort_column'] = 'value';
     $field['type'] = 'content_moderation_state';
     $field['settings'] = [];
     $field['group_column'] = 'value';
-    $field['entity_type'] = 'content_moderation_state';
+    $field['entity_type'] = 'node';
     $config->set($key, $field);
   }
 
@@ -132,6 +113,38 @@ function lightning_workflow_update_8005() {
   if ($display) {
     $display['path'] = str_replace('node/%/', 'node/%node/', $display['path']);
     $config->set($key, $display);
+  }
+  $config->save();
+}
+
+/**
+ * Removes deprecated relationship from moderation_history view.
+ */
+function lightning_workflow_update_8006() {
+  $config = Drupal::configFactory()
+    ->getEditable('views.view.moderation_history');
+
+  if ($config->isNew()) {
+    return;
+  }
+
+  $display_options = 'display.default.display_options';
+
+  // Delete the deprecated relationship to the moderation state.
+  $config->clear("$display_options.relationships.moderation_state");
+
+  // The moderation_state field should not use the deprecated moderation_state
+  // relationship.
+  $key = "$display_options.fields.moderation_state";
+  $field = $config->get($key);
+  if ($field) {
+    $field['table'] = Drupal::entityTypeManager()
+      ->getDefinition('node')
+      ->getRevisionDataTable();
+    $field['relationship'] = 'none';
+    $field['entity_type'] = 'node';
+    unset($field['entity_field']);
+    $config->set($key, $field);
   }
   $config->save();
 }

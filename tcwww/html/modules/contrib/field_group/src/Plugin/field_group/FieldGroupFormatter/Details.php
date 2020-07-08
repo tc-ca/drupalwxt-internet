@@ -27,7 +27,7 @@ class Details extends FieldGroupFormatterBase {
 
     $element += [
       '#type' => 'details',
-      '#title' => $this->getLabel(),
+      '#title' => t($this->getLabel()),
       '#open' => $this->getSetting('open'),
       '#description' => $this->getSetting('description'),
     ];

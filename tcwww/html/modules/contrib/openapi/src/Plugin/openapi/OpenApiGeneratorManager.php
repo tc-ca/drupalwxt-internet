@@ -36,16 +36,4 @@ class OpenApiGeneratorManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'openapi_generator_plugins');
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function findDefinitions() {
-    $definitions = parent::findDefinitions();
-    foreach (['jsonapi', 'rest'] as $api_module) {
-      if (isset($definitions[$api_module]) && !$this->moduleHandler->moduleExists($api_module)) {
-        unset($definitions[$api_module]);
-      }
-    }
-    return $definitions;
-  }
 }

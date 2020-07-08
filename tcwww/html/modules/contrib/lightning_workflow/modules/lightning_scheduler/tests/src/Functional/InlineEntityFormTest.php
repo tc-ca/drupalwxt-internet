@@ -22,6 +22,11 @@ class InlineEntityFormTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'inline_entity_form',
     'lightning_scheduler',

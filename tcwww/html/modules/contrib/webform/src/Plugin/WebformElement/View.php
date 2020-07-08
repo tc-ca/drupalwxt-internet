@@ -5,6 +5,7 @@ namespace Drupal\webform\Plugin\WebformElement;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Entity\View as ViewEntity;
 use Drupal\webform\Element\WebformMessage as WebformMessageElement;
+use Drupal\webform\Plugin\WebformElementDisplayOnInterface;
 
 /**
  * Provides a hidden 'view' element.
@@ -22,14 +23,16 @@ class View extends WebformMarkupBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     return [
       'name' => '',
       'display_id' => '',
       'arguments' => [],
-      'display_on' => static::DISPLAY_ON_BOTH,
-    ] + parent::getDefaultProperties();
+      'display_on' => WebformElementDisplayOnInterface::DISPLAY_ON_BOTH,
+    ] + parent::defineDefaultProperties();
   }
+
+  /****************************************************************************/
 
   /**
    * {@inheritdoc}
@@ -68,7 +71,7 @@ class View extends WebformMarkupBase {
       '#message_storage' => WebformMessageElement::STORAGE_SESSION,
       '#states' => [
         'visible' => [
-          ':input[name="properties[display_on]"]' => ['!value' => static::DISPLAY_ON_VIEW],
+          ':input[name="properties[display_on]"]' => ['!value' => WebformElementDisplayOnInterface::DISPLAY_ON_VIEW],
         ],
       ],
     ];
@@ -155,7 +158,7 @@ class View extends WebformMarkupBase {
     $display_on = (!empty($properties['#display_on']))
       ? $properties['#display_on']
       : $this->getDefaultProperty('display_on');
-    if (in_array($display_on, [static::DISPLAY_ON_BOTH, static::DISPLAY_ON_FORM])) {
+    if (in_array($display_on, [WebformElementDisplayOnInterface::DISPLAY_ON_BOTH, WebformElementDisplayOnInterface::DISPLAY_ON_FORM])) {
       if (isset($display['display_options']['filters'])) {
         $filters = $display['display_options']['filters'];
       }

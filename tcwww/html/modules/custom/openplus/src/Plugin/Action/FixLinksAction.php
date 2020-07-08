@@ -41,8 +41,7 @@ class FixLinksAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
 
     //$this->messenger()->addMessage($entity->label() . ' - ' . $entity->language()->getId() . ' - ' . $entity->id());
     //return sprintf('Example action (configuration: %s)', print_r($this->configuration, TRUE));
-    $body = $entity->get('body')->first()->getValue();
-    $body = $body['value'];
+    $body = $entity->get('body')->value;
 
     $pattern = '/<a\s+([^>]*?\s+)?href="([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];

@@ -35,7 +35,9 @@
             "url": "https://packages.drupal.org/8"
         }
     ],
-    "require": {},
+    "require": {
+      "drupal/core": "^8 || ^9"
+    },
     "require-dev": {
         "drupal/coder": "^8.2",
         "jakub-onderka/php-parallel-lint": "^0.9.2",

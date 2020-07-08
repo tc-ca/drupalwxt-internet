@@ -9,6 +9,11 @@ blazy:
   js:
     /libraries/blazy/blazy.js: { weight: -4 }
 
+base:
+  css:
+    component:
+      css/blazy.css: {}
+
 filter:
   css:
     component:
@@ -18,6 +23,8 @@ loading:
   css:
     component:
       css/components/blazy.loading.css: {}
+  dependencies:
+    - blazy/base
 
 fx.blur:
   css:
@@ -45,15 +52,21 @@ grid:
   css:
     component:
       css/components/blazy.grid.css: {}
+  dependencies:
+    - blazy/base
 
 column:
   css:
     component:
       css/components/blazy.column.css: {}
+  dependencies:
+    - blazy/base
 
 dblazy:
   js:
     js/dblazy.js: { weight: -4 }
+  dependencies:
+    - blazy/base
 
 # @todo adjust weights to use hundredth decimals.
 bio:
@@ -72,7 +85,7 @@ load:
   js:
     js/blazy.load.js: { weight: -1.5 }
   dependencies:
-    - core/drupal
+    - core/drupal.debounce
     - blazy/blazy
     - blazy/dblazy
     - blazy/loading

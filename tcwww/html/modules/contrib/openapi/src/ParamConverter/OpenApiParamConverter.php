@@ -2,8 +2,8 @@
 
 namespace Drupal\openapi\ParamConverter;
 
+use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\ParamConverter\ParamConverterInterface;
 
 use Symfony\Component\Routing\Route;
@@ -37,7 +37,7 @@ class OpenApiParamConverter implements ParamConverterInterface {
     try {
       $generator = $this->openApiGeneratorManager->createInstance($value);
     }
-    catch (PluginNotFoundException $e) {
+    catch (PluginException $e) {
       // Plugin Not found, we can't convert it the param.
       return NULL;
     }

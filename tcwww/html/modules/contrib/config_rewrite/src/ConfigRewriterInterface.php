@@ -10,7 +10,7 @@ interface ConfigRewriterInterface {
   /**
    * Extension sub-directory containing default configuration for installation.
    */
-  const CONFIG_REWRITE_DIRECTORY = 'config/rewrite';
+  public const CONFIG_REWRITE_DIRECTORY = 'config/rewrite';
 
   /**
    * Rewrites module config.
@@ -21,16 +21,13 @@ interface ConfigRewriterInterface {
   public function rewriteModuleConfig($module);
 
   /**
-   * Returns rewritten configuration.
-   *
    * @param array $original_config
-   *   The original configuration array to rewrite.
    * @param array $rewrite
-   *   An array of configuration rewrites.
+   * @param string $config_name
+   * @param string $extensionName
    *
    * @return array
-   *   The rewritten config.
    */
-  public function rewriteConfig($original_config, $rewrite);
+  public function rewriteConfig($original_config, $rewrite, $config_name, $extensionName);
 
 }

@@ -9,6 +9,8 @@ use Drupal\content_moderation\Plugin\WorkflowType\ContentModerationInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
+use Drupal\Core\Entity\RevisionableInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\lightning_core\Element;
 use Drupal\lightning_core\OverrideHelper as Override;
@@ -20,6 +22,54 @@ use Drupal\views\Entity\View;
 use Drupal\views\ViewEntityInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\workflows\Entity\Workflow;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function lightning_workflow_form_node_type_add_form_alter(array &$form) {
+  $map = function (Workflow $workflow) {
+    return $workflow->label();
+  };
+  $workflows = array_map($map, Workflow::loadMultipleByType('content_moderation'));
+
+  $form['workflow']['workflow'] = [
+    '#type' => 'select',
+    '#title' => t('Add this content type to workflow'),
+    '#options' => $workflows,
+    '#access' => (bool) $workflows,
+    '#empty_value' => '',
+  ];
+  if (array_key_exists('editorial', $workflows)) {
+    $form['workflow']['workflow']['#default_value'] = 'editorial';
+  }
+
+  // If Field UI is installed, there will be a button to save the content type
+  // and add more fields.
+  if (isset($form['actions']['save_continue'])) {
+    $submit_handlers = &$form['actions']['save_continue']['#submit'];
+  }
+  else {
+    $submit_handlers = &$form['actions']['submit']['#submit'];
+  }
+
+  $index = array_search('::save', $submit_handlers);
+  if (is_integer($index)) {
+    array_splice($submit_handlers, $index, 0, ['_lightning_workflow_node_type_add_form_submit']);
+  }
+}
+
+/**
+ * Submit handler for node_type_add_form.
+ */
+function _lightning_workflow_node_type_add_form_submit(array &$form, FormStateInterface $form_state) {
+  $workflow = $form_state->getValue('workflow');
+  if ($workflow) {
+    /** @var \Drupal\node\NodeTypeInterface $node_type */
+    $node_type = $form_state->getFormObject()->getEntity();
+    assert($node_type->isNew());
+    $node_type->setThirdPartySetting('lightning_workflow', 'workflow', $workflow);
+  }
+}
 
 /**
  * Implements hook_ENTITY_TYPE_insert().
@@ -146,6 +196,16 @@ function lightning_workflow_entity_view_alter(array &$build, EntityInterface $en
     if ($entity instanceof EntityPublishedInterface && $entity->isPublished() && RouteSubscriber::isViewing($entity)) {
       unset($build['#attributes']['data-quickedit-entity-id']);
     }
+  }
+
+  // Ensure that Quick Edit will be enabled on the latest revision. This
+  // implements the logic in
+  // https://www.drupal.org/project/drupal/issues/2815221, but without needing
+  // to patch core. This can all be removed when that issue is committed; see
+  // also \Drupal\lightning_workflow\Routing\RouteSubscriber.
+  $entity_type_id = $entity->getEntityTypeId();
+  if (isset($build['#contextual_links']["{$entity_type_id}_revision"]) && $entity instanceof RevisionableInterface && $entity->isLatestRevision()) {
+    $build['#contextual_links']["{$entity_type_id}_latest_version"] = $build['#contextual_links']["{$entity_type_id}_revision"];
   }
 }
 

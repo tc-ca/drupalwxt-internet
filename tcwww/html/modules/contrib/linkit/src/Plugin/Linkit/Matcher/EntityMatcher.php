@@ -160,7 +160,7 @@ class EntityMatcher extends ConfigurableMatcherBase {
       }
 
       $summery[] = $this->t('Bundle filter: @bundle_filter', [
-        '@bundle_filter' => $has_bundle_filter ? implode(', ', $bundles) : t('None'),
+        '@bundle_filter' => $has_bundle_filter ? implode(', ', $bundles) : $this->t('None'),
       ]);
 
       $summery[] = $this->t('Group by bundle: @bundle_grouping', [
@@ -497,7 +497,7 @@ class EntityMatcher extends ConfigurableMatcherBase {
     // by $entity->toUrl().
     if ($entity->getEntityTypeId() == 'media') {
       $standalone_url = \Drupal::config('media.settings')->get('standalone_url');
-      if ($standalone_url) {
+      if (!$standalone_url) {
         // Strip "/edit".
         $path = substr($path, 0, -5);
       }

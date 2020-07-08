@@ -35,21 +35,21 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
   protected $dateFormatter;
 
   /**
-   * Webform submission storage.
+   * The webform submission storage.
    *
    * @var \Drupal\webform\WebformSubmissionStorageInterface
    */
   protected $submissionStorage;
 
   /**
-   * Node type storage.
+   * The node type storage.
    *
    * @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface
    */
   protected $nodeTypeStorage;
 
   /**
-   * Field config storage.
+   * The field config storage.
    *
    * @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface
    */
@@ -174,7 +174,7 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
       'data' => $this->t('Type'),
       'class' => [RESPONSIVE_PRIORITY_MEDIUM],
     ];
-    if ($webform->hasVariant()) {
+    if ($webform->hasVariants()) {
       $element_keys = $webform->getElementsVariant();
       foreach ($element_keys as $element_key) {
         $element = $webform->getElement($element_key);
@@ -220,7 +220,7 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
       '#url' => $entity->toUrl(),
     ];
     $row['type'] = node_get_type_label($entity);
-    if ($webform->hasVariant()) {
+    if ($webform->hasVariants()) {
       $variant_element_keys = $webform->getElementsVariant();
       foreach ($variant_element_keys as $variant_element_key) {
         $variants = [];
@@ -296,16 +296,16 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
       return NULL;
     }
 
-    if ($entity->$webform_field_name->target_id != $this->webform->id()) {
+    if ($entity->$webform_field_name->target_id !== $this->webform->id()) {
       return NULL;
     }
 
     $webform_field = $entity->$webform_field_name;
-    if ($webform_field->status == WebformInterface::STATUS_OPEN) {
+    if ($webform_field->status === WebformInterface::STATUS_OPEN) {
       return $this->t('Open');
     }
 
-    if ($webform_field->status == WebformInterface::STATUS_SCHEDULED) {
+    if ($webform_field->status === WebformInterface::STATUS_SCHEDULED) {
       $is_opened = TRUE;
       if ($webform_field->open && strtotime($webform_field->open) > time()) {
         $is_opened = FALSE;
@@ -361,6 +361,14 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
         'url' => Url::fromRoute('entity.node.webform.results_submissions', $route_parameters),
       ];
     }
+    if ($entity->access('update')
+      && $this->webform->getSetting('share_node', TRUE)
+      && $this->moduleHandler()->moduleExists('webform_share')) {
+      $operations['share'] = [
+        'title' => $this->t('Share'),
+        'url' => Url::fromRoute('entity.node.webform.share_embed', $route_parameters),
+      ];
+    }
     if ($entity->access('delete')) {
       $operations['delete'] = [
         'title' => $this->t('Delete'),
@@ -390,7 +398,7 @@ class WebformNodeReferencesListController extends EntityListBuilder implements C
     // @see https://www.drupal.org/node/2585169
     $local_actions = [];
 
-    if ($this->webform->hasVariant()) {
+    if ($this->webform->hasVariants()) {
       foreach ($this->nodeTypes as $bundle => $node_type) {
         if ($node_type->access('create')) {
           $local_actions['webform_node.references.add_form'] = [

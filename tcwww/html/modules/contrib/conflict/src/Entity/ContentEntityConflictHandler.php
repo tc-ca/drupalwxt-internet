@@ -3,6 +3,7 @@
 namespace Drupal\conflict\Entity;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\conflict\ConflictResolver\ConflictResolverManagerInterface;
 use Drupal\conflict\FieldComparatorManagerInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -18,6 +19,7 @@ use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class ContentEntityConflictHandler implements EntityConflictHandlerInterface, EntityHandlerInterface {
 
@@ -71,6 +73,13 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
   protected $fieldComparatorManager;
 
   /**
+   * The conflict manager.
+   *
+   * @var \Drupal\conflict\ConflictResolver\ConflictResolverManagerInterface
+   */
+  protected $conflictManager;
+
+  /**
    * EntityConflictResolutionHandlerDefault constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
@@ -83,14 +92,17 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
    *   The key value factory for storing the conflict original entity.
    * @param \Drupal\conflict\FieldComparatorManagerInterface $field_comparator_manager
    *   The field comparator manager.
+   * @param \Drupal\conflict\ConflictResolver\ConflictResolverManagerInterface $conflict_manager
+   *   The conflict manager.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, KeyValueStoreInterface $key_value_original_entity, FieldComparatorManagerInterface $field_comparator_manager) {
+  public function __construct(EntityTypeInterface $entity_type, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, KeyValueStoreInterface $key_value_original_entity, FieldComparatorManagerInterface $field_comparator_manager, ConflictResolverManagerInterface $conflict_manager) {
     $this->entityType = $entity_type;
     $this->entityTypeManager = $entity_type_manager;
     $this->storage = $entity_type_manager->getStorage($entity_type->id());
     $this->moduleHandler = $module_handler;
     $this->keyValueOriginalEntity = $key_value_original_entity;
     $this->fieldComparatorManager = $field_comparator_manager;
+    $this->conflictManager = $conflict_manager;
   }
 
   /**
@@ -102,7 +114,8 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
       $container->get('entity_type.manager'),
       $container->get('module_handler'),
       $container->get('keyvalue.expirable')->get('conflict_original_entity'),
-      $container->get('conflict.field_comparator.manager')
+      $container->get('conflict.field_comparator.manager'),
+      $container->get('conflict_resolver.manager')
     );
   }
 
@@ -162,6 +175,16 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
     }
 
     if ($entity instanceof ContentEntityInterface && !$entity->isNew()) {
+      if ($entity->isDefaultRevision()) {
+        /** @var \Drupal\Core\Entity\ContentEntityInterface $entity_server */
+        $id = $entity->id();
+        $entity_server = $this->storage->loadUnchanged($id);
+      }
+      else {
+        // TODO - how to deal with forward revisions?
+        return;
+      }
+
       $input = $form_state->getUserInput();
       $hash_path = $form['#parents'];
       $hash_path[] = 'conflict_entity_original_hash';
@@ -174,14 +197,10 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
       // and not the unchanged entity.
       $entity->{static::CONFLICT_ENTITY_ORIGINAL} = $entity_original;
 
-      /** @var \Drupal\Core\Entity\ContentEntityInterface $entity_server */
-      $id = $entity->id();
-      $entity_server = $this->storage->loadUnchanged($id);
-      $edited_langcode = $entity->language()->getId();
-
       // Currently we do not support concurrent editing in the following cases:
       //  - editing a translation that is removed on the newest version.
       //  - while creating a new translation.
+      $edited_langcode = $entity->language()->getId();
       if (!$entity_server->hasTranslation($edited_langcode)) {
         if ($entity_original->hasTranslation($edited_langcode)) {
           // Currently being on a translation that has been removed in the
@@ -224,9 +243,14 @@ class ContentEntityConflictHandler implements EntityConflictHandlerInterface, En
         // Auto merge entity metadata.
         $this->autoMergeEntityMetadata($entity, $entity_server, $form, $form_state);
 
+        // Run the entities through the event system for conflict discovery
+        // and resolution.
+        $context = new ParameterBag(['form' => $form, 'form_state' => $form_state, 'form_display' => $form_display]);
+        $conflicts = $this->conflictManager->resolveConflicts($entity, $entity_server, $entity_original, $entity, $context);
+
         // In case the entity still has conflicts then a user interaction is
         // needed.
-        $needs_merge = $this->needsMerge($entity, $entity_original, $entity_server, TRUE);
+        $needs_merge = !empty($conflicts) || $this->needsMerge($entity, $entity_original, $entity_server, TRUE);
         if ($needs_merge) {
           // Prepare the entity for conflict resolution.
           $this->prepareConflictResolution($entity, $entity_server);

@@ -62,8 +62,16 @@ function contact_storage_form_contact_form_form_alter(&$form, FormStateInterface
     '#description' => t('Optionally add an URL alias to the contact form.'),
   ];
   if (!$contact_form->isNew()) {
-    if ($alias = \Drupal::service('path.alias_storage')->load(['source' => '/' . $contact_form->toUrl('canonical')->getInternalPath()])) {
-      $form['contact_storage_url_alias']['#default_value'] = $alias['alias'];
+    $aliases = \Drupal::entityTypeManager()
+      ->getStorage('path_alias')
+      ->loadByProperties([
+        'path' => '/' . $contact_form->toUrl()->getInternalPath(),
+      ]);
+    if ($aliases) {
+      /** @var \Drupal\path_alias\PathAliasInterface $alias */
+      $alias = reset($aliases);
+      $form_state->set('path_alias_id', $alias->id());
+      $form['contact_storage_url_alias']['#default_value'] = $alias->getAlias();
     }
   }
 
@@ -154,23 +162,33 @@ function contact_storage_contact_form_form_validate(&$form, FormStateInterface &
  *   The current state of the form.
  */
 function contact_storage_contact_form_form_submit(&$form, FormStateInterface &$formState) {
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+
   $entity = $formState->getFormObject()->getEntity();
-  $old_alias = \Drupal::service('path.alias_storage')->load(['source' => '/' . $entity->toUrl('canonical')->getInternalPath()]);
+
+  if ($old_alias = $formState->get('path_alias_id')) {
+    $old_alias = $alias_storage->load($old_alias);
+  }
   $new_alias = $formState->getValue('contact_storage_url_alias');
   // If there isn't an alias, set a new one.
   if (!$old_alias) {
     if ($new_alias) {
-      \Drupal::service('path.alias_storage')->save('/' . $entity->toUrl('canonical')->getInternalPath(), $formState->getValue('contact_storage_url_alias'));
+      $alias_storage->create([
+        'path' => '/' . $entity->toUrl()->getInternalPath(),
+        'alias' => $formState->getValue('contact_storage_url_alias'),
+      ])->save();
     }
   }
   else {
     // Delete old alias if user erased it.
     if ($old_alias && !$new_alias) {
-      \Drupal::service('path.alias_storage')->delete(['pid' => $old_alias['pid']]);
+      $old_alias->delete();
     }
     // Only save a non-empty alias.
     elseif ($new_alias) {
-      \Drupal::service('path.alias_storage')->save('/' . $entity->toUrl('canonical')->getInternalPath(), $formState->getValue('contact_storage_url_alias'), LanguageInterface::LANGCODE_NOT_SPECIFIED, $old_alias['pid']);
+      $old_alias
+        ->setAlias($formState->getValue('contact_storage_url_alias'))
+        ->save();
     }
   }
 }
@@ -509,8 +527,13 @@ function contact_storage_maximum_submissions_user(ContactFormInterface $contact_
  * Implements hook_ENTITY_TYPE_delete() for 'contact_form'.
  */
 function contact_storage_contact_form_delete(EntityInterface $entity) {
+  $alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+
   // Delete all aliases with this contact form as a source.
-  \Drupal::service('path.alias_storage')->delete(['source' => '/' . $entity->toUrl('canonical')->getInternalPath()]);
+  $aliases = $alias_storage->loadByProperties([
+    'path' => '/' . $entity->toUrl()->getInternalPath(),
+  ]);
+  $alias_storage->delete($aliases);
 }
 
 /**

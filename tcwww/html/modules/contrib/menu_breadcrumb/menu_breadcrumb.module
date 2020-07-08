@@ -28,7 +28,7 @@ which in Drupal 8 is extended as follows:
 <ul>
   <li>
 If the "Taxonomy Attachment" option is selected for a menu,
-and if the current page belongs to a taxonomy that is on that menu,
+and if the current page belongs to a taxonomy on that menu,
 it will inherit the taxonomy page's menu breadcrumbs (e.g., to provide
 breadcrumbs for blog entries that aren't on menus themselves).
   </li>
@@ -62,18 +62,30 @@ The order in which menus are scanned can be changed by
 dragging &amp; dropping the menus on that list.
 </p>
 <p>
+If the current page exists more than once <u>on the same menu</u>, the
+active_trail service returns more than one menu trail but the breadcrumb
+builder has no definitive way of choosing which corresponds to the
+chosen menu path (currently it will return the one with the lowest Menu
+Link ID: generally the oldest on the menu). If the duplication cannot be avoided by moving
+the duplicates to separate menus and setting menu priorities appropriately,
+you can try setting the active_trail of duplicated items by context
+(e.g. <a target="_blank" href="https://www.drupal.org/project/context_active_trail">Context Active Trail</a>)
+instead of adding them more than once your menu
+(see <a target="_blank" href="https://www.drupal.org/project/menu_breadcrumb/issues/3113126">Issue 3113126</a>).
+</p>
+<p>
 Taxonomy terms are searched in the order that their entity reference fields
 appear in the current page's field listing.
 One way to change an unwanted taxonomy term taking precendence over the one
-you want to "attach" on would be to change the order of those fields.
+on which you want to "attach" would be to change the order of those fields.
 </p>
 <p>
-When the current page is displaying the breadcrumbs of its taxonomy parent,
+When the current page displays the breadcrumbs of its taxonomy parent,
 the breadcrumb for that taxonomy is <u>always</u> a link regardless of the
 "Show current page as link" option.  (This can be confusing until we remember
 that this breadcrumb <u>is not</u> for the current page, and must be a link
 because the current page is no anchored at all in the menu&hellip; unlike a
-breacrumb that isn't taxonomy-attached.)
+breadcrumb that isn't taxonomy-attached.)
 </p>
 EOT;
       break;
@@ -83,7 +95,7 @@ EOT;
       $output = <<<EOT
 <p>
 Select the first option to enable the Menu Breadcrumb module,
-which will generate a breadcrumb trail the first match
+which will generate a breadcrumb trail according to the first match
 in the selected menu below: first looking for the current page on a menu
 (unless avoiding that menu due to language settings),
 and then seeing if the current page belongs to a taxonomy on that menu

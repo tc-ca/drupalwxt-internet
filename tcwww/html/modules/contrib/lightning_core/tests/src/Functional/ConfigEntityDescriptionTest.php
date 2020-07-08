@@ -12,6 +12,11 @@ class ConfigEntityDescriptionTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'block',
     'field_ui',

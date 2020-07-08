@@ -22,11 +22,6 @@ class AcquiaConnectorSpiTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * {@inheritdoc}
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * Test privileged user.
    *
    * @var object
@@ -538,11 +533,11 @@ class AcquiaConnectorSpiTest extends BrowserTestBase {
     $submit_button = 'Save configuration';
     $this->drupalPostForm($this->settingsPath, $edit_fields, $submit_button);
 
-    $def_timestamp = \Drupal::config('acquia_connector.settings')->get('spi.def_timestamp');
+    $def_timestamp = \Drupal::state()->get('acquia_spi_data.def_timestamp', 0);
     $this->assertNotEqual($def_timestamp, 0, 'SPI definition timestamp set');
-    $def_vars = \Drupal::config('acquia_connector.settings')->get('spi.def_vars');
+    $def_vars = \Drupal::state()->get('acquia_spi_data.def_vars', []);
     $this->assertTrue(!empty($def_vars), 'SPI definition variable set');
-    \Drupal::configFactory()->getEditable('acquia_connector.settings')->set('spi.def_waived_vars', ['test_variable_3'])->save();
+    \Drupal::state()->set('acquia_spi_data.def_waived_vars', ['test_variable_3']);
     // Test that new variables are in SPI data.
     $spi = new SpiController(\Drupal::service('acquia_connector.client'), \Drupal::service('config.factory'));
     $spi_data = $spi->get();

@@ -26,12 +26,13 @@ class SimpleGMapFormatter extends FormatterBase {
    */
   public static function defaultSettings() {
     return [
-      "include_map" => "1",
-      "include_static_map" => "0",
-      "include_link" => "0",
-      "include_text" => "0",
+      "include_map" => TRUE,
+      "include_static_map" => FALSE,
+      "include_link" => FALSE,
+      "include_text" => FALSE,
       "iframe_height" => "200",
       "iframe_width" => "200",
+      "iframe_title" => "",
       "static_scale" => 1,
       "zoom_level" => "14",
       "link_text" => "View larger map",
@@ -68,6 +69,9 @@ class SimpleGMapFormatter extends FormatterBase {
       '#description' => $this->t('Static Maps will not work without an API key. See the <a href="https://developers.google.com/maps/documentation/static-maps" target="_blank">Static Maps API page</a> to learn more and obtain a key.'),
       '#states' => [
         'visible' => [
+          ":input[name*='include_static_map']" => ['checked' => TRUE],
+        ],
+        'required' => [
           ':input[name*="include_static_map"]' => ['checked' => TRUE],
         ],
       ],
@@ -85,6 +89,12 @@ class SimpleGMapFormatter extends FormatterBase {
       '#default_value' => $this->getSetting('iframe_height'),
       '#description' => $this->t('You can set sizes in px or percent (ex: 600px or 100%). Note that static maps only accept sizes in pixels, without the suffix px (ex: 600).'),
       '#size' => 10,
+    ];
+    $elements['iframe_title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Title of the iframe for embedded map'),
+      '#default_value' => $this->getSetting('iframe_title'),
+      '#description' => $this->t('The embedded map is in an iframe HTML tag, which should have a title attribute for screen readers (not shown on the page). Use [address] to insert the address text in the title.'),
     ];
     $elements['static_scale'] = [
       '#title' => $this->t('Load Retina sized static image'),
@@ -185,8 +195,15 @@ class SimpleGMapFormatter extends FormatterBase {
 
     $include_map = $this->getSetting('include_map');
     if ($include_map) {
-      $summary[] = $this->t('Dynamic map: @width x @height', ['@width' => $this->getSetting('iframe_width'), '@height' => $this->getSetting('iframe_height')]);
+      $summary[] = $this->t('Dynamic map: @width x @height', [
+        '@width' => $this->getSetting('iframe_width'),
+        '@height' => $this->getSetting('iframe_height'),
+      ]);
+      $summary[] = $this->t('Title of the iframe: @title', [
+        '@title' => $this->getSetting('iframe_title'),
+      ]);
     }
+
     $include_static_map = $this->getSetting('include_static_map');
     if ($include_static_map) {
       $summary[] = $this->t('Static map: @width x @height, Scale: @static_scale', [
@@ -195,9 +212,12 @@ class SimpleGMapFormatter extends FormatterBase {
         '@static_scale' => $this->getSetting('static_scale'),
       ]);
     }
+
     $include_link = $this->getSetting('include_link');
     if ($include_link) {
-      $summary[] = $this->t('Map link: @link_text', ['@link_text' => $this->getSetting('link_text')]);
+      $summary[] = $this->t('Map link: @link_text', [
+        '@link_text' => $this->getSetting('link_text'),
+      ]);
     }
 
     if ($include_link || $include_map || $include_static_map) {
@@ -217,15 +237,10 @@ class SimpleGMapFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-
     $element = [];
     $settings = $this->getSettings();
 
-    $embed = (int) $settings['include_map'] ? TRUE : FALSE;
-    $static = (int) $settings['include_static_map'] ? TRUE : FALSE;
-    $link = (int) $settings['include_link'] ? TRUE : FALSE;
-    $text = (int) $settings['include_text'] ? TRUE : FALSE;
-
+    $include_text = $settings['include_text'];
     $zoom_level = (int) $settings['zoom_level'];
 
     // For some reason, static gmaps accepts a different value for map type.
@@ -249,18 +264,23 @@ class SimpleGMapFormatter extends FormatterBase {
     foreach ($items as $delta => $item) {
       $url_value = urlencode($item->value);
       $address_value = $item->value;
-      $address = $text ? $address_value : '';
+      $address = $include_text ? $address_value : '';
       $text_for_link = ($settings['link_text'] == 'use_address') ? $address_value : $settings['link_text'];
       $link_text = ['#plain_text' => $text_for_link];
+      $iframe_title = $settings['iframe_title'];
+      $iframe_title_value = [
+        '#plain_text' => str_replace('[address]', $address_value, $iframe_title),
+      ];
 
       $element[$delta] = [
         '#theme' => 'simple_gmap_output',
-        '#include_map' => $embed,
-        '#include_static_map' => $static,
-        '#include_link' => $link,
-        '#include_text' => $text,
+        '#include_map' => $settings['include_map'],
+        '#include_static_map' => $settings['include_static_map'],
+        '#include_link' => $settings['include_link'],
+        '#include_text' => $settings['include_text'],
         '#width' => ['#plain_text' => $settings['iframe_width']],
         '#height' => ['#plain_text' => $settings['iframe_height']],
+        '#iframe_title' => $iframe_title_value,
         '#static_scale' => (int) $settings['static_scale'],
         '#url_suffix' => $url_value,
         '#zoom' => $zoom_level,
@@ -272,6 +292,7 @@ class SimpleGMapFormatter extends FormatterBase {
         '#apikey' => $settings['apikey'],
       ];
     }
+
     return $element;
   }
 

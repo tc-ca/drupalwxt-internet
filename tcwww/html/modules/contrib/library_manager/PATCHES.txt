@@ -5,3 +5,7 @@ Patches applied to this directory:
 Source: https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch
 
 
+3143565 - Condition logic issue skips libraries that should be attached
+Source: https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch
+
+

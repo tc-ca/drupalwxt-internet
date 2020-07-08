@@ -88,7 +88,7 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
     'min_size' => 0,
     'max_size' => 0,
     'act_as_queue' => FALSE,
-    'reverse_in_admin' => FALSE,
+    'reverse' => FALSE,
   ];
 
   /**
@@ -143,26 +143,26 @@ class EntityQueue extends ConfigEntityBundleBase implements EntityQueueInterface
   /**
    * {@inheritdoc}
    */
-  public function getReverseInAdmin() {
-    return isset($this->queue_settings['reverse_in_admin']) ? $this->queue_settings['reverse_in_admin'] : FALSE;
+  public function isReversed() {
+    return isset($this->queue_settings['reverse']) ? $this->queue_settings['reverse'] : FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getEntitySettings() {
-    return $this->entity_settings;
+    return $this->entity_settings + [
+      // Ensure that we always have an empty array by default for the
+      // 'handler_settings', regardless of the incoming form values.
+      'handler_settings' => [],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getQueueSettings() {
-    return $this->queue_settings + [
-      // Ensure that we always have an empty array by default for the
-      // 'handler_settings', regardless of the incoming form values.
-      'handler_settings' => []
-    ];
+    return $this->queue_settings;
   }
 
   /**

@@ -13,12 +13,6 @@ use Drupal\Core\Url;
  *
  * @see \Drupal\moderation_sidebar\Controller\ModerationSidebarController::sideBar()
  */
-function openplus_migrate_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
-  if ($entity->getEntityTypeId() == 'node') {
-    $build['migrate_info'] = views_embed_view('migation_information', 'block_1', $entity->id());
-    unset($build['actions']);
-  }
-}
 
 function openplus_migrate_entity_operation_alter(array &$operations, \Drupal\Core\Entity\EntityInterface $entity) {
   // Add export link for migration groups

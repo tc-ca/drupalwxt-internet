@@ -17,6 +17,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\inline_entity_form\TranslationHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Utility\Crypt;
 
 /**
  * Complex inline widget.
@@ -213,9 +214,9 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
     ]);
 
     // Assign a unique identifier to each IEF widget.
-    // Since $parents can get quite long, sha1() ensures that every id has
+    // Since $parents can get quite long, hashing ensures that every id has
     // a consistent and relatively short length while maintaining uniqueness.
-    $this->setIefId(sha1(implode('-', $parents)));
+    $this->setIefId(Crypt::hashBase64(implode('-', $parents)));
 
     // Get the langcode of the parent entity.
     $parent_langcode = $items->getEntity()->language()->getId();
@@ -240,8 +241,6 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
     if ($element['#type'] == 'details') {
       $element['#open'] = !$this->getSetting('collapsed');
     }
-
-    $element['#attached']['library'][] = 'inline_entity_form/widget';
 
     $this->prepareFormState($form_state, $items, $element['#translating']);
     $entities = $form_state->get(['inline_entity_form', $this->getIefId(), 'entities']);
@@ -525,6 +524,9 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
       }
     }
     else {
+      // Make a delta key bigger than all existing ones, without assuming that
+      // the keys are strictly consecutive.
+      $new_key = $entities ? max(array_keys($entities)) + 1 : 0;
       // There's a form open, show it.
       if ($form_state->get(['inline_entity_form', $this->getIefId(), 'form']) == 'add') {
         $element['form'] = [
@@ -534,9 +536,9 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
             'add',
             $this->determineBundle($form_state),
             $parent_langcode,
-            NULL,
-            array_merge($parents, ['inline_entity_form'])
-          )
+            $new_key,
+            array_merge($parents, [$new_key])
+          ),
         ];
         $element['form']['inline_entity_form']['#process'] = [
           ['\Drupal\inline_entity_form\Element\InlineEntityForm', 'processEntityForm'],
@@ -552,7 +554,7 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
           '#ief_id' => $this->getIefId(),
           // Used by Field API and controller methods to find the relevant
           // values in $form_state.
-          '#parents' => array_merge($parents),
+          '#parents' => array_merge($parents, [$new_key]),
           '#entity_type' => $target_type,
           '#ief_labels' => $this->getEntityTypeLabels(),
           '#match_operator' => $this->getSetting('match_operator'),
@@ -598,7 +600,7 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
 
     $field_name = $this->fieldDefinition->getName();
     $parents = array_merge($form['#parents'], [$field_name, 'form']);
-    $ief_id = sha1(implode('-', $parents));
+    $ief_id = Crypt::hashBase64(implode('-', $parents));
     $this->setIefId($ief_id);
     $widget_state = &$form_state->get(['inline_entity_form', $ief_id]);
     foreach ($widget_state['entities'] as $key => $value) {
@@ -619,13 +621,13 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
         $values[] = ['entity' => $entity];
       }
       elseif ($widget_state['form'] == 'ief_add_existing') {
-        $element = NestedArray::getValue($form, [$field_name, 'widget', 'form'])['entity_id'];
+        $parent = NestedArray::getValue($form, [$field_name, 'widget', 'form']);
+        $element = isset($parent['entity_id']) ? $parent['entity_id'] : [];
         if (!empty($element['#value'])) {
           $options = [
             'target_type' => $element['#target_type'],
             'handler' => $element['#selection_handler'],
-            'handler_settings' => $element['#selection_settings'],
-          ];
+          ] + $element['#selection_settings'];
           /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface $handler */
           $handler = $this->selectionManager->getInstance($options);
           $input_values = $element['#tags'] ? Tags::explode($element['#value']) : [$element['#value']];
@@ -879,9 +881,6 @@ class InlineEntityFormComplex extends InlineEntityFormBase implements ContainerF
     $element = inline_entity_form_get_element($form, $form_state);
     $remove_button = $form_state->getTriggeringElement();
     $delta = $remove_button['#ief_row_delta'];
-
-    /** @var \Drupal\Core\Field\FieldDefinitionInterface $instance */
-    $instance = $form_state->get(['inline_entity_form', $element['#ief_id'], 'instance']);
 
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $element['entities'][$delta]['form']['#entity'];

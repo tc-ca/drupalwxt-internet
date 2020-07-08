@@ -5,11 +5,16 @@ namespace Drupal\entityqueue;
 use Drupal\entityqueue\Entity\EntityQueue;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
+/**
+ * Provides dynamic permissions for the Entityqueue module.
+ */
 class EntityQueuePermissions {
 
   use StringTranslationTrait;
 
   /**
+   * Returns an array of queue permissions.
+   *
    * @return array
    */
   public function permissions() {
@@ -23,7 +28,10 @@ class EntityQueuePermissions {
   }
 
   /**
+   * Returns a set of permissions for a specific queue.
+   *
    * @param \Drupal\entityqueue\Entity\EntityQueue $queue
+   *   An EntityQueue entity.
    *
    * @return array
    */

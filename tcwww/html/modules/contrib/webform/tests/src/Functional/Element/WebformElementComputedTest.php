@@ -8,7 +8,7 @@ use Drupal\webform\Entity\WebformSubmission;
 /**
  * Tests for computed elements.
  *
- * @group Webform
+ * @group webform
  */
 class WebformElementComputedTest extends WebformElementBrowserTestBase {
 
@@ -33,7 +33,7 @@ class WebformElementComputedTest extends WebformElementBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create filters.
@@ -55,7 +55,7 @@ class WebformElementComputedTest extends WebformElementBrowserTestBase {
     $this->assertRaw('<b class="webform_computed_token_auto">simple string:</b> This is a string<br />');
 
     // Get computed token preview.
-    $this->drupalPostForm('/webform/test_element_computed_token', [], t('Preview'));
+    $this->drupalPostForm('/webform/test_element_computed_token', [], 'Preview');
 
     // Check token auto detection.
     $this->assertRaw('<b class="webform_computed_token_auto">simple string:</b> This is a string<br />');
@@ -94,7 +94,7 @@ class WebformElementComputedTest extends WebformElementBrowserTestBase {
       ->condition('name', ['webform_computed_token_auto', 'webform_computed_token_html', 'webform_computed_token_text'], 'IN')
       ->execute()
       ->fetchAll();
-    $this->assert(empty($result));
+    $this->assertEmpty($result);
 
     /* Twig */
 
@@ -111,7 +111,7 @@ class WebformElementComputedTest extends WebformElementBrowserTestBase {
     $this->assertFieldByName('webform_computed_twig_spaceless', '<em>This is spaceless</em><br/>');
 
     // Get computed Twig preview.
-    $this->drupalPostForm('/webform/test_element_computed_twig', [], t('Preview'));
+    $this->drupalPostForm('/webform/test_element_computed_twig', [], 'Preview');
 
     // Check Twig auto detection.
     $this->assertRaw('<b class="webform_computed_twig_auto">number:</b> 2 * 2 = 4<br />');

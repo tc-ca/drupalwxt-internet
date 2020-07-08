@@ -34,7 +34,7 @@ class Util {
       $numberFields = 0;
       $rowData = [];
       foreach ($labelValues as $fieldId => $rowDataValue) {
-        if ($style_options['allow_advanced_rendering'] == 1 || $view->field[$labelField]->options['type'] == 'timestamp') {
+        if ($style_options['allow_advanced_rendering'] == 1 || (isset($view->field[$labelField]->options['type']) && $view->field[$labelField]->options['type'] == 'timestamp')) {
           $renderedLabelField = $view->field[$labelField]->advancedRender($row);
         }
         else {

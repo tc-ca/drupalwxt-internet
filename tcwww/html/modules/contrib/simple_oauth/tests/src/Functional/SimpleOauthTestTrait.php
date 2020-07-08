@@ -66,4 +66,19 @@ AwIDAQAB
     $settings->save();
   }
 
+  /**
+   * Base64 url encode.
+   *
+   * @param string $string
+   *   The string to encode.
+   *
+   * @return string
+   *   The encoded string.
+   */
+  public static function base64urlencode($string) {
+    $base64 = base64_encode($string);
+    $base64 = rtrim($base64, "=");
+    return strtr($base64, '+/', '-_');
+  }
+
 }

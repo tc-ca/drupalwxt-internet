@@ -72,7 +72,7 @@ class PasswordHistoryTests extends WebTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, 'Finish');
 
-    $this->assertText('Saved the test Password Policy.');
+    $this->assertText('The password policy test has been added.');
 
     // Login as user2.
     $this->drupalLogin($user2);

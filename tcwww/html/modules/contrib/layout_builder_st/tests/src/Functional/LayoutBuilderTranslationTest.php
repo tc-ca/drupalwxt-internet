@@ -21,6 +21,11 @@ class LayoutBuilderTranslationTest extends ContentTranslationTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'content_translation',
     'contextual',
@@ -73,12 +78,17 @@ class LayoutBuilderTranslationTest extends ContentTranslationTestBase {
     $assert_session->pageTextNotContains('The translated field value');
     $assert_session->pageTextContains('The untranslated field value');
 
+    $add_block_text = 'Add block';
+    if (version_compare(\Drupal::VERSION, '8.8.0', '<')) {
+      $add_block_text = ucwords($add_block_text);
+    }
+
     // Adjust the layout of the original entity.
-    $assert_session->linkExists('Add Block');
-    $this->clickLink('Add Block');
+    $assert_session->linkExists($add_block_text);
+    $this->clickLink($add_block_text);
     $assert_session->linkExists('Powered by Drupal');
     $this->clickLink('Powered by Drupal');
-    $page->pressButton('Add Block');
+    $page->pressButton($add_block_text);
 
     $assert_session->pageTextContains('Powered by Drupal');
 
@@ -181,12 +191,17 @@ class LayoutBuilderTranslationTest extends ContentTranslationTestBase {
     $assert_session->pageTextNotContains('The translated field value');
     $assert_session->pageTextContains('The untranslated field value');
 
+    $add_block_text = 'Add block';
+    if (version_compare(\Drupal::VERSION, '8.8.0', '<')) {
+      $add_block_text = ucwords($add_block_text);
+    }
+
     // Adjust the layout of the original entity.
-    $assert_session->linkExists('Add Block');
-    $this->clickLink('Add Block');
+    $assert_session->linkExists($add_block_text);
+    $this->clickLink($add_block_text);
     $assert_session->linkExists('Powered by Drupal');
     $this->clickLink('Powered by Drupal');
-    $page->pressButton('Add Block');
+    $page->pressButton($add_block_text);
 
     $assert_session->pageTextContains('Powered by Drupal');
 

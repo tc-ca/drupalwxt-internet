@@ -119,7 +119,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
   public function testPreprocessBlazy(array $settings, $use_uri, $iframe, $expected) {
@@ -143,7 +143,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     Blazy::preprocessBlazy($variables);
 
     $image = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
-    $iframe = $iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
+    $iframe = $iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);
 
     $this->assertTrue($image);
     $this->assertTrue($iframe);
@@ -153,12 +153,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Provider for ::testPreprocessBlazy.
    */
   public function providerPreprocessBlazy() {
-    $breakpoints = $this->getDataBreakpoints();
-
     $data[] = [
       [
         'background' => FALSE,
-        'breakpoints' => [],
       ],
       FALSE,
       FALSE,
@@ -167,7 +164,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $data[] = [
       [
         'background' => FALSE,
-        'breakpoints' => [],
       ],
       TRUE,
       FALSE,
@@ -176,7 +172,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $data[] = [
       [
         'background' => TRUE,
-        'breakpoints' => $breakpoints,
         'ratio' => 'fluid',
         'sizes' => '100w',
         'width' => 640,

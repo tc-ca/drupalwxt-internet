@@ -3,7 +3,7 @@
 namespace Drupal\lightning_roles;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * A service for managing the configuration and deployment of content roles.
@@ -18,23 +18,23 @@ class ContentRoleManager {
   protected $configFactory;
 
   /**
-   * The entity query factory.
+   * The node type entity storage handler.
    *
-   * @var \Drupal\Core\Entity\Query\QueryFactory
+   * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected $entityQuery;
+  protected $nodeTypeStorage;
 
   /**
    * ContentRoleManager constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
-   *   The entity query factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, QueryFactory $entity_query) {
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->configFactory = $config_factory;
-    $this->entityQuery = $entity_query;
+    $this->nodeTypeStorage = $entity_type_manager->getStorage('node_type');
   }
 
   /**
@@ -59,10 +59,10 @@ class ContentRoleManager {
     $role['permissions'] = array_merge($role['permissions'], $permissions);
     $config->set($key, $role)->save();
 
-    // Look up all node type IDs.
-    $node_types = $this->entityQuery->get('node_type')->execute();
-
     if ($role['enabled']) {
+      // Look up all node type IDs.
+      $node_types = $this->nodeTypeStorage->getQuery()->execute();
+
       foreach ($node_types as $node_type) {
         $permissions = str_replace('?', $node_type, $role['permissions']);
         user_role_grant_permissions($node_type . '_' . $role_id, $permissions);

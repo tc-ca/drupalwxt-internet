@@ -34,7 +34,7 @@ class Tab extends FieldGroupFormatterBase {
 
     $add = [
       '#type' => 'details',
-      '#title' => $this->getLabel(),
+      '#title' => t($this->getLabel()),
       '#description' => $this->getSetting('description'),
       '#group' => $this->group->parent_name,
     ];

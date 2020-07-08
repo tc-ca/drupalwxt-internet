@@ -22,7 +22,12 @@ class InstallUninstallTest extends ModuleTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['system_test', 'dblog', 'taxonomy', 'update_test_postupdate'];
+  public static $modules = [
+    'system_test',
+    'dblog',
+    'taxonomy',
+    'update_test_postupdate',
+  ];
 
   /**
    * Tests that a fixed set of modules can be installed and uninstalled.
@@ -303,8 +308,16 @@ class InstallUninstallTest extends ModuleTestBase {
         $this->assertEmpty(array_diff(['block_post_update_disable_blocks_with_missing_contexts'], $existing_updates));
         break;
       case 'update_test_postupdate':
-        $this->assertEmpty(array_diff(['update_test_postupdate_post_update_first', 'update_test_postupdate_post_update_second', 'update_test_postupdate_post_update_test1', 'update_test_postupdate_post_update_test0'], $existing_updates));
-        break;
+        $expected = [
+          'update_test_postupdate_post_update_first',
+          'update_test_postupdate_post_update_second',
+          'update_test_postupdate_post_update_test1',
+          'update_test_postupdate_post_update_test0',
+          'update_test_postupdate_post_update_foo',
+          'update_test_postupdate_post_update_bar',
+          'update_test_postupdate_post_update_baz',
+        ];
+        $this->assertSame($expected, $existing_updates);
     }
   }
 

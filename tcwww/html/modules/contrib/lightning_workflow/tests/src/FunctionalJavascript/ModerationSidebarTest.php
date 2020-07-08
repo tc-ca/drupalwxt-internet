@@ -14,6 +14,11 @@ class ModerationSidebarTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_workflow',
     'moderation_sidebar',
@@ -41,12 +46,10 @@ class ModerationSidebarTest extends WebDriverTestBase {
    */
   public function testModerationSidebar() {
     $assert_session = $this->assertSession();
-    $page = $this->getSession()->getPage();
 
     $account = $this->drupalCreateUser([
-      'access content overview',
       'access toolbar',
-      'edit any moderated content',
+      'edit own moderated content',
       'use editorial transition publish',
       'use editorial transition review',
       'use moderation sidebar',
@@ -54,18 +57,17 @@ class ModerationSidebarTest extends WebDriverTestBase {
     ]);
     $this->drupalLogin($account);
 
-    $title = $this->drupalCreateNode(['type' => 'moderated'])->getTitle();
-
-    $this->drupalGet('/admin/content');
-    $page->clickLink($title);
+    $node = $this->drupalCreateNode(['type' => 'moderated']);
+    $this->assertSame('draft', $node->moderation_state->value);
+    $this->drupalGet($node->toUrl());
 
     $toolbar = $assert_session->elementExists('css', '#toolbar-bar');
     $toolbar->clickLink('Tasks');
 
-    $sidebar = $assert_session->waitForElement('css', '.moderation-sidebar-container');
+    $sidebar = $assert_session->waitForElementVisible('css', '.moderation-sidebar-container');
     $this->assertNotEmpty($sidebar);
 
-    $page->pressButton('Publish');
+    $sidebar->pressButton('Publish');
     $assert_session->pageTextContains('The moderation state has been updated.');
     $this->assertSame('Published', $assert_session->elementExists('named', ['link', 'Tasks'], $toolbar)->getAttribute('data-label'));
   }

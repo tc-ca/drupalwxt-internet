@@ -378,6 +378,12 @@ class Highcharts extends AbstractChart {
     if (isset($options['tooltips'])) {
       $chartTooltip->setEnabled($options['tooltips']);
     }
+    if (isset($options['tooltips_suffix'])) {
+      $chartTooltip->setValueSuffix($options['tooltips_suffix']);
+    }
+    else {
+      $chartTooltip->setValueSuffix('');
+    }
 
     return $chartTooltip;
   }

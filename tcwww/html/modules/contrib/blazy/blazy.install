@@ -53,3 +53,14 @@ function blazy_update_8203() {
 function blazy_update_8204() {
   // Do nothing to clear cache.
 }
+
+/**
+ * Removed deprecated or no longer in use classes, settings, etc.
+ */
+function blazy_update_8205() {
+  $config = \Drupal::configFactory()->getEditable('blazy.settings');
+  foreach (['native', 'unbreakpoints'] as $key) {
+    $config->clear($key);
+  }
+  $config->save(TRUE);
+}

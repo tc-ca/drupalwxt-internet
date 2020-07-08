@@ -83,7 +83,6 @@ class OpenApiTestEntity extends ContentEntityBase implements OpenApiTestEntityIn
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // @see \Drupal\Tests\openapi\Kernel\JsonApiGeneratorTest::testGetPaths()
     if (\Drupal::moduleHandler()->moduleExists('menu_ui')) {
       $fields['menu_link'] = BaseFieldDefinition::create('entity_reference')
         ->setLabel(t('Menu link'))

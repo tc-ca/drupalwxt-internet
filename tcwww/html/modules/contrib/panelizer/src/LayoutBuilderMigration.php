@@ -209,10 +209,10 @@ final class LayoutBuilderMigration implements ContainerInjectionInterface {
         // Remove configuration keys that are moved to component-level settings.
         unset($block['formatter']['region'], $block['formatter']['weight']);
 
-        // Layout Builder makes the 'entity' context available directly without
-        // need for mapping (in fact, it will cause an error).
+        // If the entity being panelized is referenced in the context mapping,
+        // use the Layout Builder version of that.
         if (isset($block['context_mapping']['entity']) && $block['context_mapping']['entity'] === '@panelizer.entity_context:entity') {
-          unset($block['context_mapping']['entity']);
+          $block['context_mapping']['entity'] = 'layout_builder.entity';
         }
       }
 

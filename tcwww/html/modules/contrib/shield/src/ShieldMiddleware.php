@@ -4,6 +4,7 @@ namespace Drupal\shield;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -46,12 +47,14 @@ class ShieldMiddleware implements HttpKernelInterface {
   public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = TRUE) {
     $config = $this->configFactory->get('shield.settings');
     $allow_cli = $config->get('allow_cli');
+    $user = NULL;
 
     switch ($config->get('credential_provider')) {
       case 'shield':
         $user = $config->get('credentials.shield.user');
         $pass = $config->get('credentials.shield.pass');
         break;
+
       case 'key':
         $user = $config->get('credentials.key.user');
 
@@ -63,6 +66,7 @@ class ShieldMiddleware implements HttpKernelInterface {
           $pass = $pass_key->getKeyValue();
         }
         break;
+
       case 'multikey':
         /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
         $storage = \Drupal::entityTypeManager()->getStorage('key');
@@ -76,14 +80,25 @@ class ShieldMiddleware implements HttpKernelInterface {
         break;
     }
 
-    if ($type != self::MASTER_REQUEST || !$user || (PHP_SAPI === 'cli' && $allow_cli)) {
+    // Check if enabled.
+    $shield_enabled = $config->get('shield_enable') && !empty($user);
+
+    if (!$shield_enabled || $type != self::MASTER_REQUEST || (PHP_SAPI === 'cli' && $allow_cli)) {
       // Bypass:
-      // 1. Subrequests
-      // 2. Empty username
+      // 1. Empty username or Disabled from configuration.
+      // 2. Subrequests.
       // 3. CLI requests if CLI is allowed.
       return $this->httpKernel->handle($request, $type, $catch);
     }
     else {
+      // Check if user IP is in whitelist.
+      $in_whitelist = FALSE;
+      if ($whitelist = $config->get('whitelist')) {
+        $whitelist = array_filter(array_map('trim', explode("\n", $whitelist)));
+        $in_whitelist = IpUtils::checkIp($request->getClientIp(), $whitelist);
+      }
+
+      // Check if user has provided credentials.
       if ($request->server->has('PHP_AUTH_USER') && $request->server->has('PHP_AUTH_PW')) {
         $input_user = $request->server->get('PHP_AUTH_USER');
         $input_pass = $request->server->get('PHP_AUTH_PW');
@@ -94,8 +109,9 @@ class ShieldMiddleware implements HttpKernelInterface {
       elseif (!empty($request->server->get('REDIRECT_HTTP_AUTHORIZATION'))) {
         list($input_user, $input_pass) = explode(':', base64_decode(substr($request->server->get('REDIRECT_HTTP_AUTHORIZATION'), 6)), 2);
       }
+      $authenticated = isset($input_user) && $input_user === $user && hash_equals($pass, $input_pass);
 
-      if (isset($input_user) && $input_user === $user && Crypt::hashEquals($pass, $input_pass)) {
+      if ($in_whitelist || $authenticated) {
         return $this->httpKernel->handle($request, $type, $catch);
       }
     }
@@ -103,9 +119,9 @@ class ShieldMiddleware implements HttpKernelInterface {
     $response = new Response();
     $response->headers->add([
       'WWW-Authenticate' => 'Basic realm="' . strtr($config->get('print'), [
-          '[user]' => $user,
-          '[pass]' => $pass,
-        ]) . '"',
+        '[user]' => $user,
+        '[pass]' => $pass,
+      ]) . '"',
     ]);
     $response->setStatusCode(401);
     return $response;

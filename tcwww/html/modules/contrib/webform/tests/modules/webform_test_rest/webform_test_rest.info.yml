@@ -1,15 +1,15 @@
-name: 'Webform module REST API tests'
+name: 'Webform REST API test'
 type: module
-description: 'Support module for Webform module REST API testing.'
-package: Testing
-core: 8.x
+description: 'Support module for webform REST API testing.'
+package: 'Webform Testing'
+core_version_requirement: ^8.8
 dependencies:
   - 'drupal:hal'
   - 'drupal:rest'
   - 'drupal:serialization'
   - 'webform:webform'
 
-# Information added by Drupal.org packaging script on 2020-01-21
-version: '8.x-5.8'
+# Information added by Drupal.org packaging script on 2020-06-24
+version: '8.x-5.18'
 project: 'webform'
-datestamp: 1579637592
+datestamp: 1593034091

@@ -339,7 +339,7 @@ class SpiController extends ControllerBase {
    *   The suggested Acquia Hosted machine name.
    */
   public function getAcquiaHostedMachineName() {
-    $sub_data = $this->config('acquia_connector.settings')->get('subscription_data');
+    $sub_data = $this->state()->get('acquia_subscription_data');
 
     if ($this->checkAcquiaHosted() && $sub_data) {
       $uuid = new StatusController();
@@ -1193,9 +1193,9 @@ class SpiController extends ControllerBase {
     }
 
     // NSPI response is in expected format.
-    if ((int) $response_data['timestamp'] > (int) $this->config('acquia_connector.settings')->get('spi.def_timestamp')) {
+    if ((int) $response_data['timestamp'] > (int) $this->state()->get('acquia_spi_data.def_timestamp', 0)) {
       // Compare stored variable names to incoming and report on update.
-      $old_vars = $this->config('acquia_connector.settings')->get('spi.def_vars');
+      $old_vars = $this->state()->get('acquia_spi_data.def_vars', []);
       $new_vars = $response_data['acquia_spi_variables'];
       $new_optional_vars = 0;
       foreach ($new_vars as $new_var_name => $new_var) {
@@ -1208,7 +1208,7 @@ class SpiController extends ControllerBase {
         }
       }
       // Clean up waived vars that are not exposed by NSPI anymore.
-      $waived_spi_def_vars = $this->config('acquia_connector.settings')->get('spi.def_waived_vars');
+      $waived_spi_def_vars = $this->state()->get('acquia_spi_data.def_waived_vars', []);
       $changed_bool = FALSE;
       foreach ($waived_spi_def_vars as $key => $waived_var) {
         if (!in_array($waived_var, $new_vars)) {
@@ -1217,17 +1217,15 @@ class SpiController extends ControllerBase {
         }
       }
 
-      $config = $this->configFactory->getEditable('acquia_connector.settings');
       if ($changed_bool) {
-        $config->set('spi.def_waived_vars', $waived_spi_def_vars);
+        $this->state()->set('acquia_spi_data.def_waived_vars', $waived_spi_def_vars);
       }
       // Finally, save SPI definition data.
       if ($new_optional_vars > 0) {
-        $config->set('spi.new_optional_data', 1);
+        $this->state()->set('acquia_spi_data.new_optional_data', 1);
       }
-      $config->set('spi.def_timestamp', (int) $response_data['timestamp']);
-      $config->set('spi.def_vars', $response_data['acquia_spi_variables']);
-      $config->save();
+      $this->state()->set('acquia_spi_data.def_timestamp', (int) $response_data['timestamp']);
+      $this->state()->set('acquia_spi_data.def_vars', $response_data['acquia_spi_variables']);
       return TRUE;
     }
     return FALSE;

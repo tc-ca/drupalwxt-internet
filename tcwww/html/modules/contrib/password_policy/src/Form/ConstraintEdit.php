@@ -9,7 +9,7 @@ use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\user\SharedTempStoreFactory;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -21,7 +21,7 @@ class ConstraintEdit extends FormBase {
   /**
    * Adding a tempstore for the multiple steps of the wizard form.
    *
-   * @var \Drupal\user\SharedTempStoreFactory
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
    */
   protected $tempstore;
 
@@ -50,7 +50,7 @@ class ConstraintEdit extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('user.shared_tempstore'), $container->get('plugin.manager.password_policy.password_constraint'));
+    return new static($container->get('tempstore.shared'), $container->get('plugin.manager.password_policy.password_constraint'));
   }
 
   /**

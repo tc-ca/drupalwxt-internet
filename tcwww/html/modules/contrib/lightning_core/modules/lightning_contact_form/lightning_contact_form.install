@@ -6,6 +6,7 @@
  */
 
 use Drupal\contact\Entity\ContactForm;
+use Drupal\path_alias\Entity\PathAlias;
 use Drupal\user\RoleInterface;
 
 /**
@@ -13,13 +14,15 @@ use Drupal\user\RoleInterface;
  */
 function lightning_contact_form_install() {
   // Create an alias for the form if it's not already taken.
-  /** @var \Drupal\Core\Path\AliasStorageInterface $alias_storage */
-  $alias_storage = \Drupal::service('path.alias_storage');
-  $alias = $alias_storage->load([
-    'alias' => '/contact',
-  ]);
-  if (empty($alias)) {
-    $alias_storage->save('/contact/sitewide', '/contact');
+  /** @var \Drupal\path_alias\AliasManagerInterface $alias_manager */
+  $alias_manager = \Drupal::service('path_alias.manager');
+  $path = '/contact';
+  $alias = $alias_manager->getPathByAlias($path);
+  if ($alias === $path) {
+    PathAlias::create([
+      'path' => '/contact/sitewide',
+      'alias' => $path,
+    ])->save();
   }
 
   // Don't update the contact form configuration during config sync.

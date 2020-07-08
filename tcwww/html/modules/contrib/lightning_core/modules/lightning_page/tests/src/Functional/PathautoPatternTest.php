@@ -16,6 +16,11 @@ class PathautoPatternTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_page',
     'pathauto',

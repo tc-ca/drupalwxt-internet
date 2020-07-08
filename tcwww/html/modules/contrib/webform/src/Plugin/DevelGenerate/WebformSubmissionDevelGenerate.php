@@ -208,10 +208,12 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
       $form['submitted'] = [
         '#type' => 'item',
         '#title' => $this->t('Submitted to'),
-        '#field_prefix' => '<div class="container-inline">',
-        '#field_suffix' => '</div>',
       ];
-      $form['submitted']['entity-type'] = [
+      $form['submitted']['container'] = [
+        '#prefix' => '<div class="container-inline">',
+        '#suffix' => '</div>',
+      ];
+      $form['submitted']['container']['entity-type'] = [
         '#type' => 'select',
         '#title' => $this->t('Entity type'),
         '#title_display' => 'invisible',
@@ -219,7 +221,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
         '#options' => $entity_types,
         '#default_value' => $this->getSetting('entity-type'),
       ];
-      $form['submitted']['entity-id'] = [
+      $form['submitted']['container']['entity-id'] = [
         '#type' => 'number',
         '#title' => $this->t('Entity id'),
         '#title_display' => 'invisible',
@@ -244,7 +246,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
 
     $form['kill'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Delete existing submissions in specified webform before generating new submissions.'),
+      '#title' => $this->t('Delete existing submissions in specified webform before generating new submissions'),
       '#default_value' => $this->getSetting('kill'),
     ];
 
@@ -296,7 +298,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
       $start = time();
       for ($i = 1; $i <= $values['num']; $i++) {
         $this->generateSubmission($values);
-        if (function_exists('drush_log') && $i % drush_get_option('feedback', 1000) == 0) {
+        if (function_exists('drush_log') && $i % drush_get_option('feedback', 1000) === 0) {
           $now = time();
           $dt_args = [
             '@feedback' => drush_get_option('feedback', 1000),
@@ -409,7 +411,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
       return drush_set_error('DEVEL_GENERATE_INVALID_INPUT', dt('Invalid webform name: @name', ['@name' => $webform_id]));
     }
 
-    if ($this->isNumber($values['num']) == FALSE) {
+    if ($this->isNumber($values['num']) === FALSE) {
       return drush_set_error('DEVEL_GENERATE_INVALID_INPUT', dt('Invalid number of submissions: @num', ['@num' => $values['num']]));
     }
 

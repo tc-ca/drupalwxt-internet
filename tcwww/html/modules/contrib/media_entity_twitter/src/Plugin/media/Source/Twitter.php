@@ -27,7 +27,10 @@ use Drupal\media\MediaSourceFieldConstraintsInterface;
  *   label = @Translation("Twitter"),
  *   allowed_field_types = {"string", "string_long", "link"},
  *   default_thumbnail_filename = "twitter.png",
- *   description = @Translation("Provides business logic and metadata for Twitter.")
+ *   description = @Translation("Provides business logic and metadata for Twitter."),
+ *   forms = {
+ *     "media_library_add" = "\Drupal\media_entity_twitter\Form\TwitterMediaLibraryAddForm",
+ *   }
  * )
  */
 class Twitter extends MediaSourceBase implements MediaSourceFieldConstraintsInterface {

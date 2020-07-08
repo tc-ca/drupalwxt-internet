@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains simple_oauth.module..
+ * Contains simple_oauth.module.
  */
 
 use Drupal\Core\Entity\EntityInterface;
@@ -15,6 +15,7 @@ use Drupal\consumers\Entity\Consumer;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\user\RoleInterface;
+use Drupal\Core\Link;
 
 /**
  * Implements hook_cron().
@@ -91,6 +92,58 @@ function simple_oauth_entity_base_field_info(EntityTypeInterface $entity_type) {
         'type' => 'options_buttons',
         'weight' => 5,
       ]);
+    $fields['redirect'] = BaseFieldDefinition::create('uri')
+      ->setLabel(new TranslatableMarkup('Redirect URI'))
+      ->setDescription(new TranslatableMarkup('The URI this client will redirect to when needed.'))
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'weight' => 4,
+      ])
+      ->setDisplayOptions('form', [
+        'weight' => 4,
+      ])
+      ->setDisplayConfigurable('view', TRUE)
+      ->setTranslatable(TRUE)
+      // URIs are not length limited by RFC 2616, but we can only store 255
+      // characters in our entity DB schema.
+      ->setSetting('max_length', 255);
+
+    $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(new TranslatableMarkup('User'))
+      ->setDescription(new TranslatableMarkup('When no specific user is authenticated Drupal will use this user as the author of all the actions made.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setTranslatable(FALSE)
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'entity_reference_label',
+        'weight' => 1,
+      ])
+      ->setCardinality(1)
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 0,
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'autocomplete_type' => 'tags',
+          'placeholder' => '',
+        ],
+      ]);
+
+    $fields['pkce'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(new TranslatableMarkup('Use PKCE?'))
+      ->setDescription(new TranslatableMarkup('A boolean indicating whether the client uses @pkce (e.g., a native client or SPA)'))
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'boolean',
+        'weight' => 3,
+      ])
+      ->setDisplayOptions('form', ['weight' => 3])
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDefaultValue(FALSE);
   }
   return $fields;
 }
@@ -130,6 +183,11 @@ function simple_oauth_form_consumer_form_alter(array &$form, FormStateInterface 
     '#title' => t('New Secret'),
     '#description' => $description,
   ];
+  $form['pkce']['#states']['visible'] = [
+    ':input[name="confidential[value]"]' => [
+      'checked' => FALSE,
+    ],
+  ];
 }
 
 /**
@@ -156,6 +214,7 @@ function simple_oauth_form_consumer_form_submit($entity_type_id, Consumer $entit
  */
 function simple_oauth_consumers_list_alter(&$data, $context) {
   if ($context['type'] === 'header') {
+    $data['redirect'] = t('Redirect');
     $data['scopes'] = t('Scopes');
   }
   elseif ($context['type'] === 'row') {
@@ -165,6 +224,10 @@ function simple_oauth_consumers_list_alter(&$data, $context) {
     ];
     foreach ($entity->get('roles')->getValue() as $role) {
       $data['scopes']['data']['#items'][] = $role['target_id'];
+    }
+    $data['redirect'] = NULL;
+    if ($redirect_url = $context['entity']->get('redirect')->value) {
+      $data['redirect'] = Link::fromTextAndUrl($redirect_url, Url::fromUri($redirect_url));
     }
   }
 }

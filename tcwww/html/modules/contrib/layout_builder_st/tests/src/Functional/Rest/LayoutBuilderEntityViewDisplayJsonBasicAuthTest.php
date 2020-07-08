@@ -15,6 +15,11 @@ class LayoutBuilderEntityViewDisplayJsonBasicAuthTest extends LayoutBuilderEntit
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = ['basic_auth'];
 
   /**

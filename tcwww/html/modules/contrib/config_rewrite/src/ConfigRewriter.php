@@ -7,6 +7,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Symfony\Component\Yaml\Yaml;
+use Drupal\Core\File\FileSystem;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\config_rewrite\Exception\NonexistentInitialConfigException;
 
 /**
  * Provides methods to rewrite configuration.
@@ -42,6 +45,13 @@ class ConfigRewriter implements ConfigRewriterInterface {
   protected $logger;
 
   /**
+   * The file system.
+   *
+   * @var \Drupal\Core\File\FileSystem
+   */
+  protected $fileSystem;
+
+  /**
    * Constructs a new ConfigRewriter.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -50,14 +60,26 @@ class ConfigRewriter implements ConfigRewriterInterface {
    *   The module handler.
    * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
    *   A logger channel.
+   * @param \Drupal\Core\File\FileSystem $file_system
+   *   The file system.
    * @param \Drupal\language\Config\LanguageConfigFactoryOverrideInterface|NULL $language_config_factory_override
    *   (Optional) The language config factory override service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, LoggerChannelInterface $logger, $language_config_factory_override) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, LoggerChannelInterface $logger, FileSystem $file_system, $language_config_factory_override) {
     $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
     $this->logger = $logger;
+    $this->fileSystem = $file_system;
     $this->languageConfigFactoryOverride = $language_config_factory_override;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('file_system')
+    );
   }
 
   /**
@@ -107,12 +129,14 @@ class ConfigRewriter implements ConfigRewriterInterface {
           /** @var \Drupal\language\Config\LanguageConfigOverride $original_config */
           $config = $this->languageConfigFactoryOverride->getOverride($langcode, $file->name);
           $original_data = $config->get();
-          $rewrite = $this->rewriteConfig($original_data, $rewrite);
+
+          $rewrite = $this->rewriteConfig($original_data, $rewrite, $file->name, $extension->getName());
         }
         else {
           $config = $this->configFactory->getEditable($file->name);
           $original_data = $config->getRawData();
-          $rewrite = $this->rewriteConfig($original_data, $rewrite);
+
+          $rewrite = $this->rewriteConfig($original_data, $rewrite, $file->name, $extension->getName());
         }
 
         // Unset 'config_rewrite' key before saving rewritten values.
@@ -144,25 +168,43 @@ class ConfigRewriter implements ConfigRewriterInterface {
   }
 
   /**
-   * Returns rewritten configuration.
-   *
    * @param array $original_config
-   *   The original configuration array to rewrite.
    * @param array $rewrite
-   *   An array of configuration rewrites.
+   * @param string $config_name
+   * @param string $extensionName
    *
    * @return array
-   *   The rewritten config.
+   * @throws \Drupal\config_rewrite\Exception\NonexistentInitialConfigException
    */
-  public function rewriteConfig($original_config, $rewrite) {
-    if (isset($rewrite['config_rewrite']) && $rewrite['config_rewrite'] == 'replace') {
-      return $rewrite;
+  public function rewriteConfig($original_config, $rewrite, $config_name, $extensionName) {
+    if (empty($original_config)) {
+      $message = 'Tried to rewrite config @config via @module module without initial config present.';
+      $this->logger->error($message, ['@config' => $config_name, '@module' => $extensionName]);
+      throw new NonexistentInitialConfigException("Tried to rewrite config $config_name by $extensionName module without initial config.");
     }
-    return NestedArray::mergeDeep($original_config, $rewrite);
+
+    if (isset($rewrite['config_rewrite']) && $rewrite['config_rewrite'] == 'replace') {
+      $rewritten_config = $rewrite;
+    } else {
+      $rewritten_config = NestedArray::mergeDeep($original_config, $rewrite);
+    }
+    if (isset($rewrite['config_rewrite']['replace']) && is_array($rewrite['config_rewrite']['replace'])) {
+      foreach($rewrite['config_rewrite']['replace'] as $key){
+        $parts = explode('.', $key);
+        $key_exists = NULL;
+        $value = NestedArray::getValue($rewrite, $parts, $key_exists);
+        if($key_exists) {
+          NestedArray::setValue($rewritten_config, $parts, $value, TRUE);
+        } else {
+          NestedArray::unsetValue($rewritten_config, $parts);
+        }
+      }
+    }
+    return $rewritten_config;
   }
 
   /**
-   * Wraps file_scan_directory().
+   * Wraps fileSystem->scanDirectory().
    *
    * @param $dir
    *   The base directory or URI to scan, without trailing slash.
@@ -176,7 +218,7 @@ class ConfigRewriter implements ConfigRewriterInterface {
    *   'filename', and 'name' properties corresponding to the matched files.
    */
   protected function fileScanDirectory($dir, $mask, $options = array()) {
-    return file_scan_directory($dir, $mask, $options);
+    return $this->fileSystem->scanDirectory($dir, $mask, $options);
   }
 
 }

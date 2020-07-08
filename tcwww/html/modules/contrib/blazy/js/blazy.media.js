@@ -27,11 +27,6 @@
 
     var url = btn.getAttribute('data-url');
     var newIframe;
-    var allow;
-
-    if (iframe !== null && iframe.hasAttribute('allow')) {
-      allow = iframe.getAttribute('allow');
-    }
 
     /**
      * Play the media.
@@ -59,7 +54,7 @@
 
       // First, reset any video to avoid multiple videos from playing.
       if (playing !== null) {
-        var played = document.querySelector('.is-playing .media__iframe');
+        var played = document.querySelector('.is-playing iframe');
         // Remove the previous iframe.
         if (played !== null) {
           playing.removeChild(played);
@@ -81,10 +76,6 @@
         newIframe.className = 'media__iframe media__element';
         newIframe.setAttribute('src', url);
         newIframe.setAttribute('allowfullscreen', true);
-
-        if (allow) {
-          newIframe.setAttribute('allow', allow);
-        }
       }
 
       player.appendChild(newIframe);
@@ -101,7 +92,7 @@
 
       var target = this;
       var player = target.parentNode;
-      var iframe = player.querySelector('iframe.media__element');
+      var iframe = player.querySelector('iframe');
 
       if (player.className.match('is-playing')) {
         player.className = player.className.replace(/(\S+)playing/, '');

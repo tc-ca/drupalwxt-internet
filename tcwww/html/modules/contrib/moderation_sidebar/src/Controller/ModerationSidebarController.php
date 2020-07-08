@@ -112,7 +112,7 @@ class ModerationSidebarController extends ControllerBase {
     $route_match = new CurrentRouteMatch($fake_request_stack);
 
     $local_task_manager = new LocalTaskManager(
-      $container->get('controller_resolver'),
+      $container->get('http_kernel.controller.argument_resolver'),
       $fake_request_stack,
       $route_match,
       $container->get('router.route_provider'),
@@ -170,7 +170,7 @@ class ModerationSidebarController extends ControllerBase {
     }
 
     $build = [
-      '#type' => 'container',
+      '#theme' => 'moderation_sidebar_container',
       '#attributes' => [
         'class' => ['moderation-sidebar-container'],
       ],
@@ -205,11 +205,13 @@ class ModerationSidebarController extends ControllerBase {
       ],
     ];
 
+    $build['actions']['secondary'] = [];
+
     if ($this->moderationInformation->isModeratedEntity($entity)) {
 
       // Provide a link to the latest entity.
       if ($this->moderationInformation->hasPendingRevision($entity) && $entity->isDefaultRevision()) {
-        $build['actions']['view_latest'] = [
+        $build['actions']['primary']['view_latest'] = [
           '#title' => $this->t('View existing draft'),
           '#type' => 'link',
           '#url' => Url::fromRoute("entity.{$entity_type_id}.latest_version", [
@@ -223,7 +225,7 @@ class ModerationSidebarController extends ControllerBase {
 
       // Provide a link to the default display of the entity.
       if ($this->moderationInformation->hasPendingRevision($entity) && !$entity->isDefaultRevision()) {
-        $build['actions']['view_default'] = [
+        $build['actions']['primary']['view_default'] = [
           '#title' => $this->t('View live content'),
           '#type' => 'link',
           '#url' => $entity->toLink()->getUrl(),
@@ -235,7 +237,7 @@ class ModerationSidebarController extends ControllerBase {
 
       // Show an edit link.
       if ($entity->access('update')) {
-        $build['actions']['edit'] = [
+        $build['actions']['primary']['edit'] = [
           '#title' => !$this->moderationInformation->hasPendingRevision($entity) ? $this->t('Edit content') : $this->t('Edit draft'),
           '#type' => 'link',
           '#url' => $entity->toLink(NULL, 'edit-form')->getUrl(),
@@ -247,7 +249,7 @@ class ModerationSidebarController extends ControllerBase {
 
       // Only show the entity delete action on the default revision.
       if ($entity->isDefaultRevision() && $entity->access('delete')) {
-        $build['actions']['delete'] = [
+        $build['actions']['primary']['delete'] = [
           '#title' => $this->t('Delete content'),
           '#type' => 'link',
           '#url' => $entity->toLink(NULL, 'delete-form')->getUrl(),
@@ -260,7 +262,7 @@ class ModerationSidebarController extends ControllerBase {
 
       // We maintain our own inline revisions tab.
       if ($entity_type_id === 'node' && \Drupal::service('access_check.node.revision')->checkAccess($entity, \Drupal::currentUser()->getAccount())) {
-        $build['actions']['version_history'] = [
+        $build['actions']['secondary']['version_history'] = [
           '#title' => $this->t('Show revisions'),
           '#type' => 'link',
           '#url' => Url::fromRoute('moderation_sidebar.node.version_history', [
@@ -276,7 +278,7 @@ class ModerationSidebarController extends ControllerBase {
 
       // We maintain our own inline translate tab.
       if ($this->moduleHandler()->moduleExists('content_translation') && \Drupal::service('content_translation.manager')->isSupported($entity_type_id)) {
-        $build['actions']['translate'] = [
+        $build['actions']['secondary']['translate'] = [
           '#title' => $this->t('Translate'),
           '#type' => 'link',
           '#url' => Url::fromRoute($is_latest ? 'moderation_sidebar.translate_latest' : 'moderation_sidebar.translate', [
@@ -293,13 +295,12 @@ class ModerationSidebarController extends ControllerBase {
 
       // Provide a list of actions representing transitions for this revision.
       if ($is_latest) {
-        $build['actions']['quick_draft_form'] = $this->formBuilder()->getForm(QuickTransitionForm::class, $entity);
-        $build['actions']['quick_draft_form']['#weight'] = 2;
+        $build['actions']['primary']['quick_draft_form'] = $this->formBuilder()->getForm(QuickTransitionForm::class, $entity);
       }
     }
 
     // Add a list of (non duplicated) local tasks.
-    $build['actions'] += $this->getLocalTasks($entity);
+    $build['actions']['secondary'] += $this->getLocalTasks($entity);
 
     // Allow other module to alter our build.
     $this->moduleHandler->alter('moderation_sidebar', $build, $entity);

@@ -121,8 +121,8 @@ libraries-override:
         /core/themes/stable/css/views_ui/views_ui.admin.theme.css: css/theme/views_ui.admin.theme.css
 
   # Drupal throws an IncompleteLibraryDefinitionException if a base theme
-  # defined library is set to false in a subtheme's libraries-override.
-  # We use 'claro/empty' for working around this behavior.
+  # defined library is set to false in a subtheme's libraries-override. We use
+  # 'claro/empty' for working around this behavior.
   # @see https://www.drupal.org/node/3098375
   classy/media_library: claro/empty
 

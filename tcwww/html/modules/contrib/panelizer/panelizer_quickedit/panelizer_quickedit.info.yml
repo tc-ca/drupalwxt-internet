@@ -3,12 +3,12 @@ name: Panelizer Quick Edit
 description: 'Enables Quick Edit to function normally when using Panelizer.'
 package: Layout
 # version: VERSION
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 dependencies:
   - panelizer:panelizer
   - drupal:quickedit
 
-# Information added by Drupal.org packaging script on 2019-12-17
-version: '8.x-5.0-beta2'
+# Information added by Drupal.org packaging script on 2020-04-27
+version: '8.x-5.0-beta3'
 project: 'panelizer'
-datestamp: 1576604285
+datestamp: 1588020471

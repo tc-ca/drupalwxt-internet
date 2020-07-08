@@ -13,7 +13,7 @@ use Drupal\password_policy\PasswordPolicyValidation;
  *   id = "password_username",
  *   title = @Translation("Password username"),
  *   description = @Translation("Password must not contain their username"),
- *   error_message = @Translation("Your password contains your username.")
+ *   errorMessage = @Translation("Your password contains your username.")
  * )
  */
 class PasswordUsername extends PasswordConstraintBase {

@@ -4,17 +4,36 @@ namespace Drupal\Tests\lightning_scheduler\Functional;
 
 use Drupal\FunctionalTests\Update\UpdatePathTestBase;
 
+/**
+ * Base class for testing migration of old Lightning Scheduler data.
+ */
 abstract class MigrationTestBase extends UpdatePathTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function setDatabaseDumpFiles() {
-    $this->databaseDumpFiles = [
-      __DIR__ . '/../../fixtures/BaseFieldMigrationTest.php.gz',
-    ];
+    $this->databaseDumpFiles = [];
+
+    $fixture = $this->getDrupalRoot() . '/core/modules/system/tests/fixtures/update/drupal-8.8.0.bare.standard.php.gz';
+
+    // If we're on Drupal 8.8 or later, use its base fixture. Otherwise, use the
+    // older 8.4 base fixture included with versions of core before 8.8.
+    if (file_exists($fixture)) {
+      $this->databaseDumpFiles[] = $fixture;
+    }
+    else {
+      $this->databaseDumpFiles[] = str_replace('8.8.0', '8.4.0', $fixture);
+    }
+    $this->databaseDumpFiles[] = __DIR__ . '/../../fixtures/BaseFieldMigrationTest.php.gz';
   }
 
+  /**
+   * Runs a basic test of migrating old Lightning Scheduler data.
+   *
+   * This doesn't really test that data integrity is preserved, so subclasses
+   * should override this method and call it before asserting other things.
+   */
   public function test() {
     $this->runUpdates();
 

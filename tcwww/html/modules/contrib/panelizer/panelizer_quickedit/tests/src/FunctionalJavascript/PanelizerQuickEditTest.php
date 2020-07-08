@@ -16,6 +16,11 @@ class PanelizerQuickEditTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'contextual',
     'field_ui',

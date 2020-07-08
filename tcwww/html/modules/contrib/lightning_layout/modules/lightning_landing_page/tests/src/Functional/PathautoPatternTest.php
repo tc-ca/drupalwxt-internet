@@ -5,10 +5,17 @@ namespace Drupal\Tests\lightning_landing_page\Functional;
 use Drupal\Tests\BrowserTestBase;
 
 /**
+ * Tests that landing pages get the correct URL aliases from Pathauto.
+ *
  * @group lightning_layout
  * @group lightning_landing_page
  */
 class PathautoPatternTest extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}

@@ -6,11 +6,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\media\Entity\MediaType;
 use Drupal\media\Plugin\media\Source\OEmbedInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin for blazy oembed formatter.
@@ -28,12 +28,19 @@ use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
  * @see \Drupal\media\Plugin\Field\FieldFormatter\OEmbedFormatter
  */
-class BlazyOEmbedFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+class BlazyOEmbedFormatter extends FormatterBase {
 
   use BlazyDependenciesTrait;
   use BlazyFormatterTrait;
   use BlazyFormatterViewTrait;
-  use BlazyFormatterOEmbedTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'entity');
+  }
 
   /**
    * {@inheritdoc}
@@ -65,17 +72,17 @@ class BlazyOEmbedFormatter extends FormatterBase implements ContainerFactoryPlug
 
       $settings['delta'] = $delta;
       $settings['input_url'] = $value;
-      $image_item = new \stdClass();
+      $image_item = NULL;
 
       // Attempts to fetch media entity.
       $media = $this->formatter->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['field_name'] => $value]);
-      if (count($media) && $media = reset($media)) {
+      if ($media = reset($media)) {
         $data['settings'] = $settings;
         $this->blazyOembed->getMediaItem($data, $media);
 
         // Update data with local image.
         $settings = array_merge($settings, $data['settings']);
-        $image_item = $data['item'];
+        $image_item = isset($data['item']) ? $data['item'] : NULL;
       }
 
       $box = ['item' => $image_item, 'settings' => $settings];

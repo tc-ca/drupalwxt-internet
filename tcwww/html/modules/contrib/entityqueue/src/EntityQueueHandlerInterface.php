@@ -6,7 +6,8 @@ use Drupal\Component\Plugin\DerivativeInspectionInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
+use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Component\Plugin\DependentPluginInterface;
 
 /**
  * Provides an interface for an EntityQueueHandler plugin.
@@ -16,7 +17,7 @@ use Drupal\Component\Plugin\ConfigurablePluginInterface;
  * @see \Drupal\entityqueue\EntityQueueHandlerBase
  * @see plugin_api
  */
-interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurablePluginInterface, PluginInspectionInterface, DerivativeInspectionInterface {
+interface EntityQueueHandlerInterface extends PluginFormInterface, ConfigurableInterface, PluginInspectionInterface, DerivativeInspectionInterface, DependentPluginInterface {
 
   /**
    * Sets the entity queue that is using this plugin.

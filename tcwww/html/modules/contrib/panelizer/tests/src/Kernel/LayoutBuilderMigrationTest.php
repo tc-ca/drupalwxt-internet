@@ -169,7 +169,7 @@ class LayoutBuilderMigrationTest extends KernelTestBase {
         // in fact causes errors) with Layout Builder.
         if (isset($block['context_mapping']['entity']) && $block['context_mapping']['entity'] === '@panelizer.entity_context:entity') {
           $component_configuration = $component->get('configuration');
-          $this->assertArrayNotHasKey('entity', $component_configuration['context_mapping']);
+          $this->assertSame('layout_builder.entity', $component_configuration['context_mapping']['entity']);
         }
       }
       else {

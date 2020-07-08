@@ -81,14 +81,14 @@ class ModerationDashboardComponentsTest extends ModerationDashboardTestBase {
       $not_contains = !empty($asserts['not_contains']) ? $asserts['not_contains'] : [];
       $moderation_element = $this->assertSession()->elementExists('css', $selector);
 
-      $this->assertNotContains('This block is broken or missing.', $moderation_element->getText(), 'The moderation element is not broken');
+      $this->assertSame(FALSE, strpos($moderation_element->getText(), 'This block is broken or missing.'));
 
       foreach ($contains as $text) {
-        $this->assertContains($text, $moderation_element->getText());
+        $this->assertNotSame(FALSE, strpos($moderation_element->getText(), $text));
       }
 
       foreach ($not_contains as $text) {
-        $this->assertNotContains($text, $moderation_element->getText());
+        $this->assertSame(FALSE, strpos($moderation_element->getText(), $text));
       }
     }
   }
@@ -103,7 +103,7 @@ class ModerationDashboardComponentsTest extends ModerationDashboardTestBase {
     $this->assertTrue(!isset($drupal_js_settings['moderation_dashboard_activity']));
 
     $moderation_activity_element = $this->assertSession()->elementExists('css', '.block-moderation-dashboard-activity');
-    $this->assertContains('There has been no editor activity within the last month.', $moderation_activity_element->getText());
+    $this->assertNotSame(FALSE, strpos($moderation_activity_element->getText(), 'There has been no editor activity within the last month.'));
   }
 
   /**

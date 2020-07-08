@@ -107,5 +107,21 @@ function entityqueue_views_data_alter(array &$data) {
       'field table' => $subqueue_items_table_name,
       'field field' => $columns['target_id'],
     ];
+
+    $data[$target_base_table]['entityqueue_relationship_position']['field'] = [
+      'id' => 'entity_queue_position',
+      'group' => t('Entityqueue'),
+      'title' => t('@target_label Position In Queue', [
+        '@target_label' => $entity_type->getLabel(),
+      ]),
+      'label' => t('@target_label Position In Queue', [
+        '@target_label' => $entity_type->getLabel(),
+      ]),
+      'help' => t('Position of item in the @target_label queue.', [
+        '@target_label' => $entity_type->getLabel(),
+      ]),
+      'field' => 'delta',
+      'field table' => $subqueue_items_table_name,
+    ];
   }
 }

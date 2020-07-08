@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\book\BlogListerInterface.
- */
-
 namespace Drupal\blog;
 
 use Drupal\user\UserInterface;
@@ -15,8 +10,7 @@ use Drupal\user\UserInterface;
 interface BlogListerInterface {
 
   /**
-   * Returns a title for a user blog
-   *
+   * Returns a title for a user blog.
    */
   public function userBlogTitle(UserInterface $user);
 

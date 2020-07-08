@@ -10,8 +10,8 @@ use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\User\UserInterface;
-use Drupal\User\RoleInterface;
+use Drupal\user\UserInterface;
+use Drupal\user\RoleInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Database\Query\AlterableInterface;
@@ -19,7 +19,7 @@ use Drupal\Core\Database\Query\AlterableInterface;
 /**
  * Implements hook_ENTITY_TYPE_access() for entity type "user_role".
  *
- * @param \Drupal\User\RoleInterface $role
+ * @param \Drupal\user\RoleInterface $role
  *   The role object to check access for.
  *
  * @param string $operation
@@ -44,7 +44,7 @@ function administerusersbyrole_user_role_access(RoleInterface $role, $operation,
 /**
  * Implements hook_ENTITY_TYPE_access() for entity type "user".
  *
- * @param \Drupal\User\UserInterface $user
+ * @param \Drupal\user\UserInterface $user
  *   The user object to check access for.
  *
  * @param string $operation
@@ -74,7 +74,7 @@ function administerusersbyrole_user_access(UserInterface $user, $operation, Acco
 /**
  * Check for permission to assign roles to a user.
  *
- * @param \Drupal\User\UserInterface $user
+ * @param \Drupal\user\UserInterface $user
  *   The user object to check access for.
  *
  * @param \Drupal\Core\Session\AccountInterface $account

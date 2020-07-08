@@ -48,7 +48,6 @@ abstract class BlazyVideoBase extends FormatterBase {
 
     return [
       'background'        => TRUE,
-      'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'current_view_mode' => $this->viewMode,
       'entity_type'       => $entity_type,
       'field_name'        => $this->fieldDefinition->getName(),

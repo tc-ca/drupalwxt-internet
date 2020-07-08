@@ -115,6 +115,9 @@ class Package {
     $lock = $this->locker->getLockData();
 
     foreach ($lock['packages'] as $package) {
+      if (empty($package['source'])) {
+        continue;
+      }
       list(, $name) = explode('/', $package['name'], 2);
 
       if ($this->isDrupalPackage($package)) {
@@ -214,7 +217,7 @@ class Package {
       // Drupalize the tag versioning, e.g. 8.1.0-alpha1 => 8.x-1.0-alpha1.
       $version = sprintf(
         '%d.x-%s',
-        $package['version']{0},
+        $package['version'][0],
         substr($package['version'], 2)
       );
       // Make the version compatible with drush make:

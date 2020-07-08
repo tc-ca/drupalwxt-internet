@@ -80,8 +80,8 @@ class FixFragsAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
     $links = json_decode($request->getBody());
 
     // get all the external links on the page
-    $body = $entity->get('body')->first()->getValue();
-    $body = $body['value'];
+    $body = $entity->get('body')->value;
+    
     $pattern = '/<a\s+([^>]*?\s+)?href="(http[^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);

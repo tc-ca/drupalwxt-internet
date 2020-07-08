@@ -7,7 +7,7 @@ core_version_requirement: ^8 || ^9
 dependencies:
   - drupal:config
 
-# Information added by Drupal.org packaging script on 2020-02-06
-version: '8.x-1.16'
+# Information added by Drupal.org packaging script on 2020-04-02
+version: '8.x-1.17'
 project: 'config_delete'
-datestamp: 1580973555
+datestamp: 1585809611

@@ -7,6 +7,7 @@
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyAlter;
+use Drupal\blazy_test\BlazyTestAlter;
 
 /**
  * Implements hook_theme().
@@ -42,33 +43,19 @@ function blazy_test_blazy_attach_alter(array &$load, array $settings = []) {
 }
 
 /**
- * Implements hook_blazy_attach_alter().
+ * Implements hook_blazy_lightboxes_alter().
  */
 function blazy_test_blazy_lightboxes_alter(array &$lightboxes) {
   $lightboxes[] = 'blazy_test';
 }
 
 /**
- * Implements hook_blazy_attach_alter().
+ * Implements hook_blazy_alter().
  */
 function blazy_test_blazy_alter(array &$image, array $settings = []) {
   if (!empty($settings['media_switch']) && $settings['media_switch'] == 'blazy_test') {
-    $image['#pre_render'][] = 'blazy_test_pre_render';
+    $image['#pre_render'][] = [BlazyTestAlter::class, 'preRender'];
   }
-}
-
-/**
- * The #pre_render callback: Sets blazy_test related URL attributes.
- */
-function blazy_test_pre_render($image) {
-  $settings = isset($image['#settings']) ? $image['#settings'] : [];
-
-  // Video's HREF points to external site, adds URL to local image.
-  if (!empty($settings['box_url']) && !empty($settings['embed_url'])) {
-    $image['#url_attributes']['data-box-url'] = $settings['box_url'];
-  }
-
-  return $image;
 }
 
 /**

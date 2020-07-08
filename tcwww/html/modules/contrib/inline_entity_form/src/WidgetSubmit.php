@@ -2,11 +2,8 @@
 
 namespace Drupal\inline_entity_form;
 
-use Drupal\Core\Entity\RevisionableInterface;
-use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\inline_entity_form\Element\InlineEntityForm;
-use Drupal\node\NodeInterface;
 
 /**
  * Performs widget submission.
@@ -49,7 +46,7 @@ class WidgetSubmit {
           /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
           $entity = $entity_item['entity'];
           $handler = InlineEntityForm::getInlineFormHandler($entity->getEntityTypeId());
-          $handler->save($entity, $form_state);
+          $handler->save($entity);
           $widget_state['entities'][$delta]['needs_save'] = FALSE;
         }
       }

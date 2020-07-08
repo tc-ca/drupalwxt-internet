@@ -26,7 +26,7 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
   /**
    * {@inheritdoc}
    */
-  public function getDefaultProperties() {
+  protected function defineDefaultProperties() {
     $properties = [
       // Element settings.
       'title' => '',
@@ -55,14 +55,16 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
       'variant' => '',
       'prepopulate' => TRUE,
       'randomize' => FALSE,
-      'display_on' => static::DISPLAY_ON_NONE,
-    ] + $this->getDefaultBaseProperties();
+      'display_on' => WebformElementDisplayOnInterface::DISPLAY_ON_NONE,
+    ] + $this->defineDefaultBaseProperties();
     unset(
       $properties['states'],
       $properties['states_clear']
     );
     return $properties;
   }
+
+  /****************************************************************************/
 
   /**
    * {@inheritdoc}
@@ -87,7 +89,7 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
     parent::prepare($element, $webform_submission);
 
     // Hide element if it should not be displayed on 'form'.
-    if ($this->hasProperty('display_on') && !$this->isDisplayOn($element, static::DISPLAY_ON_FORM)) {
+    if ($this->hasProperty('display_on') && !$this->isDisplayOn($element, WebformElementDisplayOnInterface::DISPLAY_ON_FORM)) {
       $element['#access'] = FALSE;
     }
 
@@ -102,7 +104,7 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
    */
   public function buildHtml(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
     // Hide element if it should not be displayed on 'view'.
-    if (!$this->isDisplayOn($element, static::DISPLAY_ON_VIEW)) {
+    if (!$this->isDisplayOn($element, WebformElementDisplayOnInterface::DISPLAY_ON_VIEW)) {
       return [];
     }
 
@@ -114,7 +116,7 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
    */
   public function buildText(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
     // Hide element if it should not be displayed on 'view'.
-    if (!$this->isDisplayOn($element, static::DISPLAY_ON_VIEW)) {
+    if (!$this->isDisplayOn($element, WebformElementDisplayOnInterface::DISPLAY_ON_VIEW)) {
       return [];
     }
 
@@ -220,9 +222,9 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
     ];
     $display_on_form_states = [
       'visible' => [
-        [':input[name="properties[display_on]"]' => ['value' => static::DISPLAY_ON_FORM]],
+        [':input[name="properties[display_on]"]' => ['value' => WebformElementDisplayOnInterface::DISPLAY_ON_FORM]],
         'or',
-       [':input[name="properties[display_on]"]' => ['value' => static::DISPLAY_ON_BOTH]],
+       [':input[name="properties[display_on]"]' => ['value' => WebformElementDisplayOnInterface::DISPLAY_ON_BOTH]],
       ],
     ];
     $form['element_description']['#states'] = $display_on_form_states;
@@ -233,9 +235,9 @@ class WebformVariant extends WebformElementBase implements WebformElementDisplay
 
     $display_on_view_states = [
       'visible' => [
-        [':input[name="properties[display_on]"]' => ['value' => static::DISPLAY_ON_VIEW]],
+        [':input[name="properties[display_on]"]' => ['value' => WebformElementDisplayOnInterface::DISPLAY_ON_VIEW]],
         'or',
-       [':input[name="properties[display_on]"]' => ['value' => static::DISPLAY_ON_BOTH]],
+       [':input[name="properties[display_on]"]' => ['value' => WebformElementDisplayOnInterface::DISPLAY_ON_BOTH]],
       ],
     ];
     $form['display']['#states'] = $display_on_view_states;

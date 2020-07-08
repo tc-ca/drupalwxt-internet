@@ -309,6 +309,12 @@ class LayoutBuilderStyleTest extends BrowserTestBase {
       'block_restrictions' => ['inline_block:alternate', 'field_block:node:bundle_with_section_field:promote'],
     ])->save();
 
+    // Block instances are not allowed to be restricted.
+    $this->drupalGet('admin/config/content/layout_builder_style/unrestricted/edit');
+    foreach ($blocks as $label => $uuid) {
+      $assert_session->elementNotExists('css', 'input[name="block_restrictions[block_content:' . $uuid . ']"]');
+    }
+
     // Set the configuration to allow multiple styles per block.
     $this->drupalGet('/admin/config/content/layout_builder_style/config');
     $page->selectFieldOption('edit-multiselect-multiple', 'multiple');

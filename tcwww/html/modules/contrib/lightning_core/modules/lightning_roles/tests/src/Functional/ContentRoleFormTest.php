@@ -15,6 +15,11 @@ class ContentRoleFormTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_core',
     'lightning_roles',

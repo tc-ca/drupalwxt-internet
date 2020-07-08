@@ -6,13 +6,13 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Url;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\Utility\WebformElementHelper;
+use Drupal\webform\Utility\WebformYaml;
 
 /**
  * Webform elements validator.
@@ -148,6 +148,7 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
       'submissions' => TRUE,
       'variants' => TRUE,
       'hierarchy' => TRUE,
+      'pages' => TRUE,
       'rendering' => TRUE,
     ];
 
@@ -166,8 +167,8 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
       return [$message];
     }
 
-    $this->elements = Yaml::decode($this->elementsRaw);
-    $this->originalElements = Yaml::decode($this->originalElementsRaw);
+    $this->elements = WebformYaml::decode($this->elementsRaw);
+    $this->originalElements = WebformYaml::decode($this->originalElementsRaw);
 
     $this->elementKeys = [];
     if (is_array($this->elements)) {
@@ -209,6 +210,11 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
       return $messages;
     }
 
+    // Validate pages.
+    if ($options['pages'] && ($messages = $this->validatePages())) {
+      return $messages;
+    }
+
     // Validate rendering.
     if ($options['rendering'] && ($message = $this->validateRendering())) {
       return [$message];
@@ -235,7 +241,7 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
    */
   protected function validateYaml() {
     try {
-      Yaml::decode($this->elementsRaw);
+      WebformYaml::decode($this->elementsRaw);
       return NULL;
     }
     catch (\Exception $exception) {
@@ -275,7 +281,7 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
         break;
 
       case 'a-z0-9_-':
-        $machine_name_requirement = $this->t('lowercase letters, numbers, and underscores');
+        $machine_name_requirement = $this->t('lowercase letters, numbers, underscores, and dashes');
         break;
 
       case 'a-zA-Z0-9_-':
@@ -371,7 +377,7 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
     if ($ignored_properties) {
       $messages = [];
       foreach ($ignored_properties as $ignored_property => $ignored_message) {
-        if ($ignored_property != $ignored_message) {
+        if ($ignored_property !== $ignored_message) {
           $messages[] = $ignored_message;
         }
         else {
@@ -450,7 +456,7 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
    *   If not valid, an array of error messages.
    */
   protected function validateVariants() {
-    if (!$this->webform->hasVariant()) {
+    if (!$this->webform->hasVariants()) {
       return NULL;
     }
 
@@ -504,8 +510,37 @@ class WebformEntityElementsValidator implements WebformEntityElementsValidatorIn
       elseif (!$webform_element->isContainer($element) && !empty($element['#webform_children'])) {
         $messages[] = $this->t('The %title (@type) is a webform element that can not have any child elements.', $t_args);
       }
+      elseif ($plugin_id === 'webform_table_row') {
+        $parent_element = ($element['#webform_parent_key']) ? $elements[$element['#webform_parent_key']] : NULL;
+        if (!$parent_element || !isset($parent_element['#type']) || $parent_element['#type'] !== 'webform_table') {
+          $t_args += [
+            '%parent_title' => $this->t('Table'),
+            '@parent_type' => 'webform_table',
+          ];
+          $messages[] = $this->t('The %title (@type) must be with in a %parent_title (@parent_type) element.', $t_args);
+        }
+      }
     }
     return $messages;
+  }
+
+  /**
+   * Validate wizard/card pages.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|string|null
+   *   If not valid an error message.
+   *
+   * @see \Drupal\Core\Entity\EntityFormBuilder
+   * @see \Drupal\webform\Entity\Webform::getSubmissionForm()
+   */
+  protected function validatePages() {
+    if (strpos($this->elementsRaw, "'#type': webform_card") !== FALSE
+      && strpos($this->elementsRaw, "'#type': webform_wizard_page") !== FALSE) {
+        return [$this->t('Pages and cards cannot be used in the same webform. Please remove or convert the pages/cards to the same element type.')];
+    }
+    else {
+      return NULL;
+    }
   }
 
   /**

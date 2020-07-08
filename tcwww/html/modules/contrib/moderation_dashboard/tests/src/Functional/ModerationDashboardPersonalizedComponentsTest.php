@@ -98,18 +98,18 @@ class ModerationDashboardPersonalizedComponentsTest extends ModerationDashboardT
         $moderation_element_text = $moderation_element->getText();
 
         if (!empty($asserts['empty'])) {
-          $this->assertNotContains($asserts['empty'], $moderation_element_text);
+          $this->assertSame(FALSE, strpos($moderation_element_text, $asserts['empty']));
         }
 
         if (!empty($asserts['contains'])) {
           foreach ($asserts['contains'] as $pattern_to_find) {
-            $this->assertContains(sprintf($pattern_to_find, $user->getDisplayName()), $moderation_element_text);
+            $this->assertNotSame(FALSE, strpos($moderation_element_text, sprintf($pattern_to_find, $user->getDisplayName())));
           }
         }
 
         if (!empty($asserts['not_contains'])) {
           foreach ($asserts['not_contains'] as $pattern_shoud_not_find) {
-            $this->assertNotContains(sprintf($pattern_shoud_not_find, $user->getDisplayName()), $moderation_element_text);
+            $this->assertSame(FALSE, strpos($moderation_element_text, sprintf($pattern_shoud_not_find, $user->getDisplayName())));
           }
         }
 
@@ -117,7 +117,7 @@ class ModerationDashboardPersonalizedComponentsTest extends ModerationDashboardT
         unset($other_users[$delta]);
 
         foreach ($other_users as $other_user) {
-          $this->assertNotContains(sprintf('%s', $other_user->getDisplayName()), $moderation_element->getText());
+          $this->assertSame(FALSE, strpos($moderation_element->getText(), sprintf('%s', $other_user->getDisplayName())));
         }
       }
     }
@@ -135,7 +135,7 @@ class ModerationDashboardPersonalizedComponentsTest extends ModerationDashboardT
       $moderation_element = $this->assertSession()->elementExists('css', $selector);
 
       if (!empty($asserts['empty'])) {
-        $this->assertContains($asserts['empty'], $moderation_element->getText());
+        $this->assertNotSame(FALSE, strpos($moderation_element->getText(), $asserts['empty']));
       }
     }
   }

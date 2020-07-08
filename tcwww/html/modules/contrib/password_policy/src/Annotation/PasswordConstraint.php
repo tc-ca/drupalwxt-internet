@@ -44,6 +44,6 @@ class PasswordConstraint extends Plugin {
    *
    * @ingroup plugin_translatable
    */
-  public $error_message;
+  public $errorMessage;
 
 }

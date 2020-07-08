@@ -2,15 +2,13 @@
 
 namespace Drupal\blazy;
 
-use Drupal\media\OEmbed\Resource;
-
 /**
  * Provides OEmbed integration.
  */
 interface BlazyOEmbedInterface {
 
   /**
-   * Returns the oEmbed Resource.
+   * Returns the oEmbed Resource based on the given media input url.
    *
    * @param string $input_url
    *   The video url.
@@ -21,31 +19,23 @@ interface BlazyOEmbedInterface {
   public function getResource($input_url);
 
   /**
-   * Builds media-related settings based on the given media url.
-   *
-   * Need internet, else `Could not retrieve the oEmbed provider database from
-   * //oembed.com/providers.json in Drupal\media\OEmbed\ProviderRepository.
+   * Builds media-related settings based on the given media input url.
    *
    * @param array $settings
    *   The settings array being modified.
-   *
-   * @return Drupal\media\OEmbed\Resource
-   *   The oEmbed resource.
    */
   public function build(array &$settings = []);
 
   /**
    * Provides the autoplay url suitable for lightboxes, or custom video trigger.
    *
-   * @param Drupal\media\OEmbed\Resource $resource
-   *   The oEmbed resource.
-   * @param \DOMDocument $dom
-   *   The HTML DOM object being modified.
+   * @param string $url
+   *   The embed URL, not input URL.
    *
    * @return array
    *   The settings array containing autoplay URL.
    */
-  public function getAutoPlayUrl(Resource $resource, \DOMDocument $dom = NULL);
+  public function getAutoPlayUrl($url = '');
 
   /**
    * Gets the Media item thumbnail.

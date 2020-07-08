@@ -10,3 +10,19 @@ services:
   conflict.resolution_inline_form.builder:
     class: Drupal\conflict\Form\ConflictResolutionInlineFormBuilder
     arguments: ['@entity_type.manager', '@string_translation']
+
+  conflict_resolver.manager:
+    class: \Drupal\conflict\ConflictResolver\ConflictResolverManager
+    arguments: ['@event_dispatcher']
+
+  # Conflict discovery subscribers:
+  conflict_discovery.default:
+    class: \Drupal\conflict\ConflictDiscovery\DefaultConflictDiscovery
+    tags:
+      - { name: event_subscriber }
+
+  # Conflict resolution subscribers:
+  conflict_resolution.merge_remote_only_changes:
+    class: \Drupal\conflict\ConflictResolution\MergeRemoteOnlyChanges
+    tags:
+      - { name: event_subscriber }

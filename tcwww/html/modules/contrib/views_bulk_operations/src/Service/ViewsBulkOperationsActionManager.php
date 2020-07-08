@@ -65,7 +65,10 @@ class ViewsBulkOperationsActionManager extends ActionManager {
 
     // Incompatible actions.
     $incompatible = [
+      // Deprecated anyway, to be deleted eventually.
       'node_delete_action',
+      // Those are up to date.
+      'entity:delete_action:node',
       'user_cancel_user_action',
     ];
 

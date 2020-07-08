@@ -40,11 +40,14 @@ class JsonSchemaEncoder extends JsonEncoder {
    * {@inheritdoc}
    */
   public function supportsEncoding($format) {
-    list ($base, $encoded) = explode(':', $format, 2);
-    if (empty($encoded)) {
-      // Require sub type.
-      return FALSE;
+    $parts = explode(':', $format, 2);
+
+    if (count($parts) < 2 || empty($parts[1])) {
+        // Require sub type.
+        return FALSE;
     }
+    list ($base, $encoded) = $parts;
+
     // Verify the correct base and that the sub type is supported by inner.
     return ($base === $this->baseFormat) && $this->innerEncoder->supportsEncoding($encoded);
   }

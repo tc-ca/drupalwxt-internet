@@ -74,12 +74,6 @@ class Billboard extends AbstractChart {
     $noAttachmentDisplays = $attachmentCount === 0;
     $types = [];
 
-    if($attachmentCount != 0) {
-      for ($i = 0; $i <= $attachmentCount; $i++) {
-        $types[$seriesData[$i]['name']] = $this->processChartType($attachmentDisplayOptions[$i]['style']['options']);
-      }
-    }
-
     // Set the chart type.
     $type = $this->processChartType($options);
     $bbChart = new ChartType();
@@ -147,7 +141,7 @@ class Billboard extends AbstractChart {
         array_unshift($bbDataTemp, $seriesData[$i]['name']);
         array_push($bbData, $bbDataTemp);
       }
-      // C3 does not use bar, so column must be used.
+      // Billboard does not use bar, so column must be used.
       if ($options['type'] == 'bar') {
         $chartAxis->setRotated(TRUE);
       }
@@ -257,11 +251,11 @@ class Billboard extends AbstractChart {
     $bindTo = '#' . $chartId;
     $bb->setBindTo($bindTo);
 
-    // Override C3 classes. These will only override what is in
-    // charts_c3/src/Settings/CThree/CThree.php
-    // but you can use more of the C3 API, as you are not constrained
+    // Override Billboard classes. These will only override what is in
+    // charts_billboard/src/Settings/CThree/CThree.php
+    // but you can use more of the Billboard API, as you are not constrained
     // to what is in this class. See:
-    // charts_c3/src/Plugin/override/C3Overrides.php
+    // charts_billboard/src/Plugin/override/BillboardOverrides.php
     foreach($customOptions as $option => $key) {
       $setter = 'set' . ucfirst($option);
       if (method_exists($bb, $setter)) {

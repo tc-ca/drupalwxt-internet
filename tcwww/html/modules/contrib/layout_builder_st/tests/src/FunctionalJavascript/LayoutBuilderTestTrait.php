@@ -23,9 +23,14 @@ trait LayoutBuilderTestTrait {
     $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
 
+    $add_block_text = 'Add block';
+    if (version_compare(\Drupal::VERSION, '8.8.0', '<')) {
+      $add_block_text = ucwords($add_block_text);
+    }
+
     // Add a new block.
-    $this->assertNotEmpty($assert_session->waitForElementVisible('css', '#layout-builder a:contains(\'Add Block\')'));
-    $this->clickLink('Add Block');
+    $this->assertNotEmpty($assert_session->waitForElementVisible('css', "#layout-builder a:contains('$add_block_text')"));
+    $this->clickLink($add_block_text);
     $this->assertNotEmpty($assert_session->waitForElementVisible('css', '#drupal-off-canvas'));
     $assert_session->assertWaitOnAjaxRequest();
 
@@ -41,7 +46,7 @@ trait LayoutBuilderTestTrait {
     if ($label !== NULL) {
       $page->fillField('settings[label]', $label);
     }
-    $page->pressButton('Add Block');
+    $page->pressButton($add_block_text);
 
     // Wait for block form to be rendered in the Layout Builder.
     $this->assertNotEmpty($assert_session->waitForElement('css', $rendered_locator));

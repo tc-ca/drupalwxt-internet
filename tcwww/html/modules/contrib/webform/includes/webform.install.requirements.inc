@@ -13,7 +13,7 @@ use Drupal\webform\Plugin\WebformElement\ManagedFile;
  * Implements hook_requirements().
  */
 function webform_requirements($phase) {
-  if ($phase != 'runtime') {
+  if ($phase !== 'runtime') {
     return [];
   }
 
@@ -28,7 +28,7 @@ function webform_requirements($phase) {
   $experimental = [];
   $enabled_modules = \Drupal::moduleHandler()->getModuleList();
   foreach ($enabled_modules as $module => $data) {
-    $info = system_get_info('module', $module);
+    $info = \Drupal::service('extension.list.module')->getExtensionInfo($module);
     if (isset($info['package']) && $info['package'] === 'Webform' && !empty($info['experimental'])) {
       $experimental[$module] = str_replace(' [EXPERIMENTAL]', '', $info['name']);
     }
@@ -111,7 +111,7 @@ function webform_requirements($phase) {
     $spam_protection = FALSE;
     $themes = \Drupal::service('theme_handler')->listInfo();
     foreach ($themes as $theme) {
-      if ((isset($theme->base_themes) && isset($theme->base_themes['bootstrap'])) || $theme == 'bootstrap') {
+      if ((isset($theme->base_themes) && isset($theme->base_themes['bootstrap'])) || $theme === 'bootstrap') {
         $spam_protection = TRUE;
       }
     }

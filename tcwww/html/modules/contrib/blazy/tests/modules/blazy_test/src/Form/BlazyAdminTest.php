@@ -106,10 +106,6 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
     if (!empty($definition['fieldable_form'])) {
       $this->blazyAdmin->fieldableForm($form, $definition);
     }
-
-    if (!empty($definition['breakpoints'])) {
-      $this->blazyAdmin->breakpointsForm($form, $definition);
-    }
   }
 
   /**

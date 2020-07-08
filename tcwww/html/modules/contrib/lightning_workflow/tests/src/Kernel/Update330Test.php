@@ -8,6 +8,8 @@ use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
 use Drupal\views\Entity\View;
 
 /**
+ * Tests configuration updates targeting Lightning Workflow 3.3.0.
+ *
  * @group lightning
  * @group lightning_workflow
  *
@@ -103,12 +105,12 @@ class Update330Test extends KernelTestBase {
 
     // Assert the view has changed.
     $display = View::load('moderation_history')->getDisplay('default');
-    $this->assertInternalType('array', $display['display_options']['fields']['revision_uid']);
-    $this->assertInternalType('array', $display['display_options']['fields']['revision_timestamp']);
+    $this->assertSame('array', gettype($display['display_options']['fields']['revision_uid']));
+    $this->assertSame('array', gettype($display['display_options']['fields']['revision_timestamp']));
     $this->assertSame('Set to <strong>{{ moderation_state }}</strong> on {{ revision_timestamp }} by {{ revision_uid }}', $display['display_options']['fields']['moderation_state']['alter']['text']);
     $this->assertArrayNotHasKey('uid', $display['display_options']['fields']);
     $this->assertArrayNotHasKey('created', $display['display_options']['fields']);
-    $this->assertInternalType('array', $display['display_options']['relationships']['revision_uid']);
+    $this->assertSame('array', gettype($display['display_options']['relationships']['revision_uid']));
   }
 
 }

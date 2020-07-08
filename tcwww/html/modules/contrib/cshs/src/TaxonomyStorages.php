@@ -3,11 +3,6 @@
 namespace Drupal\cshs;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\taxonomy\TermStorage;
-use Drupal\taxonomy\VocabularyStorage;
 
 /**
  * Class TaxonomyStorages.
@@ -17,20 +12,20 @@ trait TaxonomyStorages {
   /**
    * Entity repository service.
    *
-   * @var EntityRepositoryInterface
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
    */
   protected $entityRepository;
   /**
    * Entity type manager service.
    *
-   * @var EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
    * Get storage object for terms.
    *
-   * @return TermStorage
+   * @return \Drupal\taxonomy\TermStorage
    *   Taxonomy term storage.
    */
   protected function getTermStorage() {
@@ -40,7 +35,7 @@ trait TaxonomyStorages {
   /**
    * Get storage object for vocabularies.
    *
-   * @return VocabularyStorage
+   * @return \Drupal\taxonomy\VocabularyStorage
    *   Taxonomy vocabulary storage.
    */
   protected function getVocabularyStorage() {
@@ -70,7 +65,7 @@ trait TaxonomyStorages {
    * @param string $entity_type
    *   Name of an entity type.
    *
-   * @return EntityStorageInterface
+   * @return \Drupal\Core\Entity\EntityStorageInterface
    *   Storage object.
    */
   private function getStorage($entity_type) {

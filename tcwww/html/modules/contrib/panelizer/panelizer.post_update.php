@@ -27,7 +27,7 @@ function panelizer_post_update_rename_layout_machine_names(&$sandbox) {
   $results = [];
   // Update overridden panelizer entities.
   foreach ($panelizer_manager->getDefinitions() as $entity_type => $definition) {
-    if (db_table_exists($entity_type . '__panelizer')) {
+    if (\Drupal::database()->schema()->tableExists($entity_type . '__panelizer')) {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
       $ids = $storage->getQuery()
         ->condition('panelizer', serialize([]), '<>')
@@ -87,5 +87,5 @@ function panelizer_post_update_rename_layout_machine_names(&$sandbox) {
  * Installs dependencies needed for migration to Layout Builder.
  */
 function panelizer_post_update_enable_layout_builder_dependencies() {
-  Drupal::service('module_installer')->install(['layout_library']);
+  Drupal::service('module_installer')->install(['core_context', 'layout_library']);
 }

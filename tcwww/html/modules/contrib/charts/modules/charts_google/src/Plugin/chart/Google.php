@@ -92,7 +92,7 @@ class Google extends AbstractChart {
       }
       else {
         $dataTable = [];
-        for ($j = 0; $j < $categoriesCount; $j++) {
+        foreach ($categories as $j => $category) {
           $rowDataTable = [];
           for ($i = 0; $i < $seriesCount; $i++) {
             $rowDataTabletemp = $seriesData[$i]['data'][$j];
@@ -112,7 +112,7 @@ class Google extends AbstractChart {
     elseif ($options['type'] == 'scatter') {
       // You will want to use the Scatter Field in the charts_fields module.
       $dataTable = [];
-      for ($j = 0; $j < $categoriesCount; $j++) {
+      foreach ($categories as $j => $category) {
         $rowDataTable = [];
         for ($i = 0; $i < $seriesCount; $i++) {
           // @todo: make work for multiple series.
@@ -135,7 +135,7 @@ class Google extends AbstractChart {
     }
     else {
       $dataTable = [];
-      for ($j = 0; $j < $categoriesCount; $j++) {
+      foreach ($categories as $j => $category) {
         $rowDataTable = [];
         for ($i = 0; $i < $seriesCount; $i++) {
           if (isset($seriesData[$i]['data'][$j])) {
@@ -402,6 +402,10 @@ class Google extends AbstractChart {
 
     $googleOptions->setVerticalAxes($vAxes);
     $googleOptions->setHorizontalAxes($hAxes);
+
+    if (isset($options['sliceVisibilityThreshold'])) {
+      $googleOptions->setSliceVisibilityThreshold($options['sliceVisibilityThreshold']);
+    }
 
     if (in_array('donut', $chartSelected)) {
       $googleOptions->pieHole = '0.25';

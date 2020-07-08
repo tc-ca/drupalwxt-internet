@@ -16,7 +16,7 @@ git diff 8.x-5.x > [project_name]-[issue-description]-[issue-number]-00.patch
 curl https://www.drupal.org/files/issues/[project_name]-[issue-description]-[issue-number]-00.patch | git apply -
 
 # Force apply patch
-patch -p1 < 3037968-2.patch	
+patch -p1 < 3037968-2.patch
 
 # Remove patch and untracked files
 git reset --hard; git clean -f -d
@@ -27,6 +27,13 @@ interdiff \
   [issue-number]-[new-comment-number].patch \
   > interdiff-[issue-number]-[old-comment-number]-[new-comment-number].txt
 cat interdiff-[issue-number]-[old-comment-number]-[new-comment-number].txt
+
+# Commit remove patch
+git checkout 8.x-5.x
+curl https://www.drupal.org/files/issues/[project_name]-[issue-description]-[issue-number]-00.patch | git apply -
+git add .
+git commit -m 'Issue #[issue-number]: [issue-description]'
+git push
 
 # Merge branch with all commits
 git checkout 8.x-5.x
@@ -70,6 +77,10 @@ echo 'true' > webform.features.yml
 echo 'true' > modules/webform_attachment/webform_attachment.features.yml
 echo 'true' > modules/webform_attachment/tests/modules/webform_attachment_test/webform_attachment_test.features.yml
 
+echo 'true' > modules/webform_cards/tests/modules/webform_cards_test/webform_cards_test.features.yml
+
+echo 'true' > modules/webform_clientside_validationtests/modules/webform_clientside_validation_test/webform_clientside_validation_test.features.yml
+
 echo 'true' > modules/webform_entity_print/webform_entity_print.features.yml
 echo 'true' > modules/webform_entity_print/tests/modules/webform_entity_print_test/webform_entity_print_test.features.yml
 echo 'true' > modules/webform_entity_print_attachment/webform_entity_print_attachment.features.yml
@@ -79,6 +90,7 @@ echo 'true' > modules/webform_examples/webform_examples.features.yml
 echo 'true' > modules/webform_examples_accessibility/webform_examples_accessibility.features.yml
 echo 'true' > modules/webform_example_element/webform_example_element.features.yml
 echo 'true' > modules/webform_example_composite/webform_example_composite.features.yml
+echo 'true' > modules/webform_example_custom_form/webform_example_custom_form.features.yml
 echo 'true' > modules/webform_example_handler/webform_example_handler.features.yml
 echo 'true' > modules/webform_example_variant/webform_example_variant.features.yml
 echo 'true' > modules/webform_example_element/webform_example_remote_post.features.yml
@@ -151,6 +163,8 @@ drush en -y webform\
   webform_examples\
   webform_examples_accessibility\
   webform_example_element\
+  webform_example_composite\
+  webform_example_custom_form\
   webform_example_handler\
   webform_example_variant\
   webform_example_remote_post\
@@ -162,7 +176,7 @@ drush en -y webform\
   webform_templates\
   webform_test\
   webform_test_element\
-  webform_test_entity_reference_views\  
+  webform_test_entity_reference_views\
   webform_test_handler\
   webform_test_handler_remote_post\
   webform_test_options\
@@ -172,8 +186,9 @@ drush en -y webform\
   webform_test_translation\
   webform_test_views\
   webform_attachment_test\
-  webform_entity_print_test\  
-  webform_entity_print_attachment_test\  
+  webform_clientside_validation_test\
+  webform_entity_print_test\
+  webform_entity_print_attachment_test\
   webform_icheck_test\
   webform_image_select_test\
   webform_location_geocomplete_test\
@@ -204,6 +219,7 @@ drush features-export -y webform_examples
 drush features-export -y webform_examples_accessibility
 drush features-export -y webform_example_element
 drush features-export -y webform_example_composite
+drush features-export -y webform_example_custom_form
 drush features-export -y webform_example_handler
 drush features-export -y webform_example_variant
 drush features-export -y webform_example_remote_post
@@ -226,6 +242,7 @@ drush features-export -y webform_test_translation
 drush features-export -y webform_test_views
 drush features-export -y webform_test_paragraphs
 drush features-export -y webform_attachment_test
+drush features-export -y webform_clientside_validation_test
 drush features-export -y webform_entity_print_test
 drush features-export -y webform_entity_print_attachment_test
 drush features-export -y webform_icheck_test
@@ -256,6 +273,7 @@ drush webform:tidy -y --dependencies webform_examples
 drush webform:tidy -y --dependencies webform_examples_accessibility
 drush webform:tidy -y --dependencies webform_example_element
 drush webform:tidy -y --dependencies webform_example_composite
+drush webform:tidy -y --dependencies webform_example_custom_form
 drush webform:tidy -y --dependencies webform_example_handler
 drush webform:tidy -y --dependencies webform_example_variant
 drush webform:tidy -y --dependencies webform_example_remote_post
@@ -279,6 +297,8 @@ drush webform:tidy -y --dependencies webform_test_submissions
 drush webform:tidy -y --dependencies webform_test_translation
 drush webform:tidy -y --dependencies webform_test_views
 drush webform:tidy -y --dependencies webform_attachment_test
+drush webform:tidy -y --dependencies webform_cards_test
+drush webform:tidy -y --dependencies webform_clientside_validation_test
 drush webform:tidy -y --dependencies webform_entity_print_test
 drush webform:tidy -y --dependencies webform_entity_print_attachment_test
 drush webform:tidy -y --dependencies webform_image_select_test
@@ -305,6 +325,7 @@ drush features-import -y webform_examples
 drush features-import -y webform_examples_accessibility
 drush features-import -y webform_example_element
 drush features-import -y webform_example_composite
+drush features-import -y webform_example_custom_form
 drush features-import -y webform_example_handler
 drush features-import -y webform_example_variant
 drush features-import -y webform_example_remote_post
@@ -329,6 +350,8 @@ drush features-import -y webform_test_submissions
 drush features-import -y webform_test_translation
 drush features-import -y webform_test_views
 drush features-import -y webform_attachment_test
+drush features-import -y webform_cards_test
+drush features-import -y webform_clientside_validation_test
 drush features-import -y webform_entity_print_test
 drush features-import -y webform_entity_print_attachment_test
 drush features-import -y webform_image_select_test

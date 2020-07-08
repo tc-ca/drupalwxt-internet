@@ -110,7 +110,7 @@ class SchemaFactoryTest extends KernelTestBase {
    * @covers ::getSourceEntityPlugin
    */
   public function testInvalidEntityOnGetPlugin() {
-    $this->setExpectedException('\Drupal\Component\Plugin\Exception\PluginNotFoundException');
+    $this->expectException('\Drupal\Component\Plugin\Exception\PluginNotFoundException');
     $this->factory->getSourceEntityPlugin('gastropod');
   }
 
@@ -126,7 +126,7 @@ class SchemaFactoryTest extends KernelTestBase {
    * @covers ::getSourceEntityPlugin
    */
   public function testConfigEntityOnGetPlugin() {
-    $this->setExpectedException('\InvalidArgumentException');
+    $this->expectException('\InvalidArgumentException');
     $this->factory->getSourceEntityPlugin('node_type');
   }
 

@@ -27,7 +27,7 @@ class Fieldset extends FieldGroupFormatterBase {
 
     $element += [
       '#type' => 'fieldset',
-      '#title' => $this->getLabel(),
+      '#title' => t($this->getLabel()),
       '#attributes' => [],
       '#description' => $this->getSetting('description'),
     ];

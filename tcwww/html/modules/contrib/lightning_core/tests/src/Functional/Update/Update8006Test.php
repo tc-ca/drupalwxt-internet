@@ -15,6 +15,7 @@ class Update8006Test extends UpdatePathTestBase {
    */
   protected function setDatabaseDumpFiles() {
     $this->databaseDumpFiles = [
+      $this->getDrupalRoot() . '/core/modules/system/tests/fixtures/update/drupal-8.8.0.bare.standard.php.gz',
       __DIR__ . '/../../../fixtures/Update8006Test.php.gz',
     ];
   }

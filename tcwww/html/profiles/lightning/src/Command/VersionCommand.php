@@ -56,6 +56,7 @@ class VersionCommand extends Command {
     }
 
     $io = new DrupalStyle($input, $output);
+    $io->warning('This command is deprecated and will be removed in Lightning 4.2.0. Please use the Drush command `drush lightning:version` instead.');
     $io->info($this->toSemanticVersion($info['version']));
   }
 

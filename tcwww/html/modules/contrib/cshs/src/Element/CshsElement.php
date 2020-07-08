@@ -65,8 +65,8 @@ class CshsElement extends Select {
       // Element must have its "none" value when nothing selected. This will
       // let it function correctly, for instance with views. Otherwise it could
       // lead to illegal choice selection error.
-      // @link https://www.drupal.org/node/2882790
-      $form_state->setValueForElement($element, is_a($form_state->getFormObject(), ViewsExposedForm::class) ? $element['#none_value'] : NULL);
+      /* @link https://www.drupal.org/node/2882790 */
+      $form_state->setValueForElement($element, \is_a($form_state->getFormObject(), ViewsExposedForm::class) ? $element['#none_value'] : NULL);
 
       // Set an error if user doesn't select anything and field is required.
       if ($element['#required']) {
@@ -83,7 +83,7 @@ class CshsElement extends Select {
 
       // Set an error if term has children.
       if (!empty($storage->loadChildren($term->id(), $term->getVocabularyId()))) {
-        $form_state->setError($element, t('You need to select a term from the deepest level in @label field.', [
+        $form_state->setError($element, \t('You need to select a term from the deepest level in @label field.', [
           '@label' => $element['#label'],
         ]));
       }

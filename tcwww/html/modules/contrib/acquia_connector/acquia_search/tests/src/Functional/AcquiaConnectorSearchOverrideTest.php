@@ -14,9 +14,11 @@ use Drupal\Tests\BrowserTestBase;
 class AcquiaConnectorSearchOverrideTest extends BrowserTestBase {
 
   /**
-   * {@inheritdoc}
+   * Drupal 8.8 requires default theme to be specified.
+   *
+   * @var string
    */
-  protected $strictConfigSchema = FALSE;
+  protected $defaultTheme = 'stark';
 
   /**
    * Acquia subscription ID.
@@ -269,8 +271,6 @@ class AcquiaConnectorSearchOverrideTest extends BrowserTestBase {
     $this->drupalPostForm('admin/config/system/acquia-connector/credentials', $edit_fields, $submit_button);
 
     \Drupal::service('module_installer')->install(['acquia_search']);
-    drupal_flush_all_caches();
-
   }
 
   /**
@@ -334,11 +334,11 @@ class AcquiaConnectorSearchOverrideTest extends BrowserTestBase {
     $storage = new Storage();
     $storage->setIdentifier($acquia_identifier);
 
-    $subscription = \Drupal::config('acquia_connector.settings')->get('subscription_data');
+    $subscription = \Drupal::state()->get('acquia_subscription_data');
     $subscription['heartbeat_data'] = ['search_cores' => $available_cores];
 
-    \Drupal::configFactory()->getEditable('acquia_connector.settings')
-      ->set('subscription_data', $subscription)->save();
+    \Drupal::state()
+      ->set('acquia_subscription_data', $subscription);
 
   }
 

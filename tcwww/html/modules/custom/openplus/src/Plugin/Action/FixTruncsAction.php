@@ -62,8 +62,8 @@ class FixTruncsAction extends ViewsBulkOperationsActionBase implements ViewsBulk
       ));
     $links = json_decode($request->getBody());
 
-    $body = $entity->get('body')->first()->getValue();
-    $body = $body['value'];
+    $body = $entity->get('body')->value;
+   
     $pattern = '/<a\s+([^>]*?\s+)?href="([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);

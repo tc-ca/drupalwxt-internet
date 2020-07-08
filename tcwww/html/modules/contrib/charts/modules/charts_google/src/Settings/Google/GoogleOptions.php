@@ -77,6 +77,15 @@ class GoogleOptions implements \JsonSerializable {
   private $colors;
 
   /**
+   * Font Name.
+   *
+   * The default font face for all text in the chart.
+   *
+   * @var string
+   */
+  private $fontName;
+
+  /**
    * backgroundColor.
    *
    * The color for the background of the chart.
@@ -194,6 +203,13 @@ class GoogleOptions implements \JsonSerializable {
    * @var string
    */
   private $curveType;
+
+  /**
+   * sliceVisibilityThreshold value.
+   *
+   * @var float
+   */
+  private $sliceVisibilityThreshold;
 
   /**
    * Gets the title of the Material Chart. Only Material Charts support titles.
@@ -375,6 +391,30 @@ class GoogleOptions implements \JsonSerializable {
    */
   public function setColors(array $colors = []) {
     $this->colors = $colors;
+  }
+
+  /**
+   * Get Font Name.
+   *
+   * Gets the default font face for all text in the chart.
+   *
+   * @return string
+   *   Font Name.
+   */
+  public function getFontName() {
+    return $this->fontName;
+  }
+
+  /**
+   * Set Colors.
+   *
+   * Sets the default font face for all text in the chart.
+   *
+   * @param string $fontName
+   *   Colors.
+   */
+  public function setFontName($fontName = NULL) {
+    $this->fontName = $fontName;
   }
 
   /**
@@ -635,6 +675,20 @@ class GoogleOptions implements \JsonSerializable {
    */
   public function setPointSize($pointSize) {
     $this->pointSize = $pointSize;
+  }
+
+  /**
+   * @return float
+   */
+  public function getSliceVisibilityThreshold() {
+    return $this->sliceVisibilityThreshold;
+  }
+
+  /**
+   * @param float $sliceVisibilityThreshold
+   */
+  public function setSliceVisibilityThreshold(float $sliceVisibilityThreshold) {
+    $this->sliceVisibilityThreshold = $sliceVisibilityThreshold;
   }
 
   /**

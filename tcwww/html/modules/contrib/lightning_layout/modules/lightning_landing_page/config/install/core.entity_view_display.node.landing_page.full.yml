@@ -21,7 +21,7 @@ third_party_settings:
     enable: true
   layout_builder_restrictions:
     entity_view_mode_restriction:
-      allowed_blocks:
+      whitelisted_blocks:
         'Chaos tools': {  }
         Content: {  }
         'Content fields':

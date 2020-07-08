@@ -8,7 +8,7 @@ configure: moderation_sidebar.settings
 dependencies:
   - drupal:content_moderation (>= 8.5)
 
-# Information added by Drupal.org packaging script on 2020-02-09
-version: '8.x-1.3'
+# Information added by Drupal.org packaging script on 2020-05-10
+version: '8.x-1.4'
 project: 'moderation_sidebar'
-datestamp: 1581285937
+datestamp: 1589082037
