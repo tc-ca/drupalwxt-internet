@@ -41,13 +41,15 @@ class FixLinksAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
 
     //$this->messenger()->addMessage($entity->label() . ' - ' . $entity->language()->getId() . ' - ' . $entity->id());
     //return sprintf('Example action (configuration: %s)', print_r($this->configuration, TRUE));
-    $body = $entity->get('body')->value;
+    $body = $entity->get('body')->first()->getValue();
+    $body = $body['value'];
 
     $pattern = '/<a\s+([^>]*?\s+)?href="([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);
 
     if ($matches) {
+      $updated = FALSE;
       foreach ($matches as $match) {
         $fragment = '';
         $find = $match[0];
@@ -60,48 +62,53 @@ class FixLinksAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
         }
   
         $url = $match[2];
-        $link_text = $match[4];
-        $parsed = parse_url($url);
-        if (!isset($parsed['host'])) {
-          $parsed['host'] = 'www.tc.gc.ca';
-        }
-        if (isset($parsed['fragment'])) {
-          $fragment = $parsed['fragment'];
-          unset($parsed['fragment']);
-        }
-        if (isset($parsed['scheme'])) {
+        if (!empty($url)) {
+          $link_text = $match[4];
+          $parsed = parse_url($url);
+          if (!isset($parsed['host'])) {
+            $parsed['host'] = 'www.tc.gc.ca';
+          }
+          if (isset($parsed['fragment'])) {
+            $fragment = $parsed['fragment'];
+            unset($parsed['fragment']);
+          }
+          if (isset($parsed['scheme'])) {
           unset($parsed['scheme']);
+          }
+          $lookup = strtolower(openplus_build_url($parsed));
+          $query = \Drupal::entityQuery('node')
+            ->condition('field_source_url.0.uri', '%' . $lookup . '%', 'LIKE');
+          $nids = $query->execute();
+          if (!empty($nids)) {
+            $node = Node::load(array_pop($nids));
+            // The entire replacement string.
+            $replacement = '<a data-entity-substitution="canonical"';
+            $replacement .= ' data-entity-type="node"';
+            $replacement .= ' data-entity-uuid="' . $node->uuid() . '"';
+            if (!empty($attr)) {
+              $replacement .= ' ' . implode(' ', $attr);
+            }
+                
+            if (!empty($fragment)) {
+              $replacement .= ' href="/node/' . $node->id() . '#' . $fragment . '">' . $link_text . '</a>';
+            }
+            else {
+              $replacement .= ' href="/node/' . $node->id() . '">' . $link_text . '</a>';
+            }
+    
+            // Do the actual string replacement.
+            $body = str_replace($find, $replacement, $body);
+            $updated = TRUE;
+          }
         }
-        $lookup = strtolower(openplus_build_url($parsed));
-        $query = \Drupal::entityQuery('node')
-          ->condition('field_source_url.0.uri', '%' . $lookup . '%', 'LIKE');
-        $nids = $query->execute();
-        if (!empty($nids)) {
-          $node = Node::load(array_pop($nids));
-          // The entire replacement string.
-          $replacement = '<a data-entity-substitution="canonical"';
-          $replacement .= ' data-entity-type="node"';
-          $replacement .= ' data-entity-uuid="' . $node->uuid() . '"';
-          if (!empty($attr)) {
-            $replacement .= ' ' . implode(' ', $attr);
-          }
-              
-          if (!empty($fragment)) {
-            $replacement .= ' href="/node/' . $node->id() . '#' . $fragment . '">' . $link_text . '</a>';
-          }
-          else {
-            $replacement .= ' href="/node/' . $node->id() . '">' . $link_text . '</a>';
-          }
-  
-          // Do the actual string replacement.
-          $body = str_replace($find, $replacement, $body);
+       
+        if ($updated) { 
+          $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
+          $entity->save();
         }
       }
-      
-       $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
-       $entity->save();
     }
-
+  
     return $this->t('Updated links.');
   }
 
