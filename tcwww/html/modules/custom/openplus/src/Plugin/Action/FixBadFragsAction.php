@@ -37,8 +37,7 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
     // get the fragments on the original
     $rvids = array_reverse($vids);
     $oldest_vid = array_pop($rvids);
-    $node_first = node_revision_load($oldest_vid);
-    $fragments = SELF::getOriginalFragments($orig_body);
+    $fragments = SELF::getOriginalFragments($entity);
 
     // get links on node
     $body = $entity->get('body')->value;
@@ -72,11 +71,62 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
     return $this->t('Updated links with fragments.');
   }
 
-  public function getOriginalFragments($body) {
+  public function getOriginalFragments($entity) {
+    $fragments = [];
+
+    $migration_groups = MigrationGroup::loadMultiple();
+    $migration = $entity->get('field_migration')->getValue();
+    if (empty($migration)) {
+      \Drupal::logger('openplus')->notice('Migration not tagged: ' . $entity->id());
+      return $fragments;
+    }
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($migration[0]['target_id']);
+
+    $mig_uuid = NULL;
+    foreach ($migration_groups as $migration) {
+      if ($term->label() == $migration->label()) {
+        $mig_uuid = str_replace('_', '-', str_replace('maas__group__', '', $migration->id()));
+        break;
+      }
+    }
+
+    if (empty($mig_uuid)) {
+      \Drupal::logger('openplus')->notice('Could not find entity in migration: ' . $entity->id());
+      return $fragments;
+    }
+
+    $migration_table = 'migrate_map_maas__nd__en__' . str_replace('-', '_', $mig_uuid);
+    $database = \Drupal::database();
+    $query = "select sourceid1 from {$migration_table} where destid1 = " . $entity->id();
+    $query = $database->query($query);
+    $result = $query->fetchAll();
+    $id = isset($result[0]->sourceid1) ? $result[0]->sourceid1 : NULL;
+   
+    if (empty($id)) {
+      \Drupal::logger('openplus')->notice('Could not find source id: ' . $entity->id());
+      return $fragments;
+    }
+
+    // get the links from the harvester
+    $source = $entity->get('field_source_url')->getValue();
+
+    $uri = ConfigUtil::GetHarvesterBaseUrl() . 'get-harvest-item/' . $mig_uuid . '/component_page/' . $id;
+    $headers = [
+      'Accept' => 'application/json; charset=utf-8',
+      'Content-Type' => 'application/json',
+    ];
+    $request = \Drupal::httpClient()
+      ->get($uri, array(
+       'headers' => $headers,
+       'auth' => [ConfigUtil::GetHarvesterUser(), ConfigUtil::GetHarvesterPass()],
+    ));
+    $item = json_decode($request->getBody());
+    $body= $item->rows->body;
+
     $pattern = '/<a\s+([^>]*?\s+)?href="#([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
     $matches = [];
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);
-    $fragments = [];
+    
     foreach ($matches as $match) {
       $fragments[$match[2]] = ['link' => $match[0], 'title' => $match[4]];
     }
