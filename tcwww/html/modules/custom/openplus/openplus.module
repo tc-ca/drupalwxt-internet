@@ -34,20 +34,21 @@ function openplus_preprocess_page(&$variables) {
 
 function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   switch ($form_id) {
-    if (function_exists('purge_processor_cron_cron')) {
-      $form['update_varnish'] = [
-        '#type' => 'details',
-        '#title' => t('Update varnish'),
-        '#open' => TRUE,
-        '#weight' => -10,
-      ];
+    case 'system_performance_settings':
+      if (function_exists('purge_processor_cron_cron')) {
+        $form['update_varnish'] = [
+          '#type' => 'details',
+          '#title' => t('Update varnish'),
+          '#open' => TRUE,
+          '#weight' => -10,
+        ];
 
-      $form['update_varnish']['update'] = [
-        '#type' => 'submit',
-        '#value' => t('Update varnish cache'),
-        '#submit' => ['openplus_update_varnish'],
-      ];
-    }
+        $form['update_varnish']['update'] = [
+          '#type' => 'submit',
+          '#value' => t('Update varnish cache'),
+          '#submit' => ['openplus_update_varnish'],
+        ];
+      }
     break;
     case 'custom_search_block_form':
       $form['actions']['submit']['#id'] = 'wb-srch-sub';
