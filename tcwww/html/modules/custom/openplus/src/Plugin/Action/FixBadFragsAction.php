@@ -37,7 +37,7 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
     // get the fragments on the original
     $rvids = array_reverse($vids);
     $oldest_vid = array_pop($rvids);
-    $fragments = SELF::getOriginalFragments($entity);
+    $fragments = SELF::getOriginalFragmentsV2($entity);
 
     // get links on node
     $body = $entity->get('body')->value;
@@ -51,20 +51,29 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
       foreach ($matches as $match) {
         if (strpos($match[2], '/node/') !== FALSE && !empty($match[3])) {
           // we have a link with a fragment in the node body
-          if (isset($fragments[$match[3]]) && $match[5] == $fragments[$match[3]]['title']) {
-            // we have a bad fragment
-            // it exists as a same page anchor in the old revision and the link title matches
+          if (isset($fragments[$match[3]])) {
+            // we have a bad fragment - it exists as a same page anchor in the old revision and the link title matches
             $updated = TRUE;
             $find = $match[0];
-            $replacement = $fragments[$match[3]]['link'];
-            $body = str_replace($find, $replacement, $body);
+            $pattern2 = '/<a [^>]+>(.+)*<\/a>/s'; // find link text and put back latest
+            $matches2 = [];
+            preg_match_all($pattern2, $fragments[$match[3]]['link'], $matches2, PREG_SET_ORDER);
+            if ($matches2) {
+              $full_link = $matches2[0][0];
+              $link_title = $matches2[0][1];
+              $newer_title = $match[5]; 
+              // in case link title was updated on node later on and link not fixed at that time
+              $replacement = str_replace($link_title, $newer_title, $full_link);
+              $body = str_replace($find, $replacement, $body);
+            }
           }
         }
 
-        if ($updated) {
-          $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
-          $entity->save();
-        }
+      }
+
+      if ($updated) {
+        $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
+        $entity->save();
       }
     }
 
@@ -128,7 +137,32 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
     preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);
     
     foreach ($matches as $match) {
-      $fragments[$match[2]] = ['link' => $match[0], 'title' => $match[4]];
+      $fragments[$match[2]] = ['link' => $match[0], 'title' => $match[4], 'href' => $match[2]];
+    }
+
+    return $fragments;
+  }
+
+  public function getOriginalFragmentsV2($entity) {
+    $fragments = [];
+    $uri = 'http://dv16.openplus.ca/api/v1/get-body/' . $entity->uuid();
+    $headers = [
+      'Accept' => 'application/json; charset=utf-8',
+      'Content-Type' => 'application/json',
+    ];
+    $request = \Drupal::httpClient()
+      ->get($uri, array(
+       'headers' => $headers,
+    ));
+    $item = json_decode($request->getBody());
+    $body = $item['0']->body;
+
+    $pattern = '/<a\s+([^>]*?\s+)?href="#([^"]+)"\s?(.*?)>(.+?)<\/a>/s';
+    $matches = [];
+    preg_match_all($pattern, $body, $matches, PREG_SET_ORDER);
+
+    foreach ($matches as $match) {
+      $fragments[$match[2]] = ['link' => $match[0], 'title' => $match[4], 'href' => $match[2]];
     }
 
     return $fragments;
