@@ -104,6 +104,10 @@ class FixLinksAction extends ViewsBulkOperationsActionBase implements ViewsBulkO
        
         if ($updated) { 
           $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
+          $entity->revision_log = t('Bulk updated by fix link action.');
+          $entity->setRevisionUserId(\Drupal::currentUser()->id());
+          $entity->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+          $entity->setChangedTime(\Drupal::time()->getRequestTime());
           $entity->save();
         }
       }
