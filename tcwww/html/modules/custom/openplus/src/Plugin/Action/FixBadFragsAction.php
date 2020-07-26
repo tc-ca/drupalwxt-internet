@@ -53,7 +53,6 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
           // we have a link with a fragment in the node body
           if (isset($fragments[$match[3]])) {
             // we have a bad fragment - it exists as a same page anchor in the old revision and the link title matches
-            $updated = TRUE;
             $find = $match[0];
             $pattern2 = '/<a [^>]+>(.+)*<\/a>/s'; // find link text and put back latest
             $matches2 = [];
@@ -65,6 +64,7 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
               // in case link title was updated on node later on and link not fixed at that time
               $replacement = str_replace($link_title, $newer_title, $full_link);
               $body = str_replace($find, $replacement, $body);
+              $updated = TRUE;
             }
           }
         }
@@ -73,6 +73,11 @@ class FixBadFragsAction extends ViewsBulkOperationsActionBase implements ViewsBu
 
       if ($updated) {
         $entity->set('body', ['value' => $body, 'format' => 'rich_text']);
+        $entity->setSticky(1);
+        $entity->revision_log = t('Bulk updated by bad fragment action.');
+        $entity->setRevisionUserId(\Drupal::currentUser()->id());
+        $entity->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+        $entity->setChangedTime(\Drupal::time()->getRequestTime());
         $entity->save();
       }
     }
