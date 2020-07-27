@@ -103,6 +103,10 @@ class SearchAndReplace extends ViewsBulkOperationsActionBase implements ViewsBul
 
     if ($hits > 0) {
       $entity->body->setValue(['value' => $new_body, 'format' => 'rich_text']);
+      $entity->revision_log = t('Bulk updated by search and replace action.');
+      $entity->setRevisionUserId(\Drupal::currentUser()->id());
+      $entity->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+      $entity->setChangedTime(\Drupal::time()->getRequestTime());
       $entity->save();
       $this->context['sandbox']['counter']++;
     }
