@@ -95,10 +95,10 @@ class SearchAndReplace extends ViewsBulkOperationsActionBase implements ViewsBul
     $body = $entity->get('body')->value;
 
     if ($config['action_type']) {
-      $new_body = preg_replace($config['search_string'], $config['replace_string'], $body['value'], -1,  $hits);
+      $new_body = preg_replace($config['search_string'], $config['replace_string'], $body, -1,  $hits);
     }
     else {
-      $new_body = str_replace($config['search_string'], $config['replace_string'], $body['value'], $hits);
+      $new_body = str_replace($config['search_string'], $config['replace_string'], $body, $hits);
     }
 
     if ($hits > 0) {
