@@ -24,6 +24,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\Core\Url;
 use Drupal\pathauto\PathautoFieldItemList;
 use Drupal\pathauto\PathautoItem;
@@ -83,14 +84,30 @@ function pathauto_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_entity_insert().
  */
 function pathauto_entity_insert(EntityInterface $entity) {
-  \Drupal::service('pathauto.generator')->updateEntityAlias($entity, 'insert');
+  if ($entity instanceof TranslatableInterface) {
+    foreach ($entity->getTranslationLanguages() as $langcode => $language) {
+      $translation = $entity->getTranslation($langcode);
+      \Drupal::service('pathauto.generator')->updateEntityAlias($translation, 'insert');
+    }
+  }
+  else {
+    \Drupal::service('pathauto.generator')->updateEntityAlias($entity, 'insert');
+  }
 }
 
 /**
  * Implements hook_entity_update().
  */
 function pathauto_entity_update(EntityInterface $entity) {
-  \Drupal::service('pathauto.generator')->updateEntityAlias($entity, 'update');
+  if ($entity instanceof TranslatableInterface) {
+    foreach ($entity->getTranslationLanguages() as $langcode => $language) {
+      $translation = $entity->getTranslation($langcode);
+      \Drupal::service('pathauto.generator')->updateEntityAlias($translation, 'update');
+    }
+  }
+  else {
+    \Drupal::service('pathauto.generator')->updateEntityAlias($entity, 'update');
+  }
 }
 
 /**

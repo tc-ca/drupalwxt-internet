@@ -157,6 +157,10 @@
                 "3104606 - Implement path alias changes in 8.x-1.x":
                 "https://www.drupal.org/files/issues/2020-01-13/3104606-15.patch"
             },
+            "drupal/pathauto": {
+                "2973478 - Aliases are not created for affected translations":
+                "https://www.drupal.org/files/issues/2018-07-12/2973478-4.patch"
+            },
             "drupal/redis": {
                 "3004561 - Enable ssl scheme":
                 "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"

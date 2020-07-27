@@ -186,6 +186,25 @@ class PathautoKernelTest extends KernelTestBase {
   }
 
   /**
+   * Test alias generation when translations are affected.
+   */
+  public function testAliasInTranslations() {
+    $node = Node::create([
+      'title' => 'English title',
+      'type' => 'page',
+      'langcode' => 'en',
+    ]);
+    $node->addTranslation('fr', [
+      'title' => 'French title',
+      'type' => 'page',
+      'langcode' => 'fr',
+    ]);
+    $node->save();
+    $this->assertEntityAlias($node, '/content/english-title', 'en');
+    $this->assertEntityAlias($node, '/content/french-title', 'fr');
+  }
+
+  /**
    * Test pathauto_cleanstring().
    */
   public function testCleanString() {
