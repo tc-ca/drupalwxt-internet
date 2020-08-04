@@ -323,6 +323,7 @@ function fontawesome_theme($existing, $type, $theme, $path) {
  */
 function fontawesome_theme_suggestions_fontawesomeicon(array $variables) {
   // Suggest a template with the icon name if it exists.
+  $suggestions = [];
   if (!empty($variables['name'])) {
     $suggestions[] = $variables['theme_hook_original'] . '__' . $variables['name'];
   }
@@ -477,7 +478,7 @@ function fontawesome_extract_icons() {
  * @param string $findIcon
  *   The icon for which we want metadata.
  *
- * @return array
+ * @return array|bool
  *   Array containing icons.
  */
 function fontawesome_extract_icon_metadata($findIcon) {

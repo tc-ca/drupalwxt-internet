@@ -386,11 +386,18 @@ function _webform_clear_webform_submission_list_cache_tag(EntityInterface $entit
  * Implements hook_mail().
  */
 function webform_mail($key, &$message, $params) {
-  // Never send emails when using devel generate to create 1000's of
-  // submissions.
-  if (\Drupal::moduleHandler()->moduleExists('devel_generate')
-    && \Drupal\webform\Plugin\DevelGenerate\WebformSubmissionDevelGenerate::isGeneratingSubmissions()) {
-    $message['send'] = FALSE;
+  // Never send emails when using devel generate to create
+  // 1000's of submissions.
+  if (\Drupal::moduleHandler()->moduleExists('devel_generate')) {
+    /** @var \Drupal\devel_generate\DevelGeneratePluginManager $devel_generate */
+    $devel_generate = \Drupal::service('plugin.manager.develgenerate');
+    $definition = $devel_generate->getDefinition('webform_submission', FALSE);
+    if ($definition) {
+      $class = $definition['class'];
+      if ($class::isGeneratingSubmissions()) {
+        $message['send'] = FALSE;
+      }
+    }
   }
 
   // Set default parameters.
@@ -745,6 +752,30 @@ function webform_webform_access_rules() {
  */
 function webform_process_states(array &$elements, $key = '#attributes') {
   WebformFormHelper::processStates($elements, $key);
+}
+
+/******************************************************************************/
+// Devel generate info hooks.
+/******************************************************************************/
+
+/**
+ * Implements hook_devel_generate_info_alter()
+ */
+function webform_devel_generate_info_alter(array &$generators) {
+  if (!isset($generators['webform_submission'])) {
+    return;
+  }
+
+  // Use deprecated generator because the devel_generate.module changed the
+  // DevelGenerateBaseInterface.
+  //
+  // @see \Drupal\webform\Plugin\DevelGenerate\WebformSubmissionDevelGenerateDeprecated
+  // @see https://www.drupal.org/project/webform/issues/3155654
+  // @see https://gitlab.com/drupalspoons/devel/-/issues/324
+  $info = \Drupal::service('extension.list.module')->getExtensionInfo('devel_generate');
+  if (!empty($info['version']) && strpos($info['version'], '8.x-') === 0) {
+    $generators['webform_submission']['class'] = 'Drupal\webform\Plugin\DevelGenerate\WebformSubmissionDevelGenerateDeprecated';
+  }
 }
 
 /******************************************************************************/

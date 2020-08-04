@@ -3,6 +3,7 @@
 namespace Drupal\fontawesome\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,14 +19,16 @@ class SettingsForm extends ConfigFormBase {
   /**
    * Drupal LibraryDiscovery service container.
    *
-   * @var Drupal\Core\Asset\LibraryDiscovery
+   * @var \Drupal\Core\Asset\LibraryDiscovery
    */
   protected $libraryDiscovery;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(LibraryDiscovery $library_discovery) {
+  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscovery $library_discovery) {
+    parent::__construct($config_factory);
+
     $this->libraryDiscovery = $library_discovery;
   }
 
@@ -34,6 +37,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
       $container->get('library.discovery')
     );
   }

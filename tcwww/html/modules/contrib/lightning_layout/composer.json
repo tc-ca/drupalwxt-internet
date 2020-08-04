@@ -17,13 +17,14 @@
         "drupal/lightning_core": "4.* || 5.*",
         "drupal/panelizer": "^4.1 || ^5.0",
         "drupal/panels": "4.4 || 4.x-dev",
-        "drupal/simple_gmap": "^2.1-rc1"
+        "drupal/simple_gmap": "^3.0"
     },
     "require-dev": {
         "drupal/core-composer-scaffold": "*",
         "drupal/core-dev": "*",
         "drush/drush": ">=9.7",
         "oomphinc/composer-installers-extender": "^1.1",
+        "symfony/options-resolver": ">=4",
         "vijaycs85/drupal-quality-checker": "^1.0"
     },
     "config": {

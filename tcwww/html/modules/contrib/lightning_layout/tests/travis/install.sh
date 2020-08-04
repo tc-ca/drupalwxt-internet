@@ -14,12 +14,6 @@ cd "$(dirname "$0")"
 # Reuse ORCA's own includes.
 source ../../../orca/bin/travis/_includes.sh
 
-# Temporary workaround to allow tests to run on Drupal 9. This can be removed when
-# Pathauto's test modules do not include the 'core: 8.x' key in their info files.
-if [ -d $ORCA_FIXTURE_DIR ]; then
-  rm -rf $ORCA_FIXTURE_DIR/docroot/modules/contrib/pathauto/tests/modules
-fi
-
 # Exit early if no DB fixture is specified.
 [[ "$DB_FIXTURE" ]] || exit 0
 

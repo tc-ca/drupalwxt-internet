@@ -24,7 +24,8 @@
         "sebastian/phpcpd": "*",
         "squizlabs/php_codesniffer": "2.*",
         "symfony/css-selector": "~2.8|~3.0",
-        "symfony/phpunit-bridge": "^3.4.3"
+        "symfony/phpunit-bridge": "^3.4.3",
+        "drupal/linkchecker": "1.x-dev"
     },
     "config": {
         "secure-http": false,
@@ -131,21 +132,25 @@
                 "3109348 - Add ability to set conditions (by language and content-type) on templates":
                 "https://www.drupal.org/files/issues/2020-01-27/ckeditor_templates_ui-conditions_feature-3109348-2.patch"
             },
-            "drupal/facets": {
-                "2984465 - Hide facets when it is configured to hide the block":
-                "https://www.drupal.org/files/issues/2019-06-11/facets-empty-block-2984465-31.patch"
-            },
             "drupal/taxonomy_manager": {
                 "3046752 - AJAX error when editing term content":
                 "https://www.drupal.org/files/issues/2019-07-30/taxonomy_manager-3046752-1.patch",
-                "3025793 - Parameter must be an array":
-                "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
                 "2662060 - Created Terms can't be Translated":
                 "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
             },
             "drupal/linkit": {
                 "2895153 - Linkit filter should honour the URL query and fragment":
                 "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
+            },
+            "drupal/linkchecker": {
+              "Move linkchecker_watchdog_log out of .module to a dedicated service.":
+              "https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch",
+              "Add support for Redirect module":
+              "https://www.drupal.org/files/issues/2020-06-17/3058014-27.patch",
+              "Link Extract Issue":
+              "https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch",
+              "Remove Drupal 9 deprecations":
+              "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch"
             },
             "drupal/library_manager": {
                 "3138547 - Add dependency form fails with google_tag":
@@ -249,7 +254,8 @@
         "drupal/views_url_alias": "^1.0",
         "drupal/purge": "^3.0",
         "drupal/varnish_purge": "^2.0",
-        "drupal/devel_entity_updates": "^3.0"
+        "drupal/devel_entity_updates": "^3.0",
+        "phpdocumentor/reflection-docblock": "^4"
     },
     "replace": {
     },

@@ -370,6 +370,14 @@ class WebformAddonsManager implements WebformAddonsManagerInterface {
       'category' => 'enhancement',
     ];
 
+    // Enhancement: Webform IP Geo.
+    $projects['webform_ip_geo'] = [
+      'title' => $this->t('Webform IP Geo'),
+      'description' => $this->t('Provides a simple way to extract geo data from the IP of a webform submission.'),
+      'url' => Url::fromUri('https://www.drupal.org/project/webform_ip_geo'),
+      'category' => 'enhancement',
+    ];
+
     // Enhancement: Webform Navigation.
     $projects['webformnavigation'] = [
       'title' => $this->t('Webform Navigation'),
@@ -701,11 +709,27 @@ class WebformAddonsManager implements WebformAddonsManagerInterface {
       'category' => 'integration',
     ];
 
+    // Integrations: Webform Hubspot Integration
+    $projects['hubspot_api_integration'] = [
+      'title' => $this->t('Webform Hubspot Integration'),
+      'description' => $this->t('Provides a Webform handler that integrates with Hubspot.'),
+      'url' => Url::fromUri('https://www.drupal.org/project/hubspot_api_integration'),
+      'category' => 'integration',
+    ];
+
     // Integration: Webform Jira Integration.
     $projects['webform_jira'] = [
       'title' => $this->t('Webform Jira Integration'),
       'description' => $this->t('Provides integration for webform submission with Jira.'),
       'url' => Url::fromUri('https://www.drupal.org/project/webform_jira'),
+      'category' => 'integration',
+    ];
+
+    // Integrations: Lightweight Webform Mailchimp.
+    $projects['lwm'] = [
+      'title' => $this->t('Lightweight Webform Mailchimp'),
+      'description' => $this->t('Manage and processing a Mailchimp lightweight connection from a Drupal webform.'),
+      'url' => Url::fromUri('https://www.drupal.org/project/lwm'),
       'category' => 'integration',
     ];
 
@@ -762,6 +786,14 @@ class WebformAddonsManager implements WebformAddonsManagerInterface {
       'title' => $this->t('Webform Product'),
       'description' => $this->t('Provides a webform handler for posting submissions to Pardot.'),
       'url' => Url::fromUri('https://github.com/chx/webform_product'),
+      'category' => 'integration',
+    ];
+
+    // Integrations: Webform SendGrid.
+    $projects['webform_sendgrid'] = [
+      'title' => $this->t('Webform SendGrid'),
+      'description' => $this->t('Provide a webform handler for sending submission data to SendGrids Contact/Marketing/Lists API.'),
+      'url' => Url::fromUri('https://www.drupal.org/project/webform_sendgrid'),
       'category' => 'integration',
     ];
 

@@ -112,8 +112,8 @@
       level = level || 0;
 
       var that = this;
-      var $select = $('<select class="simpler-select">').addClass(that.$element.attr('class'));
-      var $wrapper = $('<div class="select-wrapper">');
+      var $select = $('<select class="simpler-select"></select>').addClass(that.$element.attr('class'));
+      var $wrapper = $('<div class="select-wrapper"></div>');
 
       if (that.$element.hasClass('error')) {
         $select.addClass('error');
@@ -125,7 +125,7 @@
       $.each(options, function (i, option) {
         // Do not add "_none" option (already added by code above).
         if (option.value !== that.settings.noneValue) {
-          var $option = $('<option>')
+          var $option = $('<option></option>')
             .val(option.value)
             // Remove dashes from the beginning, then set the label.
             .text(option.label.trim().replace(new RegExp("^(- ){" + level + "}"), ''));

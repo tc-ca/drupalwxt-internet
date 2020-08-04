@@ -100,6 +100,5 @@ function fontawesome_uninstall() {
   if (\Drupal::moduleHandler()->moduleExists('icon') && ($cache = \Drupal::cache()->get('icon_bundles')) && !empty($cache->data)) {
     $fa_icon_bundle = isset($cache->data['fontawesome']) ? $cache->data['fontawesome'] : [];
     $fa_icon_bundle['path'] = isset($fa_icon_bundle['path']) ? $fa_icon_bundle['path'] : 'fontawesome';
-    icon_bundle_delete($fa_icon_bundle);
   }
 }

@@ -41,7 +41,7 @@ class TranslateEntityProcessorTest extends UnitTestCase {
   /**
    * The mocked entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $entityTypeManager;
 
@@ -59,18 +59,18 @@ class TranslateEntityProcessorTest extends UnitTestCase {
     parent::setUp();
 
     // Mock the typed data chain.
-    $target_field_definition = $this->getMock(EntityDataDefinition::class);
+    $target_field_definition = $this->createMock(EntityDataDefinition::class);
     $target_field_definition->expects($this->once())
       ->method('getEntityTypeId')
       ->willReturn('entity_type');
-    $property_definition = $this->getMock(DataReferenceDefinitionInterface::class);
+    $property_definition = $this->createMock(DataReferenceDefinitionInterface::class);
     $property_definition->expects($this->any())
       ->method('getTargetDefinition')
       ->willReturn($target_field_definition);
     $property_definition->expects($this->any())
       ->method('getDataType')
       ->willReturn('entity_reference');
-    $data_definition = $this->getMock(ComplexDataDefinitionInterface::class);
+    $data_definition = $this->createMock(ComplexDataDefinitionInterface::class);
     $data_definition->expects($this->any())
       ->method('getPropertyDefinition')
       ->willReturn($property_definition);
@@ -130,7 +130,7 @@ class TranslateEntityProcessorTest extends UnitTestCase {
     $nodes = [
       2 => $node,
     ];
-    $node_storage = $this->getMock(EntityStorageInterface::class);
+    $node_storage = $this->createMock(EntityStorageInterface::class);
     $node_storage->expects($this->any())
       ->method('loadMultiple')
       ->willReturn($nodes);
@@ -173,7 +173,7 @@ class TranslateEntityProcessorTest extends UnitTestCase {
     $terms = [
       2 => $term,
     ];
-    $term_storage = $this->getMock(EntityStorageInterface::class);
+    $term_storage = $this->createMock(EntityStorageInterface::class);
     $term_storage->expects($this->any())
       ->method('loadMultiple')
       ->willReturn($terms);
@@ -208,7 +208,7 @@ class TranslateEntityProcessorTest extends UnitTestCase {
    */
   public function testDeletedEntityResults() {
     // Set original results.
-    $term_storage = $this->getMock(EntityStorageInterface::class);
+    $term_storage = $this->createMock(EntityStorageInterface::class);
     $term_storage->expects($this->any())
       ->method('loadMultiple')
       ->willReturn([]);

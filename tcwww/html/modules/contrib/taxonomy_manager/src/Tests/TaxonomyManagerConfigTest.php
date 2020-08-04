@@ -31,9 +31,9 @@ class TaxonomyManagerConfigTest extends WebTestBase {
     $edit = [];
     $edit['taxonomy_manager_disable_mouseover'] = '1';
     $edit['taxonomy_manager_pager_tree_page_size'] = '50';
-    $this->drupalPostForm('admin/config/user-interface/taxonomy-manager-settings', $edit, t('Save configuration'));
+    $this->drupalPostForm('admin/config/user-interface/taxonomy-manager-settings', $edit, $this->t('Save configuration'));
     $this->assertResponse(200);
-    $this->assertText(t('The configuration options have been saved.'), "Saving configuration options successfully.");
+    $this->assertText($this->t('The configuration options have been saved.'), "Saving configuration options successfully.");
 
   }
 

@@ -65,7 +65,7 @@ trait TestHelperTrait {
     foreach ($this->blocks as $block) {
       $xpath = $this->xpath('//div[@id = :id]/div[@class="facet-empty"]', [':id' => 'block-' . $block->id()]);
       if (!$xpath) {
-        $this->assertFalse($xpath);
+        $this->assertEmpty($xpath);
       }
       else {
         $this->assertTrue($this->xpath('//div[@id = :id]/div[@class="facet-empty"]', [':id' => 'block-' . $block->id()]));

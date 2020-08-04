@@ -2,20 +2,119 @@
 
 namespace Drupal\taxonomy_manager\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFormBuilderInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Render\Element;
-use Drupal\Component\Utility\Html;
+use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Utility\LinkGeneratorInterface;
 use Drupal\taxonomy\VocabularyInterface;
 use Drupal\taxonomy_manager\TaxonomyManagerHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Taxonomy manager class.
  */
 class TaxonomyManagerForm extends FormBase {
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * The link generator.
+   *
+   * @var \Drupal\Core\Utility\LinkGeneratorInterface
+   */
+  protected $linkGenerator;
+
+  /**
+   * The url generator.
+   *
+   * @var \Drupal\Core\Routing\UrlGeneratorInterface
+   */
+  protected $urlGenerator;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The form builder service.
+   *
+   * @var \Drupal\Core\Form\FormBuilder
+   */
+  protected $formBuilder;
+
+  /**
+   * The entity form builder.
+   *
+   * @var \Drupal\Core\Entity\EntityFormBuilderInterface
+   */
+  protected $entityFormBuilder;
+
+  /**
+   * Constructs a \Drupal\taxonomy_manager\Form\TaxonomyManagerForm object.
+   *
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Utility\LinkGeneratorInterface $link_generator
+   *   The link generator service.
+   * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
+   *   The url generator.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Form\FormBuilder $form_builder
+   *   The form builder.
+   * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entity_form_builder
+   *   The entity form builder.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\Core\Path\CurrentPathStack $current_path
+   *   The current path.
+   */
+  public function __construct(ModuleHandlerInterface $module_handler, LinkGeneratorInterface $link_generator, UrlGeneratorInterface $url_generator, EntityTypeManagerInterface $entity_type_manager, FormBuilder $form_builder, EntityFormBuilderInterface $entity_form_builder, ConfigFactoryInterface $config_factory, CurrentPathStack $current_path) {
+    $this->moduleHandler = $module_handler;
+    $this->linkGenerator = $link_generator;
+    $this->urlGenerator = $url_generator;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->formBuilder = $form_builder;
+    $this->entityFormBuilder = $entity_form_builder;
+    $this->configFactory = $config_factory;
+    $this->currentPath = $current_path;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('module_handler'),
+      $container->get('link_generator'),
+      $container->get('url_generator'),
+      $container->get('entity_type.manager'),
+      $container->get('form_builder'),
+      $container->get('entity.form_builder'),
+      $container->get('config.factory'),
+      $container->get('path.current')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -54,6 +153,18 @@ class TaxonomyManagerForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, VocabularyInterface $taxonomy_vocabulary = NULL) {
+    // Advagg clash warning.
+    if (
+      ($this->moduleHandler->moduleExists('advagg'))
+      // && ($this->config('advagg_mod.settings').
+      // ->get('js_adjust_sort_external')).
+    ) {
+      $this->messenger()->addWarning($this->t('<em>Advanced CSS/JS Aggregation</em> module is enabled. Make sure that <em>%settings_link</em> setting is switched off.', [
+        '%settings_link' => $this->linkGenerator->generate($this->t('Move all external scripts to the top of the execution order'), new Url('advagg_mod.settings')),
+      ]));
+    }
+
+    // Build the form.
     $form['voc'] = ['#type' => 'value', "#value" => $taxonomy_vocabulary];
     $form['#attached']['library'][] = 'taxonomy_manager/form';
 
@@ -61,7 +172,7 @@ class TaxonomyManagerForm extends FormBase {
       $form['text'] = [
         '#markup' => $this->t('No terms available'),
       ];
-      $form[] = \Drupal::formBuilder()->getForm('Drupal\taxonomy_manager\Form\AddTermsToVocabularyForm', $taxonomy_vocabulary);
+      $form[] = $this->formBuilder->getForm('Drupal\taxonomy_manager\Form\AddTermsToVocabularyForm', $taxonomy_vocabulary);
       return $form;
     }
 
@@ -123,7 +234,7 @@ class TaxonomyManagerForm extends FormBase {
     $form['taxonomy']['manager']['tree'] = [
       '#type' => 'taxonomy_manager_tree',
       '#vocabulary' => $taxonomy_vocabulary->id(),
-      '#pager_size' => \Drupal::config('taxonomy_manager.settings')->get('taxonomy_manager_pager_tree_page_size'),
+      '#pager_size' => $this->configFactory->get('taxonomy_manager.settings')->get('taxonomy_manager_pager_tree_page_size'),
     ];
 
     $form['taxonomy']['manager']['pager'] = ['#type' => 'pager'];
@@ -148,7 +259,7 @@ class TaxonomyManagerForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $selected_terms = $form_state->getValue(['taxonomy', 'manager', 'tree']);
+    // $selected_terms = $form_state->getValue(['taxonomy', 'manager', 'tree']);.
   }
 
   /**
@@ -183,9 +294,11 @@ class TaxonomyManagerForm extends FormBase {
    * AJAX callback handler for the term data form.
    */
   public function termDataCallback($form, FormStateInterface $form_state) {
-    $taxonomy_term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($form_state->getValue('load-term-data'));
+    $taxonomy_term = $this->entityTypeManager
+      ->getStorage('taxonomy_term')
+      ->load($form_state->getValue('load-term-data'));
 
-    $term_form = \Drupal::service('entity.form_builder')->getForm($taxonomy_term, 'default');
+    $term_form = $this->entityFormBuilder->getForm($taxonomy_term, 'default');
 
     // Move the term data form into a fieldset.
     $term_form['fieldset']['#type'] = 'fieldset';
@@ -200,18 +313,18 @@ class TaxonomyManagerForm extends FormBase {
 
     $term_form['#prefix'] = '<div id="taxonomy-term-data-form">';
     $term_form['#suffix'] = '</div>';
-    $current_path = \Drupal::service('path.current')->getPath();
+    $current_path = $this->currentPath->getPath();
+
     // Change the form action url form the current site to the add form.
-    $term_form['#action'] = $this->getUrlGenerator()
-      ->generateFromRoute(
-        'entity.taxonomy_term.edit_form',
-        ['taxonomy_term' => $taxonomy_term->id()],
-        [
-          'query' => [
-            'destination' => $current_path
-          ],
-        ]
-      );
+    $term_form['#action'] = $this->urlGenerator->generateFromRoute(
+      'entity.taxonomy_term.edit_form',
+      ['taxonomy_term' => $taxonomy_term->id()],
+      [
+        'query' => [
+          'destination' => $current_path,
+        ],
+      ]
+    );
 
     $response = new AjaxResponse();
     $response->addCommand(new ReplaceCommand('#taxonomy-term-data-form', $term_form));
@@ -246,7 +359,7 @@ class TaxonomyManagerForm extends FormBase {
     $taxonomy_vocabulary = $form_state->getValue('voc');
     $selected_terms = $form_state->getValue(['taxonomy', 'manager', 'tree']);
 
-    $del_form = \Drupal::formBuilder()->getForm($class_name, $taxonomy_vocabulary, $selected_terms);
+    $del_form = $this->formBuilder->getForm($class_name, $taxonomy_vocabulary, $selected_terms);
     $del_form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
     // Change the form action url form the current site to the add form.

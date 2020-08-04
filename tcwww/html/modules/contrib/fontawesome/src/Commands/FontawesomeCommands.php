@@ -16,21 +16,21 @@ class FontawesomeCommands extends DrushCommands {
   /**
    * Library discovery service.
    *
-   * @var Drupal\Core\Asset\LibraryDiscovery
+   * @var \Drupal\Core\Asset\LibraryDiscovery
    */
-  protected $LibraryDiscovery;
+  protected $libraryDiscovery;
 
   /**
    * File system service.
    *
-   * @var Drupal\Component\FileSystem\FileSystem
+   * @var \Drupal\Core\File\FileSystem
    */
   protected $fileSystem;
 
   /**
    * Archive manager service.
    *
-   * @var Drupal\Core\Archiver\ArchiverManager
+   * @var \Drupal\Core\Archiver\ArchiverManager
    */
   protected $archiverManager;
 
@@ -38,7 +38,9 @@ class FontawesomeCommands extends DrushCommands {
    * {@inheritdoc}
    */
   public function __construct(LibraryDiscovery $library_discovery, FileSystem $file_system, ArchiverManager $archiver_manager) {
-    $this->LibraryDiscovery = $library_discovery;
+    parent::__construct();
+
+    $this->libraryDiscovery = $library_discovery;
     $this->fileSystem = $file_system;
     $this->archiverManager = $archiver_manager;
   }
@@ -72,7 +74,7 @@ class FontawesomeCommands extends DrushCommands {
     }
 
     // Load the Font Awesome defined library.
-    if ($fontawesome_library = $this->LibraryDiscovery->getLibraryByName('fontawesome', 'fontawesome.svg')) {
+    if ($fontawesome_library = $this->libraryDiscovery->getLibraryByName('fontawesome', 'fontawesome.svg')) {
 
       // Download the file.
       $destination = tempnam(sys_get_temp_dir(), 'file.') . "tar.gz";
@@ -82,7 +84,7 @@ class FontawesomeCommands extends DrushCommands {
         $this->fileSystem->rmdir($path);
         $this->logger()->error(dt('Drush was unable to download the Font Awesome library from @remote.', [
           '@remote' => $fontawesome_library['remote'],
-        ], 'error'));
+        ]));
         return;
       }
       $this->fileSystem->move($destination, $path . '/fontawesome.zip');
@@ -91,11 +93,12 @@ class FontawesomeCommands extends DrushCommands {
         $this->fileSystem->rmdir($path);
         $this->logger()->error(dt('Error: unable to download Fontawesome library from @remote', [
           '@remote' => $fontawesome_library['remote'],
-        ], 'error'));
+        ]));
         return;
       }
 
       // Unzip the file.
+      /** @var \Drupal\Core\Archiver\ArchiverInterface $zipFile */
       $zipFile = $this->archiverManager->getInstance(['filepath' => $path . '/fontawesome.zip']);
       $zipFile->extract($path);
 
@@ -110,7 +113,7 @@ class FontawesomeCommands extends DrushCommands {
       // Success.
       $this->logger()->notice(dt('Fontawesome library has been successfully downloaded to @path.', [
         '@path' => $path,
-      ], 'success'));
+      ]));
     }
     else {
       $this->logger()->error(dt('Drush was unable to load the Font Awesome library'));

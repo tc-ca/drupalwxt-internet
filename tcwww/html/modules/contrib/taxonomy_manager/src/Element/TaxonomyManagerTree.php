@@ -116,7 +116,7 @@ class TaxonomyManagerTree extends FormElement {
     }
     $query->fields('td', ['tid']);
     $query->condition('td.vid', $vocabulary->id());
-    $query->join('taxonomy_term_hierarchy', 'th', 'td.tid = th.tid AND th.parent = :parent', [':parent' => $parent]);
+    $query->join('taxonomy_term__parent', 'th', 'td.tid = th.entity_id AND th.parent_target_id = :parent', [':parent' => $parent]);
     $query->join('taxonomy_term_field_data', 'tfd', 'td.tid = tfd.tid');
     $query->orderBy('tfd.weight');
     $query->orderBy('tfd.name');

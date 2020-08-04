@@ -32,14 +32,8 @@ INSTALLATION
    sites/all/modules/ directory.
 
 2. Enable the taxonomy manager module by navigating to:
-     administer > site building > modules
+     administer > extend
 
-
-UPGRADE to 7.x
----------------
-The table 'taxonomy_manager_merge' is deprecated and won't be used by now.
-This table stores which terms were merged into which destination term. If you
-do not need this information, you can manually remove this table.
 
 
 USING THE TAXONOMY MANAGER

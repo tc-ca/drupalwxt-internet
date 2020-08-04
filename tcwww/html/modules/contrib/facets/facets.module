@@ -374,7 +374,8 @@ function facets_language_switch_links_alter(array &$links, $type, Url $url) {
     }
 
     foreach ($allFacets as $facet) {
-      if (!isset($link['query'][$facet->getFacetSourceConfig()->getFilterKey()])) {
+      if (!isset($link['query'][$facet->getFacetSourceConfig()->getFilterKey()]) ||
+          !is_array($link['query'][$facet->getFacetSourceConfig()->getFilterKey()])) {
         continue;
       }
 

@@ -4,6 +4,8 @@ namespace Drupal\cshs\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\Select;
+use Drupal\taxonomy\TermInterface;
+use Drupal\taxonomy\TermStorageInterface;
 use Drupal\views\Form\ViewsExposedForm;
 
 /**
@@ -16,7 +18,7 @@ class CshsElement extends Select {
   /**
    * {@inheritdoc}
    */
-  public function getInfo() {
+  public function getInfo(): array {
     $info = parent::getInfo();
 
     $info['#label'] = '';
@@ -45,7 +47,7 @@ class CshsElement extends Select {
   /**
    * {@inheritdoc}
    */
-  public static function processElement(array $element) {
+  public static function processElement(array $element): array {
     $element['#attached']['library'][] = 'cshs/cshs.base';
     $element['#attached']['drupalSettings']['cshs'][$element['#id']] = [
       'labels' => $element['#labels'],
@@ -59,7 +61,7 @@ class CshsElement extends Select {
   /**
    * {@inheritdoc}
    */
-  public static function validateElement(array &$element, FormStateInterface $form_state) {
+  public static function validateElement(array &$element, FormStateInterface $form_state): void {
     // The value is not selected.
     if (empty($element['#value']) || $element['#value'] == $element['#none_value']) {
       // Element must have its "none" value when nothing selected. This will
@@ -70,19 +72,26 @@ class CshsElement extends Select {
 
       // Set an error if user doesn't select anything and field is required.
       if ($element['#required']) {
-        $form_state->setError($element, t('@label field is required.', [
+        $form_state->setError($element, \t('@label field is required.', [
           '@label' => $element['#label'],
         ]));
       }
     }
     // Do we want to force the user to select terms from the deepest level?
     elseif ($element['#force_deepest']) {
-      /* @var \Drupal\taxonomy\TermStorage $storage */
       $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+      \assert($storage instanceof TermStorageInterface);
       $term = $storage->load($element['#value']);
+      \assert($term === NULL || $term instanceof TermInterface);
 
+      if ($term === NULL) {
+        $form_state->setError($element, \t('Unable to load a term (ID: @id) for the @label field.', [
+          '@id' => $element['#value'],
+          '@label' => $element['#label'],
+        ]));
+      }
       // Set an error if term has children.
-      if (!empty($storage->loadChildren($term->id(), $term->getVocabularyId()))) {
+      elseif (!empty($storage->loadChildren($term->id(), $term->bundle()))) {
         $form_state->setError($element, \t('You need to select a term from the deepest level in @label field.', [
           '@label' => $element['#label'],
         ]));

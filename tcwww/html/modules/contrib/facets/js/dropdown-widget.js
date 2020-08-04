@@ -69,7 +69,15 @@
           $option.attr('selected', 'selected');
           $link.find('.js-facet-deactivate').remove();
         }
-        $option.text($link.text());
+        $option.text(function() {
+          // Add hierarchy indicator in case hierarchy is enabled.
+          var $parents = $link.parent('li.facet-item').parents('li.facet-item');
+          var prefix = '';
+          for (var i = 0; i < $parents.length; i++) {
+            prefix += '-';
+          }
+          return prefix + ' ' + $link.text().trim();
+        });
         $dropdown.append($option);
       });
 

@@ -1,3 +1,8 @@
+## 2.7.0
+* Updated Simple GMap to 3.0.
+* Fixed a bug where new dependencies were not enabled during update. 
+  (Issue #3098556)
+
 ## 2.6.0
 * Updated Simple GMap to 2.1-rc1.
 * Updated Layout Builder Restrictions to 2.7.

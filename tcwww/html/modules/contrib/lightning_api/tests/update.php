@@ -14,19 +14,12 @@ $config_factory = Drupal::configFactory();
 
 $config_factory
   ->getEditable('core.extension')
-  ->clear('module.lightning_dev')
   // openapi_redoc was renamed to openapi_ui_redoc, so we need to delete all
   // mention of it from the database.
   ->clear('module.openapi_redoc')
-  ->clear('module.standard')
-  ->set('module.minimal', 1000)
-  ->set('profile', 'minimal')
   ->save();
 
-Drupal::keyValue('system.schema')->deleteMultiple([
-  'lightning_dev',
-  'openapi_redoc',
-]);
+Drupal::keyValue('system.schema')->delete('openapi_redoc');
 
 $config_factory
   ->getEditable('entity_browser.browser.media_browser')
