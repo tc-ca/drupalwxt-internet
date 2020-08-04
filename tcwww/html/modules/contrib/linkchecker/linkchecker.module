@@ -1,0 +1,170 @@
+<?php
+
+/**
+ * @file
+ * This module periodically check links in given node types, blocks etc.
+ *
+ * Developed by Alexander Hass, https://www.yaml-for-drupal.com/.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\field\FieldConfigInterface;
+use Drupal\linkchecker\LinkCheckerLinkInterface;
+
+/**
+ * Implements hook_help().
+ */
+function linkchecker_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.linkchecker':
+      return '<p>' . t('This module provides an aid to finding broken links on your site. It periodically checks contents of all public nodes, tries to find any html links and check for their validity. It reports broken links through the admin interface. For more information about status codes see <a href="@rfc">Status Code Definitions</a>.', ['@rfc' => 'https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html']) . '</p>';
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function linkchecker_form_field_config_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\field\FieldConfigInterface $fieldConfig */
+  $fieldConfig = $form_state->getFormObject()->getEntity();
+
+  $form['third_party_settings']['linkchecker'] = [
+    '#type' => 'details',
+    '#title' => t('LinkChecker settings'),
+  ];
+
+  /** @var \Drupal\linkchecker\Plugin\LinkExtractorManager $linkExtractorManager */
+  $linkExtractorManager = \Drupal::service('plugin.manager.link_extractor');
+
+  $options = [];
+  foreach ($linkExtractorManager->getDefinitions() as $definition) {
+    if (in_array($fieldConfig->getType(), $definition['field_types'])) {
+      $options[$definition['id']] = $definition['label'];
+    }
+  }
+
+  if (empty($options)) {
+    $form['third_party_settings']['linkchecker']['#description'] = t('This field type is unsupported!');
+    return;
+  }
+
+  $form['third_party_settings']['linkchecker']['scan'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Scan broken links'),
+    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'scan', FALSE),
+  ];
+
+  $form['third_party_settings']['linkchecker']['extractor'] = [
+    '#type' => 'select',
+    '#title' => t('Extractor'),
+    '#description' => t('Defines which extractor plugin to use'),
+    '#empty_value' => '',
+    '#options' => $options,
+    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'extractor', '_none'),
+    '#states' => [
+      'required' => [
+        ':input[name="third_party_settings[linkchecker][scan]"]' => [
+          'checked' => TRUE,
+        ],
+      ],
+      'visible' => [
+        ':input[name="third_party_settings[linkchecker][scan]"]' => [
+          'checked' => TRUE,
+        ],
+      ],
+    ],
+  ];
+
+  $form['#entity_builders'][] = 'linkchecker_form_field_config_form_builder';
+}
+
+function linkchecker_form_field_config_form_builder($entity_type, FieldConfigInterface $field_config, &$form, FormStateInterface $form_state) {
+  if ($form_state->getValue(['third_party_settings', 'linkchecker', 'scan']) === 1) {
+    $field_config->setThirdPartySetting('linkchecker', 'scan', TRUE);
+    $field_config->setThirdPartySetting('linkchecker', 'extractor', $form_state->getValue(['third_party_settings', 'linkchecker', 'extractor']));
+    return;
+  }
+
+  $field_config->unsetThirdPartySetting('linkchecker', 'scan');
+  $field_config->unsetThirdPartySetting('linkchecker', 'extractor');
+}
+
+/**
+ * Implements hook_cron().
+ */
+function linkchecker_cron() {
+  \Drupal::service('linkchecker.extractor_batch')->processEntities();
+  \Drupal::service('linkchecker.checker')->queueLinks();
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function linkchecker_entity_insert(EntityInterface $entity) {
+  if ($entity instanceof LinkCheckerLinkInterface) {
+    return;
+  }
+
+  if ($entity instanceof FieldableEntityInterface) {
+    /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
+    $extractor = \Drupal::service('linkchecker.extractor');
+    $links = $extractor->extractFromEntity($entity);
+    $extractor->saveLinkMultiple($links);
+    $extractor->updateEntityExtractIndex($entity);
+
+    \Drupal::service('linkchecker.clean_up')->cleanUpForEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function linkchecker_entity_update(EntityInterface $entity) {
+  if ($entity instanceof LinkCheckerLinkInterface) {
+    return;
+  }
+
+  if ($entity instanceof FieldableEntityInterface) {
+    /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
+    $extractor = \Drupal::service('linkchecker.extractor');
+    $links = $extractor->extractFromEntity($entity);
+    $extractor->saveLinkMultiple($links);
+    $extractor->updateEntityExtractIndex($entity);
+
+    \Drupal::service('linkchecker.clean_up')->cleanUpForEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function linkchecker_entity_delete(EntityInterface $entity) {
+  if ($entity instanceof LinkCheckerLinkInterface) {
+    return;
+  }
+
+  if ($entity instanceof FieldableEntityInterface) {
+    \Drupal::service('linkchecker.clean_up')->cleanUpForEntity($entity);
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function linkchecker_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form['#id'] == 'views-exposed-form-broken-links-report-page-1') {
+    $form['result']['#states'] = [
+      'enabled' => [
+        ':input[name="code"]' => ['value' => ''],
+      ],
+    ];
+    $form['code']['#states'] = [
+      'enabled' => [
+        'select[name="result"]' => ['value' => 'All'],
+      ],
+    ];
+  }
+}
