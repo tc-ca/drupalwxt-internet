@@ -24,7 +24,8 @@
         "sebastian/phpcpd": "*",
         "squizlabs/php_codesniffer": "2.*",
         "symfony/css-selector": "~2.8|~3.0",
-        "symfony/phpunit-bridge": "^3.4.3"
+        "symfony/phpunit-bridge": "^3.4.3",
+        "drupal/linkchecker": "1.x-dev"
     },
     "config": {
         "secure-http": false,
@@ -152,6 +153,16 @@
                 "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch",
                 "3143565 - Condition logic issue skips libraries that should be attached":
                 "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
+            },
+            "drupal/linkchecker": {
+              "Move linkchecker_watchdog_log out of .module to a dedicated service.":
+              "https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch",
+              "Add support for Redirect module":
+              "https://www.drupal.org/files/issues/2020-06-17/3058014-27.patch",
+              "Link Extract Issue":
+              "https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch",
+              "Remove Drupal 9 deprecations":
+              "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch"
             },
             "drupal/views_url_alias": {
                 "3104606 - Implement path alias changes in 8.x-1.x":
