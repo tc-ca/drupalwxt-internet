@@ -57,6 +57,7 @@ class NodeAuthlinkNodeForm extends FormBase {
     $config_grants = $config->get('grants');
 
     $node = Node::load($node);
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
 
     $form['disclaimer'] = [
       '#type' => 'markup',
@@ -87,7 +88,6 @@ class NodeAuthlinkNodeForm extends FormBase {
             foreach ($result as $vid => $nid) {
 
               $revision = $node_storage->loadRevision($vid);
-              $langcode = $node->language()->getId();
               // Only show revisions that are affected by the language that is being
               // displayed.
               if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {

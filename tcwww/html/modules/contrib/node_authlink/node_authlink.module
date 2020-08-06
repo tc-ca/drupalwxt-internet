@@ -474,4 +474,45 @@ function node_authlink_tokens($type, $tokens, array $data = [], array $options =
   return $replacements;
 }
 
+/**
+ * Implements hook_module_implements_alter().
+ */
+function node_authlink_module_implements_alter(&$implementations, $hook) {
+  switch ($hook) {
+    // Move our hook_entity_type_alter() implementation to the end of the list.
+    case 'language_fallback_candidates_entity_view_alter':
+      $group = $implementations['node_authlink'];
+      unset($implementations['node_authlink']);
+      $implementations['node_authlink'] = $group;
+      break;
+  }
+}
 
+/**
+ * Implements hook_language_fallback_candidates_OPERATION_alter().
+ *
+ * Adds back language removed by content_translation which does not apply to node_authlink on node view.
+ */
+function node_authlink_language_fallback_candidates_entity_view_alter(&$candidates, $context) {
+  /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+  $entity = $context['data'];
+  $account = \Drupal::currentUser();
+  if ($entity instanceof \Drupal\node\NodeInterface && node_authlink_node_is_enabled($entity) && node_authlink_check_authlink($entity, 'view', $account)) {
+    $entity_type_id = $entity->getEntityTypeId();
+    /** @var \Drupal\content_translation\ContentTranslationManagerInterface $manager */
+    $manager = \Drupal::service('content_translation.manager');
+    if ($manager->isEnabled($entity_type_id, $entity->bundle())) {
+      $entity_type = $entity->getEntityType();
+      foreach ($entity->getTranslationLanguages() as $langcode => $language) {
+        if (!isset($candidates[$langcode])) {
+          if (isset($context['langcode']) && $context['langcode'] == $langcode) {
+            $candidates = array_merge([$langcode => $langcode], $candidates);
+          }
+          else {
+            $candidates[$langcode] = $langcode;
+          }
+        }
+      }
+    }
+  }
+}
