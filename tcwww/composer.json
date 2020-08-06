@@ -164,6 +164,10 @@
               "Remove Drupal 9 deprecations":
               "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch"
             },
+            "drupal/node_authlink": {
+              "Problems with viewing draft translations":
+              "https://www.drupal.org/files/issues/2020-08-05/node_authlink-view_translation_problems-3163638-2.patch"
+            },
             "drupal/views_url_alias": {
                 "3104606 - Implement path alias changes in 8.x-1.x":
                 "https://www.drupal.org/files/issues/2020-01-13/3104606-15.patch"
