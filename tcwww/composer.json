@@ -264,7 +264,8 @@
         "drupal/views_url_alias": "^1.0",
         "drupal/purge": "^3.0",
         "drupal/varnish_purge": "^2.0",
-        "drupal/devel_entity_updates": "^3.0"
+        "drupal/devel_entity_updates": "^3.0",
+        "drupal/file_delete": "^1.0"
     },
     "replace": {
     },
