@@ -98,28 +98,6 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
     foreach ($data as $row) { 
       $item_date = new DrupalDateTime($row->publishedDate, 'UTC');
 
-      // check if we need to update varnish
-      $last_update = \Drupal::state()->get('op_wxt_last_update');
-
-      $moduleHandler = \Drupal::service('module_handler');
-      if ($moduleHandler->moduleExists('purge')) {
-        if ($num_items == 0 && $last_update != $item_date->getTimestamp()) {
-          // save the date of the newest item
-          \Drupal::state()->set('op_wxt_last_update', $item_date->getTimestamp()); 
-          // invalidate the home page
-          \Drupal::logger('openplus')->notice('Invalidating home page on news item update.');
-          $purgeInvalidationFactory = \Drupal::service('purge.invalidation.factory');
-          $purgeQueuers = \Drupal::service('purge.queuers');
-          $purgeQueue = \Drupal::service('purge.queue');
-  
-          $queuer = $purgeQueuers->get('myqueuer');
-          $invalidations = [
-            $purgeInvalidationFactory->get('tag', 'node:22'),
-          ];
-          $purgeQueue->add($queuer, $invalidations);
-        }
-      }
-
       // format the list of news items
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
       if ($num_items < $max_items) {
