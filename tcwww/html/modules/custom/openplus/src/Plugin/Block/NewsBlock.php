@@ -121,22 +121,22 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
       '#allowed_tags' => ['a', 'small', 'br'],
     ];
 
-    $news_link = ($language == 'fr') ?  'https://www.canada.ca/fr/nouvelles.html' : 'https://www.canada.ca/en/news.html';
-    $markup = '<p class="text-right"><strong><a href="#news" title="' . t('News modal content') . '" class="wb-lbx" onclick="ga(\'send\', \'event\', \'News\', \'click\', \'nwsfd-eng\',\'1\')">' . t('All news') . '</a></strong></p>';
-    $markup .= '<section class="mfp-hide modal-dialog modal-content overlay-def" id="news">';
-    $markup .= ' <header class="modal-header"><h2 class="modal-title">' . t('Transport Canada news') . '</h2></header>';
-    $markup .= '<div class="modal-body">' . render($table) . '</div>';
-    $markup .= '<div class="modal-footer">
-      <ul class="list-inline mrgn-bttm-0">
-        <li> <a href="' . $news_link . '" class="btn btn-primary" role="button">' . t('GC news') . '</a> </li>
-        <li> <a href="#" class="btn btn-default popup-modal-dismiss" role="button">' . t('Close') . '</a> </li>
-      </ul>
-    </div></section>';
+    $news_link = ($language == 'fr') ?  'https://www.canada.ca/fr/nouvelles/recherche-avancee-de-nouvelles/resultats-de-nouvelles.html?_=1597849637610&typ=&dprtmnt=departmentoftransport&mnstr=&start=&end=' : 'https://www.canada.ca/en/news/advanced-news-search/news-results.html?_=1597849598414&dprtmnt=departmentoftransport&start=&end=';
 
+    $options = [
+      'attributes' => [
+        'class' => [
+          'all-news-link',
+        ],
+       'target' => '_blank',
+      ],
+    ];
+    $url = Url::fromUri($news_link, $options);
 
     $build['more_link'] = [
-      '#type' => 'markup',
-      '#markup' => $markup,
+      '#type' => 'link',
+      '#url' => $url,
+      '#title' => t('All news'),
     ];
 
     return $build;
