@@ -178,7 +178,10 @@ class LinkCheckerService {
 
     return $this->httpClient
       ->requestAsync($link->getRequestMethod(), $link->getUrl(), $options)
-      ->then(function (ResponseInterface $response) use ($link) {
+      ->then(function (ResponseInterface $response) use ($link, $uri) {
+        if (!empty($uri['fragment'])) {
+          $response->withHeader('Fragment', $uri['fragment']);
+        }
         $this->statusHandling($response, $link);
       },
       function (RequestException $e) use ($link) {
@@ -217,15 +220,15 @@ class LinkCheckerService {
     if ($statusCode == 200
       && !empty($response->getBody())
       && !empty($response->getHeader('Content-Type'))
-      && !empty($response->getHeader('Link'))
-      && preg_match('/=|\/|,/', $response->getHeader('Link')[1]) == FALSE
-      && !in_array($response->getHeader('Link')[1], ['#top'])
+      && $response->hasHeader('Fragment')
+      && preg_match('/=|\/|,/', $response->getHeaderLine('Fragment')) == FALSE
+      && $response->getHeader('Fragment') !== '#top'
       && in_array($response->getHeaderLine('Content-Type'), [
         'text/html',
         'application/xhtml+xml',
         'application/xml',
       ])
-      && !preg_match('/(\s[^>]*(name|id)(\s+)?=(\s+)?["\'])(' . preg_quote(urldecode($response->getHeader('Link')[1]), '/') . ')(["\'][^>]*>)/i', $response->getBody())
+      && !preg_match('/(\s[^>]*(name|id)(\s+)?=(\s+)?["\'])(' . preg_quote(urldecode($response->getHeaderLine('Fragment')), '/') . ')(["\'][^>]*>)/i', $response->getBody())
     ) {
       // Override status code 200 with status code 404 so it can be handled with
       // default status code 404 logic and custom error text.

@@ -159,6 +159,8 @@
               "https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch",
               "Add support for Redirect module":
               "https://www.drupal.org/files/issues/2020-06-17/3058014-27.patch",
+              "Undefined offset error":
+              "https://www.drupal.org/files/issues/2020-08-24/undefined-offset-error-3065045-13.patch", 
               "Link Extract Issue":
               "https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch",
               "Remove Drupal 9 deprecations":
