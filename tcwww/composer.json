@@ -144,6 +144,10 @@
                 "2662060 - Created Terms can't be Translated":
                 "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
             },
+            "drupal/file_delete": {
+              "3115158 - Add functionality to immediately delete files and override usage check":
+              "https://www.drupal.org/files/issues/2020-02-21/3115158-2.patch"
+            },
             "drupal/linkit": {
                 "2895153 - Linkit filter should honour the URL query and fragment":
                 "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"

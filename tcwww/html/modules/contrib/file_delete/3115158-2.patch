@@ -1,0 +1,72 @@
+diff --git a/src/Form/FileDeleteForm.php b/src/Form/FileDeleteForm.php
+index 9c1d0f9..9a8abb7 100644
+--- a/src/Form/FileDeleteForm.php
++++ b/src/Form/FileDeleteForm.php
+@@ -51,6 +51,23 @@ class FileDeleteForm extends ContentEntityConfirmFormBase {
+     );
+   }
+ 
++  /**
++   * {@inheritdoc}
++   */
++  public function buildForm(array $form, FormStateInterface $form_state) {
++    $form = parent::buildForm($form, $form_state);
++    $form['force_delete'] = [
++      '#type' => 'checkbox',
++      '#title' => $this->t('Do you want to force this file to be deleted?'),
++      '#description' => $this->t('This option will override the usages check, which could result in a broken link. To avoid this, remove all usages of the file first.'),
++    ];
++    $form['delete_immediately'] = [
++      '#type' => 'checkbox',
++      '#title' => $this->t('Do you want to delete the file immediately?'),
++      '#description' => $this->t('This option will skip Drupal\'s file cleanup method and delete the file directly.'),
++    ];
++    return $form;
++  }
+   /**
+    * {@inheritdoc}
+    */
+@@ -79,8 +96,13 @@ class FileDeleteForm extends ContentEntityConfirmFormBase {
+    * {@inheritdoc}
+    */
+   public function submitForm(array &$form, FormStateInterface $form_state) {
++    $force_delete = $form_state->getValue('force_delete');
++    $delete_immediately = $form_state->getValue('delete_immediately');
+     $usages = $this->fileUsage->listUsage($this->entity);
+-    if ($usages) {
++
++    // If the file is in use, and we don't want to force delete, cancel the
++    // delete and set error message.
++    if ($usages && !$force_delete) {
+       $url = new Url('view.files.page_2', ['arg_0' => $this->entity->id()]);
+       $this->messenger()->addError($this->t('The file %file_name cannot be deleted because it is in use by the following modules: %modules.<br>Click <a href=":link_to_usages">here</a> to see its usages.', [
+         '%file_name' => $this->entity->getFilename(),
+@@ -91,13 +113,21 @@ class FileDeleteForm extends ContentEntityConfirmFormBase {
+       return;
+     }
+ 
+-    // Mark the file for removal by file_cron().
+-    $this->entity->setTemporary();
+-    $this->entity->save();
+-
+-    $this->messenger()->addMessage($this->t('The file %file_name has been marked for deletion.', [
+-      '%file_name' => $this->entity->getFilename(),
+-    ]));
++    // If $delete_immediately is TRUE, delete the file, otherwise mark it for
++    // removal by file_cron().
++    if ($delete_immediately) {
++      $this->entity->delete();
++      $this->messenger()->addMessage($this->t('The file %file_name has been deleted.', [
++        '%file_name' => $this->entity->getFilename(),
++      ]));
++    }
++    else {
++      $this->entity->setTemporary();
++      $this->entity->save();
++      $this->messenger()->addMessage($this->t('The file %file_name has been marked for deletion.', [
++        '%file_name' => $this->entity->getFilename(),
++      ]));
++    }
+ 
+     $form_state->setRedirect('view.files.page_1');
+   }
