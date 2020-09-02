@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
@@ -275,4 +276,59 @@ function openplus_build_url(array $parts) {
       (isset($parts['path']) ? "{$parts['path']}" : '') .
       (isset($parts['query']) ? "?{$parts['query']}" : '') .
       (isset($parts['fragment']) ? "#{$parts['fragment']}" : '');
+}
+
+function openplus_cron() {
+
+  // We access our configuration.
+  $config = \Drupal::config('openplus.settings');
+  // Default to an hourly interval. Of course, cron has to be running at least
+  // hourly for this to work.
+  $interval = $config
+    ->get('news_check_interval');
+  $interval = !empty($interval) ? $interval : 3600;
+
+  // return if disabled
+  if ($interval == 0) {
+    return;
+  }
+
+  // We usually don't want to act every time cron runs (which could be every
+  // minute) so keep a time for the next run in the site state.
+  $next_execution = \Drupal::state()
+    ->get('openplus.next_execution', 0);
+  if (REQUEST_TIME >= $next_execution) {
+    // get latest news items
+    $uri = $config->get('news_check_url');
+    $headers = [
+      'Accept' => 'application/json; charset=utf-8',
+      'Content-Type' => 'application/json',
+    ];
+    $request = \Drupal::httpClient()
+      ->get($uri, array(
+       'headers' => $headers,
+    ));
+    $response = json_decode($request->getBody());
+
+    $data = $response->feed->entry;
+    $item_date = new DrupalDateTime($data[0]->publishedDate, 'UTC');
+    // check if we need to update varnish
+    $last_update = \Drupal::state()->get('op_wxt_last_update');
+    $moduleHandler = \Drupal::service('module_handler');
+    if ($moduleHandler->moduleExists('purge') && $last_update != $item_date->getTimestamp()) {
+      // save the date of the newest item
+      \Drupal::state()->set('op_wxt_last_update', $item_date->getTimestamp());
+      // invalidate the home page
+      \Drupal::logger('openplus')->notice('Invalidating home page on news item update.');
+      $purgeInvalidationFactory = \Drupal::service('purge.invalidation.factory');
+      $purgeQueuers = \Drupal::service('purge.queuers');
+      $purgeQueue = \Drupal::service('purge.queue');
+
+      $queuer = $purgeQueuers->get('myqueuer');
+      $invalidations = [
+        $purgeInvalidationFactory->get('tag', 'node:22'),
+      ];
+      $purgeQueue->add($queuer, $invalidations);
+    }
+  }
 }

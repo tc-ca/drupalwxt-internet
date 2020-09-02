@@ -97,6 +97,8 @@ class NewsBlock extends BlockBase implements BlockPluginInterface {
 
     foreach ($data as $row) { 
       $item_date = new DrupalDateTime($row->publishedDate, 'UTC');
+
+      // format the list of news items
       $formatted_date = \Drupal::service('date.formatter')->format($item_date->getTimestamp(), 'short_time');
       if ($num_items < $max_items) {
         $short_list[] = Markup::create('<a href="' . $row->link . '">' . $row->title . '</a><br /> <small>[' . $formatted_date . ']</small>');
