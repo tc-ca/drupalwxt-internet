@@ -37,13 +37,14 @@
     %}	
     <ul{{ attributes.addClass(ul_classes) }}>
     {% for item in items %}
-      {% if item.in_active_trail and not item.below %}
       {%
         set item_classes = [
-          'active',
+          item.is_expanded and item.below ? 'expanded',
+          menu_level == 0 and item.below ? 'dropdown',
+          menu_level == 0 and item.is_collapsed ? 'dropdown',
+          item.in_active_trail ? 'active open',
         ]
-      %}	
-      {% endif %}
+      %}
       {% if menu_level == 0 and item.below %}
         <li{{ item.attributes.addClass(item_classes) }}>
         <a href="{{ item.url }}">{{ item.title }}</a>
