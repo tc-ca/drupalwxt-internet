@@ -123,6 +123,8 @@
                 "https://www.drupal.org/files/issues/2020-01-25/2797583-149.patch",
                 "3001188 - Make it possible to add relationships to layout builder":
                 "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch",
+                "2429699 - Add Views EntityReference filter to be available for all entity reference fields":
+                "https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch",
                 "26552 - Allow users with access to unpublished nodes to create unpublished books ":
                 "https://www.drupal.org/files/issues/2020-09-02/26552-178.patch"
             },
