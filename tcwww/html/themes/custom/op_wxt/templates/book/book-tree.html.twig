@@ -42,7 +42,8 @@
           item.is_expanded and item.below ? 'expanded',
           menu_level == 0 and item.below ? 'dropdown',
           menu_level == 0 and item.is_collapsed ? 'dropdown',
-          item.in_active_trail ? 'active open',
+          item.in_active_trail ? 'open', 
+          item.is_active ? 'active',
         ]
       %}
       {% if menu_level == 0 and item.below %}
@@ -52,7 +53,7 @@
         <li{{ item.attributes.addClass(item_classes) }}>
         {{ link(item.title, item.url) }}
       {% endif %}
-      {% if item.below %}
+      {% if item.below and item.in_active_trail %}
         {{ book_tree.book_links(item.below, attributes.removeClass(classes), menu_level + 1, classes) }}
       {% endif %}
       </li>
