@@ -1,3 +1,8 @@
+push_covid:
+	az acr login --name devtestwwwacr
+	docker tag drupalwxt-internet devtestwwwacr.azurecr.io/drupalwxt-internet
+	docker push devtestwwwacr.azurecr.io/drupalwxt-internet:latest
+
 push_dev:
 	az acr login --name nprdcacnwwwdevacr
 	docker tag drupalwxt-internet nprdcacnwwwdevacr.azurecr.io/drupalwxt-internet
