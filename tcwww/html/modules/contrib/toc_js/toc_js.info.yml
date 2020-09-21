@@ -1,0 +1,12 @@
+name: 'Toc js'
+type: module
+description: 'Build a hierarchical table of contents from header tags present on a node with the toc.js library.'
+core: 8.x
+dependencies:
+  - drupal:node
+  - drupal:block
+
+# Information added by Drupal.org packaging script on 2020-05-06
+version: '8.x-1.7'
+project: 'toc_js'
+datestamp: 1588773327
