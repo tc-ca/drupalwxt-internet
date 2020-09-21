@@ -12,7 +12,6 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  * Update subqueues to be revisionable and translatable.
  */
 function entityqueue_post_update_make_entity_subqueue_revisionable_and_translatable(&$sandbox) {
-//  return t('Entity Subqueues have been converted to be revisionable and translatable.');
   $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
   /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $last_installed_schema_repository */
   $last_installed_schema_repository = \Drupal::service('entity.last_installed_schema.repository');
