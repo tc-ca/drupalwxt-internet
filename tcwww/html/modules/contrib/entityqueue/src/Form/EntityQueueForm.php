@@ -90,8 +90,8 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
-      '#maxlength' => 32,
-      '#size' => 32,
+      '#maxlength' => 255,
+      '#size' => 80,
       '#default_value' => $queue->label(),
       '#description' => $this->t('The human-readable name of this entity queue. This name must be unique.'),
       '#required' => TRUE,
@@ -100,6 +100,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $queue->id(),
+      '#maxlength' => 32,
       '#machine_name' => [
         'exists' => '\Drupal\entityqueue\Entity\EntityQueue::load',
       ],
