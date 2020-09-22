@@ -39,10 +39,13 @@ class SectionsBlock extends BlockBase {
         $entityqueue = \Drupal::entityTypeManager()->getStorage('entity_subqueue')->load($serviceblock[0]['target_id']);
         if ($entityqueue) {
           $items = $entityqueue->get('items')->getValue();
+          $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
           $list = [];
           foreach ($items as $item) {
             $target_node = node_load($item['target_id']);
-            $link = $target_node->toLink()->toRenderable();
+            if ($target_node->hasTranslation($langcode)) {
+              $target_node = $target_node->getTranslation($langcode);
+            }
             $list_item = [
               'data' => $target_node->toLink()->toRenderable(),
             ];
