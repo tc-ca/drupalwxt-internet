@@ -37,8 +37,11 @@ class ServiceTitle extends BlockBase {
       if ($node->hasField('field_service_block') && !$node->get('field_service_block')->isEmpty()) {
         $serviceblock = $node->get('field_service_block')->getValue();
         $entityqueue = \Drupal::entityTypeManager()->getStorage('entity_subqueue')->load($serviceblock[0]['target_id']);
+        $config_name = 'entityqueue.entity_queue.' . $entityqueue->id();
+        $translatedLabel = \Drupal::config($config_name)->get('label');
         if ($entityqueue) {
-          $build['service_title']['#markup'] = '<div class="h4">' . $entityqueue->getTitle() . '</div>';
+          //$build['service_title']['#markup'] = '<div class="h4">' . $entityqueue->getTitle() . '</div>';
+          $build['service_title']['#markup'] = '<div class="h4">' . $translatedLabel . '</div>';
         }
       }
     }
