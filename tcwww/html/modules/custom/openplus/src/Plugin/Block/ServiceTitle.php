@@ -43,7 +43,7 @@ class ServiceTitle extends BlockBase {
             $config_name = 'entityqueue.entity_queue.' . $entityqueue->id();
             $translatedLabel = \Drupal::config($config_name)->get('label');
             if ($entityqueue) {
-              $build['service_title']['#markup'] = '<div class="h4">' . $translatedLabel . '</div>';
+              $build['service_title']['#markup'] = '<h2 class="h4">' . $translatedLabel . '</h2>';
             }
           }
         }
