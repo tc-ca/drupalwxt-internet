@@ -24,8 +24,7 @@
         "sebastian/phpcpd": "*",
         "squizlabs/php_codesniffer": "2.*",
         "symfony/css-selector": "~2.8|~3.0",
-        "symfony/phpunit-bridge": "^3.4.3",
-        "drupal/linkchecker": "1.x-dev"
+        "symfony/phpunit-bridge": "^3.4.3"
     },
     "config": {
         "secure-http": false,
@@ -46,6 +45,18 @@
         {
             "type": "composer",
             "url": "https://drupalwxt.github.io/composer-extdeps/"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "toc/toc",
+                "version": "v0.3.2",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://raw.githubusercontent.com/jgallen23/toc/greenkeeper/update-all/dist/toc.min.js",
+                    "type": "file"
+                }
+            }
         }
     ],
     "scripts": {
@@ -147,6 +158,10 @@
                 "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
                 "2662060 - Created Terms can't be Translated":
                 "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
+            },
+            "drupal/entityqueue": {
+              "3150981 - Simple queue loses labels":
+              "https://www.drupal.org/files/issues/2020-06-15/remove-item-translation-3150981-10.patch"
             },
             "drupal/file_delete": {
               "3115158 - Add functionality to immediately delete files and override usage check":
@@ -275,7 +290,10 @@
         "drupal/purge": "^3.0",
         "drupal/varnish_purge": "^2.0",
         "drupal/devel_entity_updates": "^3.0",
-        "drupal/file_delete": "^1.0"
+        "drupal/file_delete": "^1.0",
+        "drupal/toc_js": "^1.7",
+        "drupal/linkchecker": "1.x-dev",
+        "toc/toc": "^0.3.2"
     },
     "replace": {
     },

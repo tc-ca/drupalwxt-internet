@@ -217,7 +217,6 @@ class EntitySubqueue extends EditorialContentEntityBase implements EntitySubqueu
       // entity type that uses strings IDs, in order to allow both integers and
       // strings to be stored by the default entity reference field storage.
       ->setSetting('target_type', 'entity_subqueue')
-      ->setTranslatable(TRUE)
       ->setRevisionable(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
