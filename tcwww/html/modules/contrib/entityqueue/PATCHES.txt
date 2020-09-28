@@ -5,3 +5,11 @@ Patches applied to this directory:
 Source: https://www.drupal.org/files/issues/2020-06-15/remove-item-translation-3150981-10.patch
 
 
+3172482 - Increase label maxlength from 32 to 255
+Source: https://www.drupal.org/files/issues/2020-09-22/entityqueue_label-maxlength_3172482_2.patch
+
+
+3124403 - Type error when subqueue creation fails
+Source: https://www.drupal.org/files/issues/2020-04-02/type-error-3124403-2.patch
+
+

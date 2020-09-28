@@ -1,0 +1,31 @@
+diff --git a/linkchecker.module b/linkchecker.module
+index 4f53e46..d306fd7 100644
+--- a/linkchecker.module
++++ b/linkchecker.module
+@@ -150,7 +150,7 @@ function linkchecker_entity_insert(EntityInterface $entity) {
+     return;
+   }
+ 
+-  if ($entity instanceof FieldableEntityInterface) {
++  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+     /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
+     $extractor = \Drupal::service('linkchecker.extractor');
+     $links = $extractor->extractFromEntity($entity);
+@@ -169,7 +169,7 @@ function linkchecker_entity_update(EntityInterface $entity) {
+     return;
+   }
+ 
+-  if ($entity instanceof FieldableEntityInterface) {
++  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+     /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
+     $extractor = \Drupal::service('linkchecker.extractor');
+     $links = $extractor->extractFromEntity($entity);
+@@ -188,7 +188,7 @@ function linkchecker_entity_delete(EntityInterface $entity) {
+     return;
+   }
+ 
+-  if ($entity instanceof FieldableEntityInterface) {
++  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+     \Drupal::service('linkchecker.clean_up')->cleanUpForEntity($entity);
+   }
+ }

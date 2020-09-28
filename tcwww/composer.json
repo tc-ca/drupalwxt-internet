@@ -165,7 +165,9 @@
               "3150981 - Simple queue loses labels":
               "https://www.drupal.org/files/issues/2020-06-15/remove-item-translation-3150981-10.patch",
               "3172482 - Increase label maxlength from 32 to 255":
-              "https://www.drupal.org/files/issues/2020-09-22/entityqueue_label-maxlength_3172482_2.patch"
+              "https://www.drupal.org/files/issues/2020-09-22/entityqueue_label-maxlength_3172482_2.patch",
+              "3124403 - Type error when subqueue creation fails":
+              "https://www.drupal.org/files/issues/2020-04-02/type-error-3124403-2.patch"
             },
             "drupal/file_delete": {
               "3115158 - Add functionality to immediately delete files and override usage check":
@@ -191,7 +193,9 @@
               "Link Extract Issue":
               "https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch",
               "Remove Drupal 9 deprecations":
-              "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch"
+              "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch",
+              "3173634 - Linkchecker breaks entityqueue":
+              "patches/linkchecker_entityqueue_error-3173634.patch"
             },
             "drupal/node_authlink": {
               "Problems with viewing draft translations":
