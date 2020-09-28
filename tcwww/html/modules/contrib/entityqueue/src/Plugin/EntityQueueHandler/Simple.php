@@ -91,6 +91,9 @@ class Simple extends EntityQueueHandlerBase implements ContainerFactoryPluginInt
     // Simple queues have just one subqueue so we can link directly to the edit
     // form.
     $subqueue = EntitySubqueue::load($this->queue->id());
+    if (!$subqueue) {
+      return [];
+    }
     $subqueue = $this->entityRepository->getTranslationFromContext($subqueue);
     $operations['edit_subqueue'] = [
       'title' => $this->t('Edit items'),

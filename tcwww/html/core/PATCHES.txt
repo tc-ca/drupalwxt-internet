@@ -29,6 +29,18 @@ Source: https://www.drupal.org/files/issues/2020-01-25/2797583-149.patch
 Source: https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch
 
 
+2429699 - Add Views EntityReference filter to be available for all entity reference fields
+Source: https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch
+
+
+2972308 - Allow users to translate content they can edit
+Source: https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch
+
+
+26552 - Allow users with access to unpublished nodes to create unpublished books 
+Source: https://www.drupal.org/files/issues/2020-09-02/26552-178.patch
+
+
 2869592 - Disabled update module shouldn't produce a status report warning
 Source: https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch
 
