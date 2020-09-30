@@ -102,6 +102,94 @@ function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_
       unset($form['meta']);
     break;
   }
+
+}
+
+function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
+
+  /** @var \Drupal\Core\Node\NodeForm $form_object */
+  $form_object = $form_state->getFormObject();
+  $node = $form_object->getEntity();
+  $bundle = $node->getType(); 
+
+  // get book configs
+  $config = \Drupal::config('book.settings');
+
+  // get configuration if this content-type is allowed as a book
+  $allowed = $config->get('allowed_type_' . $bundle);
+  // see if there is a parent in query in case we are adding a child
+  $parent = \Drupal::request()->query->get('parent');
+
+  // If this is a new node
+  if ($node->isNew()) {
+    // If it is allowed as book OR is a child page only allow options to create or not create a new book
+    if ($allowed || empty($parent)) {
+      //$form['book']['bid']['#options'] = array_intersect_key($form['book']['bid']['#options'], [0 => 0, 'new' => 'new']);
+    }
+    else {
+      $form['book']['bid']['#disabled'] = 'disabled'; 
+    }
+  }
+  else {
+    // this is an existing node, is not allowed as a book and no book value is set (ie. child) then hide it
+    if (!$allowed && $form['book']['bid']['#default_value'] == 0) {
+      $form['book']['#access'] = FALSE; 
+    }
+    else {
+      $new_options = [];
+      $options = $form['book']['bid']['#options'];
+      if (!$allowed) {
+        // allow assigning to other books if user has edit access 
+        foreach ($options as $key => $option) {
+          if (is_numeric($key) and $key > 0 && $key != $node->id()) {
+            $bnode = \Drupal::entityTypeManager()->getStorage('node')->load($key);
+            if ($bnode->access('update')) {
+              $new_options[$key] = $option;
+            }
+          }
+        }
+      }
+      else {
+        // allow only none or create new
+        foreach ($options as $key => $option) {
+          if ($key == 0 || $key == $node->id()) {
+            $new_options[$key] = $option;
+          }
+        }
+      }
+      $form['book']['bid']['#options'] = $new_options;
+    }
+  }
+  
+}
+
+function openplus_menu_local_tasks_alter(&$data, $route_name) {
+  $user = \Drupal::currentUser();
+  $routes = [
+    'entity.node.canonical',
+    'entity.node.edit_form',
+    'entity.node.delete_form',
+    'entity.node.version_history',
+    'node_authlink.node_authlink_node_form',
+    'entity_clone.clone:node.clone_tab',
+    'entity.node.convert_bundles',
+    'node.latest_version_tab',
+    'view.moderation_history.page',
+    'entity.node.content_translation_overview',
+    'entity.node.devel_load',
+  ];
+
+  if (in_array($route_name, $routes)) {
+    $node = \Drupal::routeMatch()->getParameter('node');
+
+    // hide devel tab for anyone but user 1 / admin
+    if ($user->id() != 1 && isset($data['tabs'][0]['entity.node.devel_load'])) {
+      unset($data['tabs'][0]['entity.node.devel_load']);
+    }
+    unset($data['tabs'][0]['entityqueue.entities:entity.node.entityqueue']);
+    unset($data['tabs'][0]['entity.node.book_outline_form']);
+    $data['tabs'][0]['convert_bundles.entities:entity.node.convert_bundles']['#link']['title'] = t('Convert');
+  }
 }
 
 function openplus_update_varnish() {
