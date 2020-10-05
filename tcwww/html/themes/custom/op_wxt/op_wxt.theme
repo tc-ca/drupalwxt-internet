@@ -6,3 +6,26 @@
  *
  * Place your custom PHP code in this file.
  */
+
+function op_wxt_preprocess_node(&$variables) {
+  $node = $variables['node'];
+  if ($node->getType() == 'institution') {
+    $features = $node->get('field_inst_featured1');
+    foreach ($features as $key => $feature) {
+      $bid = $feature->entity->id();
+      $block = \Drupal\block_content\Entity\BlockContent::load($bid); 
+      if ($block->isTranslatable()) {
+        $block = \Drupal::service('entity.repository')->getTranslationFromContext($block);
+      }
+      $spotlight = $block->get('field_spotlight_media')->getValue();
+      $media = \Drupal::entityTypeManager()->getStorage('media')->load($spotlight[0]['target_id']);
+      if ($media->isTranslatable()) {
+        $media = \Drupal::service('entity.repository')->getTranslationFromContext($media);
+      }
+      $link = $media->get('field_image_link')->getValue();
+
+      $variables['features_uri'][$key] = $link[0]['uri'];
+    }
+  }
+
+}
