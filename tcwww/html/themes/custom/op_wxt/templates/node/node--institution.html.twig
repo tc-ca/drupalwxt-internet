@@ -94,18 +94,35 @@
         <h2 class="h3">{{ "Features"|t }}</h2>
         <div class="row wb-eqht">
           <div class="col-md-6 mrgn-bttm-md">
-            <a class="hght-inhrt" href="{{ path(node.field_inst_featured1.0.entity.field_spotlight_media.entity.field_image_link.0.url.routeName, node.field_inst_featured1.0.entity.field_spotlight_media.entity.field_image_link.0.url.routeParameters) }}">
-              <section class="well well-sm brdr-rds-0 hght-inhrt">
-                {{ drupal_entity('block_content', node.field_inst_featured1.0.target_id) }}
-              </section>
-            </a>
+            {% if node.field_inst_featured1.0.entity.field_spotlight_media.entity.field_image_link.0.url.external %}
+              <a class="hght-inhrt" href="{{ features_uri.0 }}">
+                <section class="well well-sm brdr-rds-0 hght-inhrt">
+                  {{ drupal_entity('block_content', node.field_inst_featured1.0.target_id) }}
+                </section>
+              </a>
+            {% else %}
+              <a class="hght-inhrt" href="{{ path(node.field_inst_featured1.0.entity.field_spotlight_media.entity.field_image_link.0.url.routeName, node.field_inst_featured1.0.entity.field_spotlight_media.entity.field_image_link.0.url.routeParameters) }}">
+                <section class="well well-sm brdr-rds-0 hght-inhrt">
+                  {{ drupal_entity('block_content', node.field_inst_featured1.0.target_id) }}
+                </section>
+              </a>
+            {% endif %}
           </div>
+
           <div class="col-md-6 mrgn-bttm-md">
-            <a class="hght-inhrt" href="{{ path(node.field_inst_featured1.1.entity.field_spotlight_media.entity.field_image_link.0.url.routeName, node.field_inst_featured1.1.entity.field_spotlight_media.entity.field_image_link.0.url.routeParameters) }}">
-              <section class="well well-sm brdr-rds-0 hght-inhrt">
-                {{ drupal_entity('block_content', node.field_inst_featured1.1.target_id) }}
-              </section>
-            </a>
+            {% if node.field_inst_featured1.1.entity.field_spotlight_media.entity.field_image_link.0.url.external %}
+              <a class="hght-inhrt" href="{{ features_uri.1 }}">
+                <section class="well well-sm brdr-rds-0 hght-inhrt">
+                  {{ drupal_entity('block_content', node.field_inst_featured1.1.target_id) }}
+                </section>
+              </a>
+            {% else %}
+              <a class="hght-inhrt" href="{{ path(node.field_inst_featured1.1.entity.field_spotlight_media.entity.field_image_link.0.url.routeName, node.field_inst_featured1.1.entity.field_spotlight_media.entity.field_image_link.0.url.routeParameters) }}">
+                <section class="well well-sm brdr-rds-0 hght-inhrt">
+                  {{ drupal_entity('block_content', node.field_inst_featured1.1.target_id) }}
+                </section>
+              </a>
+            {% endif %}
           </div>
         </div>
       </section>
