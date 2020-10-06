@@ -509,7 +509,7 @@ function template_preprocess_book_node_export_html(&$variables) {
  *   A Boolean TRUE if the node type can be included in books; otherwise, FALSE.
  */
 function book_type_is_allowed($type) {
-  return isset(\Drupal::config('book.settings')->get('allowed_type_' . $type)) && \Drupal::config('book.settings')->get('allowed_type_' . $type);
+  return NULL !== \Drupal::config('book.settings')->get('allowed_type_' . $type) && \Drupal::config('book.settings')->get('allowed_type_' . $type);
 }
 
 /**
