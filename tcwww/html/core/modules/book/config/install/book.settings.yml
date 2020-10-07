@@ -1,6 +1,6 @@
-allowed_type_book:
+allowed_types:
   - book
 block:
   navigation:
     mode: 'all pages'
-child_type_book: book
+child_type: book

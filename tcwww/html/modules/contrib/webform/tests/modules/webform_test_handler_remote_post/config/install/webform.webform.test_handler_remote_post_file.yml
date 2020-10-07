@@ -1,3 +1,4 @@
+uuid: null
 langcode: en
 status: open
 dependencies:
@@ -99,6 +100,8 @@ settings:
   wizard_progress_link: false
   wizard_progress_states: false
   wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
@@ -156,6 +159,7 @@ settings:
   results_customize: false
   token_view: false
   token_update: false
+  serial_disabled: false
 access:
   create:
     roles:
@@ -207,6 +211,7 @@ handlers:
   remote_post:
     id: remote_post
     label: 'Remote post'
+    notes: ''
     handler_id: remote_post
     status: true
     conditions: {  }

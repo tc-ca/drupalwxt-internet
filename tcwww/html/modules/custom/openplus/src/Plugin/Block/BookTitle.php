@@ -34,7 +34,8 @@ class BookTitle extends BlockBase {
 
     // Node context.
     if (is_object($node)) {
-      if (isset($node->book) && !empty($node->book)) {
+      // Do not show title on book page, just the children
+      if (isset($node->book) && !empty($node->book) && $node->book['bid'] != $node->id()) {
         $book =  \Drupal::entityTypeManager()->getStorage('node')->load($node->book['bid']);
         if ($book) {
           $build['book_title']['#markup'] = '<div class="h4">' . $book->getTitle() . '</div>';

@@ -3,20 +3,6 @@
  * Rating element styles.
  */
 
-/**
- * Visually hide the rating input.
- */
-html.js .form-webform-rating,
-html.js .form-webform-rating[style*="display: none"] {
-  display: inline !important;
-  position: absolute !important;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-  width: 1px;
-  height: 1px;
-  word-wrap: normal;
-}
-
 div.svg div.rateit-range {
   background: url(../images/rating/star-normal.svg);
 }

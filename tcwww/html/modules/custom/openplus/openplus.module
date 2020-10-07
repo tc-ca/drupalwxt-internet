@@ -11,6 +11,7 @@ use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\tac_lite\Form\SchemeForm;
 
 function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
@@ -65,6 +66,7 @@ function _openplus_menu_process_submenu(&$submenu, $current_path) {
 }
 
 function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
   switch ($form_id) {
     case 'system_performance_settings':
       if (function_exists('purge_processor_cron_cron')) {
@@ -89,18 +91,6 @@ function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_
       $form['actions']['submit']['#attributes']['class'][] = 'btn-primary';
       //$form['actions']['submit']['#submit'][] = 'openplus_search_submit';
     break;
-    case 'node_property_form':
-      openplus_add_cancel($form);
-      openplus_hide_tags($form);
-    break;
-    case 'node_migration_mi_form':
-      // hide some info on migration source edit
-      $form['revision_log']['#access'] = FALSE;
-      $form['revision_information']['#access'] = FALSE;
-      unset($form['actions']['delete']);
-      unset($form['advanced']);
-      unset($form['meta']);
-    break;
   }
 
 }
@@ -112,6 +102,26 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
   $node = $form_object->getEntity();
   $bundle = $node->getType(); 
 
+  // default and disable team field for external user
+  $user = \Drupal::currentUser();
+  $roles = $user->getRoles();
+  if (in_array("external", $roles)) {
+    if (isset($form['field_team'])) {
+      if (empty($form['field_team']['widget']['#default_value'])) {
+        $config = SchemeForm::tacLiteConfig(1);
+        $tids = array_filter(_tac_lite_user_tids($user, 1, $config));
+        if (!empty($tids)) {
+          $tid = array_pop($tids);
+          $form['field_team']['widget']['#default_value'] = $tid;
+        }
+        else {
+          \Drupal::messenger()->addWarning(t('Please contact your administrator to configure your team correctly. Do not add content until this has been fixed.'));        
+        }
+      }
+
+      $form['field_team']['#disabled'] = 'disabled';
+    }
+  }
   // get book configs
   $config = \Drupal::config('book.settings');
 
@@ -120,47 +130,27 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
   // see if there is a parent in query in case we are adding a child
   $parent = \Drupal::request()->query->get('parent');
 
-  // If this is a new node
-  if ($node->isNew()) {
-    // If it is allowed as book OR is a child page only allow options to create or not create a new book
-    if ($allowed || empty($parent)) {
-      //$form['book']['bid']['#options'] = array_intersect_key($form['book']['bid']['#options'], [0 => 0, 'new' => 'new']);
-    }
-    else {
-      $form['book']['bid']['#disabled'] = 'disabled'; 
-    }
+  if (!$allowed) {
+    $form['book']['#access'] = FALSE; 
   }
   else {
-    // this is an existing node, is not allowed as a book and no book value is set (ie. child) then hide it
-    if (!$allowed && $form['book']['bid']['#default_value'] == 0) {
-      $form['book']['#access'] = FALSE; 
-    }
-    else {
-      $new_options = [];
-      $options = $form['book']['bid']['#options'];
-      if (!$allowed) {
-        // allow assigning to other books if user has edit access 
-        foreach ($options as $key => $option) {
-          if (is_numeric($key) and $key > 0 && $key != $node->id()) {
-            $bnode = \Drupal::entityTypeManager()->getStorage('node')->load($key);
-            if ($bnode->access('update')) {
-              $new_options[$key] = $option;
-            }
-          }
+    $new_options = [];
+    $options = $form['book']['bid']['#options'];
+    // allow assigning to other books if user has edit access 
+    foreach ($options as $key => $option) {
+      if (is_numeric($key) and $key > 0 && $key != $node->id()) {
+        $bnode = \Drupal::entityTypeManager()->getStorage('node')->load($key);
+        if ($bnode->access('update')) {
+          $new_options[$key] = $option;
         }
       }
       else {
-        // allow only none or create new
-        foreach ($options as $key => $option) {
-          if ($key == 0 || $key == $node->id()) {
-            $new_options[$key] = $option;
-          }
-        }
+        $new_options[$key] = $option;
       }
-      $form['book']['bid']['#options'] = $new_options;
     }
+
+    $form['book']['bid']['#options'] = $new_options;
   }
-  
 }
 
 function openplus_menu_local_tasks_alter(&$data, $route_name) {
@@ -281,96 +271,6 @@ function openplus_webform_element_webform_time_alter(array &$element, \Drupal\Co
   }
 }
 
-/**
- * @file
- * Builds custom placeholder replacement tokens for this site.
- */
-
-use Drupal\webform\WebformInterface;
-use Drupal\webform\WebformSubmissionInterface;
-
-/**
- * Implements hook_token_info().
- */
-function openplus_token_info() {
-  $types = [];
-  $tokens = [];
-
-  /****************************************************************************/
-  // Webform submission.
-  /****************************************************************************/
-  $webform_submission = [];
-  $webform_submission['drone_emails'] = [
-    'name' => t('Drone incident email addresses'),
-    'description' => t('Returns the email addresses per province'),
-  ];
-
-  $tokens['webform_submission'] = $webform_submission;
-
-  return ['types' => $types, 'tokens' => $tokens];
-}
-
-/**
- * Implements hook_tokens().
- */
-function openplus_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
-  $token_service = \Drupal::token();
-
-  // Set URL options to generate absolute translated URLs.
-  $url_options = ['absolute' => TRUE];
-  if (isset($options['langcode'])) {
-    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
-    $langcode = $options['langcode'];
-  }
-  else {
-    $langcode = NULL;
-  }
-
-  $replacements = [];
-
-  if ($type == 'webform_submission' && !empty($data['webform_submission'])) {
-    /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
-    $webform_submission = $data['webform_submission'];
-    $webform = $webform_submission->getWebform();
-
-    foreach ($tokens as $name => $original) {
-      switch ($name) {
-        case 'drone_emails':
-          // get the value of the province from the address element
-          $submission_data = $webform_submission->getData();
-          $province = $submission_data['address']['state_province'];
-
-          // look up value in taxonomy for province
-          $query = \Drupal::entityQuery('taxonomy_term')
-            ->condition('vid', 'provinces')
-            ->condition('field_province_abbr', $province);
-          $tids = $query->execute();
-
-          // get drone email fields
-          $emails = [];
-          if (!empty($tids)) {
-            $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load(array_pop($tids));
-            $contacts = $term->get('field_drone_contact')->getValue();
-            if (!empty($contacts)) {
-              foreach ($contacts as $contact) {
-                $emails[] = $contact['value'];
-              }
-            }
-          }
-          else {
-            $config = \Drupal::config('openplus.settings');
-            $emails = $config->get('drone_default_contacts');
-          }
-
-          $replacements[$original] = is_array($emails) ? implode(',', $emails) : $emails;
-          break;
-      }
-    }
-  }
-
-  return $replacements;
-}
-
 function openplus_entity_embed_alter(&$build, $entity, &$context) {
   // This is a workaround to a problem where manually added classes to embedded entities are supposed
   // to inherit any classes added to the drupal-entity object.
@@ -450,4 +350,8 @@ function openplus_cron() {
       $purgeQueue->add($queuer, $invalidations);
     }
   }
+}
+
+function openplus_node_links_alter(&$links, $node, &$context) {
+  //dpm($links);
 }

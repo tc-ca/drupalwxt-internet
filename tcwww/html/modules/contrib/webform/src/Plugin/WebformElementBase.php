@@ -30,6 +30,7 @@ use Drupal\webform\Plugin\WebformElement\Details;
 use Drupal\webform\Plugin\WebformElement\WebformCompositeBase;
 use Drupal\webform\Twig\WebformTwigExtension;
 use Drupal\webform\Utility\WebformArrayHelper;
+use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\Utility\WebformFormHelper;
 use Drupal\webform\Utility\WebformHtmlHelper;
@@ -274,6 +275,8 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
       'multiple__no_items_message' => (string) $this->t('No items entered. Please add items below.'),
       'multiple__sorting' => TRUE,
       'multiple__operations' => TRUE,
+      'multiple__add' => TRUE,
+      'multiple__remove' => TRUE,
     ];
   }
 
@@ -287,8 +290,10 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     return [
       // Administration.
       'admin_title' => '',
+      'admin_notes' => '',
       'prepopulate' => FALSE,
       'private' => FALSE,
+      'access' => TRUE,
       // Flexbox.
       'flex' => 1,
       // Conditional logic.
@@ -327,6 +332,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
       'required_error',
       'unique_error',
       'admin_title',
+      'admin_notes',
       'placeholder',
       'markup',
       'test',
@@ -1317,8 +1323,8 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     $format_function = 'format' . ucfirst($format);
     $value = $this->$format_function($element, $webform_submission, $options);
 
-    // Handle empty value.
-    if ($value === '') {
+    // Handle empty value or empty array.
+    if ($value === '' || (is_array($value) && $value === [])) {
       // Return NULL if empty is excluded.
       if ($this->isEmptyExcluded($element, $options)) {
         return NULL;
@@ -1464,7 +1470,14 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     // Get items.
     $items = [];
     foreach (array_keys($value) as $delta) {
-      $items[] = $this->formatHtmlItem($element, $webform_submission, ['delta' => $delta] + $options);
+      $item = $this->formatHtmlItem($element, $webform_submission, ['delta' => $delta] + $options);
+      if ($item) {
+        $items[] = $item;
+      }
+    }
+
+    if (empty($items)) {
+      return [];
     }
 
     $format = $this->getItemsFormat($element);
@@ -1548,7 +1561,14 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     // Get items.
     $items = [];
     foreach (array_keys($value) as $delta) {
-      $items[] = $this->formatTextItem($element, $webform_submission, ['delta' => $delta] + $options);
+      $item = $this->formatTextItem($element, $webform_submission, ['delta' => $delta] + $options);;
+      if ($item) {
+        $items[] = $item;
+      }
+    }
+
+    if (empty($items)) {
+      return '';
     }
 
     $format = $this->getItemsFormat($element);
@@ -2304,6 +2324,13 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
   /**
    * {@inheritdoc}
    */
+  public function getOffCanvasWidth() {
+    return WebformDialogHelper::DIALOG_NARROW;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function form(array $form, FormStateInterface $form_state) {
     /** @var \Drupal\webform_ui\Form\WebformUiElementFormInterface $form_object */
     $form_object = $form_state->getFormObject();
@@ -2790,7 +2817,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     ];
     $form['conditional_logic']['states_clear'] = [
       '#type' => 'checkbox',
-      '#title' => 'Clear value(s) when hidden',
+      '#title' => $this->t('Clear value(s) when hidden'),
       '#return_value' => TRUE,
       '#description' => ($this instanceof ContainerBase) ?
         $this->t("When this container is hidden all this container's subelement values will be cleared.")
@@ -2898,6 +2925,28 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
       '#title' => $this->t('Allow users to add/remove elements'),
       '#description' => $this->t('If unchecked, the add/remove (+/x) buttons will be removed from each table row.'),
       '#return_value' => TRUE,
+    ];
+    $form['multiple']['multiple__add'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show add element button'),
+      '#description' => $this->t('If unchecked, the add button will be removed from each table row.'),
+      '#return_value' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="properties[multiple__operations]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $form['multiple']['multiple__remove'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show remove element button'),
+      '#description' => $this->t('If unchecked, the remove button will be removed from each table row.'),
+      '#return_value' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="properties[multiple__operations]"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
     $form['multiple']['multiple__add_more'] = [
       '#type' => 'checkbox',
@@ -3211,6 +3260,11 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
         '<br/>' .
         $this->t("If an element's title is hidden, the element's admin title will be displayed when viewing a submission."),
     ];
+    $form['admin']['admin_notes'] = [
+      '#type' => 'webform_html_editor',
+      '#title' => $this->t('Admin notes/comments'),
+      '#description' => $this->t("Admin notes/comments are display next to the element title in the form builder and visible in the form's YAML source"),
+    ];
 
     /**************************************************************************/
     // Access.
@@ -3238,6 +3292,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
 
     $form['access'] = [
       '#type' => 'container',
+      '#attributes' => ['data-webform-states-no-clear' => TRUE],
     ];
     if (!$this->currentUser->hasPermission('administer webform') && !$this->currentUser->hasPermission('administer webform element access')) {
       $form['access']['#access'] = FALSE;
@@ -3245,6 +3300,13 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
     foreach ($operations as $operation => $operation_element) {
       $form['access']['access_' . $operation] = $operation_element + [
         '#type' => 'details',
+        '#states' => [
+          'visible' => [
+            ':input[name="properties[access]"]' => [
+              'checked' => TRUE,
+            ],
+          ]
+        ],
       ];
       $form['access']['access_' . $operation]['access_' . $operation . '_roles'] = [
         '#type' => 'webform_roles',
@@ -3261,6 +3323,13 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
         '#select2' => TRUE,
       ];
     }
+    $form['access']['access'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Display element'),
+      '#description' => $this->t('If unchecked, the element is never displayed. The element will only be visible within the form builder and hidden from all other displays including submission details, results, and download.'),
+      '#weight' => 50,
+      '#return_value' => TRUE,
+    ];
 
     /**************************************************************************/
 

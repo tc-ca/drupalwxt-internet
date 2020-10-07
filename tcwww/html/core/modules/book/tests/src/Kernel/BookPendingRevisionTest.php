@@ -51,7 +51,9 @@ class BookPendingRevisionTest extends KernelTestBase {
     ]);
     $content_type->save();
     $book_config = $this->config('book.settings');
-    $book_config->set('allowed_type_' . $content_type->id(), TRUE)->save();
+    $allowed_types = $book_config->get('allowed_types');
+    $allowed_types[] = $content_type->id();
+    $book_config->set('allowed_types', $allowed_types)->save();
 
     // Create two top-level books a child.
     $book_1 = Node::create(['title' => $this->randomString(), 'type' => $content_type->id()]);
