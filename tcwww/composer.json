@@ -308,7 +308,8 @@
         "drupal/toc_js": "^1.7",
         "drupal/linkchecker": "1.x-dev",
         "toc/toc": "^0.3.2",
-        "drupal/tac_lite": "^1.5"
+        "drupal/tac_lite": "^1.5",
+        "drupal/webform": "^5.22"
     },
     "replace": {
     },

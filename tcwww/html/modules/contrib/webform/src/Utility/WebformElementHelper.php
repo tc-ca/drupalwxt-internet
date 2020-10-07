@@ -314,14 +314,7 @@ class WebformElementHelper {
    *   A webform element that is missing the 'data-drupal-states' attribute.
    */
   public static function fixStatesWrapper(array &$element) {
-    if (empty($element['#states'])) {
-      return;
-    }
-
     $attributes = [];
-
-    // Set .js-form-wrapper which is targeted by states.js hide/show logic.
-    $attributes['class'][] = 'js-form-wrapper';
 
     // Add .js-webform-states-hidden to hide elements when they are being rendered.
     $attributes_properties = ['#wrapper_attributes', '#attributes'];
@@ -336,27 +329,39 @@ class WebformElementHelper {
       }
     }
 
-    $attributes['data-drupal-states'] = Json::encode($element['#states']);
+    // Do not add wrapper if there is no #states and
+    // is no .js-webform-states-hidden class.
+    if (empty($element['#states']) && empty($attributes)) {
+      return;
+    }
+
+    // Set .js-form-wrapper which is targeted by states.js hide/show logic.
+    $attributes['class'][] = 'js-form-wrapper';
+
+    // Move the element's #states the wrapper's #states.
+    if (isset($element['#states'])) {
+      $attributes['data-drupal-states'] = Json::encode($element['#states']);
+
+      // Copy #states to #_webform_states property which can be used by the
+      // WebformSubmissionConditionsValidator.
+      // @see \Drupal\webform\WebformSubmissionConditionsValidator
+      $element['#_webform_states'] = $element['#states'];
+
+      // Remove #states property to prevent nesting.
+      unset($element['#states']);
+    }
+
+    // If there are attributes for the wrapper do not add it.
+    if (empty($attributes)) {
+      return;
+    }
 
     $element += ['#prefix' => '', '#suffix' => ''];
-
-    // ISSUE: JSON is being corrupted when the prefix is rendered.
-    // $element['#prefix'] = '<div ' . new Attribute($attributes) . '>' . $element['#prefix'];
-    // WORKAROUND: Safely set filtered #prefix to FormattableMarkup.
-    $allowed_tags = isset($element['#allowed_tags']) ? $element['#allowed_tags'] : Xss::getHtmlTagList();
-    $element['#prefix'] = Markup::create('<div' . new Attribute($attributes) . '>' . Xss::filter($element['#prefix'], $allowed_tags));
+    $element['#prefix'] = '<div' . new Attribute($attributes) . '>' . $element['#prefix'];
     $element['#suffix'] = $element['#suffix'] . '</div>';
 
     // Attach library.
     $element['#attached']['library'][] = 'core/drupal.states';
-
-    // Copy #states to #_webform_states property which can be used by the
-    // WebformSubmissionConditionsValidator.
-    // @see \Drupal\webform\WebformSubmissionConditionsValidator
-    $element['#_webform_states'] = $element['#states'];
-
-    // Remove #states property to prevent nesting.
-    unset($element['#states']);
   }
 
   /**

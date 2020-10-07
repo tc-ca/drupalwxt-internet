@@ -41,6 +41,10 @@ Source: https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-
 Source: https://www.drupal.org/files/issues/2020-09-02/26552-178.patch
 
 
+3173808 - Allow different content-types for child book pages
+Source: https://www.drupal.org/files/issues/2020-09-29/book-config_child_settings-3173808-4.patch
+
+
 2869592 - Disabled update module shouldn't produce a status report warning
 Source: https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch
 

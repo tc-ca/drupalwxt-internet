@@ -95,8 +95,7 @@ function book_node_links_alter(array &$links, NodeInterface $node, array &$conte
 
     if (isset($node->book['depth'])) {
       if ($context['view_mode'] == 'full' && node_is_page($node)) {
-        $node_type = $node->getType($node);
-        $child_type = \Drupal::config('book.settings')->get('child_type_' . $node_type);
+        $child_type = \Drupal::config('book.settings')->get('child_type');
         $access_control_handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
         if (($account->hasPermission('add content to books') || $account->hasPermission('administer book outlines')) && $access_control_handler->createAccess($child_type) && $node->book['depth'] < BookManager::BOOK_MAX_DEPTH) {
           $book_links['book_add_child'] = [
@@ -509,7 +508,7 @@ function template_preprocess_book_node_export_html(&$variables) {
  *   A Boolean TRUE if the node type can be included in books; otherwise, FALSE.
  */
 function book_type_is_allowed($type) {
-  return NULL !== \Drupal::config('book.settings')->get('allowed_type_' . $type) && \Drupal::config('book.settings')->get('allowed_type_' . $type);
+  return in_array($type, \Drupal::config('book.settings')->get('allowed_types'));
 }
 
 /**
@@ -522,13 +521,21 @@ function book_node_type_update(NodeTypeInterface $type) {
   if ($type->getOriginalId() != $type->id()) {
     $config = \Drupal::configFactory()->getEditable('book.settings');
     // Update the list of node types that are allowed to be added to books.
-    $book_setting = $config->get('allowed_type_' . $type->getOriginalId());
-    $config->set('allowed_type_' . $type->id(), $current_value);
+    $allowed_types = $config->get('allowed_types');
+    $old_key = array_search($type->getOriginalId(), $allowed_types);
+
+    if ($old_key !== FALSE) {
+      $allowed_types[$old_key] = $type->id();
+      // Ensure that the allowed_types array is sorted consistently.
+      // @see BookSettingsForm::submitForm()
+      sort($allowed_types);
+      $config->set('allowed_types', $allowed_types);
+    }
 
     // Update the setting for the "Add child page" link.
-    $child_setting = $config->get('child_type_' . $type->getOriginalId());
-    $config->set('child_type_' . $type->id(), $current_value);
-    
+    if ($config->get('child_type') == $type->getOriginalId()) {
+      $config->set('child_type', $type->id());
+    }
     $config->save();
   }
 }
