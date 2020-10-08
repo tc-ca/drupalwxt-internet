@@ -141,7 +141,7 @@
                 "26552 - Allow users with access to unpublished nodes to create unpublished books ":
                 "https://www.drupal.org/files/issues/2020-09-02/26552-178.patch",
                 "3173808 - Allow different content-types for child book pages":
-                "https://www.drupal.org/files/issues/2020-09-29/book-config_child_settings-3173808-4.patch"
+                "https://www.drupal.org/files/issues/2020-10-06/book-config_child_settings-3173808-4.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":
@@ -309,7 +309,8 @@
         "drupal/linkchecker": "1.x-dev",
         "toc/toc": "^0.3.2",
         "drupal/tac_lite": "^1.5",
-        "drupal/webform": "^5.22"
+        "drupal/webform": "^5.22",
+        "drupal/views_argument_token": "^1.0@beta"
     },
     "replace": {
     },
