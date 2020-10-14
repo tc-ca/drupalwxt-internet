@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Default theme implementation of a facet result item.
+ *
+ * Available variables:
+ * - value: The item value.
+ * - show_count: If this facet provides count.
+ * - count: The amount of results.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if is_active %}
+  <div class="row facet-item__status js-facet-deactivate">
+  <div class="mrgn-tp-0 mgr-bttm-0 col-sm-9 h6">
+    (-) {{ value }}
+  </div> 
+{% else %}
+  <div class="row">
+  <div class="mrgn-tp-0 mgr-bttm-0 col-sm-9 h6">
+    {{ value }}
+  </div> 
+  {% if show_count %}
+    <div class="text-right col-sm-3">
+      <span class="facet-count badge">{{ count }}</span>
+    </div>
+  {% endif %}
+{% endif %}
+</div>

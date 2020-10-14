@@ -12,6 +12,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\tac_lite\Form\SchemeForm;
+use Drupal\Core\Render\Element;
 
 function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
@@ -105,22 +106,44 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
   // default and disable team field for external user
   $user = \Drupal::currentUser();
   $roles = $user->getRoles();
+  $parent = \Drupal::request()->query->get('parent');
+  $book_node = !empty($parent) ? \Drupal::entityManager()->getStorage('node')->load($parent) : NULL;
   if (in_array("external", $roles)) {
-    if (isset($form['field_team'])) {
-      if (empty($form['field_team']['widget']['#default_value'])) {
-        $config = SchemeForm::tacLiteConfig(1);
-        $tids = array_filter(_tac_lite_user_tids($user, 1, $config));
-        if (!empty($tids)) {
-          $tid = array_pop($tids);
-          $form['field_team']['widget']['#default_value'] = $tid;
-        }
-        else {
-          \Drupal::messenger()->addWarning(t('Please contact your administrator to configure your team correctly. Do not add content until this has been fixed.'));        
-        }
-      }
 
-      $form['field_team']['#disabled'] = 'disabled';
+    // copy client-side hs fields
+    $copy_fields = ['field_team', 'field_topics', 'field_mode'];
+    foreach ($copy_fields as $field_name) {
+      if (isset($form[$field_name])) {
+        if (empty($form[$field_name]['widget']['#default_value']) && !empty($book_node)) {
+          $values = $book_node->get($field_name)->getValue();
+          $tids = [];
+          foreach ($values as $value) {
+            $tids[] = $value['target_id'];
+          }
+  
+          if (!empty($tids)) {
+            if (empty($form[$field_name]['widget'][0]['target_id']['#default_value'])) {
+              $base = $form[$field_name]['widget'][0];
+              foreach ($tids as $key => $tid) {
+                $form[$field_name]['widget'][$key] = $base;
+                $form[$field_name]['widget'][$key]['target_id']['#default_value'] = $tid;
+                $form[$field_name]['widget'][$key]['target_id']['#disabled'] = 'disabled';
+              }
+            }
+          }
+        }
+        $form[$field_name]['#access'] = FALSE;
+      }
+    } 
+
+    // disable other fields
+    $disable_fields = ['field_region', 'field_routing_symbol', 'field_reference_number', 'field_migration', 'field_migration_state'];
+    foreach ($disable_fields as $field_name) {
+      if (isset($form[$field_name])) {
+        $form[$field_name]['#access'] = FALSE;
+      }
     }
+
   }
   // get book configs
   $config = \Drupal::config('book.settings');
@@ -128,7 +151,6 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
   // get configuration if this content-type is allowed as a book
   $allowed = $config->get('allowed_type_' . $bundle);
   // see if there is a parent in query in case we are adding a child
-  $parent = \Drupal::request()->query->get('parent');
 
   if (!$allowed) {
     $form['book']['#access'] = FALSE; 
