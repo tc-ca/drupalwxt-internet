@@ -11,6 +11,7 @@ use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 
 /**
  * Provides a 'Book navigation' block.
@@ -45,6 +46,13 @@ class BookNavigationBlock extends BlockBase implements ContainerFactoryPluginInt
   protected $nodeStorage;
 
   /**
+   * The current user account proxy.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
    * Constructs a new BookNavigationBlock instance.
    *
    * @param array $configuration
@@ -59,13 +67,16 @@ class BookNavigationBlock extends BlockBase implements ContainerFactoryPluginInt
    *   The book manager.
    * @param \Drupal\Core\Entity\EntityStorageInterface $node_storage
    *   The node storage.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack, BookManagerInterface $book_manager, EntityStorageInterface $node_storage) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack, BookManagerInterface $book_manager, EntityStorageInterface $node_storage, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->requestStack = $request_stack;
     $this->bookManager = $book_manager;
     $this->nodeStorage = $node_storage;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -78,7 +89,8 @@ class BookNavigationBlock extends BlockBase implements ContainerFactoryPluginInt
       $plugin_definition,
       $container->get('request_stack'),
       $container->get('book.manager'),
-      $container->get('entity_type.manager')->getStorage('node')
+      $container->get('entity_type.manager')->getStorage('node'),
+      $container->get('current_user')
     );
   }
 
@@ -157,12 +169,14 @@ class BookNavigationBlock extends BlockBase implements ContainerFactoryPluginInt
       }
     }
     elseif ($current_bid) {
-      // Only display this block when the user is browsing a book and do
-      // not show unpublished books.
-      $nid = \Drupal::entityQuery('node')
-        ->condition('nid', $node->book['bid'], '=')
-        ->condition('status', NodeInterface::PUBLISHED)
-        ->execute();
+      // Only display this block when the user is browsing a book.
+      // Do not show unpublished books if the user does not have 'view unpublished book menu' access.
+      $query = $this->nodeStorage->getQuery()
+        ->condition('nid', $node->book['bid'], '=');
+      if (!$this->currentUser->hasPermission('view unpublished book menu')) {
+        $query->condition('status', NodeInterface::PUBLISHED);
+      }
+      $nid = $query->execute();
 
       // Only show the block if the user has view access for the top-level node.
       if ($nid) {
