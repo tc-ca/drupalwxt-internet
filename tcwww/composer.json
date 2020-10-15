@@ -143,7 +143,9 @@
                 "3173808 - Allow different content-types for child book pages":
                 "https://www.drupal.org/files/issues/2020-10-06/book-config_child_settings-3173808-4.patch",
                 "3020298 - Book navigation block does not appear on unpublished book outline pages":
-                "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch"
+                "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
+                "3117782 - Book title in breadcrumb not translated":
+                "https://www.drupal.org/files/issues/2020-10-15/book-breadcrumb_title_xlate-3177182-2.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":
