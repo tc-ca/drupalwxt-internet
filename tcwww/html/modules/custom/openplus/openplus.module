@@ -108,43 +108,65 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
   $roles = $user->getRoles();
   $parent = \Drupal::request()->query->get('parent');
   $book_node = !empty($parent) ? \Drupal::entityManager()->getStorage('node')->load($parent) : NULL;
-  if (in_array("external", $roles)) {
 
+  // copy fields for external users
+  if (in_array("external", $roles)) {
     // copy client-side hs fields
     $copy_fields = ['field_team', 'field_topics', 'field_mode'];
     foreach ($copy_fields as $field_name) {
       if (isset($form[$field_name])) {
         if (empty($form[$field_name]['widget']['#default_value']) && !empty($book_node)) {
+          // get tids from the book specified by parent=bid in url
           $values = $book_node->get($field_name)->getValue();
           $tids = [];
           foreach ($values as $value) {
             $tids[] = $value['target_id'];
           }
-  
-          if (!empty($tids)) {
-            if (empty($form[$field_name]['widget'][0]['target_id']['#default_value'])) {
-              $base = $form[$field_name]['widget'][0];
-              foreach ($tids as $key => $tid) {
-                $form[$field_name]['widget'][$key] = $base;
-                $form[$field_name]['widget'][$key]['target_id']['#default_value'] = $tid;
-                $form[$field_name]['widget'][$key]['target_id']['#disabled'] = 'disabled';
-              }
-            }
-          }
+
+          // set the field defaults and disable 
+          _openplus_set_defaults($form, $field_name, $tids); 
         }
-        $form[$field_name]['#access'] = FALSE;
+        //$form[$field_name]['#access'] = FALSE;
+      }
+
+      // disable other fields
+      $disable_fields = ['field_region', 'field_routing_symbol', 'field_reference_number', 'field_migration', 'field_migration_state'];
+      foreach ($disable_fields as $field_name) {
+        if (isset($form[$field_name])) {
+          $form[$field_name]['#access'] = FALSE;
+        }
       }
     } 
+  }
 
-    // disable other fields
-    $disable_fields = ['field_region', 'field_routing_symbol', 'field_reference_number', 'field_migration', 'field_migration_state'];
-    foreach ($disable_fields as $field_name) {
+  // copy fields for BN users
+  if (in_array("bn_admin", $roles) || in_array("bn_review", $roles)) {
+    $copy_fields = ['field_team'];
+    foreach ($copy_fields as $field_name) {
       if (isset($form[$field_name])) {
-        $form[$field_name]['#access'] = FALSE;
+        if (empty($form[$field_name]['widget']['#default_value'])) {
+          if (empty($book_node)) {
+            // if no book specified in URL then take team from tac lite config on user
+            $config = SchemeForm::tacLiteConfig(1);
+            $tids = array_filter(_tac_lite_user_tids($user, 1, $config));
+          }
+          else {
+            // otherwise take them from the book specified by parent=bid in url
+            $values = $book_node->get($field_name)->getValue();
+            $tids = [];
+            foreach ($values as $value) {
+              $tids[] = $value['target_id'];
+            }
+          }
+
+          // set the field defaults and disable 
+          _openplus_set_defaults($form, $field_name, $tids); 
+        }  
+        //$form[$field_name]['#access'] = FALSE;
       }
     }
-
   }
+
   // get book configs
   $config = \Drupal::config('book.settings');
 
@@ -172,6 +194,19 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
     }
 
     $form['book']['bid']['#options'] = $new_options;
+  }
+}
+
+function _openplus_set_defaults(&$form, $field_name, $tids) {
+  if (!empty($tids)) {
+    if (empty($form[$field_name]['widget'][0]['target_id']['#default_value'])) {
+      $base = $form[$field_name]['widget'][0];
+      foreach ($tids as $key => $tid) {
+        $form[$field_name]['widget'][$key] = $base;
+        $form[$field_name]['widget'][$key]['target_id']['#default_value'] = $tid;
+        $form[$field_name]['widget'][$key]['target_id']['#disabled'] = 'disabled';
+      }
+    }
   }
 }
 
