@@ -162,7 +162,7 @@ function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
           // set the field defaults and disable 
           _openplus_set_defaults($form, $field_name, $tids); 
         }  
-        //$form[$field_name]['#access'] = FALSE;
+        $form[$field_name]['#access'] = FALSE;
       }
     }
   }
