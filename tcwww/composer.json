@@ -145,9 +145,11 @@
                 "3020298 - Book navigation block does not appear on unpublished book outline pages":
                 "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
                 "3117782 - Book title in breadcrumb not translated":
-                "https://www.drupal.org/files/issues/2020-10-15/book-breadcrumb_title_xlate-3177182-2.patch",
+                "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
                 "2470896 - Make Book navigation translatable":
-                "patches/2470896-190-d8.8.patch"
+                "patches/2470896-190-d8.patch",
+                "TBD - make book nav links translatable":
+                "patches/book-nav_link_trans-tbd.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":

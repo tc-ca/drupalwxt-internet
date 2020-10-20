@@ -67,7 +67,6 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
     return $node instanceof NodeInterface && !empty($node->book);
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -90,7 +89,9 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       $depth = 1;
       while (!empty($book['p' . ($depth + 1)])) {
         if (!empty($parent_books[$book['p' . $depth]]) && ($parent_book = $parent_books[$book['p' . $depth]])) {
-          $parent_book = $parent_book->getTranslation($langcode);
+          if ($parent_book->hasTranslation($langcode)) {
+            $parent_book = $parent_book->getTranslation($langcode);
+          }
           $access = $parent_book->access('view', $this->account, TRUE);
           $breadcrumb->addCacheableDependency($access);
           if ($access->isAllowed()) {
