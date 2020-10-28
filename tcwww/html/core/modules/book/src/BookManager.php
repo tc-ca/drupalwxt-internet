@@ -591,11 +591,12 @@ class BookManager implements BookManagerInterface {
         $element['in_active_trail'] = TRUE;
       }
 
+      $language = \Drupal::languageManager()->getCurrentLanguage();
       // Allow book-specific theme overrides.
       $element['attributes'] = new Attribute();
       $element['title'] = $data['link']['title'];
       $node = $this->entityTypeManager->getStorage('node')->load($data['link']['nid']);
-      $element['url'] = $node->toUrl();
+      $element['url'] = $node->toUrl('canonical', ['language' => $language]);
       $element['localized_options'] = !empty($data['link']['localized_options']) ? $data['link']['localized_options'] : [];
       $element['localized_options']['set_active_class'] = TRUE;
       $element['below'] = $data['below'] ? $this->buildItems($data['below']) : [];
