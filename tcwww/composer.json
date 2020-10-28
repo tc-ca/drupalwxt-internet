@@ -316,7 +316,8 @@
         "toc/toc": "^0.3.2",
         "drupal/tac_lite": "^1.5",
         "drupal/webform": "^5.22",
-        "drupal/views_argument_token": "^1.0@beta"
+        "drupal/views_argument_token": "^1.0@beta",
+        "drupal/webform_views": "^5.0@alpha"
     },
     "replace": {
     },
