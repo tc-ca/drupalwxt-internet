@@ -149,9 +149,7 @@
                 "2470896 - Make Book navigation translatable":
                 "patches/2470896-190-d8.patch",
                 "TBD - make book nav links translatable":
-                "patches/book-nav_link_trans-tbd.patch",
-                "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage":
-                "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch"
+                "patches/book-nav_link_trans-tbd.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":

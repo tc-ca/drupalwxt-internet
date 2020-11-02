@@ -35,15 +35,3 @@ purge.plugins:
       type: string
       label: 'The currently active queue plugin.'
       translatable: false
-purge.tagsheaders:
-  type: config_object
-  label: 'Purge Tags Header Blacklist.'
-  mapping:
-    blacklist:
-      label: 'A list of tag prefixes that should not be included.'
-      type: sequence
-      translatable: false
-      sequence:
-        type: string
-        label: 'Prefix string with which tags should not start with.'
-        translatable: false

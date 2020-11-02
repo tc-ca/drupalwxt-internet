@@ -132,7 +132,7 @@ services:
     - [setContainer, ['@service_container']]
   purge.tagsheaders.cacheable_response_subscriber:
     class: Drupal\purge\EventSubscriber\CacheableResponseSubscriber
-    arguments: ['@purge.tagsheaders', '@config.factory']
+    arguments: ['@purge.tagsheaders']
     public: true
     tags:
       - { name: event_subscriber }

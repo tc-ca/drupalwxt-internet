@@ -165,10 +165,3 @@ purge_ui.queue_empty_form:
     _form: 'Drupal\purge_ui\Form\QueueEmptyForm'
   requirements:
     _permission: 'administer site configuration'
-purge_ui.tagsheaders_config_form:
-  path: '/admin/config/development/performance/purge/tagsheaders'
-  defaults:
-    _title: 'Configure tags headers'
-    _form: 'Drupal\purge_ui\Form\TagsHeadersConfigForm'
-  requirements:
-    _permission: 'administer site configuration'

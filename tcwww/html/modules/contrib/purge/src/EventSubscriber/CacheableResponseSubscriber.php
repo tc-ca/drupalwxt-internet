@@ -53,20 +53,8 @@ class CacheableResponseSubscriber implements EventSubscriberInterface {
     $response = $event->getResponse();
     if ($response instanceof CacheableResponseInterface) {
 
-      // Retrieve and process tags.
-      $tags = $response->getCacheableMetadata()->getCacheTags();
-      $blacklist = $this->configFactory->get('purge.tagsheaders')->get('blacklist');
-      $blacklist = is_array($blacklist) ? $blacklist : [];
-      $tags = array_filter($tags, function($tag) use ($blacklist) {
-        foreach ($blacklist as $prefix) {
-          if (strpos($tag, $prefix) !== FALSE) {
-            return FALSE;
-          }
-        }
-        return TRUE;
-      });
-
       // Iterate all tagsheader plugins and add a header for each plugin.
+      $tags = $response->getCacheableMetadata()->getCacheTags();
       foreach ($this->purgeTagsHeaders as $header) {
         if ($header->isEnabled()) {
 
