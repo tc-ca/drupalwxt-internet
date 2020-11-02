@@ -1275,9 +1275,12 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
           $values[$value_key][$field_name][$langcode] = [];
         }
 
-        // Ensure that records for non-translatable fields having invalid
-        // languages are skipped.
-        if ($langcode == LanguageInterface::LANGCODE_DEFAULT || $definitions[$bundle][$field_name]->isTranslatable()) {
+        $translatable = FALSE;
+        if (!empty($definitions[$bundle][$field_name])) {
+          $translatable = $definitions[$bundle][$field_name]->isTranslatable();
+        }
+
+        if ($langcode == LanguageInterface::LANGCODE_DEFAULT || $translatable){
           if ($storage_definition->getCardinality() == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED || count($values[$value_key][$field_name][$langcode]) < $storage_definition->getCardinality()) {
             $item = [];
             // For each column declared by the field, populate the item from the
