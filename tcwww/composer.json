@@ -148,6 +148,8 @@
                 "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
                 "2470896 - Make Book navigation translatable":
                 "patches/2470896-190-d8.patch",
+                "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage":
+                "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
                 "TBD - make book nav links translatable":
                 "patches/book-nav_link_trans-tbd.patch"
             },
