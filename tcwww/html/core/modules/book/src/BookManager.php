@@ -14,9 +14,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\node\NodeInterface;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Defines a book manager.
@@ -78,20 +75,6 @@ class BookManager implements BookManagerInterface {
   protected $renderer;
 
   /**
-   * The entity repository service.
-   *
-   * @var \Drupal\Core\Entity\EntityRepositoryInterface
-   */
-  protected $entityRepository;
-
-  /**
-   * The language manager.
-   *
-   * @var \Drupal\Core\Language\LanguageManagerInterface|mixed|null
-   */
-  protected $languageManager;
-
-  /**
    * Constructs a BookManager object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -104,27 +87,13 @@ class BookManager implements BookManagerInterface {
    *   The book outline storage.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Drupal\Core\Entity\EntityRepositoryInterface|null $entity_repository
-   *   The entity repository service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory, BookOutlineStorageInterface $book_outline_storage, RendererInterface $renderer, LanguageManagerInterface $language_manager = NULL, EntityRepositoryInterface $entity_repository = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory, BookOutlineStorageInterface $book_outline_storage, RendererInterface $renderer) {
     $this->entityTypeManager = $entity_type_manager;
     $this->stringTranslation = $translation;
     $this->configFactory = $config_factory;
     $this->bookOutlineStorage = $book_outline_storage;
     $this->renderer = $renderer;
-    if (!$language_manager) {
-      @trigger_error('The language_manager service must be passed to ' . __NAMESPACE__ . '\BookManager::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
-      $language_manager = \Drupal::service('language_manager');
-    }
-    $this->languageManager = $language_manager;
-    if (!$entity_repository) {
-      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookManager::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
-      $entity_repository = \Drupal::service('entity.repository');
-    }
-    $this->entityRepository = $entity_repository;
   }
 
   /**
@@ -146,9 +115,7 @@ class BookManager implements BookManagerInterface {
 
     if ($nids) {
       $book_links = $this->bookOutlineStorage->loadMultiple($nids);
-      // Load nodes with proper translation.
       $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
-      $nodes = array_map([$this->entityRepository, 'getTranslationFromContext'], $nodes);
       // @todo: Sort by weight and translated title.
 
       // @todo: use route name for links, not system path.
@@ -464,9 +431,7 @@ class BookManager implements BookManagerInterface {
       }
     }
 
-    // Load nodes with proper translation.
     $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
-    $nodes = array_map([$this->entityRepository, 'getTranslationFromContext'], $nodes);
 
     foreach ($tree as $data) {
       $nid = $data['link']['nid'];
@@ -518,14 +483,14 @@ class BookManager implements BookManagerInterface {
    */
   public function bookTreeAllData($bid, $link = NULL, $max_depth = NULL) {
     $tree = &drupal_static(__METHOD__, []);
+    $language_interface = \Drupal::languageManager()->getCurrentLanguage();
 
     // Use $nid as a flag for whether the data being loaded is for the whole
     // tree.
     $nid = isset($link['nid']) ? $link['nid'] : 0;
-    // Generate a cache ID (cid) specific for this $bid, $link, language, and
+    // Generate a cache ID (cid) specific for this $bid, $link, $language, and
     // depth.
-    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-    $cid = implode(':', ['book-links', $bid, 'all', $nid, $langcode, (int) $max_depth]);
+    $cid = 'book-links:' . $bid . ':all:' . $nid . ':' . $language_interface->getId() . ':' . (int) $max_depth;
 
     if (!isset($tree[$cid])) {
       // If the tree data was not in the static cache, build $tree_parameters.
@@ -710,14 +675,14 @@ class BookManager implements BookManagerInterface {
   protected function doBookTreeBuild($bid, array $parameters = []) {
     // Static cache of already built menu trees.
     $trees = &drupal_static(__METHOD__, []);
+    $language_interface = \Drupal::languageManager()->getCurrentLanguage();
 
     // Build the cache id; sort parents to prevent duplicate storage and remove
     // default parameter values.
     if (isset($parameters['expanded'])) {
       sort($parameters['expanded']);
     }
-    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-    $tree_cid = implode(':', ['book-links', $bid, 'tree-data', $langcode, hash('sha256', serialize($parameters))]);
+    $tree_cid = 'book-links:' . $bid . ':tree-data:' . $language_interface->getId() . ':' . hash('sha256', serialize($parameters));
 
     // If we do not have this tree in the static cache, check {cache_data}.
     if (!isset($trees[$tree_cid])) {
@@ -1052,8 +1017,7 @@ class BookManager implements BookManagerInterface {
     $link['access'] = $node && $node->access('view');
     // For performance, don't localize a link the user can't access.
     if ($link['access']) {
-      // The node label will be the value for the current language.
-      $node = $this->entityRepository->getTranslationFromContext($node);
+      // The node label will be the value for the current user's language.
       $link['title'] = $node->label();
       $link['options'] = [];
     }
