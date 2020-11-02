@@ -97,6 +97,7 @@ class DashboardController extends ControllerBase {
     'queue_change'      => 'purge_ui.queue_change_form',
     'queue_browser'     => 'purge_ui.queue_browser_form',
     'queue_empty'       => 'purge_ui.queue_empty_form',
+    'tagsheaders'       => 'purge_ui.tagsheaders_config_form',
   ];
 
   /**
@@ -161,6 +162,7 @@ class DashboardController extends ControllerBase {
     $build['diagnostics'] = $this->buildDiagnosticReport();
     $build['purgers'] = $this->buildPurgers();
     $build['queue'] = $this->buildQueuersQueueProcessors();
+    $build['tagsheaders'] = $this->buildTagsHeaders();
     return $build;
   }
 
@@ -388,6 +390,20 @@ class DashboardController extends ControllerBase {
     }
 
     // phpcs:enable DrupalPractice.CodeAnalysis.VariableAnalysis.UndefinedVariable
+    return $build;
+  }
+
+  /**
+   * Add a config form for tags header plugins.
+   *
+   * @return array
+   */
+  protected function buildTagsHeaders() {
+    extract($this->getRenderLocals());
+    $build = $details($this->t('Tags Headers'));
+    $build['#open'] = $this->request->get('edit-tagsheaders', FALSE);
+    $build['configure'] = $buttonlink(
+      $this->t('Configure Tags Headers'), 'tagsheaders', '90%');
     return $build;
   }
 
