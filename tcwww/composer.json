@@ -151,7 +151,9 @@
                 "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage":
                 "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
                 "TBD - make book nav links translatable":
-                "patches/book-nav_link_trans-tbd.patch"
+                "patches/book-nav_link_trans-tbd.patch",
+                "TBD - make book nav titles translatable":
+                "patches/book-nav_link-titles.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":

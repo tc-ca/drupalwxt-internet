@@ -1,0 +1,16 @@
+diff --git a/core/modules/book/src/BookManager.php b/core/modules/book/src/BookManager.php
+index b37c5a050..2b562d34d 100644
+--- a/core/modules/book/src/BookManager.php
++++ b/core/modules/book/src/BookManager.php
+@@ -1013,7 +1013,11 @@ public function bookLinkTranslate(&$link) {
+     // for unpublished nodes.
+     // @todo - load the nodes en-mass rather than individually.
+     // @see https://www.drupal.org/project/drupal/issues/2470896
++    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+     $node = $this->entityTypeManager->getStorage('node')->load($link['nid']);
++    if ($node->hasTranslation($langcode)) {
++      $node = $node->getTranslation($langcode);
++    }
+     $link['access'] = $node && $node->access('view');
+     // For performance, don't localize a link the user can't access.
+     if ($link['access']) {

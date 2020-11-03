@@ -1,0 +1,115 @@
+diff --git a/tcwww/html/modules/contrib/purge/config/schema/purge.schema.yml b/tcwww/html/modules/contrib/purge/config/schema/purge.schema.yml
+index bada222da..24b6f8b61 100644
+--- a/tcwww/html/modules/contrib/purge/config/schema/purge.schema.yml
++++ b/tcwww/html/modules/contrib/purge/config/schema/purge.schema.yml
+@@ -35,3 +35,15 @@ purge.plugins:
+       type: string
+       label: 'The currently active queue plugin.'
+       translatable: false
++purge.tagsheaders:
++  type: config_object
++  label: 'Purge Tags Header Blacklist.'
++  mapping:
++    blacklist:
++      label: 'A list of tag prefixes that should not be included.'
++      type: sequence
++      translatable: false
++      sequence:
++        type: string
++        label: 'Prefix string with which tags should not start with.'
++        translatable: false
+diff --git a/tcwww/html/modules/contrib/purge/modules/purge_ui/purge_ui.routing.yml b/tcwww/html/modules/contrib/purge/modules/purge_ui/purge_ui.routing.yml
+index f02bbbd03..5dd35a596 100644
+--- a/tcwww/html/modules/contrib/purge/modules/purge_ui/purge_ui.routing.yml
++++ b/tcwww/html/modules/contrib/purge/modules/purge_ui/purge_ui.routing.yml
+@@ -165,3 +165,10 @@ purge_ui.queue_empty_form:
+     _form: 'Drupal\purge_ui\Form\QueueEmptyForm'
+   requirements:
+     _permission: 'administer site configuration'
++purge_ui.tagsheaders_config_form:
++  path: '/admin/config/development/performance/purge/tagsheaders'
++  defaults:
++    _title: 'Configure tags headers'
++    _form: 'Drupal\purge_ui\Form\TagsHeadersConfigForm'
++  requirements:
++    _permission: 'administer site configuration'
+diff --git a/tcwww/html/modules/contrib/purge/modules/purge_ui/src/Controller/DashboardController.php b/tcwww/html/modules/contrib/purge/modules/purge_ui/src/Controller/DashboardController.php
+index f953d2af6..100f17b34 100644
+--- a/tcwww/html/modules/contrib/purge/modules/purge_ui/src/Controller/DashboardController.php
++++ b/tcwww/html/modules/contrib/purge/modules/purge_ui/src/Controller/DashboardController.php
+@@ -97,6 +97,7 @@ class DashboardController extends ControllerBase {
+     'queue_change'      => 'purge_ui.queue_change_form',
+     'queue_browser'     => 'purge_ui.queue_browser_form',
+     'queue_empty'       => 'purge_ui.queue_empty_form',
++    'tagsheaders'       => 'purge_ui.tagsheaders_config_form',
+   ];
+ 
+   /**
+@@ -161,6 +162,7 @@ public function build() {
+     $build['diagnostics'] = $this->buildDiagnosticReport();
+     $build['purgers'] = $this->buildPurgers();
+     $build['queue'] = $this->buildQueuersQueueProcessors();
++    $build['tagsheaders'] = $this->buildTagsHeaders();
+     return $build;
+   }
+ 
+@@ -391,6 +393,20 @@ protected function buildQueuersQueueProcessors() {
+     return $build;
+   }
+ 
++  /**
++   * Add a config form for tags header plugins.
++   *
++   * @return array
++   */
++  protected function buildTagsHeaders() {
++    extract($this->getRenderLocals());
++    $build = $details($this->t('Tags Headers'));
++    $build['#open'] = $this->request->get('edit-tagsheaders', FALSE);
++    $build['configure'] = $buttonlink(
++      $this->t('Configure Tags Headers'), 'tagsheaders', '90%');
++    return $build;
++  }
++
+   /**
+    * Helper for dealing with render arrays more easily.
+    *
+diff --git a/tcwww/html/modules/contrib/purge/purge.services.yml b/tcwww/html/modules/contrib/purge/purge.services.yml
+index b203d2197..d863998a3 100644
+--- a/tcwww/html/modules/contrib/purge/purge.services.yml
++++ b/tcwww/html/modules/contrib/purge/purge.services.yml
+@@ -132,7 +132,7 @@ services:
+     - [setContainer, ['@service_container']]
+   purge.tagsheaders.cacheable_response_subscriber:
+     class: Drupal\purge\EventSubscriber\CacheableResponseSubscriber
+-    arguments: ['@purge.tagsheaders']
++    arguments: ['@purge.tagsheaders', '@config.factory']
+     public: true
+     tags:
+       - { name: event_subscriber }
+diff --git a/tcwww/html/modules/contrib/purge/src/EventSubscriber/CacheableResponseSubscriber.php b/tcwww/html/modules/contrib/purge/src/EventSubscriber/CacheableResponseSubscriber.php
+index 2c8619ee5..f2855e52f 100644
+--- a/tcwww/html/modules/contrib/purge/src/EventSubscriber/CacheableResponseSubscriber.php
++++ b/tcwww/html/modules/contrib/purge/src/EventSubscriber/CacheableResponseSubscriber.php
+@@ -53,8 +53,20 @@ public function onRespond(FilterResponseEvent $event) {
+     $response = $event->getResponse();
+     if ($response instanceof CacheableResponseInterface) {
+ 
+-      // Iterate all tagsheader plugins and add a header for each plugin.
++      // Retrieve and process tags.
+       $tags = $response->getCacheableMetadata()->getCacheTags();
++      $blacklist = $this->configFactory->get('purge.tagsheaders')->get('blacklist');
++      $blacklist = is_array($blacklist) ? $blacklist : [];
++      $tags = array_filter($tags, function($tag) use ($blacklist) {
++        foreach ($blacklist as $prefix) {
++          if (strpos($tag, $prefix) !== FALSE) {
++            return FALSE;
++          }
++        }
++        return TRUE;
++      });
++
++      // Iterate all tagsheader plugins and add a header for each plugin.
+       foreach ($this->purgeTagsHeaders as $header) {
+         if ($header->isEnabled()) {
+ 
