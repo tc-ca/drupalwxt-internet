@@ -1,0 +1,601 @@
+diff --git a/core/modules/book/book.services.yml b/core/modules/book/book.services.yml
+index 740252e8..f425654a 100644
+--- a/core/modules/book/book.services.yml
++++ b/core/modules/book/book.services.yml
+@@ -1,18 +1,18 @@
+ services:
+   book.breadcrumb:
+     class: Drupal\book\BookBreadcrumbBuilder
+-    arguments: ['@entity_type.manager', '@current_user']
++    arguments: ['@entity_type.manager', '@current_user', '@entity.repository']
+     tags:
+       - { name: breadcrumb_builder, priority: 701 }
+   book.manager:
+     class: Drupal\book\BookManager
+-    arguments: ['@entity_type.manager', '@string_translation', '@config.factory', '@book.outline_storage', '@renderer']
++    arguments: ['@entity_type.manager', '@string_translation', '@config.factory', '@book.outline_storage', '@renderer', '@language_manager', '@entity.repository']
+   book.outline:
+     class: Drupal\book\BookOutline
+     arguments: ['@book.manager']
+   book.export:
+     class: Drupal\book\BookExport
+-    arguments: ['@entity_type.manager', '@book.manager']
++    arguments: ['@entity_type.manager', '@book.manager', '@entity.repository']
+   book.outline_storage:
+     class: Drupal\book\BookOutlineStorage
+     arguments: ['@database']
+diff --git a/core/modules/book/src/BookBreadcrumbBuilder.php b/core/modules/book/src/BookBreadcrumbBuilder.php
+index db446a06..24dc61de 100644
+--- a/core/modules/book/src/BookBreadcrumbBuilder.php
++++ b/core/modules/book/src/BookBreadcrumbBuilder.php
+@@ -4,6 +4,7 @@ namespace Drupal\book;
+ 
+ use Drupal\Core\Breadcrumb\Breadcrumb;
+ use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
++use Drupal\Core\Entity\EntityRepositoryInterface;
+ use Drupal\Core\Entity\EntityTypeManagerInterface;
+ use Drupal\Core\Link;
+ use Drupal\Core\Routing\RouteMatchInterface;
+@@ -31,6 +32,13 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
+    */
+   protected $account;
+ 
++  /**
++   * The entity repository service.
++   *
++   * @var \Drupal\Core\Entity\EntityRepositoryInterface
++   */
++  protected $entityRepository;
++
+   /**
+    * Constructs the BookBreadcrumbBuilder.
+    *
+@@ -38,10 +46,17 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
+    *   The entity type manager service.
+    * @param \Drupal\Core\Session\AccountInterface $account
+    *   The current user account.
++   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
++   *   The entity repository service.
+    */
+-  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $account) {
++  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $account, EntityRepositoryInterface $entity_repository = NULL) {
+     $this->nodeStorage = $entity_type_manager->getStorage('node');
+     $this->account = $account;
++    if (!$entity_repository) {
++      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookBreadcrumbBuilder::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
++      $entity_repository = \Drupal::service('entity.repository');
++    }
++    $this->entityRepository = $entity_repository;
+   }
+ 
+   /**
+@@ -68,6 +83,7 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
+       $depth++;
+     }
+     $parent_books = $this->nodeStorage->loadMultiple($book_nids);
++    $parent_books = array_map([$this->entityRepository, 'getTranslationFromContext'], $parent_books);
+     if (count($parent_books) > 0) {
+       $depth = 1;
+       while (!empty($book['p' . ($depth + 1)])) {
+diff --git a/core/modules/book/src/BookExport.php b/core/modules/book/src/BookExport.php
+index d130610b..78fed042 100644
+--- a/core/modules/book/src/BookExport.php
++++ b/core/modules/book/src/BookExport.php
+@@ -2,6 +2,7 @@
+ 
+ namespace Drupal\book;
+ 
++use Drupal\Core\Entity\EntityRepositoryInterface;
+ use Drupal\Core\Entity\EntityTypeManagerInterface;
+ use Drupal\node\NodeInterface;
+ 
+@@ -33,6 +34,13 @@ class BookExport {
+    */
+   protected $bookManager;
+ 
++  /**
++   * The entity repository service.
++   *
++   * @var \Drupal\Core\Entity\EntityRepositoryInterface
++   */
++  protected $entityRepository;
++
+   /**
+    * Constructs a BookExport object.
+    *
+@@ -40,11 +48,18 @@ class BookExport {
+    *   The entity type manager.
+    * @param \Drupal\book\BookManagerInterface $book_manager
+    *   The book manager.
++   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
++   *   The entity repository service.
+    */
+-  public function __construct(EntityTypeManagerInterface $entity_type_manager, BookManagerInterface $book_manager) {
++  public function __construct(EntityTypeManagerInterface $entity_type_manager, BookManagerInterface $book_manager, EntityRepositoryInterface $entity_repository = NULL) {
+     $this->nodeStorage = $entity_type_manager->getStorage('node');
+     $this->viewBuilder = $entity_type_manager->getViewBuilder('node');
+     $this->bookManager = $book_manager;
++    if (!$entity_repository) {
++      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookExport::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
++      $entity_repository = \Drupal::service('entity.repository');
++    }
++    $this->entityRepository = $entity_repository;
+   }
+ 
+   /**
+@@ -74,6 +89,7 @@ class BookExport {
+ 
+     $tree = $this->bookManager->bookSubtreeData($node->book);
+     $contents = $this->exportTraverse($tree, [$this, 'bookNodeExport']);
++    $node = $this->entityRepository->getTranslationFromContext($node);
+     return [
+       '#theme' => 'book_export_html',
+       '#title' => $node->label(),
+@@ -96,8 +112,8 @@ class BookExport {
+    * @param callable $callable
+    *   A callback to be called upon visiting a node in the tree.
+    *
+-   * @return string
+-   *   The output generated in visiting each node.
++   * @return array
++   *   The render array generated in visiting each node.
+    */
+   protected function exportTraverse(array $tree, $callable) {
+     // If there is no valid callable, use the default callback.
+@@ -105,8 +121,9 @@ class BookExport {
+ 
+     $build = [];
+     foreach ($tree as $data) {
+-      // Note- access checking is already performed when building the tree.
++      // Access checking is already performed when building the tree.
+       if ($node = $this->nodeStorage->load($data['link']['nid'])) {
++        $node = $this->entityRepository->getTranslationFromContext($node);
+         $children = $data['below'] ? $this->exportTraverse($data['below'], $callable) : '';
+         $build[] = call_user_func($callable, $node, $children);
+       }
+diff --git a/core/modules/book/src/BookManager.php b/core/modules/book/src/BookManager.php
+index 126f88b0..635fcbbb 100644
+--- a/core/modules/book/src/BookManager.php
++++ b/core/modules/book/src/BookManager.php
+@@ -4,8 +4,11 @@ namespace Drupal\book;
+ 
+ use Drupal\Component\Utility\Unicode;
+ use Drupal\Core\Cache\Cache;
++use Drupal\Core\Entity\EntityRepositoryInterface;
+ use Drupal\Core\Entity\EntityTypeManagerInterface;
+ use Drupal\Core\Form\FormStateInterface;
++use Drupal\Core\Language\LanguageInterface;
++use Drupal\Core\Language\LanguageManagerInterface;
+ use Drupal\Core\Render\RendererInterface;
+ use Drupal\Core\Session\AccountInterface;
+ use Drupal\Core\StringTranslation\TranslationInterface;
+@@ -67,6 +70,20 @@ class BookManager implements BookManagerInterface {
+    */
+   protected $renderer;
+ 
++  /**
++   * The entity repository service.
++   *
++   * @var \Drupal\Core\Entity\EntityRepositoryInterface
++   */
++  protected $entityRepository;
++
++  /**
++   * The language manager.
++   *
++   * @var \Drupal\Core\Language\LanguageManagerInterface|mixed|null
++   */
++  protected $languageManager;
++
+   /**
+    * Constructs a BookManager object.
+    *
+@@ -80,13 +97,27 @@ class BookManager implements BookManagerInterface {
+    *   The book outline storage.
+    * @param \Drupal\Core\Render\RendererInterface $renderer
+    *   The renderer.
++   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
++   *   The language manager.
++   * @param \Drupal\Core\Entity\EntityRepositoryInterface|null $entity_repository
++   *   The entity repository service.
+    */
+-  public function __construct(EntityTypeManagerInterface $entity_type_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory, BookOutlineStorageInterface $book_outline_storage, RendererInterface $renderer) {
++  public function __construct(EntityTypeManagerInterface $entity_type_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory, BookOutlineStorageInterface $book_outline_storage, RendererInterface $renderer, LanguageManagerInterface $language_manager = NULL, EntityRepositoryInterface $entity_repository = NULL) {
+     $this->entityTypeManager = $entity_type_manager;
+     $this->stringTranslation = $translation;
+     $this->configFactory = $config_factory;
+     $this->bookOutlineStorage = $book_outline_storage;
+     $this->renderer = $renderer;
++    if (!$language_manager) {
++      @trigger_error('The language_manager service must be passed to ' . __NAMESPACE__ . '\BookManager::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
++      $language_manager = \Drupal::service('language_manager');
++    }
++    $this->languageManager = $language_manager;
++    if (!$entity_repository) {
++      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookManager::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
++      $entity_repository = \Drupal::service('entity.repository');
++    }
++    $this->entityRepository = $entity_repository;
+   }
+ 
+   /**
+@@ -108,7 +139,9 @@ class BookManager implements BookManagerInterface {
+ 
+     if ($nids) {
+       $book_links = $this->bookOutlineStorage->loadMultiple($nids);
++      // Load nodes with proper translation.
+       $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
++      $nodes = array_map([$this->entityRepository, 'getTranslationFromContext'], $nodes);
+       // @todo: Sort by weight and translated title.
+ 
+       // @todo: use route name for links, not system path.
+@@ -424,7 +457,9 @@ class BookManager implements BookManagerInterface {
+       }
+     }
+ 
++    // Load nodes with proper translation.
+     $nodes = $this->entityTypeManager->getStorage('node')->loadMultiple($nids);
++    $nodes = array_map([$this->entityRepository, 'getTranslationFromContext'], $nodes);
+ 
+     foreach ($tree as $data) {
+       $nid = $data['link']['nid'];
+@@ -476,14 +511,14 @@ class BookManager implements BookManagerInterface {
+    */
+   public function bookTreeAllData($bid, $link = NULL, $max_depth = NULL) {
+     $tree = &drupal_static(__METHOD__, []);
+-    $language_interface = \Drupal::languageManager()->getCurrentLanguage();
+ 
+     // Use $nid as a flag for whether the data being loaded is for the whole
+     // tree.
+     $nid = isset($link['nid']) ? $link['nid'] : 0;
+-    // Generate a cache ID (cid) specific for this $bid, $link, $language, and
++    // Generate a cache ID (cid) specific for this $bid, $link, language, and
+     // depth.
+-    $cid = 'book-links:' . $bid . ':all:' . $nid . ':' . $language_interface->getId() . ':' . (int) $max_depth;
++    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
++    $cid = implode(':', ['book-links', $bid, 'all', $nid, $langcode, (int) $max_depth]);
+ 
+     if (!isset($tree[$cid])) {
+       // If the tree data was not in the static cache, build $tree_parameters.
+@@ -666,14 +701,14 @@ class BookManager implements BookManagerInterface {
+   protected function doBookTreeBuild($bid, array $parameters = []) {
+     // Static cache of already built menu trees.
+     $trees = &drupal_static(__METHOD__, []);
+-    $language_interface = \Drupal::languageManager()->getCurrentLanguage();
+ 
+     // Build the cache id; sort parents to prevent duplicate storage and remove
+     // default parameter values.
+     if (isset($parameters['expanded'])) {
+       sort($parameters['expanded']);
+     }
+-    $tree_cid = 'book-links:' . $bid . ':tree-data:' . $language_interface->getId() . ':' . hash('sha256', serialize($parameters));
++    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
++    $tree_cid = implode(':', ['book-links', $bid, 'tree-data', $langcode, hash('sha256', serialize($parameters))]);
+ 
+     // If we do not have this tree in the static cache, check {cache_data}.
+     if (!isset($trees[$tree_cid])) {
+@@ -1008,7 +1043,8 @@ class BookManager implements BookManagerInterface {
+     $link['access'] = $node && $node->access('view');
+     // For performance, don't localize a link the user can't access.
+     if ($link['access']) {
+-      // The node label will be the value for the current user's language.
++      // The node label will be the value for the current language.
++      $node = $this->entityRepository->getTranslationFromContext($node);
+       $link['title'] = $node->label();
+       $link['options'] = [];
+     }
+diff --git a/core/modules/book/src/Form/BookAdminEditForm.php b/core/modules/book/src/Form/BookAdminEditForm.php
+index d5d29c1c..dac17987 100644
+--- a/core/modules/book/src/Form/BookAdminEditForm.php
++++ b/core/modules/book/src/Form/BookAdminEditForm.php
+@@ -5,6 +5,7 @@ namespace Drupal\book\Form;
+ use Drupal\book\BookManager;
+ use Drupal\book\BookManagerInterface;
+ use Drupal\Component\Utility\Crypt;
++use Drupal\Core\Entity\EntityRepositoryInterface;
+ use Drupal\Core\Entity\EntityStorageInterface;
+ use Drupal\Core\Form\FormBase;
+ use Drupal\Core\Form\FormStateInterface;
+@@ -34,6 +35,13 @@ class BookAdminEditForm extends FormBase {
+    */
+   protected $bookManager;
+ 
++  /**
++   * The entity repository service.
++   *
++   * @var \Drupal\Core\Entity\EntityRepositoryInterface
++   */
++  protected $entityRepository;
++
+   /**
+    * Constructs a new BookAdminEditForm.
+    *
+@@ -41,10 +49,17 @@ class BookAdminEditForm extends FormBase {
+    *   The custom block storage.
+    * @param \Drupal\book\BookManagerInterface $book_manager
+    *   The book manager.
++   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
++   *   The entity repository service.
+    */
+-  public function __construct(EntityStorageInterface $node_storage, BookManagerInterface $book_manager) {
++  public function __construct(EntityStorageInterface $node_storage, BookManagerInterface $book_manager, EntityRepositoryInterface $entity_repository) {
+     $this->nodeStorage = $node_storage;
+     $this->bookManager = $book_manager;
++    if (!$entity_repository) {
++      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookAdminEditForm::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
++      $entity_repository = \Drupal::service('entity.repository');
++    }
++    $this->entityRepository = $entity_repository;
+   }
+ 
+   /**
+@@ -54,7 +69,8 @@ class BookAdminEditForm extends FormBase {
+     $entity_type_manager = $container->get('entity_type.manager');
+     return new static(
+       $entity_type_manager->getStorage('node'),
+-      $container->get('book.manager')
++      $container->get('book.manager'),
++      $container->get('entity.repository')
+     );
+   }
+ 
+@@ -116,6 +132,7 @@ class BookAdminEditForm extends FormBase {
+           // Update the title if changed.
+           if ($row['title']['#default_value'] != $values['title']) {
+             $node = $this->nodeStorage->load($values['nid']);
++            $node = $this->entityRepository->getTranslationFromContext($node);
+             $node->revision_log = $this->t('Title changed from %original to %current.', ['%original' => $node->label(), '%current' => $values['title']]);
+             $node->title = $values['title'];
+             $node->book['link_title'] = $values['title'];
+diff --git a/core/modules/book/tests/src/Kernel/BookMultilingualTest.php b/core/modules/book/tests/src/Kernel/BookMultilingualTest.php
+new file mode 100644
+index 00000000..b58b3d7a
+--- /dev/null
++++ b/core/modules/book/tests/src/Kernel/BookMultilingualTest.php
+@@ -0,0 +1,210 @@
++<?php
++
++namespace Drupal\Tests\book\Kernel;
++
++use Drupal\Core\Language\LanguageInterface;
++use Drupal\Core\Routing\RouteMatch;
++use Drupal\KernelTests\KernelTestBase;
++use Drupal\language\Entity\ConfigurableLanguage;
++use Drupal\language\LanguageNegotiatorInterface;
++use Drupal\node\Entity\Node;
++use Drupal\node\Entity\NodeType;
++use Drupal\Tests\user\Traits\UserCreationTrait;
++use Symfony\Component\Routing\Route;
++
++/**
++ * Tests multilingual books.
++ *
++ * @group book
++ */
++class BookMultilingualTest extends KernelTestBase {
++
++  use UserCreationTrait;
++
++  /**
++   * The translation langcude.
++   */
++  const LANGCODE = 'de';
++
++  /**
++   * {@inheritdoc}
++   */
++  protected static $modules = [
++    'system',
++    'user',
++    'node',
++    'field',
++    'text',
++    'book',
++    'language',
++    'content_translation',
++  ];
++
++  /**
++   * A list of node ids in books. 0, 1 are root, 2-17 are children.
++   *
++   * @var array
++   */
++  protected $bids;
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function setUp(): void {
++    parent::setUp();
++    // Set up the translation language.
++    $this->installConfig(['language']);
++    ConfigurableLanguage::create(['id' => self::LANGCODE])->save();
++
++    $this->installEntitySchema('node');
++    $this->installEntitySchema('user');
++    $this->installEntitySchema('node');
++    $this->installSchema('book', ['book']);
++    $this->installSchema('node', ['node_access']);
++    $this->installSchema('system', ['sequences']);
++    $this->installConfig(['node', 'book', 'field']);
++    $node_type = NodeType::create([
++      'type' => $this->randomMachineName(),
++      'name' => $this->randomString(),
++    ]);
++    $node_type->save();
++    $this->container->get('content_translation.manager')->setEnabled('node', $node_type->id(), TRUE);
++    $book_config = $this->config('book.settings');
++    $allowed_types = $book_config->get('allowed_types');
++    $allowed_types[] = $node_type->id();
++    $book_config->set('allowed_types', $allowed_types)->save();
++    $this->bids = [];
++    for ($i = 0; $i < 18; $i++) {
++      /** @var \Drupal\node\NodeInterface $node */
++      $node = Node::create(['title' => $this->randomString(), 'type' => $node_type->id()]);
++      $node->addTranslation(self::LANGCODE, ['title' => $this->randomString()]);
++      $node->book['bid'] = $i < 2 ? 'new' : $this->bids[$i % 2];
++      $node->book['pid'] = $i < 2 ? 0 : $this->bids[$i - 2];
++      $node->book['depth'] = $i < 2 ? 1 : $this->bids[round(($i / 2), 0, PHP_ROUND_HALF_DOWN)];
++      $node->save();
++      $this->bids[$i] = $node->id();
++    }
++    \Drupal::currentUser()->setAccount($this->createUser(['access content']));
++  }
++
++  /**
++   * Tests various book manager methods return correct translations.
++   *
++   * @dataProvider langcodesProvider
++   */
++  public function testMultilingualBookManager(string $langcode) {
++    $this->setCurrentLanguage($langcode);
++    /** @var \Drupal\book\BookManagerInterface $bm */
++    $bm = $this->container->get('book.manager');
++    $books = $bm->getAllBooks();
++    $this->assertNotEmpty($books);
++    foreach ($books as $book) {
++      /** @var \Drupal\node\NodeInterface $node */
++      $this->assertBookLinkIsCorrectlyTranslated($book, $langcode);
++      $bid = $book['bid'];
++      $this->recurseTree($bm->bookTreeAllData($bid), $langcode);
++      $toc = $bm->getTableOfContents($bid, 4);
++      $this->assertNotEmpty($toc);
++      foreach ($toc as $nid => $title) {
++        $node = Node::load($nid);
++        $node_label = $node->getTranslation($langcode)->label();
++        $this->assertRegExp('/' . preg_quote($node_label, '/') . '$/', $title);
++      }
++    }
++  }
++
++  /**
++   * Tests various book breadcrumb builder methods return correct translations.
++   *
++   * @dataProvider langcodesProvider
++   */
++  public function testMultilingualBookBreadcrumbBuilder(string $langcode) {
++    $this->setCurrentLanguage($langcode);
++    $nid = $this->bids[17];
++    /** @var \Drupal\node\NodeInterface $node */
++    $node = Node::load($nid);
++    $route = new Route('/node/{node}');
++    $route_match = new RouteMatch('entity.node.canonical', $route, ['node' => $node], ['node' => $nid]);
++    /** @var \Drupal\book\BookBreadcrumbBuilder $bbb */
++    $bbb = $this->container->get('book.breadcrumb');
++    $found = FALSE;
++    foreach ($bbb->build($route_match)->getLinks() as $link) {
++      $parameters = $link->getUrl()->getRouteParameters();
++      if (isset($parameters['node'])) {
++        $nid = $parameters['node'];
++        $node = Node::load($nid);
++        $this->assertSame($node->getTranslation($langcode)->label(), $link->getText());
++        $found = TRUE;
++      }
++    }
++    $this->assertTrue($found);
++  }
++
++  /**
++   * Data provider for ::testMultilingualBooks().
++   */
++  public function langcodesProvider() {
++    return [
++      [self::LANGCODE],
++      ['en'],
++    ];
++  }
++
++  /**
++   * Recurses and asserts a book tree is correctly translated.
++   *
++   * @param array $tree
++   *   Book tree data.
++   * @param string $langcode
++   *   THe langcode.
++   * @param bool $top
++   *   Whether this is the top of the tree.
++   */
++  protected function recurseTree(array $tree, string $langcode, $top = TRUE) {
++    $below_tested = FALSE;
++    foreach ($tree as $data) {
++      $this->assertBookLinkIsCorrectlyTranslated($data['link'], $langcode);
++      if ($data['below']) {
++        $below_tested = TRUE;
++        $this->recurseTree($data['below'], $langcode, FALSE);
++      }
++    }
++    // Make sure the below parts of the code is actually tested.
++    if ($top) {
++      $this->assertTrue($below_tested);
++    }
++  }
++
++  /**
++   * Asserts a book link is correctly translated.
++   *
++   * @param array $link
++   *   A book link array with at least a nid and title keys.
++   * @param string $langcode
++   *   The langcode.
++   */
++  protected function assertBookLinkIsCorrectlyTranslated(array $link, string $langcode) {
++    $node = Node::load($link['nid']);
++    $this->assertSame($node->getTranslation($langcode)->label(), $link['title']);
++  }
++
++  /**
++   * Sets the current language.
++   *
++   * @param string $langcode
++   *   The langcode.
++   */
++  protected function setCurrentLanguage(string $langcode) {
++    /** @var \Drupal\language\ConfigurableLanguageManagerInterface $language_manager  */
++    $language_manager = $this->container->get('language_manager');
++    $negotiator = $this->prophesize(LanguageNegotiatorInterface::class);
++    foreach ($language_manager->getLanguages() as $candidate_langcode => $candidate) {
++      $type = $candidate_langcode === $langcode ? LanguageInterface::TYPE_CONTENT : LanguageInterface::TYPE_INTERFACE;
++      $negotiator->initializeType($type)->willReturn([$type => $candidate]);
++    }
++    $language_manager->setNegotiator($negotiator->reveal());
++    $this->assertSame($language_manager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId(), $langcode);
++    $this->assertNotSame($language_manager->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId(), $langcode);
++  }
++
++}
+diff --git a/core/modules/book/tests/src/Unit/BookManagerTest.php b/core/modules/book/tests/src/Unit/BookManagerTest.php
+index d37b0fce..d452c6ec 100644
+--- a/core/modules/book/tests/src/Unit/BookManagerTest.php
++++ b/core/modules/book/tests/src/Unit/BookManagerTest.php
+@@ -19,6 +19,20 @@ class BookManagerTest extends UnitTestCase {
+    */
+   protected $entityTypeManager;
+ 
++  /**
++   * The mocked language manager.
++   *
++   * @var \Drupal\Core\Language\LanguageManager|\PHPUnit\Framework\MockObject\MockObject
++   */
++  protected $languageManager;
++
++  /**
++   * The mocked entity repository.
++   *
++   * @var \Drupal\Core\Entity\EntityRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
++   */
++  protected $entityRepository;
++
+   /**
+    * The mocked config factory.
+    *
+@@ -63,7 +77,9 @@ class BookManagerTest extends UnitTestCase {
+     $this->configFactory = $this->getConfigFactoryStub([]);
+     $this->bookOutlineStorage = $this->createMock('Drupal\book\BookOutlineStorageInterface');
+     $this->renderer = $this->createMock('\Drupal\Core\Render\RendererInterface');
+-    $this->bookManager = new BookManager($this->entityTypeManager, $this->translation, $this->configFactory, $this->bookOutlineStorage, $this->renderer);
++    $this->languageManager = $this->createMock('Drupal\Core\Language\LanguageManagerInterface');
++    $this->entityRepository = $this->createMock('Drupal\Core\Entity\EntityRepositoryInterface');
++    $this->bookManager = new BookManager($this->entityTypeManager, $this->translation, $this->configFactory, $this->bookOutlineStorage, $this->renderer, $this->languageManager, $this->entityRepository);
+   }
+ 
+   /**
