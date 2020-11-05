@@ -153,7 +153,9 @@
                 "TBD - make book nav links translatable":
                 "patches/book-nav_link_trans-tbd.patch",
                 "TBD - make book nav titles translatable":
-                "patches/book-nav_link-titles.patch"
+                "patches/book-nav_link-titles.patch",
+                "Cannot save unpublished versions of published content for users without manage book privileges":
+                "patches/2918537-61-no_tests.patch" 
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":
