@@ -303,9 +303,9 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
     // create new breadcrumb if node flagged for it
     $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
     if ($node && $node->hasfield('field_autobc')) {
-      $links = [];
       $autobc = $node->get('field_autobc')->getValue();
       if ($autobc && $autobc[0]['value'] == 1 && !$node->get('field_topics')->isEmpty()) {
+        $links = [];
         $ia_term = $node->get('field_topics')->first()->getValue();
         $lineage = \Drupal::service('entity_type.manager')->getStorage("taxonomy_term")->loadAllParents($ia_term['target_id']);
         foreach (array_reverse($lineage) as $tid => $term) {
