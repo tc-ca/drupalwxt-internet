@@ -85,7 +85,15 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
     }
 
     $values = $form_state->getValues();
-    $selected = isset($values['conditions']['op_node_has_term']['vocabulary']) ? $values['conditions']['op_node_has_term']['vocabulary'] : NULL;
+
+    // some forms have different keys for the visibility conditions    
+    if (isset($values['visibility'])) {
+      $form_key = 'visibility';
+    }
+    else {
+      $form_key = 'conditions';
+    }
+    $selected = isset($values[$form_key]['op_node_has_term']['vocabulary']) ? $values[$form_key]['op_node_has_term']['vocabulary'] : NULL;
 
     if ($selected) {
       $vocab = $selected; 
@@ -119,14 +127,14 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
       //'#required' => TRUE,
       '#tree_delimiter' => '-',
       '#breadcrumb_delimiter' => '',
-      '#states' => array(
-        'invisible' => array(
-          ':input[id="edit-conditions-op-node-has-term-vocabulary"]' => array('value' => '_none'),
-        ),
-       // 'optional' => array(
-       //   ':input[id="edit-conditions-op-node-has-term-vocabulary"]' => array('value' => '_none'),
-       // ),
-      ),
+      //'#states' => array(
+      //  'invisible' => array(
+      //    ':input[id="edit-conditions-gcext-node-has-term-vocabulary"]' => array('value' => '_none'),
+      // ),
+      // 'optional' => array(
+      //   ':input[id="edit-conditions-gcext-node-has-term-vocabulary"]' => array('value' => '_none'),
+      // ),
+      //),
       '#vocabulary' => $vocab, 
       '#default_value' => $this->configuration['terms'],
     ];
@@ -176,14 +184,23 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
    */
   public function listTermsCallback(array $form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
-    $selected = $values['conditions']['op_node_has_term']['vocabulary'];
+    $form_id = $values['id'];
+    // some forms have different keys for the visibility conditions    
+    if (isset($values['visibility'])) {
+      $form_key = 'visibility';
+    }
+    else {
+      $form_key = 'conditions';
+    }
+
+    $selected = $values[$form_key]['op_node_has_term']['vocabulary'];
     //$form['conditions']['op_node_has_term']['terms']['#options'] = $this->getTerms($selected); 
     $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    $element = $form['conditions']['op_node_has_term']['terms'];
+    $element = $form[$form_key]['op_node_has_term']['terms'];
     $element['#vocabulary'] = $selected;
-    $form['conditions']['op_node_has_term']['terms']['#options'] = self::getOptionsTree($element, $language); 
+    $form[$form_key]['op_node_has_term']['terms']['#options'] = self::getOptionsTree($element, $language); 
 
-    return $form['conditions']['op_node_has_term']['terms'];
+    return $form[$form_key]['op_node_has_term']['terms'];
   }
 
   /**
