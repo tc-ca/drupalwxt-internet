@@ -169,7 +169,9 @@
                "3004705 - The getModerationState() function fails to take translations into consideration":
                "https://www.drupal.org/files/issues/2018-12-03/ModerationState-error-of-translated-node-in-revision-overview-page-3004705-4.patch",
                "2882334: Revisions are not visible for some nodes":
-               "https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch"
+               "https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch",
+               "3169729 - No local tasks on compare revisions page":
+               "https://www.drupal.org/files/issues/2020-09-08/diff_add-local-tasks-3169729-2.patch"
             },
             "drupal/facets": {
                 "2984465 - Hide facets when it is configured to hide the block":

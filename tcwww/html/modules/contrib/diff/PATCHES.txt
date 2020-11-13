@@ -9,3 +9,7 @@ Source: https://www.drupal.org/files/issues/2018-12-03/ModerationState-error-of-
 Source: https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch
 
 
+3169729 - No local tasks on compare revisions page
+Source: https://www.drupal.org/files/issues/2020-09-08/diff_add-local-tasks-3169729-2.patch
+
+
