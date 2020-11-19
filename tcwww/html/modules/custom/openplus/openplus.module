@@ -60,7 +60,7 @@ function _openplus_menu_process_submenu(&$submenu, $current_path) {
       if ($item['url']->toString() == $current_path) {
         $item['is_active'] = TRUE;
       } elseif (count($item['below'])) {
-        _themename_menu_process_submenu($item['below'], $current_path);
+        _openplus_menu_process_submenu($item['below'], $current_path);
       }
     }
   }
@@ -281,7 +281,7 @@ function openplus_cancel_callback(array &$form, \Drupal\Core\Form\FormStateInter
 }
 
 function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
-  if (!empty($breadcrumb) && !\Drupal::service('router.admin_context')->isAdminRoute()) {
+  if (!empty($breadcrumb) && !\Drupal::service('router.admin_context')->isAdminRoute() && 'layout_builder.defaults.node.view' != $route_match->getRouteName()) {
     $links = $breadcrumb->getLinks();
     array_shift($links);
 
@@ -298,6 +298,26 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
     // remove search from breadcrumb    
     if ($route_match->getRouteName() == 'view.site_search.page_1') {
       $links = [];
+    }
+
+    // create new breadcrumb if node flagged for it
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    if ($node && $node->hasfield('field_autobc')) {
+      $autobc = $node->get('field_autobc')->getValue();
+      if ($autobc && $autobc[0]['value'] == 1 && !$node->get('field_topics')->isEmpty()) {
+        $links = [];
+        $ia_term = $node->get('field_topics')->first()->getValue();
+        $lineage = \Drupal::service('entity_type.manager')->getStorage("taxonomy_term")->loadAllParents($ia_term['target_id']);
+        foreach (array_reverse($lineage) as $tid => $term) {
+          $term = $term->getTranslation($langcode);
+          $label = $term->label();
+
+          if (!$term->get('field_breadcrumb_link')->isEmpty()) {
+            $noderef = $term->get('field_breadcrumb_link')->getValue();
+            $links[] = Link::fromTextAndUrl($label, Url::fromRoute('entity.node.canonical', ['node' => $noderef[0]['target_id']]));
+          }
+        }
+      }
     }
 
     $breadcrumb = new Breadcrumb();
@@ -411,4 +431,24 @@ function openplus_cron() {
 
 function openplus_node_links_alter(&$links, $node, &$context) {
   //dpm($links);
+}
+
+function openplus_update_topics() {
+
+  $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('topics');
+  foreach ($terms as $term) {
+    $nodes = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->loadByProperties(['title' => $term->name]);
+
+    if (count($nodes) > 0) {
+      $term_object = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($term->tid);
+      if (count($nodes) > 1) {
+        $term_object->set('field_requires_checking', TRUE);
+      }
+      $node = array_pop($nodes);
+      $term_object->set('field_breadcrumb_link', $node->id());
+      $term_object->save();
+    }
+  }
 }

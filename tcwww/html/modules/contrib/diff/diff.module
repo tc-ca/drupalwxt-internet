@@ -5,6 +5,8 @@
  * This is the diff module to compare revisions.
  */
 
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -74,3 +76,27 @@ function _diff_field_label($entity_type, $field_name) {
   arsort($labels);
   return array_keys($labels);
 }
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function diff_menu_local_tasks_alter(&$local_tasks, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
+  if ($route_name === 'diff.revisions_diff') {
+    // Show the same local tasks on node revision pages as the ones displayed
+    // on node canonical pages.
+    $node_canonical_local_tasks = \Drupal::service('plugin.manager.menu.local_task')
+      ->getLocalTasks('entity.node.canonical');
+    $local_tasks['tabs'][0] = $node_canonical_local_tasks['tabs'];
+
+    // Mark the version history local task as active when viewing a node
+    // revision.
+    foreach ($local_tasks['tabs'][0] as $route_name => &$tab) {
+      $tab['#active'] = $route_name === 'entity.node.version_history';
+
+    }
+
+    $cacheability = CacheableMetadata::createFromObject($cacheability)
+      ->merge($node_canonical_local_tasks['cacheability']);
+  }
+}
+

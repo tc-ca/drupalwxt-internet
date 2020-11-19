@@ -146,6 +146,8 @@ class RevisionOverviewForm extends FormBase {
 
     $query = $this->entityTypeManager->getStorage('node')->getQuery()
       ->condition($node->getEntityType()->getKey('id'), $node->id())
+      ->condition('langcode', $langcode)
+      ->condition('revision_translation_affected', 1)
       ->pager($pagerLimit)
       ->allRevisions()
       ->sort($node->getEntityType()->getKey('revision'), 'DESC')
@@ -210,6 +212,7 @@ class RevisionOverviewForm extends FormBase {
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       if ($revision = $node_storage->loadRevision($vid)) {
         if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
+          $revision = $revision->getTranslation($langcode);
           $username = array(
             '#theme' => 'username',
             '#account' => $revision->getRevisionUser(),
