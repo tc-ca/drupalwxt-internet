@@ -302,7 +302,7 @@ function openplus_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInt
 
     // create new breadcrumb if node flagged for it
     $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
-    if ($node && $node->hasfield('field_autobc')) {
+    if ($node instanceof \Drupal\node\NodeInterface && $node->hasfield('field_autobc')) {
       $autobc = $node->get('field_autobc')->getValue();
       if ($autobc && $autobc[0]['value'] == 1 && !$node->get('field_topics')->isEmpty()) {
         $links = [];
