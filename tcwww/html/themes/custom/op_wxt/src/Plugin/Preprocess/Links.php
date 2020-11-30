@@ -43,7 +43,7 @@ class Links extends BootstrapLinks {
           // Remove language link if we are either not on a node 
           // or we are on a node with the translation not present
           $node = \Drupal::request()->attributes->get('node');
-          if (!$node || ($node && !$node->hasTranslation($key))) {
+          if (!$node instanceof \Drupal\Drupal\node\NodeInterface || !$node->hasTranslation($key)) {
             unset($variables['links'][$key]);
           }
         }
