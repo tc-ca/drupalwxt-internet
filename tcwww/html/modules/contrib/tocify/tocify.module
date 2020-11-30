@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Contains tocify.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function tocify_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the tocify module.
+    case 'help.page.tocify':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Tocify your content') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function tocify_theme($existing, $type, $theme, $path) {
+  return [
+    'tableofcontents' => [
+      'variables' => [
+        '_theme' => NULL,
+        'context' => NULL,
+        'selectors' => NULL,
+        'show_and_hide' => NULL,
+        'show_effect' => NULL,
+        'show_effect_speed' => NULL,
+        'hide_effect' => NULL,
+        'hide_effect_speed' => NULL,
+        'smooth_scroll' => NULL,
+        'smooth_scroll_speed' => NULL,
+        'scroll_to' => NULL,
+        'show_and_hide_on_scroll' => NULL,
+        'highlight_on_scroll' => NULL,
+        'highlight_offset' => NULL,
+        'extend_page' => NULL,
+        'extend_page_offset' => NULL,
+        'history' => NULL,
+        'hash_generator' => NULL,
+        'highlight_default' => NULL,
+        'ignore_selector' => NULL,
+        'scroll_history' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Helper function to return tocify options
+ *
+ */
+function getTocifyOptions() {
+
+  $options = [
+    '_theme' => ['title' => t('Theme'), 'desc' => t('Choose the theme: none, bootstrap, jqueryui')],
+    '_context' => ['title' => t('Context'), 'desc' => t('Choose any valid jQuery selector, e.g. "body"')],
+    'selectors' => ['title' => t('Selector'), 'desc' => t('Select the header elements. Ex: h2,h3')],
+    'show_and_hide' => ['title' => t('Show and hide'), 'desc' => t('Should elements be shown and hidden, e.g. "true" or "false"')],
+    'show_effect' => ['title' => t('Show effect'), 'desc' => t('Any of the jQuery show effects, e.g. "none", "fadeIn", "show", or "slideDown"')],
+    'show_effect_speed' => ['title' => t('Show effect speed'), 'desc' => t('The time duration of the show effect, e.g. "slow", "medium", "fast", or any numeric number (milliseconds)')],
+    'hide_effect' => ['title' => t('Hide effect'), 'desc' => t('Any of the jQuery hide effects, e.g. "none", "fadeOut", "hide" or "slideUp"')],
+    'hide_effect_speed' => ['title' => t('Hide effect speed'), 'desc' => t('The time duration of the hide effect, e.g. "slow", "medium", "fast", or any numeric number (milliseconds)')],
+    'smooth_scroll' => ['title' => t('Smooth scroll'), 'desc' => t('Animates the page scroll when specific table of content items are clicked and the page moves up or down, e.g. "true" or "false"')],
+    'smooth_scroll_speed' => ['title' => t('Smooth scroll speed'), 'desc' => t('The time duration of the animation')],
+    'scroll_to' => ['title' => t('Scroll to'), 'desc' => t('The amount of space between the top of page and the selected table of contents item after the page has been scrolled')],
+    'show_and_hide_on_scroll' => ['title' => t('Show and hide on scroll'), 'desc' => t('Determines if table of content nested items should be shown and hidden while a user scrolls the page')],
+    'highlight_on_scroll' => ['title' => t('Highlight on scroll'), 'desc' => t('Determines if table of content nested items should be highlighted while scrolling')],
+    'highlight_offset' => ['title' => t('Highlight offset'), 'desc' => t('The offset distance in pixels to trigger the next active table of contents item')],
+    'extend_page' => ['title' => t('Extend page'), 'desc' => t('If a user scrolls to the bottom of the page and the page is not tall enough to scroll to the last table of contents item, then the page height is increased')],
+    'extend_page_offset' => ['title' => t('Extend page offset'), 'desc' => t('How close to the bottom of the page a user must scroll before the page is extended')],
+    'history' => ['title' => t('History'), 'desc' => t('Adds a hash to the page url to maintain history')],
+    'hash_generator' => ['title' => t('Hash generator'), 'desc' => t("How the URL hash value get's generated")],
+    'highlight_default' => ['title' => t('Highlight default'), 'desc' => t("Set's the first table of content item as active if no other item is active")],
+    'ignore_selector' => ['title' => t('Ignore selector'), 'desc' => t('Elements that you do not want to be used to generate the table of contents')],
+    'scroll_history' => ['title' => t('Scroll history'), 'desc' => t('Adds a hash to the page URL, to maintain history, when scrolling to a table of contents item')],
+  ];
+
+  return $options;
+}
+
