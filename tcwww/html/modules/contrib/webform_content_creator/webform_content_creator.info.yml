@@ -1,0 +1,15 @@
+name: Webform Content Creator
+type: module
+description: Allows you to create nodes and do mappings between respective fields and webform submission values.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Webform
+configure: webform_content_creator.collection
+dependencies:
+  - webform:webform
+  - webform_encrypt:webform_encrypt
+
+# Information added by Drupal.org packaging script on 2020-09-04
+version: '8.x-1.7'
+project: 'webform_content_creator'
+datestamp: 1599215470

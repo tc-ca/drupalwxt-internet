@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f80b849011cb7be9d6efcfe49d79aa90",
+    "content-hash": "f2d2f32fdb6357a371f00fda1ae1fdc1",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -272,7 +272,7 @@
             "version": "v2.3.4",
             "source": {
                 "type": "git",
-                "url": "git@github.com:fengyuanchen/cropper.git",
+                "url": "https://github.com/fengyuanchen/cropper.git",
                 "reference": "30c58b29ee21010e17e58ebab165fbd84285c685"
             },
             "dist": {
@@ -290,7 +290,7 @@
             "version": "v5.7.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/enyo/dropzone.git",
+                "url": "git@github.com:enyo/dropzone.git",
                 "reference": "b2a50bc61c55ff4f22663a6754020d967305c973"
             },
             "dist": {
@@ -305,7 +305,7 @@
             "version": "3.5.1",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jquery/jquery-dist.git",
+                "url": "https://github.com/jquery/jquery-dist.git",
                 "reference": "4c0e4becb8263bb5b3e6dadc448d8e7305ef8215"
             },
             "dist": {
@@ -2266,6 +2266,7 @@
                 "reflection",
                 "static"
             ],
+            "abandoned": "roave/better-reflection",
             "time": "2020-03-27T11:06:43+00:00"
         },
         {
@@ -4395,7 +4396,12 @@
                     "26552 - Allow users with access to unpublished nodes to create unpublished books ": "https://www.drupal.org/files/issues/2020-09-02/26552-178.patch",
                     "3173808 - Allow different content-types for child book pages": "https://www.drupal.org/files/issues/2020-10-06/book-config_child_settings-3173808-4.patch",
                     "3020298 - Book navigation block does not appear on unpublished book outline pages": "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
-                    "3117782 - Book title in breadcrumb not translated": "https://www.drupal.org/files/issues/2020-10-15/book-breadcrumb_title_xlate-3177182-2.patch",
+                    "3117782 - Book title in breadcrumb not translated": "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
+                    "2470896 - Make Book navigation translatable": "patches/2470896-190-d8.patch",
+                    "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage": "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
+                    "TBD - make book nav links translatable": "patches/book-nav_link_trans-tbd.patch",
+                    "TBD - make book nav titles translatable": "patches/book-nav_link-titles.patch",
+                    "Cannot save unpublished versions of published content for users without manage book privileges": "patches/2918537-61-no_tests.patch",
                     "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
                     "1356276 - Allow profiles to define a base/parent profile and load them in the correct order": "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
                     "2914389 - Allow profiles to exclude dependencies of their parent": "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch",
@@ -5187,9 +5193,6 @@
             },
             "type": "drupal-module",
             "extra": {
-                "branch-alias": {
-                    "dev-1.x": "1.x-dev"
-                },
                 "drupal": {
                     "version": "8.x-1.0",
                     "datestamp": "1578322688",
@@ -5197,6 +5200,11 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "3004705 - The getModerationState() function fails to take translations into consideration": "https://www.drupal.org/files/issues/2018-12-03/ModerationState-error-of-translated-node-in-revision-overview-page-3004705-4.patch",
+                    "2882334: Revisions are not visible for some nodes": "https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch",
+                    "3169729 - No local tasks on compare revisions page": "https://www.drupal.org/files/issues/2020-09-08/diff_add-local-tasks-3169729-2.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
@@ -5553,6 +5561,75 @@
             "homepage": "https://www.drupal.org/project/embed",
             "support": {
                 "source": "https://git.drupalcode.org/project/embed"
+            }
+        },
+        {
+            "name": "drupal/encrypt",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/encrypt.git",
+                "reference": "8.x-3.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/encrypt-8.x-3.0.zip",
+                "reference": "8.x-3.0",
+                "shasum": "6916583be6d08c9684582358d7b7722fdeea8487"
+            },
+            "require": {
+                "drupal/core": "^8 || ^9",
+                "drupal/key": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-3.0",
+                    "datestamp": "1602354427",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "alexpott",
+                    "homepage": "https://www.drupal.org/user/157725"
+                },
+                {
+                    "name": "gisle",
+                    "homepage": "https://www.drupal.org/user/409554"
+                },
+                {
+                    "name": "greggles",
+                    "homepage": "https://www.drupal.org/user/36762"
+                },
+                {
+                    "name": "nerdstein",
+                    "homepage": "https://www.drupal.org/user/1557710"
+                },
+                {
+                    "name": "rlhawk",
+                    "homepage": "https://www.drupal.org/user/352283"
+                },
+                {
+                    "name": "theunraveler",
+                    "homepage": "https://www.drupal.org/user/71548"
+                },
+                {
+                    "name": "zzolo",
+                    "homepage": "https://www.drupal.org/user/147331"
+                }
+            ],
+            "description": "Provides an API for two-way encryption.",
+            "homepage": "https://www.drupal.org/project/encrypt",
+            "support": {
+                "source": "https://git.drupalcode.org/project/encrypt"
             }
         },
         {
@@ -7073,6 +7150,71 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/insert_view_adv",
                 "issues": "https://drupal.org/project/issues/insert_view_adv"
+            }
+        },
+        {
+            "name": "drupal/key",
+            "version": "1.14.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/key.git",
+                "reference": "8.x-1.14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/key-8.x-1.14.zip",
+                "reference": "8.x-1.14",
+                "shasum": "097cec8e86b1c164727ca62521a06c36459754f1"
+            },
+            "require": {
+                "drupal/core": "^8.7.7 || ^9"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.14",
+                    "datestamp": "1591765429",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "drush": {
+                    "services": {
+                        "drush.services.yml": "^9"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Cellar Door",
+                    "homepage": "https://www.drupal.org/user/658076"
+                },
+                {
+                    "name": "CrashTest_",
+                    "homepage": "https://www.drupal.org/user/261457"
+                },
+                {
+                    "name": "nerdstein",
+                    "homepage": "https://www.drupal.org/user/1557710"
+                },
+                {
+                    "name": "rlhawk",
+                    "homepage": "https://www.drupal.org/user/352283"
+                }
+            ],
+            "description": "Provides the ability to manage site-wide keys",
+            "homepage": "http://drupal.org/project/key",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "http://cgit.drupalcode.org/key",
+                "issues": "http://drupal.org/project/key"
             }
         },
         {
@@ -11520,6 +11662,65 @@
             }
         },
         {
+            "name": "drupal/tocify",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/tocify.git",
+                "reference": "8.x-2.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/tocify-8.x-2.0.zip",
+                "reference": "8.x-2.0",
+                "shasum": "1f2678770c2a4d0b031d7fc56e6f1386ff2a00ae"
+            },
+            "require": {
+                "drupal/core": "^8"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-2.0",
+                    "datestamp": "1505309043",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                },
+                "patches_applied": {
+                    "3185176 - Tocify as a field": "https://www.drupal.org/files/issues/2020-11-27/tocify-field-3185176-4.patch"
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Hydra",
+                    "homepage": "https://www.drupal.org/user/647364"
+                },
+                {
+                    "name": "dawehner",
+                    "homepage": "https://www.drupal.org/user/99340"
+                },
+                {
+                    "name": "sanduhrs",
+                    "homepage": "https://www.drupal.org/user/28074"
+                }
+            ],
+            "description": "Tocify your content",
+            "homepage": "https://www.drupal.org/project/tocify",
+            "keywords": [
+                "Drupal"
+            ],
+            "support": {
+                "source": "http://cgit.drupalcode.org/tocify",
+                "issues": "http://drupal.org/project/issues/tocify"
+            }
+        },
+        {
             "name": "drupal/token",
             "version": "1.7.0",
             "source": {
@@ -12538,6 +12739,149 @@
                 "issues": "https://www.drupal.org/project/issues/webform?version=8.x",
                 "docs": "https://www.drupal.org/docs/8/modules/webform",
                 "forum": "https://drupal.stackexchange.com/questions/tagged/webform"
+            }
+        },
+        {
+            "name": "drupal/webform_content_creator",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/webform_content_creator.git",
+                "reference": "8.x-1.7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/webform_content_creator-8.x-1.7.zip",
+                "reference": "8.x-1.7",
+                "shasum": "67130c34b93751915226156e4ec356847659409d"
+            },
+            "require": {
+                "drupal/core": "^8 || ^9",
+                "drupal/webform": "*",
+                "drupal/webform_encrypt": "*"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.7",
+                    "datestamp": "1599215468",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "-nrzr-",
+                    "homepage": "https://www.drupal.org/user/3522063"
+                },
+                {
+                    "name": "Miguelpamferreira",
+                    "homepage": "https://www.drupal.org/user/3548054"
+                },
+                {
+                    "name": "Nelson Alves",
+                    "homepage": "https://www.drupal.org/user/3557178"
+                },
+                {
+                    "name": "Rosa Pascoal Garcia",
+                    "homepage": "https://www.drupal.org/user/3500109"
+                },
+                {
+                    "name": "dgaspara",
+                    "homepage": "https://www.drupal.org/user/3557179"
+                },
+                {
+                    "name": "joaomarques736",
+                    "homepage": "https://www.drupal.org/user/3557181"
+                },
+                {
+                    "name": "ricardotenreiro",
+                    "homepage": "https://www.drupal.org/user/213132"
+                }
+            ],
+            "description": "Allows you to create nodes and do mappings between respective fields and webform submission values.",
+            "homepage": "https://www.drupal.org/project/webform_content_creator",
+            "support": {
+                "source": "https://git.drupalcode.org/project/webform_content_creator"
+            }
+        },
+        {
+            "name": "drupal/webform_encrypt",
+            "version": "1.0.0-alpha3",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/webform_encrypt.git",
+                "reference": "8.x-1.0-alpha3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/webform_encrypt-8.x-1.0-alpha3.zip",
+                "reference": "8.x-1.0-alpha3",
+                "shasum": "882b560eb66a8b00f2b0f3fc1829646e08fde48f"
+            },
+            "require": {
+                "drupal/core": "~8.0",
+                "drupal/encrypt": "3.*",
+                "drupal/webform": ">=5.0.0-rc22"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-1.0-alpha3",
+                    "datestamp": "1552462384",
+                    "security-coverage": {
+                        "status": "not-covered",
+                        "message": "Alpha releases are not covered by Drupal security advisories."
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Tushar Thatikonda (th_tushar)",
+                    "homepage": "https://www.drupal.org/u/th_tushar",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Manuel Garcia (Manuel Garcia)",
+                    "homepage": "https://www.drupal.org/u/manuel-garcia",
+                    "role": "Co-maintainer"
+                },
+                {
+                    "name": "Vijaya Chandran Mani (vijaycs85)",
+                    "homepage": "https://www.drupal.org/u/vijaycs85",
+                    "role": "Co-maintainer"
+                },
+                {
+                    "name": "Saul Willers (fenstrat)",
+                    "homepage": "https://www.drupal.org/u/fenstrat",
+                    "role": "Co-maintainer"
+                },
+                {
+                    "name": "Rob Holmes (Rob Holmes)",
+                    "homepage": "https://www.drupal.org/u/rob-holmes",
+                    "role": "Co-maintainer"
+                },
+                {
+                    "name": "Jean Ribeiro (jribeiro)",
+                    "homepage": "https://www.drupal.org/u/jribeiro",
+                    "role": "Co-maintainer"
+                }
+            ],
+            "description": "Provides encryption for webform components.",
+            "homepage": "https://drupal.org/project/webform_encrypt",
+            "support": {
+                "source": "http://cgit.drupalcode.org/webform_encrypt",
+                "issues": "https://drupal.org/project/issues/webform_encrypt"
             }
         },
         {
