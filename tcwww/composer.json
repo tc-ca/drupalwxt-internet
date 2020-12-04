@@ -339,7 +339,8 @@
         "drupal/views_argument_token": "^1.0@beta",
         "drupal/webform_views": "^5.0@alpha",
         "drupal/tocify": "^2.0",
-        "drupal/webform_content_creator": "^1.7"
+        "drupal/webform_content_creator": "^1.7",
+        "drupal/metatag": "^1.14"
     },
     "replace": {
     },
