@@ -57,13 +57,6 @@ class InstallStorage extends FileStorage {
   protected $profileList;
 
   /**
-   * The profile list, used to find additional folders to scan for config.
-   *
-   * @var \Drupal\Core\Extension\ProfileExtensionList
-   */
-  protected $profileList;
-
-  /**
    * Constructs an InstallStorage object.
    *
    * @param string $directory
