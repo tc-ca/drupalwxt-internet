@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 
 /**
@@ -246,21 +247,34 @@ class NodeHasTerm extends ConditionPluginBase implements ContainerFactoryPluginI
     $termIds = $this->configuration['terms'];
 
     $node = $this->getContextValue('node');
-    // get terms from table here for $node->id()
 
-    $query = \Drupal::database()->select('taxonomy_index', 'ti');
-    $query->fields('ti', array('nid'));
-    $query->condition('ti.tid', $termIds, 'IN');
-    $query->condition('ti.nid', $node->id());
-    $query->distinct(TRUE);
-    $result = $query->execute();
+    foreach ($node->getFields() as $field) {
+      // Only look for fields that are entity reference fields.
+      $field_definition = $field->getFieldDefinition();
+      //if ($field instanceof EntityReferenceFieldItemListInterface) {
+      if ($field_definition->getType() == 'entity_reference') {
 
-    if ($result->fetchCol()) {
-      return TRUE;
+        // Get the field settings.
+        $target_type = $field_definition->getSetting('target_type');
+        // Check that the field targets are taxonomy terms.
+        if ($target_type == 'taxonomy_term') {
+          $handler_settings = $field_definition->getSetting('handler_settings');
+          // if the field references the bundle configured in our condition
+          if (in_array($this->configuration['vocabulary'], $handler_settings['target_bundles'])) {
+            $field_name = $field->getName();
+            $field_value = $node->get($field_name)->getValue();
+            foreach ($field_value as $value) {
+              // if the field value is in our configured set of terms
+              if (in_array($value['target_id'], $this->configuration['terms'])) { 
+                return TRUE;
+              }
+            }
+          }
+        }
+      }
     }
 
     return FALSE;
-
   }
 
   /**
