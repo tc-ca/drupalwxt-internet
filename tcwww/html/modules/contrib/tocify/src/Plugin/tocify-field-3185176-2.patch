@@ -1,0 +1,297 @@
+diff --git a/src/Plugin/Field/FieldFormatter/.TocifyFieldFormatter.php.swp b/src/Plugin/Field/FieldFormatter/.TocifyFieldFormatter.php.swp
+new file mode 100644
+index 0000000..639440f
+Binary files /dev/null and b/src/Plugin/Field/FieldFormatter/.TocifyFieldFormatter.php.swp differ
+diff --git a/src/Plugin/Field/FieldFormatter/TocifyFieldFormatter.php b/src/Plugin/Field/FieldFormatter/TocifyFieldFormatter.php
+new file mode 100644
+index 0000000..4995ebe
+--- /dev/null
++++ b/src/Plugin/Field/FieldFormatter/TocifyFieldFormatter.php
+@@ -0,0 +1,79 @@
++<?php
++
++namespace Drupal\tocify\Plugin\Field\FieldFormatter;
++
++use Drupal\Core\Field\FieldItemListInterface;
++use Drupal\Core\Field\FormatterBase;
++
++/**
++ * Plugin implementation of the 'tocify_formatter' formatter.
++ *
++ * @FieldFormatter(
++ *   id = "tocify_formatter",
++ *   label = @Translation("Table of contents (tocify)"),
++ *   field_types = {
++ *     "tocify"
++ *   }
++ * )
++ */
++
++class TocifyFieldFormatter extends FormatterBase {
++
++  public function viewElements(FieldItemListInterface $items, $langcode) {
++
++    $element = [];
++
++    // do nothing if toc is disabled 
++    if (!$items[0]->tocify_enable) {
++      return $element;
++    }
++
++    foreach ($items as $delta => $item) {
++      $element[$delta] = [
++
++        '#theme' => 'tableofcontents',
++        '#_theme' => $item->_theme,
++        '#context' => $item->_context,
++        '#selectors' => $item->selectors,
++        '#show_and_hide' => $this->formatBoolean($item->show_and_hide),
++        '#show_effect' => $item->show_effect,
++        '#show_effect_speed' => $item->show_effect_speed,
++        '#hide_effect' => $item->hide_effect,
++        '#hide_effect_speed' => $item->hide_effect_speed,
++        '#smooth_scroll' => $this->formatBoolean($item->smooth_scroll),
++        '#smooth_scroll_speed' => $item->smooth_scroll_speed,
++        '#scroll_to' => (string) $item->scroll_to,
++        '#show_and_hide_on_scroll' => $this->formatBoolean($item->show_and_hide_on_scroll),
++        '#highlight_on_scroll' => $this->formatBoolean($item->highlight_on_scroll),
++        '#highlight_offset' => (string) $item->highlight_offset,
++        '#extend_page' => $this->formatBoolean($item->extend_page),
++        '#extend_page_offset' => (string) $item->extend_page_offset,
++        '#history' => $this->formatBoolean($item->history),
++        '#hash_generator' => $item->hash_generator,
++        '#highlight_default' => $this->formatBoolean($item->highlight_default),
++        '#ignore_selector' => $item->ignore_selector,
++        '#scroll_history' => $this->formatBoolean($item->scroll_history),
++        '#attached' => array(
++          'library' => array(
++            'tocify/tocify',
++          ),
++        ),
++      ];
++    }
++
++    return $element;
++  }
++
++  /**
++   * Format a boolean as string.
++   *
++   * @param bool $bool
++   *   A boolean to be reformatted as string.
++   *
++   * @return string
++   *   A string in the form of 'true' or 'false'.
++   */
++  private function formatBoolean($bool) {
++    return $bool ? 'true' : 'false';
++  }
++}
+diff --git a/src/Plugin/Field/FieldType/.TocifyField.php.swp b/src/Plugin/Field/FieldType/.TocifyField.php.swp
+new file mode 100644
+index 0000000..94dce80
+Binary files /dev/null and b/src/Plugin/Field/FieldType/.TocifyField.php.swp differ
+diff --git a/src/Plugin/Field/FieldType/TocifyField.php b/src/Plugin/Field/FieldType/TocifyField.php
+new file mode 100644
+index 0000000..b73d8a3
+--- /dev/null
++++ b/src/Plugin/Field/FieldType/TocifyField.php
+@@ -0,0 +1,112 @@
++<?php
++
++namespace Drupal\tocify\Plugin\Field\FieldType;
++
++use Drupal\Core\Field\FieldItemBase;
++use Drupal\Core\Field\FieldDefinitionInterface;
++use Drupal\Core\Field\FieldStorageDefinitionInterface;
++use Drupal\Core\TypedData\DataDefinition;
++use Drupal\Core\Form\FormStateInterface;
++
++/**
++ * @FieldType(
++ *   id = "tocify",
++ *   module = "tocify",
++ *   label = @Translation("Table of contents (tocify)"),
++ *   description = @Translation("This field renders a table of contents using tocify."),
++ *   default_widget = "tocify_widget",
++ *   default_formatter = "tocify_formatter",
++ *   cardinality = 1,
++ * )
++ */
++
++class TocifyField extends FieldItemBase {
++
++  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
++
++    $properties = [];
++
++    $properties['tocify_enable'] = DataDefinition::create('boolean')
++        ->setLabel(t('Enable tocify'))
++        ->setDescription(t('Enables automatic table of contents using tocify'));
++
++    $options = getTocifyOptions();
++    foreach ($options as $key => $option) {
++      $properties[$key] = DataDefinition::create('string')
++        ->setLabel($option['title'])
++        ->setDescription($option['desc']);
++    }
++
++    return $properties;
++  }
++
++  public static function schema(FieldStorageDefinitionInterface $field_definition) {
++    $columns = [];
++
++    $columns['tocify_enable'] = [
++      'description' => 'Flag to control whether tocify is on or off.',
++      'type' => 'int',
++      'size' => 'tiny',
++      'unsigned' => TRUE,
++      'default' => 0,
++    ];
++
++    $options = getTocifyOptions();
++    foreach ($options as $key => $option) {
++      $columns[$key] = [ 
++        'description' => $option['desc'],
++        'type' => 'varchar',
++        'length' => 64,
++      ];
++    }
++
++    $schema = array(
++      'columns' => $columns,
++      'indexes' => [],
++    );
++
++    return $schema;
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public static function defaultFieldSettings() {
++    return [
++      'tocify_enable' => FALSE,
++      'options' => [],
++    ] + parent::defaultFieldSettings();
++  }
++
++  /**
++   * {@inheritdoc}
++   */
++  public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
++    $element = [];
++    $settings = $this->getSettings();
++    $options = getTocifyOptions();
++    
++    // set up options for checkboxes
++    $checkbox_options = [];
++    foreach ($options as $key => $option) {
++      $checkbox_options[$key] = $option['title'];
++    }
++
++    $element['options'] = [
++      '#type' => 'checkboxes',
++      '#title' => t('Allow user edit'),
++      '#description' => t('Select the options that users are allowed to configure.'),
++      '#default_value' => !empty($settings['options']) ? $settings['options'] : [],
++      '#options' => $checkbox_options,
++    ];
++
++    return $element;
++  }
++  
++  public function isEmpty() {
++    $enabled = $this->get('tocify_enable')->getValue();
++    $theme = $this->get('_theme')->getValue();
++    return empty($enabled) && empty($theme);
++  }
++
++}
+diff --git a/src/Plugin/Field/FieldWidget/.TocifyFieldWidget.php.swp b/src/Plugin/Field/FieldWidget/.TocifyFieldWidget.php.swp
+new file mode 100644
+index 0000000..5ab0aa5
+Binary files /dev/null and b/src/Plugin/Field/FieldWidget/.TocifyFieldWidget.php.swp differ
+diff --git a/src/Plugin/Field/FieldWidget/TocifyFieldWidget.php b/src/Plugin/Field/FieldWidget/TocifyFieldWidget.php
+new file mode 100644
+index 0000000..ac52266
+--- /dev/null
++++ b/src/Plugin/Field/FieldWidget/TocifyFieldWidget.php
+@@ -0,0 +1,76 @@
++<?php
++
++namespace Drupal\tocify\Plugin\Field\FieldWidget;
++
++use Drupal\Core\Field\FieldItemListInterface;
++use Drupal\Core\Field\WidgetBase;
++use Drupal\Core\Form\FormStateInterface;
++
++/**
++ * Plugin implementation of the 'TocifyFieldWidget' widget.
++ *
++ * @FieldWidget(
++ *   id = "tocify_widget",
++ *   label = @Translation("Table of Contents (tocify)"),
++ *   description = @Translation("Use to configure Tocify ToC"),
++ *   field_types = {
++ *     "tocify",
++ *   }
++ * )
++ */
++
++class TocifyFieldWidget extends WidgetBase {
++
++  /**
++   * {@inheritdoc}
++   */
++
++  public function formElement( FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
++
++    // @TODO figure out why this makes both the widget default value and node form work
++    //if ($this->isDefaultValueWidget($form_state)) {
++    //  $item = $items[$delta];
++    //  $value = $item->toArray();
++    //}
++
++    $element += [
++      '#type' => 'fieldset',
++    ];
++
++    $element['tocify_enable'] = [ 
++      '#type' => 'checkbox',
++      '#title' => $this->t('Enable table of contents'),
++      '#description' => $this->t('Generate a table of contents automatically.'),
++      '#default_value' => isset($items[$delta]->tocify_enable) ? $items[$delta]->tocify_enable : 0,
++    ];
++
++    $defaults = \Drupal::config('tocify.settings');
++    $settings = array_filter($this->getFieldSetting('options'));
++
++    $options = getTocifyOptions();
++    foreach ($options as $key => $option) {
++      if (isset($settings[$key]) || $this->isDefaultValueWidget($form_state)) {
++        $element[$key] = array(
++          '#type' => 'textfield',
++          '#title' => $option['title'],
++          '#description' => $option['desc'],
++          '#default_value' => isset($items[$delta]->$key) ? $items[$delta]->$key : $defaults->get($key),
++          '#maxlength' => 64,
++          '#size' => 64,
++          '#weight' => '0',
++        );
++   
++        // enable ajax states if not on field config page 
++        if (!$this->isDefaultValueWidget($form_state)) {
++          $element[$key]['#states'] = [
++            'visible' => [
++              ':input[name*="tocify_enable"]' => ['checked' => TRUE],
++            ],
++          ];
++        }
++      }
++    }
++
++    return $element;
++  }
++}

@@ -95,3 +95,39 @@ ul.js-facets-widget {
   padding-right: 5px;
   padding-left: 5px;
 }
+
+h1#wb-cont {
+  margin-top: 2px;
+}
+#wb-cont-nav {
+  color: #555;
+  font-size: 26px;
+  font-weight: 200;
+  margin-bottom: -5px;
+}
+div.tocify ul.tocify-header{
+  list-style: disc;
+  padding: unset;
+  padding-left: 1.5em;
+}
+div.tocify ul.tocify-header li{
+  list-style: disc;
+  padding: unset;
+  display: list-item;
+}
+div.tocify ul.tocify-header li a{
+  text-decoration: underline;
+  color: #284162;
+}
+div.tocify ul.tocify-header li a:visited{
+  color: #7834bc;
+}
+div.tocify ul.tocify-header li::marker{
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+  text-indent: 0px !important;
+  text-align: start !important;
+  text-align-last: start !important;
+}
+

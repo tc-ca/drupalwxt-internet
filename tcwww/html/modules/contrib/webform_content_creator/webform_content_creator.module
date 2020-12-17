@@ -1,0 +1,124 @@
+<?php
+
+/**
+ * @file
+ * Allows to call functions after creating/editing/deleting webform submissions.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_webform_submission_insert().
+ */
+function webform_content_creator_webform_submission_insert($webform_submission) {
+  if (empty($webform_submission)) {
+    return;
+  }
+
+  if (!$webform_submission->isDraft()) {
+    $entities = \Drupal::entityTypeManager()->getStorage('webform_content_creator')->loadMultiple();
+    foreach ($entities as $e) {
+      if (!$e->equalsWebform($webform_submission->bundle()) || !$e->existsContentType()) {
+        continue;
+      }
+      $e->createNode($webform_submission);
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_submission_update().
+ */
+function webform_content_creator_webform_submission_update($webform_submission) {
+  if (empty($webform_submission) || empty($webform_submission->original)) {
+    return;
+  }
+
+  if (!$webform_submission->isDraft()) {
+    $entities = \Drupal::entityTypeManager()->getStorage('webform_content_creator')->loadMultiple();
+    foreach ($entities as $e) {
+      if (!$e->equalsWebform($webform_submission->bundle()) || !$e->existsContentType()) {
+        continue;
+      }
+      if ($webform_submission->original->isDraft()) {
+        $e->createNode($webform_submission);
+      }
+      else {
+        $e->updateNode($webform_submission, 'edit');
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_submission_delete().
+ */
+function webform_content_creator_webform_submission_delete($webform_submission) {
+  $entities = \Drupal::entityTypeManager()->getStorage('webform_content_creator')->loadMultiple();
+  foreach ($entities as $e) {
+    if (!$e->equalsWebform($webform_submission->bundle()) || !$e->existsContentType()) {
+      continue;
+    }
+    $e->updateNode($webform_submission, 'delete');
+  }
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function webform_content_creator_node_type_delete(EntityInterface $entity) {
+  $entities = \Drupal::entityTypeManager()->getStorage('webform_content_creator')->loadMultiple();
+  foreach ($entities as $e) {
+    if ($e->equalsContentType($entity->id())) {
+      $e->delete();
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_delete().
+ */
+function webform_content_creator_webform_delete(EntityInterface $entity) {
+  $entities = \Drupal::entityTypeManager()->getStorage('webform_content_creator')->loadMultiple();
+  foreach ($entities as $e) {
+    if ($e->equalsWebform($entity->id())) {
+      $e->delete();
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function webform_content_creator_page_attachments(array &$attachments) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name === 'entity.webform_content_creator.manage_fields_form') {
+    $attachments['#attached']['library'][] = 'webform_content_creator/webform_content_creator';
+  }
+}
+
+/**
+ * Implements hook_help().
+ */
+function webform_content_creator_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.webform_content_creator':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Webform Content Creator provides the ability to create nodes after submitting webforms, and to have mappings between the fields of the created node and webform submission values. It is possible to trigger the creation of a node (configurable content type id and node field values) after submitting a Webform (configurable webform entity id). Moreover, you can map the node field values according to webform submission values (tokens can be used) and/or custom values.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<p>' . t('In order to use this module, you should follow these steps:') . '</p>';
+      $output .= '<ol>  ';
+      $output .= '<li>' . t('Enable Webform Content Creator module;') . '</li>';
+      $output .= '<li>' . t('Go to Webform Content Creator configuration page; (/admin/config/webform_content_creator);') . '</li>';
+      $output .= '<li>' . t('Click on "Add configuration";') . '</li>';
+      $output .= '<li>' . t('Give a title to Webform Content Creator entity and choose a Webform and a Content Type, in order to have mappings between Webform submission values and node field values, and then click on "Save";') . '</li>';
+      $output .= '<li>' . t('In the configuration page (/admin/config/webform_content_creator), click on "Manage fields" on the entity you have just created;') . '</li>';
+      $output .= '<li>' . t('In the "Title" input, you can give a title to the node that is created after submitting the Webform (tokens may be used);') . '</li>';
+      $output .= '<li>' . t('After that, you have the possibility to choose the Node fields used in the mapping;') . '</li>';
+      $output .= '<li>' . t('When choosing a Node field (checkbox on the left side of each field name), a Webform field can be chosen to match with this Node field (optionally, you can provide a custom text instead, using available tokens).') . '</li>';
+      $output .= '</ol>';
+      return $output;
+  }
+}

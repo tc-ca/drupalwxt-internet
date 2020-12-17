@@ -4,6 +4,7 @@ namespace Drupal\book;
 
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Breadcrumb\BreadcrumbBuilderInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -32,16 +33,30 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
   protected $account;
 
   /**
+   * The entity repository service.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
+
+  /**
    * Constructs the BookBreadcrumbBuilder.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The current user account.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $account) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $account, EntityRepositoryInterface $entity_repository = NULL) {
     $this->nodeStorage = $entity_type_manager->getStorage('node');
     $this->account = $account;
+    if (!$entity_repository) {
+      @trigger_error('The entity.repository service must be passed to ' . __NAMESPACE__ . '\BookBreadcrumbBuilder::__construct(). It was added in drupal:9.1.0 and will be required before drupal:10.0.0.', E_USER_DEPRECATED);
+      $entity_repository = \Drupal::service('entity.repository');
+    }
+    $this->entityRepository = $entity_repository;
   }
 
   /**
@@ -69,6 +84,7 @@ class BookBreadcrumbBuilder implements BreadcrumbBuilderInterface {
       $depth++;
     }
     $parent_books = $this->nodeStorage->loadMultiple($book_nids);
+    $parent_books = array_map([$this->entityRepository, 'getTranslationFromContext'], $parent_books);
     if (count($parent_books) > 0) {
       $depth = 1;
       while (!empty($book['p' . ($depth + 1)])) {

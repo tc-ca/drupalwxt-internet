@@ -50,11 +50,27 @@ Source: https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch
 
 
 3117782 - Book title in breadcrumb not translated
-Source: https://www.drupal.org/files/issues/2020-10-15/book-breadcrumb_title_xlate-3177182-2.patch
+Source: https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch
 
 
 2470896 - Make Book navigation translatable
-Source: patches/2470896-190-d8.8.patch
+Source: patches/2470896-190-d8.patch
+
+
+2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage
+Source: https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch
+
+
+TBD - make book nav links translatable
+Source: patches/book-nav_link_trans-tbd.patch
+
+
+TBD - make book nav titles translatable
+Source: patches/book-nav_link-titles.patch
+
+
+Cannot save unpublished versions of published content for users without manage book privileges
+Source: patches/2918537-61-no_tests.patch
 
 
 2869592 - Disabled update module shouldn't produce a status report warning
