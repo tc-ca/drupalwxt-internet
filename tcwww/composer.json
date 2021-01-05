@@ -340,7 +340,8 @@
         "drupal/webform_views": "^5.0@alpha",
         "drupal/tocify": "^2.0",
         "drupal/webform_content_creator": "^1.7",
-        "drupal/metatag": "^1.14"
+        "drupal/metatag": "^1.14",
+        "drupal/conditional_fields": "^1.0@alpha"
     },
     "replace": {
     },
