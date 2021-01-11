@@ -155,7 +155,9 @@
                 "TBD - make book nav titles translatable":
                 "patches/book-nav_link-titles.patch",
                 "Cannot save unpublished versions of published content for users without manage book privileges":
-                "patches/2918537-61-no_tests.patch" 
+                "patches/2918537-61-no_tests.patch",
+                "2918784 - Views RSS row plugin incorrectly assumes links are relative":
+                "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch"
             },
             "drupal/cshs": {
                 "2948891 - InvalidArgumentException: Value is not a valid entity.":
