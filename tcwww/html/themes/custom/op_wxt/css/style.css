@@ -104,6 +104,7 @@ h1#wb-cont {
   font-size: 26px;
   font-weight: 200;
   margin-bottom: -5px;
+  padding-bottom: 10px;
 }
 div.tocify ul.tocify-header{
   list-style: disc;
