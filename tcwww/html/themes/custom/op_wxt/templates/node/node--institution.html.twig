@@ -88,7 +88,7 @@
     <div class="row">
       <section class="col-md-4 wb-feeds limit-3 gc-nws">
         <h2 class="h3">{{ "News"|t }}</h2>
-        {{ drupal_block('op_news_block', {source_url_en: 'https://www.canada.ca/content/canadasite/api/nws/fds/en/web-feeds/transport-canada-tag.json', source_url_fr: 'https://www.canada.ca/content/canadasite/api/nws/fds/fr/fils-nouvelles/transports-canada-tag.json', max_items: '3'}) }}
+        {{ drupal_block('op_news_block', {source_url_en: 'https://api.io.canada.ca/io-server/gc/news/en/v2?dept=departmentoftransport&sort=publishedDate&orderBy=desc&pick=3', source_url_fr: 'https://api.io.canada.ca/io-server/gc/news/fr/v2?dept=departmentoftransport&sort=publishedDate&orderBy=desc&pick=3', max_items: '3'}) }}
       </section>
       <section class="col-md-8 gc-prtts">
         <h2 class="h3">{{ "Features"|t }}</h2>
