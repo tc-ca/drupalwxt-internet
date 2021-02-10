@@ -581,7 +581,7 @@ nav.navbar-default {
 .language-switcher-language-url {
   display: flex;
   justify-content: flex-end;
-  padding: 10px 20px; }
+  padding: 0px 20px; }
   .language-switcher-language-url ul.links li a {
     font-size: 16px;
     font-weight: 600;
