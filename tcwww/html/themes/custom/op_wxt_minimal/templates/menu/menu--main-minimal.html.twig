@@ -34,7 +34,7 @@
     {% if menu_level == 0 %}
       <ul{{ attributes.addClass('menu', 'nav navbar-nav', menu_name) }}>
     {% else %}
-      <ul{{ attributes.addClass('dropdown-menu', menu_name) }}>
+      <ul class='dropdown-menu'>
     {% endif %}
     {% for item in items %}
       {%
@@ -46,16 +46,16 @@
       %}
       {% if menu_level == 0 %}
         <li{{ item.attributes.addClass('nav-item', item_classes) }}>
-        <a href="{{ item.url }}" class="nav-link dropdown-toggle" data-toggle="dropdown">{{ item.title }} {% if item.below %}<span class="caret"></span>{% endif %}</a>
+        <a href="{{ item.url }}" class="nav-link dropdown-toggle" {% if item.below %} data-toggle="dropdown"{% endif %}>{{ item.title }} {% if item.below %}<span class="caret"></span>{% endif %}</a>
         {# {{ dump(item.below|keys) }} #}
       {% elseif menu_level == 1 %}
-      <li>
-        <a href="{{ item.url }}" class="dropdown-item" data-toggle="dropdown">{{ item.title }} </a>
+      <li class="test">
+        <a href="{{ item.url }}">{{ item.title }} </a>
         </li>
       {% endif %}
       {% if item.below %}
         {{ menus.menu_links(item.below, attributes.removeClass('nav'), menu_level + 1, menu_name) }}
-        <div{{ attributes.addClass('dropdown-menu', menu_name) }}>
+    
           {# <a href="{{ item.url }}" class="dropdown-item" data-toggle="dropdown">{{ item.title }} </a> #}
       {% endif %}
       </li>

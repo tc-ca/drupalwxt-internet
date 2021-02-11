@@ -571,12 +571,17 @@ footer#wb-info {
 nav.navbar-default {
   background-color: #da5a26;
   padding: 20px 20px; }
-  nav.navbar-default ul.main-minimal li a {
-    color: #ffffff80; }
+  /* nav.navbar-default ul.main-minimal li a {
+    color: #fff; }
     nav.navbar-default ul.main-minimal li a:hover {
-      color: #ffffffbf; }
+      color: #fff; }
     nav.navbar-default ul.main-minimal li a:visited {
-      color: #ffffff80; }
+      color: #fff; } */
+
+      .navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+        background: none;
+        color: #fff;
+      }
 
 .language-switcher-language-url {
   display: flex;
@@ -585,7 +590,7 @@ nav.navbar-default {
   .language-switcher-language-url ul.links li a {
     font-size: 16px;
     font-weight: 600;
-    color: #3B89AD;
+    color: #212529;
     text-decoration: none; }
     .language-switcher-language-url ul.links li a:hover {
       text-decoration: underline; }
@@ -899,3 +904,26 @@ ul.js-facets-checkbox-links {
 #drupal-off-canvas [data-drupal-selector^='edit-layout-settings'] select {
   -webkit-appearance: listbox;
   -moz-appearance: menulist; }
+
+@media (min-width: 768px){
+  .navbar-nav {
+    float: left;
+    margin: 0;
+  }
+}
+.navbar-nav.main-minimal li.nav-item a.nav-link{
+  color: #212529;
+}
+
+.dropdown-menu a.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1.5rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529 !important;
+  text-align: inherit;
+  white-space: normal;
+  background-color: transparent;
+  border: 0;
+}
