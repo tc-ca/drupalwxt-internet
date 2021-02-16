@@ -33,6 +33,18 @@ class Page extends BootstrapPage {
        $variables['wxt_homepage'] = TRUE;
     }
 
+    // fluid node 
+    $node = \Drupal::routeMatch()->getParameter('node');
+
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      if ($node->hasField('field_fluid_page') && !$node->get('field_fluid_page')->isEmpty()) {
+        $is_fluid = $node->get('field_fluid_page')->getValue();
+        if ($is_fluid[0]['value'] == 1) {
+          $variables['fluid_page'] = TRUE;
+        }
+      }
+    }
+
     // Visibility settings.
     $pages = $this->theme->getSetting('wxt_search_box');
     $path = \Drupal::service('path.current')->getPath();
