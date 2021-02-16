@@ -1,0 +1,5 @@
+entity.theme_switcher_rule.add_form:
+  title: 'Add a Theme Switcher Rule'
+  route_name: entity.theme_switcher_rule.add_form
+  appears_on:
+    - theme_switcher.admin

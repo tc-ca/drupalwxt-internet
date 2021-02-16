@@ -1,0 +1,48 @@
+theme_switcher.admin:
+  path: '/admin/config/system/theme_switcher'
+  defaults:
+    _title: 'Theme Switcher'
+    _entity_list: 'theme_switcher_rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer theme switcher rules+view theme switcher rules'
+
+entity.theme_switcher_rule.add_form:
+  path: '/admin/config/system/theme_switcher/add'
+  defaults:
+    _entity_form: theme_switcher_rule.add
+    _title: 'Add Theme Switcher Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'create theme switcher rules'
+
+entity.theme_switcher_rule.edit_form:
+  path: '/admin/config/system/theme_switcher/edit/{theme_switcher_rule}'
+  defaults:
+    _entity_form: theme_switcher_rule.edit
+    _title: 'Edit Theme Switcher Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: theme_switcher_rule.update
+
+entity.theme_switcher_rule.delete_form:
+  path: '/admin/config/system/theme_switcher/delete/{theme_switcher_rule}'
+  defaults:
+    _entity_form: theme_switcher_rule.delete
+    _title: 'Delete Theme Switcher Rule'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: theme_switcher_rule.delete
+
+theme_switcher.inline_action:
+  path: '/admin/config/theme_switcher/{op}/{theme_switcher_rule}'
+  defaults:
+    _controller: 'Drupal\theme_switcher\Controller\ThemeSwitcherController::ajaxOperation'
+  requirements:
+    _entity_access: theme_switcher_rule.update
+    _csrf_token: 'TRUE'
+    op: 'enable|disable'

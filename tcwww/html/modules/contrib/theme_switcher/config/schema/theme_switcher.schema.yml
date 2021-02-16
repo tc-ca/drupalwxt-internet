@@ -1,0 +1,31 @@
+theme_switcher.rule.*:
+  type: config_entity
+  label: 'Switch Theme rule'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    uuid:
+      type: string
+      label: 'UUID'
+    label:
+      type: label
+      label: 'Label'
+    weight:
+      type: integer
+      label: 'Weight'
+    status:
+      type: boolean
+      label: 'Status'
+    theme:
+      type: string
+      label: 'Theme'
+    admin_theme:
+      type: string
+      label: 'Admin theme'
+    visibility:
+      type: sequence
+      label: 'Visibility Conditions'
+      sequence:
+        type: condition.plugin.[id]
+        label: 'Visibility Condition'

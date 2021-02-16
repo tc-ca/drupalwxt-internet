@@ -1,0 +1,24 @@
+administer theme switcher rules:
+  title: 'Administer all Theme Switcher Rules'
+  description: 'Allows all permissions for the module.'
+  restrict access: true
+
+view theme switcher rules:
+  title: 'View Theme Switcher Rules'
+  description: "Allows to view 'theme switcher rules'."
+  restrict access: false
+
+create theme switcher rules:
+  title: 'Create Theme Switcher Rules'
+  description: "Allows to create 'theme switcher rules'."
+  restrict access: true
+
+edit theme switcher rules:
+  title: 'Edit Theme Switcher Rules'
+  description: "Allows to edit 'theme switcher rules'."
+  restrict access: true
+
+delete theme switcher rules:
+  title: 'Delete Theme Switcher Rules'
+  description: "Allows to delete 'theme switcher rules'."
+  restrict access: true
