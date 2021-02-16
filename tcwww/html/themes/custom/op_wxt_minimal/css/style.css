@@ -566,7 +566,7 @@ footer#wb-info {
   footer#wb-info .tofpg a {
     font-weight: 600;
     margin: 0px;
-    color: #da5a26; }
+    color: #212529; }
 
 nav.navbar-default {
   background-color: #da5a26;
@@ -912,6 +912,7 @@ ul.js-facets-checkbox-links {
   }
 }
 .navbar-nav.main-minimal li.nav-item a.nav-link{
+  background-color: #eee;
   color: #212529;
 }
 
