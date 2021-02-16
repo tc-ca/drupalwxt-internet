@@ -87,6 +87,11 @@
           
         </div>
       </nav>
+      <div class="container-fluid min-menu">
+        <div class="container">
+          {{ page.navigation }}
+        </div>
+      </div>
     </header>
   {% endblock %}
 {% endif %}
@@ -95,7 +100,7 @@
 {% block main %}
 
   <div class="{{ (is_front and wxt_homepage) ? "container-fluid" : container }}">
-    {{ page.navigation }}
+    
     <div class="row">
 
       {# Highlighted #}

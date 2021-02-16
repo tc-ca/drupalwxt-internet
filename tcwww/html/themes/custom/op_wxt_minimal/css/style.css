@@ -928,3 +928,11 @@ ul.js-facets-checkbox-links {
   background-color: transparent;
   border: 0;
 }
+
+.min-menu {
+  background-color: #eee;
+}
+
+.navbar {
+  margin-bottom: 0px;
+}
