@@ -69,9 +69,6 @@ function _openplus_menu_process_submenu(&$submenu, $current_path) {
 function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
   switch ($form_id) {
-    case 'taxonomy_term_topics_form':
-      $form['relations']['parent']['#multiple'] = false;
-    break;
     case 'system_performance_settings':
       if (function_exists('purge_processor_cron_cron')) {
         $form['update_varnish'] = [
