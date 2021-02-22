@@ -31,8 +31,14 @@
  */
 #}
 {% if tree or has_links %}
+
+  {% if fluid_page %}
+    <div class="container"> 
+  {% endif %}
+
   <div class="row">
   <nav role="navigation" aria-labelledby="book-label-{{ book_id }}">
+    <div class="navigation-header" id="book-label-{{ book_id }}"></div>
     <div class="book-nav-buttons">
     {% if has_links %}
       <ul class="nav nav-pills wb-eqht list-unstyled list-responsive-3">
@@ -56,4 +62,9 @@
     </div>
   </nav>
   </div>
+
+  {% if fluid_page %}
+    </div> 
+  {% endif %}
+
 {% endif %}

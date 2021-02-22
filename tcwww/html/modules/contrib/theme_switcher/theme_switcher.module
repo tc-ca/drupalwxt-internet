@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for Theme Switcher module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\language\ConfigurableLanguageInterface;
+use Drupal\theme_switcher\Entity\ThemeSwitcherRule;
+
+/**
+ * Implements hook_help().
+ */
+function theme_switcher_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'theme_switcher.admin':
+      $output = '<p>' . t('The following Theme Switcher Rules have been 
+        created for your site. The rule with highest weight will be applied 
+        first.') . '</p>';
+      return $output;
+
+    case 'help.page.theme_switcher':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Theme Switcher module allows you to 
+        create theme-switching rules which allow automatic selection of a 
+        theme based on Drupal 8 Conditions system. Because of this it can 
+        also be easily extended to support additional custom conditions 
+        exposed by other modules. In Drupal 8 conditions are no longer 
+        defined through a hook and they are plugins now.') . '</p>';
+      return $output;
+
+  }
+}
+
+/**
+ * @param $definitions
+ */
+function theme_switcher_available_conditions_alter(&$definitions) {
+  foreach ($definitions as $condition_id => $definition) {
+    // Don't display the current theme condition (this creates a internal loop).
+    if ($condition_id == 'current_theme') {
+      unset($definitions[$condition_id]);
+    }
+    // Don't display the language condition until the site has more than one
+    // language added.
+    elseif ($condition_id == 'language') {
+      $language_manager = Drupal::service('language_manager');
+      if (!$language_manager->isMultilingual()) {
+        unset($definitions[$condition_id]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete() for user_role entities.
+ *
+ * Removes deleted role from blocks that use it.
+ */
+function theme_switcher_user_role_delete($role) {
+  foreach (ThemeSwitcherRule::loadMultiple() as $rule) {
+    $visibility = $rule->getVisibility();
+    if (isset($visibility['user_role']['roles'][$role->id()])) {
+      unset($visibility['user_role']['roles'][$role->id()]);
+      $rule->setVisibilityConfig('user_role', $visibility['user_role']);
+      $rule->save();
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete() for 'configurable_language'.
+ *
+ * Delete the potential block visibility settings of the deleted language.
+ */
+function theme_switcher_configurable_language_delete(ConfigurableLanguageInterface $language) {
+  foreach (ThemeSwitcherRule::loadMultiple() as $rule) {
+    $visibility = $rule->getVisibility();
+    if (isset($visibility['language']['langcodes'][$language->id()])) {
+      unset($visibility['language']['langcodes'][$language->id()]);
+      $rule->setVisibilityConfig('language', $visibility['language']);
+      $rule->save();
+    }
+  }
+}

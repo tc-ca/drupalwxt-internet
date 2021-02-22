@@ -1,0 +1,20 @@
+{
+  "name": "drupal/theme_switcher",
+  "description": "Creates Theme Switcher Rules within a Drupal installation.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Adrián Marín",
+      "email": "amarincolas@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "drupal/core": "^8.5"
+  },
+  "support": {
+    "issues": "http://drupal.org/project/issues/theme_switcher",
+    "source": "http://cgit.drupalcode.org/theme_switcher"
+  }
+}
