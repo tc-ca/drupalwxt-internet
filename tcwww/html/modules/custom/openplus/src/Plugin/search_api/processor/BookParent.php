@@ -6,10 +6,7 @@ use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
-<<<<<<< HEAD
 use Drupal\Core\TypedData\ComplexDataInterface;
-=======
->>>>>>> a4bb16d0039ca3994a8d24861fa1c07b22f60dfd
 
 /**
  * Adds the item's URL to the indexed data.
