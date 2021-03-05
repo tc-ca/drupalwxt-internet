@@ -72,3 +72,10 @@ function op_wxt_preprocess_book_navigation(&$variables) {
     } 
   }
 }
+
+function op_wxt_preprocess_book_tree(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node instanceof \Drupal\node\NodeInterface) {
+    $variables['node_type'] = $node->getType();
+  }
+}
