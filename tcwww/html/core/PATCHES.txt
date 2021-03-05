@@ -73,6 +73,14 @@ Cannot save unpublished versions of published content for users without manage b
 Source: patches/2918537-61-no_tests.patch
 
 
+2918784 - Views RSS row plugin incorrectly assumes links are relative
+Source: https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch
+
+
+3025164 - use Entity Query to filter nodes with content moderation module enabled
+Source: https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch
+
+
 2869592 - Disabled update module shouldn't produce a status report warning
 Source: https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch
 

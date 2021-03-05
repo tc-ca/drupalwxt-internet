@@ -452,3 +452,41 @@ function openplus_update_topics() {
     }
   }
 }
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function openplus_views_data_alter(array &$data) {
+  if (isset($data['search_api_index_briefing_materials_index']['book_parent'])) {
+    $parent =& $data['search_api_index_briefing_materials_index']['book_parent'];
+    $parent['filter'] = [
+      'id' => 'search_api_options',
+      'options callback' => 'openplus_book_parent_options',
+      'allow empty' => TRUE,
+    ];
+  }
+}
+
+function openplus_book_parent_options() {
+
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+  $ids = $storage->getQuery()
+    ->condition('type', 'binder')
+    ->accessCheck(FALSE)
+    ->condition('moderation_state', 'reviewed')
+    ->execute();
+
+
+  $nodes = $storage->loadMultiple($ids);
+  $options = [];
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+  foreach ($nodes as $node) {
+    if ($node->hasTranslation($langcode)) {
+      $node = $node->getTranslation($langcode);
+      $options[$node->id()] = $node->label();
+    }      
+  }
+
+  return $options;
+}
