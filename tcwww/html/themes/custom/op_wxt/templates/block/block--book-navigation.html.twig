@@ -53,10 +53,11 @@
     'clearfix',
   ]
 %}
+
 <section{{ attributes.addClass(classes) }}>
     {{ title_prefix }}
     {% if label %}
-        <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ 'Sections'|t }}</h2>
+        <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
     {% endif %}
     {{ title_suffix }}
 
