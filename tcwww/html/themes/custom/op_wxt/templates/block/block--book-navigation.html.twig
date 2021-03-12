@@ -45,19 +45,61 @@
  * @see template_process()
  */
 #}
+
+{# !!!Joel!!! - Found this code online. I don't know if node_type was available, not listed above. #}
+
 {%
-  set classes = [
-    'block',
-    'block-' ~ configuration.provider|clean_class,
-    'block-' ~ plugin_id|clean_class,
-    'clearfix',
-  ]
+  set node_type = $node->type->entity->label();
 %}
+
+{% if node_type == 'binder' or node_type == 'briefing_note' %}
+  {# Add classes for modal overlay #}
+  {%
+    set classes = [
+      'block',
+      'block-' ~ configuration.provider|clean_class,
+      'block-' ~ plugin_id|clean_class,
+      'clearfix',
+      'wb-overlay',
+      'modal-content',
+      'overlay-def',
+      'wb-panel-l'
+    ]
+  %}
+  {%
+    set header_classes = [
+      'modal-header'
+    ]
+  %}
+  {%
+    set title_classes = [
+      'modal-title'
+    ]
+  %}
+{% else %}
+  {# Original code for Publications and Services - Sections #}
+  {%
+    set classes = [
+      'block',
+      'block-' ~ configuration.provider|clean_class,
+      'block-' ~ plugin_id|clean_class,
+      'clearfix',
+    ]
+  %}
+{% endif %}
 
 <section{{ attributes.addClass(classes) }}>
     {{ title_prefix }}
     {% if label %}
+      {# Check for not empty class for header of overlay #}
+      {% if not header_classes.isempty %}
+        <header{{ attributes.addClass(header_classes) }}>
+          <h2 id="gc-navseq-header"{{ attributes.addClass(title_classes) }}>{{ label }}</h2>
+        </header>
+      {% else %}
+      {# Original code for Publications and Services - h2 #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
+      {% endif %}
     {% endif %}
     {{ title_suffix }}
 
