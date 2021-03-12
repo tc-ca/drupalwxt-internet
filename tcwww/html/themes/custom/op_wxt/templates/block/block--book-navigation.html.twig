@@ -66,16 +66,6 @@
       'wb-panel-l'
     ]
   %}
-  {%
-    set header_classes = [
-      'modal-header'
-    ]
-  %}
-  {%
-    set title_classes = [
-      'modal-title'
-    ]
-  %}
 {% else %}
   {# Original code for Publications and Services - Sections #}
   {%
@@ -91,13 +81,13 @@
 <section{{ attributes.addClass(classes) }}>
     {{ title_prefix }}
     {% if label %}
-      {# Check for not empty class for header of overlay #}
-      {% if not header_classes.isempty %}
-        <header{{ attributes.addClass(header_classes) }}>
-          <h2 id="gc-navseq-header"{{ attributes.addClass(title_classes) }}>{{ label }}</h2>
+      {# Check for node_type for header of overlay #}
+      {% if node_type == 'binder' or node_type == 'briefing_note' %}
+        <header class="modal-header">
+          <h2 id="gc-navseq-header" class="modal-title">{{ label }}</h2>
         </header>
       {% else %}
-      {# Original code for Publications and Services - h2 #}
+      {# Original code for Publications and Services -  #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
       {% endif %}
     {% endif %}
