@@ -49,10 +49,6 @@
   {# Add classes for modal overlay #}
   {%
     set classes = [
-      'block',
-      'block-' ~ configuration.provider|clean_class,
-      'block-' ~ plugin_id|clean_class,
-      'clearfix',
       'wb-overlay',
       'modal-content',
       'overlay-def',
@@ -66,12 +62,16 @@
       'block',
       'block-' ~ configuration.provider|clean_class,
       'block-' ~ plugin_id|clean_class,
-      'clearfix',
+      'clearfix'
     ]
   %}
 {% endif %}
 
-<section{{ attributes.addClass(classes) }}>
+{% if node_type == 'binder' or node_type == 'briefing_note' %}
+  <section id="bn-menu"{{ attributes.addClass(classes) }}>
+{% else %}
+  <section{{ attributes.addClass(classes) }}>
+{% endif %}
     {{ title_prefix }}
     {% if label %}
       {# Check for not empty class for header of overlay #}
@@ -80,7 +80,7 @@
           <h2 id="gc-navseq-header" class="modal-title">{{ label }}</h2>
         </header>
       {% else %}
-      {# Original code for Publications and Services - h2 #}
+        {# Original code for Publications and Services - h2 #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
       {% endif %}
     {% endif %}
