@@ -74,13 +74,13 @@
 <section{{ attributes.addClass(classes) }}>
     {{ title_prefix }}
     {% if label %}
-      {# Check for node_type for header of overlay #}
+      {# Check for not empty class for header of overlay #}
       {% if node_type == 'binder' or node_type == 'briefing_note' %}
         <header class="modal-header">
           <h2 id="gc-navseq-header" class="modal-title">{{ label }}</h2>
         </header>
       {% else %}
-      {# Original code for Publications and Services -  #}
+      {# Original code for Publications and Services - h2 #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
       {% endif %}
     {% endif %}
