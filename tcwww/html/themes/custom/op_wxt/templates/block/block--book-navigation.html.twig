@@ -45,13 +45,6 @@
  * @see template_process()
  */
 #}
-
-{# !!!Joel!!! - Found this code online. I don't know if node_type was available, not listed above. #}
-
-{%
-  set node_type = $node->type->entity->label();
-%}
-
 {% if node_type == 'binder' or node_type == 'briefing_note' %}
   {# Add classes for modal overlay #}
   {%
