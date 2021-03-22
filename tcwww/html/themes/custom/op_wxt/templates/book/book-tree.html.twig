@@ -32,6 +32,11 @@
   {% if items %}
       {% if node_type == 'binder' or node_type == 'briefing_note' %}
         {%
+          set body_classes = [
+            'modal-body'
+          ]
+        %}
+        {%
           set ul_classes = [
             'bm-navseq'
           ]
@@ -42,8 +47,13 @@
             'gc-navseq',
             menu_level > 0 ? 'noline',
           ]
-        %}	
+        %}
       {% endif %}
+
+    {# Start div for modal body of overlay #}
+    {% if not body_classes.isempty %}
+      <div{{ attributes.addClass(body_classes) }}>
+    {% endif %}
     <ul{{ attributes.addClass(ul_classes) }}>
     {% for item in items %}
       {%
@@ -51,7 +61,7 @@
           item.is_expanded and item.below ? 'expanded',
           menu_level == 0 and item.below ? 'dropdown',
           menu_level == 0 and item.is_collapsed ? 'dropdown',
-          item.in_active_trail ? 'open', 
+          item.in_active_trail ? 'open',
           item.is_active ? 'active',
         ]
       %}
@@ -68,6 +78,10 @@
       </li>
     {% endfor %}
     </ul>
+    {# End div for modal body of overlay #}
+    {% if not body_classes.isempty %}
+      </div>
+    {% endif %}
   {% endif %}
 {% endmacro %}
 

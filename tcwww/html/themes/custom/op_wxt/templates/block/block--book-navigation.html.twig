@@ -45,19 +45,44 @@
  * @see template_process()
  */
 #}
-{%
-  set classes = [
-    'block',
-    'block-' ~ configuration.provider|clean_class,
-    'block-' ~ plugin_id|clean_class,
-    'clearfix',
-  ]
-%}
+{% if node_type == 'binder' or node_type == 'briefing_note' %}
+  {# Add classes for modal overlay #}
+  {%
+    set classes = [
+      'wb-overlay',
+      'modal-content',
+      'overlay-def',
+      'wb-panel-l'
+    ]
+  %}
+{% else %}
+  {# Original code for Publications and Services - Sections #}
+  {%
+    set classes = [
+      'block',
+      'block-' ~ configuration.provider|clean_class,
+      'block-' ~ plugin_id|clean_class,
+      'clearfix'
+    ]
+  %}
+{% endif %}
 
-<section{{ attributes.addClass(classes) }}>
+{% if node_type == 'binder' or node_type == 'briefing_note' %}
+  <section id="bn-menu"{{ attributes.addClass(classes) }}>
+{% else %}
+  <section{{ attributes.addClass(classes) }}>
+{% endif %}
     {{ title_prefix }}
     {% if label %}
+      {# Check for not empty class for header of overlay #}
+      {% if node_type == 'binder' or node_type == 'briefing_note' %}
+        <header class="modal-header">
+          <h2 id="gc-navseq-header" class="modal-title">{{ label }}</h2>
+        </header>
+      {% else %}
+        {# Original code for Publications and Services - h2 #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
+      {% endif %}
     {% endif %}
     {{ title_suffix }}
 

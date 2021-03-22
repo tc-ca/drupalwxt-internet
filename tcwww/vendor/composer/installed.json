@@ -888,7 +888,7 @@
         "version_normalized": "1.8.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/kenwheeler/slick.git",
+            "url": "git@github.com:kenwheeler/slick.git",
             "reference": "0f40c9d6a02a5c08b5f4dd80fdada3a854a59bee"
         },
         "dist": {
@@ -4889,6 +4889,84 @@
         ]
     },
     {
+        "name": "drupal/conditional_fields",
+        "version": "1.0.0-alpha10",
+        "version_normalized": "1.0.0.0-alpha10",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupalcode.org/project/conditional_fields.git",
+            "reference": "8.x-1.0-alpha10"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/conditional_fields-8.x-1.0-alpha10.zip",
+            "reference": "8.x-1.0-alpha10",
+            "shasum": "ac11881a07eaf3ce796dea1cb0e537434d1fbd3d"
+        },
+        "require": {
+            "drupal/core": "^8 || ^9"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "drupal": {
+                "version": "8.x-1.0-alpha10",
+                "datestamp": "1610130227",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "Project has not opted into security advisory coverage!"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Adyax",
+                "homepage": "https://www.adyax.com/"
+            },
+            {
+                "name": "OlgaRabodzei",
+                "homepage": "https://www.drupal.org/user/3389198"
+            },
+            {
+                "name": "colan",
+                "homepage": "https://www.drupal.org/user/58704"
+            },
+            {
+                "name": "ergonlogic",
+                "homepage": "https://www.drupal.org/user/368613"
+            },
+            {
+                "name": "geek-merlin",
+                "homepage": "https://www.drupal.org/user/229048"
+            },
+            {
+                "name": "itsekhmistro",
+                "homepage": "https://www.drupal.org/user/928152"
+            },
+            {
+                "name": "mparker17",
+                "homepage": "https://www.drupal.org/user/536298"
+            },
+            {
+                "name": "peterpoe",
+                "homepage": "https://www.drupal.org/user/55674"
+            },
+            {
+                "name": "thalles",
+                "homepage": "https://www.drupal.org/user/3589086"
+            }
+        ],
+        "description": "Conditional fields",
+        "homepage": "https://www.drupal.org/project/conditional_fields",
+        "support": {
+            "source": "https://git.drupalcode.org/project/conditional_fields"
+        }
+    },
+    {
         "name": "drupal/config_delete",
         "version": "1.17.0",
         "version_normalized": "1.17.0.0",
@@ -5810,6 +5888,8 @@
                 "TBD - make book nav links translatable": "patches/book-nav_link_trans-tbd.patch",
                 "TBD - make book nav titles translatable": "patches/book-nav_link-titles.patch",
                 "Cannot save unpublished versions of published content for users without manage book privileges": "patches/2918537-61-no_tests.patch",
+                "2918784 - Views RSS row plugin incorrectly assumes links are relative": "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch",
+                "3025164 - use Entity Query to filter nodes with content moderation module enabled": "https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch",
                 "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
                 "1356276 - Allow profiles to define a base/parent profile and load them in the correct order": "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
                 "2914389 - Allow profiles to exclude dependencies of their parent": "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch",
@@ -12695,6 +12775,54 @@
         }
     },
     {
+        "name": "drupal/search_api_exclude",
+        "version": "1.0.0-alpha1",
+        "version_normalized": "1.0.0.0-alpha1",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupalcode.org/project/search_api_exclude.git",
+            "reference": "8.x-1.0-alpha1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/search_api_exclude-8.x-1.0-alpha1.zip",
+            "reference": "8.x-1.0-alpha1",
+            "shasum": "24c4ea3cf48a5f58b151c6c5c63a26f092fc0384"
+        },
+        "require": {
+            "drupal/core": "~8.0",
+            "drupal/search_api": "*"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "drupal": {
+                "version": "8.x-1.0-alpha1",
+                "datestamp": "1510581184",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "Alpha releases are not covered by Drupal security advisories."
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "MiSc",
+                "homepage": "https://www.drupal.org/user/382892"
+            }
+        ],
+        "description": "The Search API Exclude module allows users to prevent certain nodes from being indexed.",
+        "homepage": "https://www.drupal.org/project/search_api_exclude",
+        "support": {
+            "source": "https://git.drupalcode.org/project/search_api_exclude",
+            "issues": "https://www.drupal.org/project/issues/search_api_exclude"
+        }
+    },
+    {
         "name": "drupal/search_api_solr",
         "version": "3.9.0",
         "version_normalized": "3.9.0.0",
@@ -13364,6 +13492,55 @@
         "support": {
             "source": "http://cgit.drupalcode.org/taxonomy_manager",
             "issues": "https://drupal.org/project/issues/taxonomy_manager"
+        }
+    },
+    {
+        "name": "drupal/theme_switcher",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupalcode.org/project/theme_switcher.git",
+            "reference": "8.x-1.1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/theme_switcher-8.x-1.1.zip",
+            "reference": "8.x-1.1",
+            "shasum": "7df0400d6bf0b1f04219e5de1582f91b16b14f05"
+        },
+        "require": {
+            "drupal/core": "^8.5",
+            "php": ">=7.1"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "drupal": {
+                "version": "8.x-1.1",
+                "datestamp": "1568829484",
+                "security-coverage": {
+                    "status": "covered",
+                    "message": "Covered by Drupal's security advisory policy"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Adrián Marín",
+                "homepage": "https://www.drupal.org/user/3529039",
+                "email": "amarincolas@gmail.com"
+            }
+        ],
+        "description": "Creates Theme Switcher Rules within a Drupal installation.",
+        "homepage": "https://www.drupal.org/project/theme_switcher",
+        "support": {
+            "source": "http://cgit.drupalcode.org/theme_switcher",
+            "issues": "http://drupal.org/project/issues/theme_switcher"
         }
     },
     {
@@ -22512,12 +22689,12 @@
         "version_normalized": "1.9.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/webmozart/assert.git",
+            "url": "https://github.com/webmozarts/assert.git",
             "reference": "9dc4f203e36f2b486149058bade43c851dd97451"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/webmozart/assert/zipball/9dc4f203e36f2b486149058bade43c851dd97451",
+            "url": "https://api.github.com/repos/webmozarts/assert/zipball/9dc4f203e36f2b486149058bade43c851dd97451",
             "reference": "9dc4f203e36f2b486149058bade43c851dd97451",
             "shasum": ""
         },
