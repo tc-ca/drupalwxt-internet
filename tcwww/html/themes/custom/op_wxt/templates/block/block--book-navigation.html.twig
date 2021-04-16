@@ -46,13 +46,10 @@
  */
 #}
 {% if node_type == 'binder' or node_type == 'briefing_note' %}
-  {# Add classes for modal overlay #}
+{# classes isn't needed for new menu- added as placeholder for empty if condition #}
   {%
     set classes = [
-      'wb-overlay',
-      'modal-content',
-      'overlay-def',
-      'wb-panel-l'
+      'clearfix'
     ]
   %}
 {% else %}
@@ -68,7 +65,7 @@
 {% endif %}
 
 {% if node_type == 'binder' or node_type == 'briefing_note' %}
-  <section id="bn-menu"{{ attributes.addClass(classes) }}>
+  <div id="bn-menu">
 {% else %}
   <section{{ attributes.addClass(classes) }}>
 {% endif %}
@@ -76,9 +73,8 @@
     {% if label %}
       {# Check for not empty class for header of overlay #}
       {% if node_type == 'binder' or node_type == 'briefing_note' %}
-        <header class="modal-header">
-          <h2 id="gc-navseq-header" class="modal-title">{{ label }}</h2>
-        </header>
+{# Check with Joel about empty if condition #}
+{# Change node type in if to Publication and Service? #}
       {% else %}
         {# Original code for Publications and Services - h2 #}
         <h2 id="gc-navseq-header" class="mrgn-tp-0 hidden-xs hidden-sm">{{ label }}</h2>
