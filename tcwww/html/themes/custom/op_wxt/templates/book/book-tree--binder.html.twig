@@ -6,7 +6,6 @@
  * Returns HTML for a wrapper for a book sub-tree.
  *
  * Available variables:
- * - node_type: content type of the node
  * - items: A nested list of book items. Each book item contains:
  *   - attributes: HTML attributes for the book item.
  *   - below: The book item child items.
@@ -25,46 +24,42 @@
   We call a macro which calls itself to render the full tree.
   @see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-{# {{ book_tree.book_links(items, attributes, 0, ['menu', 'nav', 'osc-sidebar-menu'], node_type) }} #}
+{# {{ book_tree.book_links(items, attributes, 0, ['menu', 'nav', 'osc-sidebar-menu']) }} #}
 
-{% macro book_links(items, attributes, menu_level, classes, node_type) %}
+{% macro book_links(items, attributes, menu_level, classes) %}
   {% import _self as book_tree %}
   {% if items %}
-        {%
-          set ul_classes = [
-            'gc-navseq',
-            menu_level > 0 ? 'noline',
-          ]
-        %}
-
-        <ul{{ attributes.addClass(ul_classes) }}>
-
+    <ul{{ attributes.addClass(menu_level == 0 ? classes : 'dropdown-menu') }}>
     {% for item in items %}
       {%
         set item_classes = [
           item.is_expanded and item.below ? 'expanded',
-          menu_level == 0 and item.below ? 'dropdown',
+          menu_level == 0 and item.below ? 'dropdown-submenu',
           menu_level == 0 and item.is_collapsed ? 'dropdown',
-          item.in_active_trail ? 'open',
-          item.is_active ? 'active',
         ]
-      %}
-        {% if menu_level == 0 and item.below %}
-            <li{{ item.attributes.addClass(item_classes) }}>
-            <a href="{{ item.url }}">{{ item.title }}</a>
-        {% else %}
-            <li{{ item.attributes.addClass(item_classes) }}>
-            {{ link(item.title, item.url) }}
-        {% endif %}
-
-      {% if item.below and item.in_active_trail %}
-        {{ book_tree.book_links(item.below, attributes.removeClass(classes), menu_level + 1, classes, node_type) }}
+      %}	
+      {% if menu_level == 0 and item.below %}
+        <li{{ item.attributes.addClass(item_classes) }}>
+        <a href="{{ item.url }}">{{ item.title }}</a>
+      {% else %}
+        <li{{ item.attributes.addClass(item_classes) }}>
+        {{ link(item.title, item.url) }}
+      {% endif %}
+      {% if item.below %}
+        {{ book_tree.book_links(item.below, attributes.removeClass(classes), menu_level + 1, classes.removeClass('list-inline')) }}
       {% endif %}
       </li>
     {% endfor %}
     </ul>
-
   {% endif %}
 {% endmacro %}
 
-{{ _self.book_links(items, attributes, 0, classes, node_type) }}
+{%
+  set classes = [
+    'dropdown-menu',
+    'list-inline',
+  ]
+%}
+<div id="top-bn-menu">
+  {{ _self.book_links(items, attributes, 0, classes) }}
+</div>
