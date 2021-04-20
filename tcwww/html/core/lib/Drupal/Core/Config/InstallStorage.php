@@ -55,7 +55,7 @@ class InstallStorage extends FileStorage {
    * @var \Drupal\Core\Extension\ProfileExtensionList
    */
   protected $profileList;
-
+  
   /**
    * Constructs an InstallStorage object.
    *

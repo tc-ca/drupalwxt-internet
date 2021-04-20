@@ -27,6 +27,16 @@ class ThemeSuggestions extends BootstrapThemeSuggestions {
 
     switch ($hook) {
 
+      case 'book_tree':
+        if (!empty($context1['theme_hook_original'])) {
+          $key = $context1['theme_hook_original'];
+          $parts =explode('_', $key);
+          $nid = array_pop($parts);
+          $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+          $type = $node->getType();
+          $suggestions[] = 'book_tree__' .  $type;
+        }
+        break;
       case 'form':
         if ($variables['element']['#form_id'] == 'custom_search_block_form') {
           $suggestions[] = 'form__custom_search_block_form';
