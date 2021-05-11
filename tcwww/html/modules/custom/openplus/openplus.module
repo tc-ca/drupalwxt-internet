@@ -33,6 +33,10 @@ function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\En
 function openplus_preprocess_page(&$variables) {
   $variables['#attached']['library'][] =
     'openplus/data-tables';
+
+  if (isset($variables['node']) && isset($variables['node']->book)) {
+    $variables['#attached']['drupalSettings']['bid'] = $variables['node']->book['bid'];
+  }
 }
 
 /**
