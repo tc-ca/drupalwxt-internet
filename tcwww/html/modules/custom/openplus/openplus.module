@@ -33,6 +33,10 @@ function openplus_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\En
 function openplus_preprocess_page(&$variables) {
   $variables['#attached']['library'][] =
     'openplus/data-tables';
+
+  if (isset($variables['node']) && isset($variables['node']->book)) {
+    $variables['#attached']['drupalSettings']['bid'] = $variables['node']->book['bid'];
+  }
 }
 
 /**
@@ -234,8 +238,14 @@ function openplus_menu_local_tasks_alter(&$data, $route_name) {
       unset($data['tabs'][0]['entity.node.devel_load']);
     }
     unset($data['tabs'][0]['entityqueue.entities:entity.node.entityqueue']);
-    unset($data['tabs'][0]['entity.node.book_outline_form']);
     $data['tabs'][0]['convert_bundles.entities:entity.node.convert_bundles']['#link']['title'] = t('Convert');
+
+    // See if node is allowed in a book
+    $node_type = $node->getType($node);
+    $allowed_book_type = \Drupal::config('book.settings')->get('allowed_type_' . $node_type);
+    if (!$allowed_book_type) {
+      unset($data['tabs'][0]['entity.node.book_outline_form']);
+    }
   }
 }
 
