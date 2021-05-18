@@ -241,10 +241,12 @@ function openplus_menu_local_tasks_alter(&$data, $route_name) {
     $data['tabs'][0]['convert_bundles.entities:entity.node.convert_bundles']['#link']['title'] = t('Convert');
 
     // See if node is allowed in a book
-    $node_type = $node->getType($node);
-    $allowed_book_type = \Drupal::config('book.settings')->get('allowed_type_' . $node_type);
-    if (!$allowed_book_type) {
-      unset($data['tabs'][0]['entity.node.book_outline_form']);
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      $node_type = $node->getType($node);
+      $allowed_book_type = \Drupal::config('book.settings')->get('allowed_type_' . $node_type);
+      if (!$allowed_book_type) {
+        unset($data['tabs'][0]['entity.node.book_outline_form']);
+      }
     }
   }
 }
