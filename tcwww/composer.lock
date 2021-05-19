@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0ed995712c7e51da4b7b7d3e3656459",
+    "content-hash": "986c7331c85da829c82f1ba33449c96b",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -272,7 +272,7 @@
             "version": "v2.3.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fengyuanchen/cropper.git",
+                "url": "git@github.com:fengyuanchen/cropper.git",
                 "reference": "30c58b29ee21010e17e58ebab165fbd84285c685"
             },
             "dist": {
@@ -4481,10 +4481,9 @@
                     "2918784 - Views RSS row plugin incorrectly assumes links are relative": "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch",
                     "3025164 - use Entity Query to filter nodes with content moderation module enabled": "https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch",
                     "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
-                    "1356276 - Allow profiles to define a base/parent profile and load them in the correct order": "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
-                    "2914389 - Allow profiles to exclude dependencies of their parent": "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch",
                     "2815221 - Add quickedit to the latest-revision route": "https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch",
                     "Enter drupal/core patch #2752443 description here": "https://www.drupal.org/files/issues/in_correct_order_and-2752443-1.patch",
+                    "Enter drupal/core patch #1356276 description here": "https://www.drupal.org/files/issues/2019-12-27/1356276-88x-603.patch",
                     "Enter drupal/core patch #1838234 description here": "https://www.drupal.org/files/issues/2018-09-06/1838234-52.patch",
                     "Enter drupal/core patch #2846485 description here": "https://www.drupal.org/files/issues/2018-04-03/views-multivalue_field_rendering_performance-2846485-23.patch",
                     "Enter drupal/core patch #2559833 description here": "https://www.drupal.org/files/issues/2020-01-08/comment-redirect-2559833-62.patch",
@@ -4502,6 +4501,7 @@
                     "Enter drupal/core patch #2920637 description here": "https://www.drupal.org/files/issues/taxonomy-context-provider-2920637-3.patch",
                     "Enter drupal/core patch #2893407 description here": "https://www.drupal.org/files/issues/2020-01-09/2893407-39.patch",
                     "Enter drupal/core patch #2907413 description here": "https://www.drupal.org/files/issues/2019-06-21/2907413-11.patch",
+                    "Enter drupal/core patch #2914389 description here": "https://www.drupal.org/files/issues/2019-10-22/2914389-14-do-not-test.patch",
                     "Enter drupal/core patch #2938129 description here": "https://www.drupal.org/files/issues/2019-01-18/2938129-pagetitle-11.patch",
                     "Enter drupal/core patch #3017710 description here": "https://www.drupal.org/files/issues/2018-12-05/3017710-20.patch",
                     "Enter drupal/core patch #3081656 description here": "https://www.drupal.org/files/issues/2019-09-16/0001-Issue-2488350-by-alexpott-Wim-Leers-Dimiter-catch-da.patch"
@@ -8679,7 +8679,8 @@
             "support": {
                 "source": "https://git.drupal.org/project/linkchecker.git",
                 "issues": "https://www.drupal.org/project/issues/linkchecker"
-            }
+            },
+            "time": "2020-04-27T16:03:22+00:00"
         },
         {
             "name": "drupal/linkit",
@@ -23019,5 +23020,6 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

@@ -4,7 +4,6 @@ namespace Drupal\Core\Config;
 
 use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\Extension\ProfileExtensionList;
-use Drupal\Core\Extension\ProfileHandlerInterface;
 
 /**
  * Storage to access configuration and schema in enabled extensions.
@@ -57,7 +56,7 @@ class ExtensionInstallStorage extends InstallStorage {
    *   (optional) The current installation profile. This parameter will be
    *   mandatory in Drupal 9.0.0.
    * @param \Drupal\Core\Extension\ProfileExtensionList $profile_list
-   *   (optional) The profile extension list service.
+   *   (optional) The profile list.
    */
   public function __construct(StorageInterface $config_storage, $directory = self::CONFIG_INSTALL_DIRECTORY, $collection = StorageInterface::DEFAULT_COLLECTION, $include_profile = TRUE, $profile = NULL, ProfileExtensionList $profile_list = NULL) {
     parent::__construct($directory, $collection, $profile_list);
@@ -96,7 +95,7 @@ class ExtensionInstallStorage extends InstallStorage {
   protected function getAllFolders() {
     if (!isset($this->folders)) {
       $this->folders = [];
-      $this->folders += $this->getCoreNames();
+      $this->folders = $this->getCoreNames() + $this->folders;
 
       $extensions = $this->configStorage->read('core.extension');
       // @todo Remove this scan as part of https://www.drupal.org/node/2186491
@@ -121,7 +120,7 @@ class ExtensionInstallStorage extends InstallStorage {
             $theme_list[$theme] = $theme_list_scan[$theme];
           }
         }
-        $this->folders += $this->getComponentNames($theme_list);
+        $this->folders = $this->getComponentNames($theme_list) + $this->folders;
       }
 
       if ($this->includeProfile) {
@@ -129,7 +128,8 @@ class ExtensionInstallStorage extends InstallStorage {
         // default configuration. We do this by replacing the config file path
         // from the module/theme with the install profile version if there are
         // any duplicates.
-        $this->folders += $this->getComponentNames($this->profileList->getAncestors($this->installProfile));
+        // @todo Remove as part of https://www.drupal.org/node/2186491
+        $this->folders = $this->getComponentNames($this->profileList->getAncestors($this->installProfile)) + $this->folders;
       }
     }
     return $this->folders;

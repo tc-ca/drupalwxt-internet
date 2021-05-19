@@ -1646,6 +1646,7 @@ function install_profile_themes(&$install_state) {
  *   An array of information about the current installation state.
  */
 function install_install_profile(&$install_state) {
+  \Drupal::service('module_installer')->install([$install_state['parameters']['profile']], FALSE);
   // Install all the profiles.
   $profiles = \Drupal::service('extension.list.profile')->getAncestors();
   \Drupal::service('module_installer')->install(array_keys($profiles), FALSE);
