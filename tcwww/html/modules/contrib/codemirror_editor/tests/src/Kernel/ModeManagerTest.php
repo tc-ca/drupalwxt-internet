@@ -9,7 +9,7 @@ use Drupal\KernelTests\KernelTestBase;
  *
  * @group codemirror_editor
  */
-class ModeManagerTest extends KernelTestBase {
+final class ModeManagerTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}

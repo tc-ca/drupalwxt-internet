@@ -1,0 +1,76 @@
+<?php
+
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * @see hook_schema()
+ */
+# function content_export_yaml_schema()
+# {
+#     $schema['content_export_yaml'] = array(
+#         'description' => 'The table for storing content_export_yaml',
+#         'fields' => array(
+#             'number' => array(
+#                 'description' => 'The primary identifier',
+#                 'type' => 'serial',
+#                 'not null' => TRUE,
+#                 'unsigned' => TRUE,
+#             ),
+#             'entity_id' => array(
+#                 'description' => 'The  identifier for drupal  nid or term label or uid .',
+#                 'type' => 'varchar',
+#                 'length' => '50',
+#                 'not null' => TRUE,
+#             ),
+#             'label' => array(
+#                     'description' => 'label',
+#                     'type' => 'varchar',
+#                     'length' => '250',
+#                     'not null' => TRUE,
+#               ),
+#             'entity_type' => array(
+#                              'description' => 'Entity type node or user or taxonomy_term',
+#                              'type' => 'varchar',
+#                              'length' => '50',
+#                              'not null' => TRUE,
+
+#                          ),
+#             'bundle' => array(
+#                             'description' => 'Bundle',
+#                             'type' => 'varchar',
+#                             'length' => '50',
+#                             'not null' => TRUE,
+
+#                         ),
+#              'file' => array(
+#                             'description' => 'File ',
+#                             'type' => 'varchar',
+#                             'length' => '350',
+#                             'not null' => TRUE,
+#                           )
+#         ),
+#         'primary key' => array('number')
+#     );
+
+#   return $schema;
+
+# }
+
+/**
+ * Implementation of hook_uninstall().
+ */
+
+# function content_export_yaml_uninstall()
+# {
+#     // Remove tables.
+#   \Drupal::database()->schema()->dropTable('content_export_yaml');
+# }
+
+

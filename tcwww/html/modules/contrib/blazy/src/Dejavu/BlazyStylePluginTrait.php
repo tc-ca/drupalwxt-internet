@@ -16,7 +16,7 @@ trait BlazyStylePluginTrait {
   public function getImageRenderable(array &$settings, $row, $index) {
     $image = $this->isImageRenderable($row, $index, $settings['image']);
 
-    /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     if (empty($image['raw'])) {
       return $image;
     }

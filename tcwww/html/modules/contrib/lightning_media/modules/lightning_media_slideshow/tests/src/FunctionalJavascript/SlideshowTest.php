@@ -19,6 +19,11 @@ class SlideshowTest extends WebDriverTestBase {
   use EntityBrowserTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Slick Entity Reference has a schema error.
    *
    * @var bool

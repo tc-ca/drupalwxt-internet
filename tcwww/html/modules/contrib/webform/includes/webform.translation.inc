@@ -133,7 +133,7 @@ function webform_form_config_translation_add_form_alter(&$form, FormStateInterfa
  */
 function _webform_form_config_translation_add_form_alter_elements(array &$elements, array $element_alterations) {
   foreach ($elements as $key => &$element) {
-    if (Element::property($key) || !is_array($element)) {
+    if (WebformElementHelper::property($key) || !is_array($element)) {
       continue;
     }
 
@@ -342,7 +342,7 @@ function webform_lingotek_config_entity_translation_presave(ConfigEntityInterfac
         unset($options['_optgroups_']);
 
         // Build translated optgroup options.
-        $optgroup_options = [];
+        $optgroups_options = [];
         foreach ($options as $option_value => $option_text) {
           if (is_array($option_text)) {
             $optgroups_options[$optgroups[$option_value]] = $option_text;

@@ -15,9 +15,10 @@ class RouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    $collection
-      ->get('entity_embed.dialog')
-      ->setDefault('_form', EntityEmbedDialog::class);
+    $route = $collection->get('entity_embed.dialog');
+    if ($route) {
+      $route->setDefault('_form', EntityEmbedDialog::class);
+    }
   }
 
 }

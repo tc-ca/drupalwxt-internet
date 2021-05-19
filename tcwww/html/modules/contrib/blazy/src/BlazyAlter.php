@@ -82,7 +82,8 @@ class BlazyAlter {
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
-      $settings['view_plugin_id'] = empty($settings['view_plugin_id']) ? $view->style_plugin->getPluginId() : $settings['view_plugin_id'];
+      $plugin_id = is_null($view->style_plugin) ? "" : $view->style_plugin->getPluginId();
+      $settings['view_plugin_id'] = empty($settings['view_plugin_id']) ? $plugin_id : $settings['view_plugin_id'];
     }
   }
 

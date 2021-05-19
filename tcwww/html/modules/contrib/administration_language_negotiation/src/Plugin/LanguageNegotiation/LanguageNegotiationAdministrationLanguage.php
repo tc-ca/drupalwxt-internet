@@ -86,7 +86,7 @@ class LanguageNegotiationAdministrationLanguage extends LanguageNegotiationMetho
         );
 
         if (!$manager->execute($condition_plugin)) {
-          return $this->currentUser->getPreferredAdminLangcode();
+          return $this->currentUser->getPreferredAdminLangcode(FALSE);
         }
       }
     }

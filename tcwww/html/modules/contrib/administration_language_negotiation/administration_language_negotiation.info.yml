@@ -1,14 +1,14 @@
-name: "Administration language negotiation"
+name: "Administration Language Negotiation"
 description: "Provides an additional language negotiation only for administration pages."
 type: module
-# core: "8.x"
-package: Multilanguage
+core: "8.x"
+core_version_requirement: ^8 || ^9
+package: Mulitlingual
 configure: administration_language_negotiation.negotiation_administration_language
 dependencies:
 - drupal:locale
 
-# Information added by Drupal.org packaging script on 2019-06-26
-version: '8.x-1.8'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2021-04-26
+version: '8.x-1.11'
 project: 'administration_language_negotiation'
-datestamp: 1561553892
+datestamp: 1619468535

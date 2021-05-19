@@ -6,7 +6,7 @@ core: 8.x
 dependencies:
   - h5p:h5p
 
-# Information added by Drupal.org packaging script on 2019-10-31
-version: '8.x-1.0-rc17'
+# Information added by Drupal.org packaging script on 2021-04-22
+version: '8.x-1.0-rc18'
 project: 'h5p'
-datestamp: 1572512592
+datestamp: 1619092308

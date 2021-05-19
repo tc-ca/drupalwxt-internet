@@ -206,6 +206,11 @@ class EntitySubqueueForm extends ContentEntityForm {
           break;
 
         case 'clear':
+          // Set the items count to zero.
+          $parents = NestedArray::getValue($form, $path)['widget']['#field_parents'];
+          $field_state = WidgetBase::getWidgetState($parents, 'items', $form_state);
+          $field_state['items_count'] = 0;
+          WidgetBase::setWidgetState($parents, 'items', $form_state, $field_state);
           $subqueue_items->setValue(NULL);
           break;
       }

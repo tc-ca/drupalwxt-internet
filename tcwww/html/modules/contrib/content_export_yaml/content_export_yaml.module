@@ -32,3 +32,17 @@ function content_export_yaml_help($route_name, RouteMatchInterface $route_match)
 //  $result  = $export->exportTermAll('tags',$options);
 //  $result  = $export->exportNode(1,$options);
 //}
+
+/**
+ * Implements hook_theme().
+ */
+function content_export_yaml_theme() {
+  $theme = [];
+  $theme['view_template_item'] = [
+    'variables' => [
+        'item' => []
+      ]
+  ];
+
+  return $theme;
+}

@@ -5,7 +5,6 @@ namespace Drupal\Core\Config;
 use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ProfileExtensionList;
-use Drupal\Core\Extension\ProfileHandlerInterface;
 
 /**
  * Storage used by the Drupal installer.
@@ -55,7 +54,7 @@ class InstallStorage extends FileStorage {
    * @var \Drupal\Core\Extension\ProfileExtensionList
    */
   protected $profileList;
-  
+
   /**
    * Constructs an InstallStorage object.
    *
@@ -164,27 +163,27 @@ class InstallStorage extends FileStorage {
   protected function getAllFolders() {
     if (!isset($this->folders)) {
       $this->folders = [];
-      $this->folders += $this->getCoreNames();
+      $this->folders = $this->getCoreNames() + $this->folders;
       // Get dependent profiles and add the extension components.
-      $this->folders += $this->getComponentNames($this->profileList->getAncestors());
+      $this->folders = $this->getComponentNames($this->profileList->getAncestors()) + $this->folders;
       // Perform an ExtensionDiscovery scan as we cannot use drupal_get_path()
       // yet because the system module may not yet be enabled during install.
       // @todo Remove as part of https://www.drupal.org/node/2186491
       $listing = new ExtensionDiscovery(\Drupal::root());
       if ($profile = \Drupal::installProfile()) {
-        $profiles = $this->profileList->getAncestors($profile);
-        foreach ($profiles as $p) {
+        $profile_list = $listing->scan('profile');
+        if (isset($profile_list[$profile])) {
           // Prime the drupal_get_filename() static cache with the profile info
           // file location so we can use drupal_get_path() on the active profile
           // during the module scan.
           // @todo Remove as part of https://www.drupal.org/node/2186491
-          drupal_get_filename('profile', $profile, $p->getPathname());
+          drupal_get_filename('profile', $profile, $profile_list[$profile]->getPathname());
+          $this->folders = $this->getComponentNames([$profile_list[$profile]]) + $this->folders;
         }
-        $this->folders += $this->getComponentNames($profiles);
       }
       // @todo Remove as part of https://www.drupal.org/node/2186491
-      $this->folders += $this->getComponentNames($listing->scan('module'));
-      $this->folders += $this->getComponentNames($listing->scan('theme'));
+      $this->folders = $this->getComponentNames($listing->scan('module')) + $this->folders;
+      $this->folders = $this->getComponentNames($listing->scan('theme')) + $this->folders;
     }
     return $this->folders;
   }

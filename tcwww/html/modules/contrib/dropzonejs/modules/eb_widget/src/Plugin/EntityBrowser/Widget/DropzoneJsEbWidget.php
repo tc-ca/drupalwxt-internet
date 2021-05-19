@@ -14,6 +14,7 @@ use Drupal\Core\Utility\Token;
 use Drupal\dropzonejs\DropzoneJsUploadSaveInterface;
 use Drupal\entity_browser\WidgetBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 
 /**
  * Provides an Entity Browser widget that uploads new files.
@@ -56,6 +57,13 @@ class DropzoneJsEbWidget extends WidgetBase {
   protected $fileSystem;
 
   /**
+   * The library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
+  protected $libraryDiscovery;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -64,6 +72,7 @@ class DropzoneJsEbWidget extends WidgetBase {
     $widget->setCurrentUser($container->get('current_user'));
     $widget->setToken($container->get('token'));
     $widget->setFileSystem($container->get('file_system'));
+    $widget->setLibraryDiscovery($container->get('library.discovery'));
 
     return $widget;
   }
@@ -106,6 +115,16 @@ class DropzoneJsEbWidget extends WidgetBase {
    */
   protected function setFileSystem(FileSystemInterface $fileSystem) {
     $this->fileSystem = $fileSystem;
+  }
+
+  /**
+   * Set the Library Discovery service.
+   *
+   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
+   *   The library discovery service.
+   */
+  protected function setLibraryDiscovery(LibraryDiscoveryInterface $library_discovery) {
+    $this->libraryDiscovery = $library_discovery;
   }
 
   /**
@@ -262,7 +281,7 @@ class DropzoneJsEbWidget extends WidgetBase {
     // it's still better not to rely only on client side validation.
     if (($trigger['#type'] == 'submit' && $trigger['#name'] == 'op') || $trigger['#name'] === 'auto_select_handler') {
       $upload_location = $this->getUploadLocation();
-      if (!$this->fileSystem->prepareDirectory($upload_location, FileSystemInterface::MODIFY_PERMISSIONS)) {
+      if (!$this->fileSystem->prepareDirectory($upload_location, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
         $form_state->setError($form['widget']['upload'], $this->t('Files could not be uploaded because the destination directory %destination is not configured correctly.', ['%destination' => $this->getConfiguration()['settings']['upload_location']]));
       }
 
@@ -391,7 +410,7 @@ class DropzoneJsEbWidget extends WidgetBase {
     ];
 
 
-    $exif_found = \Drupal::service('library.discovery')->getLibraryByName('dropzonejs', 'exif-js');
+    $exif_found = $this->libraryDiscovery->getLibraryByName('dropzonejs', 'exif-js');
 
     $form['clientside_resize'] = [
       '#type' => 'checkbox',
@@ -582,6 +601,20 @@ class DropzoneJsEbWidget extends WidgetBase {
     }
 
     return $ajax;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function handleWidgetContext($widget_context) {
+    parent::handleWidgetContext($widget_context);
+    $validators = isset($widget_context['upload_validators']) ? $widget_context['upload_validators'] : [];
+    if (isset($validators['file_validate_size'])) {
+      $this->configuration['max_filesize'] = $validators['file_validate_size'][0];
+    }
+    if (isset($validators['file_validate_extensions'])) {
+      $this->configuration['extensions'] = $validators['file_validate_extensions'][0];
+    }
   }
 
 }

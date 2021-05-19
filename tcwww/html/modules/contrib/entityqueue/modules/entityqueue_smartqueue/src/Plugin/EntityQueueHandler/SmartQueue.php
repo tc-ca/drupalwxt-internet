@@ -123,7 +123,7 @@ class SmartQueue extends Multiple implements ContainerFactoryPluginInterface {
     else {
       $form['bundles'] = [
         '#type' => 'value',
-        '#value' => [$entity_type_id],
+        '#value' => [$entity_type_id => $entity_type_id],
         '#prefix' => '<div id="smartqueue-bundle-wrapper">',
         '#suffix' => '</div>',
       ];

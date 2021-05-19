@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Element class formatter module.
+ */
+
+/**
+ * Enable new responsive image submodule.
+ */
+function element_class_formatter_update_8001() {
+  if (\Drupal::service('module_handler')->moduleExists('responsive_image')) {
+    \Drupal::service('module_installer')->install(['element_class_formatter_responsive_image']);
+  }
+}

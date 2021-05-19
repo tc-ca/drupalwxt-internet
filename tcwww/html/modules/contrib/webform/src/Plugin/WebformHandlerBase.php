@@ -579,6 +579,11 @@ abstract class WebformHandlerBase extends PluginBase implements WebformHandlerIn
   /**
    * {@inheritdoc}
    */
+  public function prepareForm(WebformSubmissionInterface $webform_submission, $operation, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
   public function alterForm(array &$form, FormStateInterface $form_state, WebformSubmissionInterface $webform_submission) {}
 
   /**
@@ -614,6 +619,16 @@ abstract class WebformHandlerBase extends PluginBase implements WebformHandlerIn
    * {@inheritdoc}
    */
   public function postLoad(WebformSubmissionInterface $webform_submission) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function prePurge(array $webform_submissions) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postPurge(array $webform_submissions) {}
 
   /**
    * {@inheritdoc}

@@ -160,7 +160,7 @@ class ClientFactory {
         'port' => self::REDIS_DEFAULT_PORT,
         'base' => self::REDIS_DEFAULT_BASE,
         'password' => self::REDIS_DEFAULT_PASSWORD,
-        'scheme' => self::REDIS_DEFAULT_SCHEME,
+        'persistent' => FALSE,
       ];
 
       // If using replication, lets create the client appropriately.
@@ -176,9 +176,8 @@ class ClientFactory {
           $settings['port'],
           $settings['base'],
           $settings['password'],
-          $settings['scheme'],
-          $settings['persistent'],
-          $settings['replication.host']);
+          $settings['replication.host'],
+          $settings['persistent']);
       }
       else {
         self::$_client = self::getClientInterface()->getClient(
@@ -186,7 +185,7 @@ class ClientFactory {
           $settings['port'],
           $settings['base'],
           $settings['password'],
-          $settings['scheme'],
+          [], // There are no replication hosts.
           $settings['persistent']);
       }
     }

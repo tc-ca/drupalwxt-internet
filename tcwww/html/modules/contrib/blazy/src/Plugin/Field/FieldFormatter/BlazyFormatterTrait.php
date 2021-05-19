@@ -79,6 +79,10 @@ trait BlazyFormatterTrait {
     $settings['item_id'] = $settings['lazy'] = 'blazy';
     $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
     $settings['third_party'] = $this->getThirdPartySettings();
+
+    // Exposes few basic formatter settings w/o use_field.
+    $settings['label'] = $this->fieldDefinition->getLabel();
+    $settings['label_display'] = $this->label;
     return $settings;
   }
 

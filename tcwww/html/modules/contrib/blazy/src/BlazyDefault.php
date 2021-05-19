@@ -203,10 +203,12 @@ class BlazyDefault {
    */
   public static function uiSettings() {
     return [
-      'one_pixel'        => TRUE,
-      'noscript'         => FALSE,
-      'placeholder'      => '',
-      'responsive_image' => FALSE,
+      'one_pixel'           => TRUE,
+      'native'              => FALSE,
+      'noscript'            => FALSE,
+      'placeholder'         => '',
+      'responsive_image'    => FALSE,
+      'unstyled_extensions' => '',
     ] + self::anywhereSettings();
   }
 
@@ -220,8 +222,10 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
+      '_richbox'   => FALSE,
       'route_name' => '',
       'use_field'  => FALSE,
+      'unstyled'   => FALSE,
       'view_name'  => '',
     ] + self::imageSettings() + self::uiSettings();
   }
@@ -244,6 +248,8 @@ class BlazyDefault {
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
       'padding_bottom' => '',
+      'placeholder_fx' => '',
+      'placeholder_ui' => '',
       'player'         => FALSE,
       'resimage'       => FALSE,
       'scheme'         => '',

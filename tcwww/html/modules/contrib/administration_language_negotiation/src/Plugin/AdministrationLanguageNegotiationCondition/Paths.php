@@ -8,7 +8,7 @@ use Drupal\administration_language_negotiation\AdministrationLanguageNegotiation
 use Drupal\administration_language_negotiation\AdministrationLanguageNegotiationConditionInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Path\AliasManagerInterface;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\language\ConfigurableLanguageManager;
@@ -30,7 +30,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
   /**
    * An alias manager to find the alias for the current system path.
    *
-   * @var \Drupal\Core\Path\AliasManagerInterface
+   * @var \Drupal\path_alias\AliasManagerInterface
    */
   protected $aliasManager;
 
@@ -72,7 +72,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
   /**
    * Constructs a RequestPath condition plugin.
    *
-   * @param \Drupal\Core\Path\AliasManagerInterface $alias_manager
+   * @param \Drupal\path_alias\AliasManagerInterface $alias_manager
    *   An alias manager to find the alias for the current system path.
    * @param \Drupal\Core\Path\PathMatcherInterface $path_matcher
    *   The path matcher service.
@@ -143,7 +143,7 @@ class Paths extends AdministrationLanguageNegotiationConditionBase implements
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-        $container->get('path.alias_manager'),
+        $container->get('path_alias.manager'),
         $container->get('path.matcher'),
         $container->get('request_stack'),
         $container->get('path.current'),

@@ -33,7 +33,7 @@
 
     if (r) {
       for (b in r) {
-        if (r.hasOwnProperty(b) && r[b].settings !== 'unslick') {
+        if (Object.prototype.hasOwnProperty.call(r, b) && r[b].settings !== 'unslick') {
           r[b].settings = $.extend({}, drupalSettings.slick, globals(o), r[b].settings);
         }
       }
@@ -74,7 +74,7 @@
       }
       else {
         // Useful to hide caption during loading, but watch out setBackground().
-        $('.media--loading', t).closest('.slide__content').addClass('is-loading');
+        $('.media', t).closest('.slide__content').addClass('is-loading');
       }
 
       t.on('setPosition.sl', function (e, slick) {
@@ -83,7 +83,7 @@
     }
 
     /**
-     * Blazy is not loaded on slidesToShow > 1, reload.
+     * Blazy is not loaded on slidesToShow > 1 with Infinite on, reload.
      *
      * @param {bool} ahead
      *   Whether to lazyload ahead, or not.
@@ -91,6 +91,12 @@
     function preloadBlazy(ahead) {
       if (t.find('.b-lazy:not(.b-loaded)').length) {
         var $src = t.find(ahead ? '.slide:not(.slick-cloned) .b-lazy:not(.b-loaded)' : '.slick-active .b-lazy:not(.b-loaded)');
+
+        // If selectively fails, always suspect .slick-cloned being rebuilt.
+        // This is not an issue if Infinite is disabled.
+        if (!$src.length) {
+          $src = t.find('.slick-cloned .b-lazy:not(.b-loaded)');
+        }
         if ($src.length) {
           Drupal.blazy.init.load($src);
         }

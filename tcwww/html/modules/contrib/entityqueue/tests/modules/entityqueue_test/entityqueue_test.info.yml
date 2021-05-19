@@ -8,7 +8,7 @@ dependencies:
  - drupal:views
  - entityqueue:entityqueue
 
-# Information added by Drupal.org packaging script on 2020-04-15
-version: '8.x-1.0'
+# Information added by Drupal.org packaging script on 2020-11-25
+version: '8.x-1.2'
 project: 'entityqueue'
-datestamp: 1586937739
+datestamp: 1606297909

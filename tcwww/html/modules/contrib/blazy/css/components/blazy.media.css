@@ -28,8 +28,10 @@
 .media__icon--spinner {
   height: 80px;
   left: 50%;
-  margin: -40px 0 0 -40px;
   top: 50%;
+  -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
   width: 80px;
 }
 

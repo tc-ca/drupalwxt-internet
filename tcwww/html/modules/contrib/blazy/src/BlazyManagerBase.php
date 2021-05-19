@@ -73,13 +73,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $cache;
 
   /**
-   * The blazy IO settings.
-   *
-   * @var object
-   */
-  protected $ioSettings;
-
-  /**
    * Constructs a BlazyManager object.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
@@ -220,7 +213,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['library'][] = 'blazy/fx.blur';
     }
 
-    foreach (['column', 'filter', 'grid', 'media', 'photobox', 'ratio'] as $component) {
+    $components = ['column', 'filter', 'grid', 'media', 'photobox', 'ratio'];
+    foreach ($components as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }
@@ -246,22 +240,19 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function getIoSettings(array $attach = []) {
-    if (!isset($this->ioSettings)) {
-      $thold = trim($this->configLoad('io.threshold')) ?: '0';
-      $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
-      $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
+    $io = [];
+    $thold = trim($this->configLoad('io.threshold')) ?: '0';
+    $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
+    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
 
-      // Respects hook_blazy_attach_alter() for more fine-grained control.
-      foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
-        $default = $key == 'rootMargin' ? '0px' : FALSE;
-        $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
-        $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
-      }
-
-      $this->ioSettings = (object) $io;
+    // Respects hook_blazy_attach_alter() for more fine-grained control.
+    foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
+      $default = $key == 'rootMargin' ? '0px' : FALSE;
+      $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
+      $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
     }
 
-    return $this->ioSettings;
+    return (object) $io;
   }
 
   /**
@@ -419,7 +410,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     ksort($srcset);
 
     // Informs individual images that dimensions are already set once.
-    $settings['blazy_data']['dimensions'] = $srcset;
+    // @todo revert $settings['blazy_data']['dimensions'] = $srcset;
     $settings['padding_bottom'] = end($srcset);
     $settings['_dimensions'] = TRUE;
   }

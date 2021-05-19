@@ -15,7 +15,7 @@ use Drupal\Core\Field\FieldItemListInterface;
  *   description = @Translation("Allows to specify the output with tokens."),
  *   field_types = {
  *     "entity_reference",
- *   }
+ *   },
  * )
  */
 class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
@@ -23,7 +23,7 @@ class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
+  public static function defaultSettings(): array {
     return [
       'format' => '[term:name]',
       'clear' => TRUE,
@@ -33,7 +33,7 @@ class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     $element = parent::settingsForm($form, $form_state);
 
     $element['format'] = [
@@ -53,8 +53,8 @@ class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
     if (\Drupal::moduleHandler()->moduleExists('token')) {
       $element['token_help'] = [
         '#type' => 'markup',
-        '#token_types' => ['term'],
         '#theme' => 'token_tree_link',
+        '#token_types' => ['term'],
       ];
     }
 
@@ -64,7 +64,7 @@ class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
+  public function settingsSummary(): array {
     $summary = parent::settingsSummary();
 
     $summary[] = $this->t('Format: @format', ['@format' => $this->getSetting('format')]);
@@ -75,13 +75,11 @@ class CshsFlexibleHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, $langcode): array {
     $elements = [];
-
     $linked = $this->getSetting('linked');
     $format = $this->getSetting('format');
     $clear = $this->getSetting('clear');
-
     $token = \Drupal::token();
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $term) {

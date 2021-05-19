@@ -8,7 +8,7 @@ dependencies:
   - drupal:node
   - lightning_layout:lightning_layout
 
-# Information added by Drupal.org packaging script on 2020-04-28
-version: '8.x-2.6'
+# Information added by Drupal.org packaging script on 2020-11-11
+version: '8.x-2.9'
 project: 'lightning_layout'
-datestamp: 1588106755
+datestamp: 1605114498

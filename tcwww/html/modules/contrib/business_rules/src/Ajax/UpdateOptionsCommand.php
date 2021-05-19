@@ -15,6 +15,8 @@ class UpdateOptionsCommand implements CommandInterface {
 
   protected $options;
 
+  protected $formatter;
+
   /**
    * UpdateOptionsCommand constructor.
    *
@@ -22,10 +24,13 @@ class UpdateOptionsCommand implements CommandInterface {
    *   The element html id.
    * @param array $options
    *   The element options [key, value].
+   * @param string $formatter
+   *   The field formatter.
    */
-  public function __construct($elementId, array $options) {
+  public function __construct($elementId, array $options, $formatter) {
     $this->elementId = $elementId;
     $this->options = $options;
+    $this->formatter = $formatter;
   }
 
   /**
@@ -37,6 +42,7 @@ class UpdateOptionsCommand implements CommandInterface {
       'method' => 'html',
       'elementId' => $this->elementId,
       'options' => $this->options,
+      'formatter' => $this->formatter,
     ];
   }
 

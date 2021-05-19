@@ -12,7 +12,19 @@ use Drupal\taxonomy\Tests\TaxonomyTestTrait;
  */
 class TaxonomyManagerPagesTest extends WebTestBase {
   use TaxonomyTestTrait;
+
+  /**
+   * Vocabulary object.
+   *
+   * @var \Drupal\taxonomy\VocabularyInterface
+   */
   private $vocabulary;
+
+  /**
+   * Administrator user object.
+   *
+   * @var \Drupal\user\Entity\User|false
+   */
   private $adminUser;
 
   /**

@@ -25,6 +25,7 @@ use Drupal\linkchecker\LinkCheckerLinkInterface;
  *     plural = "@count LinkChecker link types",
  *   ),
  *   handlers = {
+ *    "storage" = "Drupal\linkchecker\LinkCheckerStorage",
  *    "access" = "Drupal\linkchecker\LinkCheckerLinkAccessControlHandler",
  *    "storage_schema" = "Drupal\linkchecker\LinkCheckerLinkStorageSchema",
  *    "form" = {
@@ -45,7 +46,6 @@ use Drupal\linkchecker\LinkCheckerLinkInterface;
  *     "published" = "status"
  *   },
  *   links = {
- *     "canonical" = "/admin/config/content/linkcheckerlink/{linkcheckerlink}/edit",
  *     "edit-form" = "/admin/config/content/linkcheckerlink/{linkcheckerlink}/edit"
  *   }
  * )
@@ -285,8 +285,7 @@ class LinkCheckerLink extends ContentEntityBase implements LinkCheckerLinkInterf
     // Code related to the link.
     $fields['code'] = BaseFieldDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Status code'))
-      ->setDescription(new TranslatableMarkup('HTTP status code from link checking.'))
-      ->setDefaultValue(-1);
+      ->setDescription(new TranslatableMarkup('HTTP status code from link checking.'));
 
     // Error related to the link.
     $fields['error'] = BaseFieldDefinition::create('string_long')

@@ -35,22 +35,23 @@ class ManageExport {
    *  Export All Entities
    */
   public function exportFrom($entity,$bundle,$options=[]){
-    $bundle_label = \Drupal::entityTypeManager()->getDefinition($entity)->getKey('bundle');
-    $id_label = \Drupal::entityTypeManager()->getDefinition($entity)->getKey('id');
-    $object_list = \Drupal::entityTypeManager()->getStorage($entity)->loadByProperties(
-      [$bundle_label => $bundle]
-    );
-    $status_list =[] ;
-    foreach ($object_list as $object){
+      $rangenid =[];
+      if(isset($options['range'])&& isset($options['range'][0]) && isset($options['range'][1]) ){
+          $rangenid[0] = $options['range'][0] ;
+          $rangenid[1] = $options['range'][1] ;
+      }
+      $object_list = $this->func->load_entity_list($entity,$bundle,$rangenid);
+      $id_label = \Drupal::entityTypeManager()->getDefinition($entity)->getKey('id');
+      $status_list =[] ;
+    foreach ($object_list as $id){
+        $object = \Drupal::entityTypeManager()->getStorage($entity)->load($id) ;
       if(is_object($object)){
-          $options['bundle'] = isset($options['bundle']) ?$options['bundle']:$object->bundle() ;
           $status = $this->func->exportWithPath($object,$entity,$options);
           $status_list[] =[
             'status' => $status,
             'label'=>$object->label(),
              $id_label => $object->id()
           ];
-
       }
     }
     return $status_list ;
@@ -87,8 +88,25 @@ class ManageExport {
     if(is_object($object)){
      return $this->func->savingEntity($object,$entity);
     }
-    drupal_set_message(t('Failed to save item'),'error');
+    \Drupal::messenger()->addMessage(t('Failed to save item'), 'error');
     return false;
+  }
+  public function isReadyToImport($file){
+    if (file_exists($file)) {
+      try {
+          $content = file_get_contents($file, FILE_USE_INCLUDE_PATH);
+          $parsed = new Parser();
+          $object = $parsed->parse($content, SymfonyYaml::PARSE_OBJECT);
+          if( $object){
+            return true ;
+          }
+      } catch (\Exception $e) {
+           \Drupal::logger('content_export_yaml')->error('File yaml  has error :'.$e);
+      }
+     
+    } 
+    return false ;
+
   }
   /**
    *  Import all entity
@@ -103,7 +121,7 @@ class ManageExport {
       if(is_object($object)){
          $status = $this->func->savingEntity($object,$entity);
         if($status !=1 || $status !=2){
-        drupal_set_message(t('Failed to save item'),'error');
+            \Drupal::messenger()->addMessage(t('Failed to save item'), 'error');
         }
         $status_list[] =[
           'status' => $status,
@@ -111,7 +129,7 @@ class ManageExport {
           'file_name' => $object->id()
         ];
       }else{
-        drupal_set_message(t('Failed to convert yaml to object'),'error');
+          \Drupal::messenger()->addMessage(t('Failed to convert yaml to object'), 'error');
       }
     }
     return $status_list;

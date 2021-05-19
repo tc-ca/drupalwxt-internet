@@ -5,9 +5,10 @@ namespace Drupal\dbug;
 use Drupal\Core\Render\Markup;
 
 /**
- * Implementation of dBug for Business Rules module.
+ * Implementation of dBug for Drupal.
  *
- * The main modification is to return a render array instead of echo.
+ * The main modifications are the return as a render array instead of echo and
+ * the adequacy to Drupal standards.
  *
  * AUTHOR
  * ===========
@@ -153,7 +154,7 @@ class Dbug {
   public $output = [];
 
   /**
-   * BusinessRulesDbug constructor.
+   * Dbug constructor.
    *
    * @param mixed $var
    *   The variable to debug.
@@ -518,7 +519,6 @@ class Dbug {
       $this->output[] = "<tr>\n";
       $this->output[] = "<td class=\"dBug_resourceKey\">" . ($i + 1) . "</td>";
       for ($k = 0; $k < $numfields; $k++) {
-        $tempField      = $field[$k]->name;
         $field_row      = $row[($field[$k]->name)];
         $field_row      = ($field_row == "") ? "[empty string]" : $field_row;
         $this->output[] = "<td>" . $field_row . "</td>\n";
@@ -693,7 +693,7 @@ class Dbug {
    */
   protected function xmlDefaultHandler($parser, $data) {
     // Strip '<!--' and '-->' off comments.
-    $data  = str_replace(["&lt;!--", "--&gt;"], "", htmlspecialchars($data));
+    $data = str_replace(["&lt;!--", "--&gt;"], "", htmlspecialchars($data));
     $count = $this->xmlCount - 1;
     if (!empty($this->xmlDData[$count])) {
       $this->xmlDData[$count] .= $data;

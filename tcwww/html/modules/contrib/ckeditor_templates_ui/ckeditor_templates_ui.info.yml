@@ -8,7 +8,7 @@ dependencies:
 - ckeditor_templates:ckeditor_templates
 core_version_requirement: ^8 || ^9
 
-# Information added by Drupal.org packaging script on 2020-05-14
-version: '8.x-1.3'
+# Information added by Drupal.org packaging script on 2020-10-08
+version: '8.x-1.4'
 project: 'ckeditor_templates_ui'
-datestamp: 1589446778
+datestamp: 1602169162

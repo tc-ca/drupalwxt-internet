@@ -33,13 +33,13 @@ class BlazyGrid {
       unset($item['settings'], $item['attributes'], $item['item']);
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $content_classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
+      $classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
 
       // Supports both single formatter field and complex fields such as Views.
       $content['content'] = $is_grid ? [
         '#theme'      => 'container',
         '#children'   => $item,
-        '#attributes' => ['class' => array_merge(['grid__content'], $content_classes)],
+        '#attributes' => ['class' => array_merge(['grid__content'], $classes)],
       ] : $item;
 
       if (!empty($item_settings['grid_item_class'])) {
@@ -54,14 +54,21 @@ class BlazyGrid {
     }
 
     $settings['count'] = empty($settings['count']) ? count($contents) : $settings['count'];
-    $wrapper = $style ? ['item-list--blazy', 'item-list--blazy-' . $style] : ['item-list--blazy'];
+    $wrapper = ['item-list--blazy', 'item-list--blazy-' . $style];
+    $wrapper = $style ? $wrapper : ['item-list--blazy'];
+    $wrapper = array_merge(['item-list'], $wrapper);
     $element = [
       '#theme'              => 'item_list',
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
       '#attributes'         => [],
-      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
+      '#wrapper_attributes' => ['class' => $wrapper],
     ];
+
+    // Supports field label via Field UI, unless use_field takes place.
+    if (empty($settings['use_field']) && isset($settings['label'], $settings['label_display']) && $settings['label_display'] != 'hidden') {
+      $element['#title'] = $settings['label'];
+    }
 
     self::attributes($element['#attributes'], $settings);
 

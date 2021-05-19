@@ -10,6 +10,11 @@ class MediaBrowserEmbedCodeWidgetTest extends MediaBrowserWidgetTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = ['lightning_media_video'];
 
   /**
@@ -62,7 +67,7 @@ class MediaBrowserEmbedCodeWidgetTest extends MediaBrowserWidgetTestBase {
    * {@inheritdoc}
    */
   public function testFieldAllowedTypesSettingIsRespected() {
-    // @todo: Nothing here yet.
+    // @todo Nothing here yet.
   }
 
   /**

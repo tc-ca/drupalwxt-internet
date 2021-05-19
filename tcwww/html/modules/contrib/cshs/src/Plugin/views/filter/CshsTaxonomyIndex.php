@@ -3,9 +3,11 @@
 namespace Drupal\cshs\Plugin\views\filter;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\cshs\CshsOptionsFromHelper;
+use Drupal\cshs\Element\CshsElement;
+use Drupal\taxonomy\TermStorageInterface;
+use Drupal\taxonomy\VocabularyInterface;
+use Drupal\taxonomy\VocabularyStorageInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,42 +22,18 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    EntityTypeManagerInterface $entity_type_manager,
-    EntityRepositoryInterface $entity_repository
-  ) {
-    /* @see \Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTid::__construct() */
-    parent::__construct(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $entity_type_manager->getStorage('taxonomy_vocabulary'),
-      $entity_type_manager->getStorage('taxonomy_term')
-    );
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    \assert($instance instanceof self);
+    $instance->entityRepository = $container->get('entity.repository');
 
-    $this->entityRepository = $entity_repository;
+    return $instance;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_type.manager'),
-      $container->get('entity.repository')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL): void {
     $options['value'] = isset($options['value']) ? (array) $options['value'] : [];
 
     parent::init($view, $display, $options);
@@ -64,10 +42,10 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  public function defineOptions() {
+  public function defineOptions(): array {
     $options = parent::defineOptions();
 
-    foreach (static::defaultSettings() + ['type' => static::ID] as $option => $value) {
+    foreach (static::defaultSettings() + ['type' => CshsElement::ID] as $option => $value) {
       $options[$option] = ['default' => $value];
     }
 
@@ -77,21 +55,21 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  public function buildExtraOptionsForm(&$form, FormStateInterface $form_state) {
+  public function buildExtraOptionsForm(&$form, FormStateInterface $form_state): void {
     parent::buildExtraOptionsForm($form, $form_state);
 
     $form['type']['#options'] += [
-      static::ID => $this->t('Client-side hierarchical select'),
+      CshsElement::ID => $this->t('Client-side Hierarchical Select'),
     ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildExposeForm(&$form, FormStateInterface $form_state) {
+  public function buildExposeForm(&$form, FormStateInterface $form_state): void {
     parent::buildExposeForm($form, $form_state);
 
-    if (static::ID === $this->options['type']) {
+    if (CshsElement::ID === $this->options['type']) {
       // Disable the "multiple" option in the exposed form settings.
       $form['expose']['multiple']['#access'] = FALSE;
       $form += $this->settingsForm($form, $form_state);
@@ -101,16 +79,16 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  public function valueForm(&$form, FormStateInterface $form_state) {
+  public function valueForm(&$form, FormStateInterface $form_state): void {
     parent::valueForm($form, $form_state);
 
-    if (empty($this->getVocabulary()) && $this->options['limit']) {
+    if ($this->options['limit'] && $this->getVocabulary() === NULL) {
       $form['markup'] = [
         '#type' => 'item',
         '#markup' => $this->t('An invalid vocabulary is selected. Please change it in the options.'),
       ];
     }
-    elseif (static::ID === $this->options['type']) {
+    elseif (CshsElement::ID === $this->options['type']) {
       $form['value'] = \array_merge($form['value'], $this->formElement(), [
         '#multiple' => FALSE,
         '#default_value' => (array) $form['value']['#default_value'],
@@ -121,7 +99,7 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  public function getSettings() {
+  public function getSettings(): array {
     return $this->options;
   }
 
@@ -135,22 +113,60 @@ trait CshsTaxonomyIndex {
   /**
    * {@inheritdoc}
    */
-  protected function getVocabularyStorage() {
+  protected function getVocabularyStorage(): VocabularyStorageInterface {
     return $this->vocabularyStorage;
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getTermStorage() {
+  protected function getTermStorage(): TermStorageInterface {
     return $this->termStorage;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getVocabulary() {
+  public function getVocabulary(): ?VocabularyInterface {
     return $this->vocabularyStorage->load($this->options['vid']);
+  }
+
+  /**
+   * Returns the views filter configuration schema.
+   *
+   * @return array
+   *   The config schema, provided in addition to the parent implementation.
+   *
+   * @see taxonomy.views.schema.yml
+   * @see \cshs_config_schema_info_alter()
+   */
+  public static function getConfigSchema(): array {
+    return [
+      'save_lineage' => [
+        'type' => 'boolean',
+        'label' => 'Save lineage',
+      ],
+      'force_deepest' => [
+        'type' => 'boolean',
+        'label' => 'Force selection of deepest level',
+      ],
+      'parent' => [
+        'type' => 'integer',
+        'label' => 'Parent',
+      ],
+      'level_labels' => [
+        'type' => 'string',
+        'label' => 'Labels per hierarchy-level',
+      ],
+      'hierarchy_depth' => [
+        'type' => 'integer',
+        'label' => 'Hierarchy depth',
+      ],
+      'required_depth' => [
+        'type' => 'integer',
+        'label' => 'Required depth',
+      ],
+    ];
   }
 
 }

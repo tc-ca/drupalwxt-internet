@@ -39,7 +39,7 @@
         unsaved = true;
       }
       else {
-        $('.js-webform-unsaved :input:not(:button, :submit, :reset)').once('webform-unsaved').on('change keypress', function (event, param1) {
+        $('.js-webform-unsaved :input:not(:button, :submit, :reset, [type="hidden"])').once('webform-unsaved').on('change keypress', function (event, param1) {
           // Ignore events triggered when #states API is changed,
           // which passes 'webform.states' as param1.
           // @see webform.states.js ::triggerEventHandlers().
@@ -105,9 +105,14 @@
    * Date:    19th May 2014
    */
   $(function () {
-    if (!navigator.userAgent.toLowerCase().match(/iphone|ipad|ipod|opera/)) {
+    // @see https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
+    var isIOSorOpera = navigator.userAgent.toLowerCase().match(/iphone|ipad|ipod|opera/)
+      || navigator.platform.toLowerCase().match(/iphone|ipad|ipod/)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isIOSorOpera) {
       return;
     }
+
     $('a:not(.use-ajax)').bind('click', function (evt) {
       var a = $(evt.target).closest('a');
       var href = a.attr('href');

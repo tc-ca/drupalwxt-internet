@@ -121,12 +121,14 @@ class LinkCleanUp {
       ->load($entity->id());
 
     $extractedIds = [];
+    /** @var \Drupal\linkchecker\LinkCheckerStorage $storage */
+    $storage = $this->entityTypeManager->getStorage('linkcheckerlink');
     // If entity is not deleted, gather all links that exists in fields.
     if (!$isEntityDeleted) {
       $links = $this->extractor->extractFromEntity($entity);
 
       foreach ($links as $link) {
-        $extractedIds[] = $link->id();
+        $extractedIds = array_merge($storage->getExistingIdsFromLink($link), $extractedIds);
       }
     }
     else {
@@ -136,8 +138,6 @@ class LinkCleanUp {
         ->condition('entity_type', $entity->getEntityTypeId())
         ->execute();
     }
-
-    $storage = $this->entityTypeManager->getStorage('linkcheckerlink');
 
     // Get list of link IDs that should be deleted.
     $query = $storage->getQuery();

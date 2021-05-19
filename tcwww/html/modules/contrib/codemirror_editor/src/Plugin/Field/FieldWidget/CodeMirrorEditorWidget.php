@@ -13,7 +13,10 @@ use Drupal\Core\Form\FormStateInterface;
  * @FieldWidget(
  *   id = "codemirror_editor",
  *   label = @Translation("CodeMirror"),
- *   field_types = {"string_long"},
+ *   field_types = {
+ *     "string_long",
+ *     "text_long"
+ *   },
  * )
  */
 class CodeMirrorEditorWidget extends WidgetBase {
@@ -67,6 +70,10 @@ class CodeMirrorEditorWidget extends WidgetBase {
 
     $summary[] = $this->t('Language mode: @mode', ['@mode' => $this->getSetting('mode')]);
     $summary[] = $this->t('Load toolbar: @toolbar', ['@toolbar' => $this->formatBoolean('toolbar')]);
+    if ($settings['toolbar']) {
+      $summary[] = $this->t('Toolbar buttons: @buttons', ['@buttons' => implode(', ', $settings['buttons'])]);
+    }
+
     $summary[] = $this->t('Line wrapping: @lineWrapping', ['@lineWrapping' => $this->formatBoolean('lineWrapping')]);
     $summary[] = $this->t('Line numbers: @lineNumbers', ['@lineNumbers' => $this->formatBoolean('lineNumbers')]);
     $summary[] = $this->t('Fold gutter: @foldGutter', ['@foldGutter' => $this->formatBoolean('foldGutter')]);

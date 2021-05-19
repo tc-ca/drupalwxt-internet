@@ -7,10 +7,8 @@
 
 use Drupal\business_rules\Entity\Schedule;
 use Drupal\business_rules\Events\BusinessRulesEvent;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
@@ -32,7 +30,7 @@ function business_rules_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Business Rules') . '</p>';
       $output .= '<p>' . Link::fromTextAndUrl(t('Click here to access the online Business Rules documentation.'), Url::fromUri('https://www.drupal.org/docs/8/modules/business-rules'))
-          ->toString() . '</p>';
+        ->toString() . '</p>';
 
       return $output;
 
@@ -45,13 +43,13 @@ function business_rules_help($route_name, RouteMatchInterface $route_match) {
  */
 function business_rules_entity_presave(EntityInterface $entity) {
   // Only handle content entities and ignore config entities.
-  if ($entity instanceof ContentEntityInterface) {
+  if (\Drupal::service('business_rules.processor')->ruleExists('entity_presave', $entity)) {
     $reacts_on_definition = \Drupal::getContainer()
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('entity_presave');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id' => $entity_type_id,
       'bundle' => $entity->bundle(),
       'entity' => $entity,
@@ -71,13 +69,13 @@ function business_rules_entity_presave(EntityInterface $entity) {
  */
 function business_rules_entity_update(EntityInterface $entity) {
   // Only handle content entities and ignore config entities.
-  if ($entity instanceof ContentEntityInterface) {
+  if (\Drupal::service('business_rules.processor')->ruleExists('entity_update', $entity)) {
     $reacts_on_definition = \Drupal::getContainer()
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('entity_update');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id' => $entity_type_id,
       'bundle' => $entity->bundle(),
       'entity' => $entity,
@@ -96,13 +94,13 @@ function business_rules_entity_update(EntityInterface $entity) {
  */
 function business_rules_entity_insert(EntityInterface $entity) {
   // Only handle content entities and ignore config entities.
-  if ($entity instanceof ContentEntityInterface) {
+  if (\Drupal::service('business_rules.processor')->ruleExists('entity_insert', $entity)) {
     $reacts_on_definition = \Drupal::getContainer()
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('entity_insert');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id' => $entity_type_id,
       'bundle' => $entity->bundle(),
       'entity' => $entity,
@@ -121,13 +119,13 @@ function business_rules_entity_insert(EntityInterface $entity) {
  */
 function business_rules_entity_delete(EntityInterface $entity) {
   // Only handle content entities and ignore config entities.
-  if ($entity instanceof ContentEntityInterface) {
+  if (\Drupal::service('business_rules.processor')->ruleExists('entity_delete', $entity)) {
     $reacts_on_definition = \Drupal::getContainer()
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('entity_delete');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id' => $entity_type_id,
       'bundle' => $entity->bundle(),
       'entity' => $entity,
@@ -152,7 +150,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
   ) {
     $entity = $form_state->getFormObject()->getEntity();
 
-    if ($entity instanceof ContentEntityInterface) {
+    if (\Drupal::service('business_rules.processor')->ruleExists('form_validation', $entity)) {
 
       // Prepare the event for formValidation.
       $form_validation_reacts_on_definition = \Drupal::getContainer()
@@ -176,8 +174,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
       // We can't dispatch this event here, otherwise it would be processed
       // before the form validation. In this case, the FormValidator will take
       // care of the event process and we are just adding this validation.
-      $form['#validate'][]            = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
-      $form['#attached']['library'][] = 'business_rules/dependentField';
+      $form['#validate'][] = 'Drupal\business_rules\Plugin\BusinessRulesReactsOn\FormValidation::validateForm';
     }
   }
 
@@ -188,7 +185,7 @@ function business_rules_form_alter(&$form, FormStateInterface $form_state, $form
  */
 function business_rules_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
 
-  // TODO check patch inline_entity_form_2973571_1.patch.
+  // @todo check patch inline_entity_form_2973571_1.patch.
   $form_object = $form_state->getFormObject();
   // Establish whether we're in a normal EntityForm context or an inline
   // QuickeditFieldForm context and retrieve the entity from the respectively
@@ -208,7 +205,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
   if ($entity instanceof EntityInterface) {
     // Check if the field is a dependent field.
     /** @var \Drupal\Core\Field\FieldItemList $items */
-    $items         = $context['items'];
+    $items = $context['items'];
     $current_field = $items->getFieldDefinition()->getName();
 
     // Check if field is configured as parent of one dependent field.
@@ -253,6 +250,7 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
           $element['#ajax'] = $ajax_definition;
         }
 
+        $element['#attached']['library'][] = 'business_rules/dependentField';
       }
 
     }
@@ -295,13 +293,13 @@ function business_rules_field_widget_form_alter(&$element, FormStateInterface $f
  */
 function business_rules_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   // Only handle content entities and ignore config entities.
-  if ($entity instanceof ContentEntityInterface) {
+  if (\Drupal::service('business_rules.processor')->ruleExists('entity_is_viewed', $entity)) {
     $reacts_on_definition = \Drupal::getContainer()
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('entity_is_viewed');
 
     $entity_type_id = $entity->getEntityTypeId();
-    $event          = new BusinessRulesEvent($entity, [
+    $event = new BusinessRulesEvent($entity, [
       'entity_type_id' => $entity_type_id,
       'bundle' => $entity->bundle(),
       'entity' => $entity,
@@ -320,14 +318,15 @@ function business_rules_entity_view(array &$build, EntityInterface $entity, Enti
  * Implements hook_entity_load().
  */
 function business_rules_entity_load(array $entities, $entity_type_id) {
+
   foreach ($entities as $entity) {
-    if ($entity instanceof ContentEntityInterface) {
+    if (\Drupal::service('business_rules.processor')->ruleExists('entity_is_loaded', $entity)) {
       $reacts_on_definition = \Drupal::getContainer()
         ->get('plugin.manager.business_rules.reacts_on')
         ->getDefinition('entity_is_loaded');
 
       $entity_type_id = $entity->getEntityTypeId();
-      $event          = new BusinessRulesEvent($entity, [
+      $event = new BusinessRulesEvent($entity, [
         'entity_type_id' => $entity_type_id,
         'bundle' => $entity->bundle(),
         'entity' => $entity,
@@ -346,52 +345,58 @@ function business_rules_entity_load(array $entities, $entity_type_id) {
  * Implements hook_user_login().
  */
 function business_rules_user_login($account) {
-  $reacts_on_definition = \Drupal::getContainer()
-    ->get('plugin.manager.business_rules.reacts_on')
-    ->getDefinition('user_login');
+  $entity = $account;
 
-  $entity_type_id = $account->getEntityTypeId();
-  $entity         = $account;
+  if (\Drupal::service('business_rules.processor')->ruleExists('user_login', $entity)) {
+    $reacts_on_definition = \Drupal::getContainer()
+      ->get('plugin.manager.business_rules.reacts_on')
+      ->getDefinition('user_login');
 
-  $event = new BusinessRulesEvent($entity, [
-    'entity_type_id' => $entity_type_id,
-    'bundle' => $entity->bundle(),
-    'entity' => $entity,
-    'entity_unchanged' => NULL,
-    'reacts_on' => $reacts_on_definition,
-    'loop_control' => $entity->getEntityTypeId() . $entity->id(),
-  ]);
-  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
-  $event_dispatcher = \Drupal::service('event_dispatcher');
-  $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+    $entity_type_id = $account->getEntityTypeId();
+
+    $event = new BusinessRulesEvent($entity, [
+      'entity_type_id' => $entity_type_id,
+      'bundle' => $entity->bundle(),
+      'entity' => $entity,
+      'entity_unchanged' => NULL,
+      'reacts_on' => $reacts_on_definition,
+      'loop_control' => $entity->getEntityTypeId() . $entity->id(),
+    ]);
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
+    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+  }
 }
 
 /**
  * Implements hook_user_logout().
  */
 function business_rules_user_logout($account) {
-  $reacts_on_definition = \Drupal::getContainer()
-    ->get('plugin.manager.business_rules.reacts_on')
-    ->getDefinition('user_logout');
-
-  if (method_exists($account, 'getAccount')) {
-    $account = $account->getAccount();
-  }
-
   $entity = User::load($account->id());
 
-  $entity_type_id = $entity->getEntityTypeId();
-  $event          = new BusinessRulesEvent($entity, [
-    'entity_type_id' => $entity_type_id,
-    'bundle' => $entity->bundle(),
-    'entity' => $entity,
-    'entity_unchanged' => NULL,
-    'reacts_on' => $reacts_on_definition,
-    'loop_control' => $entity->getEntityTypeId() . $entity->id(),
-  ]);
-  /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
-  $event_dispatcher = \Drupal::service('event_dispatcher');
-  $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+  if (\Drupal::service('business_rules.processor')->ruleExists('user_logout', $entity)) {
+
+    $reacts_on_definition = \Drupal::getContainer()
+      ->get('plugin.manager.business_rules.reacts_on')
+      ->getDefinition('user_logout');
+
+    if (method_exists($account, 'getAccount')) {
+      $account = $account->getAccount();
+    }
+
+    $entity_type_id = $entity->getEntityTypeId();
+    $event = new BusinessRulesEvent($entity, [
+      'entity_type_id' => $entity_type_id,
+      'bundle' => $entity->bundle(),
+      'entity' => $entity,
+      'entity_unchanged' => NULL,
+      'reacts_on' => $reacts_on_definition,
+      'loop_control' => $entity->getEntityTypeId() . $entity->id(),
+    ]);
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
+    $event_dispatcher = \Drupal::service('event_dispatcher');
+    $event_dispatcher->dispatch($reacts_on_definition['eventName'], $event);
+  }
 }
 
 /**
@@ -429,7 +434,7 @@ function business_rules_page_load_event() {
       ->get('plugin.manager.business_rules.reacts_on')
       ->getDefinition('page_load');
 
-    $path  = $_SERVER['REQUEST_URI'];
+    $path = $_SERVER['REQUEST_URI'];
     $event = new BusinessRulesEvent($path, [
       'entity_type_id' => '',
       'bundle' => NULL,
@@ -463,7 +468,7 @@ function business_rules_cron() {
       ->getDefinition('cron_runs');
 
     $loop_control = time();
-    $dummy        = new stdClass();
+    $dummy = new stdClass();
 
     $event = new BusinessRulesEvent($dummy, [
       'entity_type_id' => '',
@@ -492,7 +497,7 @@ function business_rules_entity_type_alter(array &$entity_types) {
   foreach ($form_modes as $entity_type => $display_modes) {
     $type = $entity_types[$entity_type];
     foreach ($display_modes as $machine_name => $form_display) {
-      if (!in_array($machine_name, $skip_names)) {
+      if (!in_array($machine_name, $skip_names) && isset($type->getHandlerClasses()['form']['default'])) {
         $default_handler_class = $type->getHandlerClasses()['form']['default'];
         $type->setFormClass($machine_name, $default_handler_class);
       }

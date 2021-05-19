@@ -13,6 +13,10 @@
     flex-direction: column;
 }
 
+.try-out.btn-group {
+  padding: 0;
+}
+
 .opblock-tag
 {
     display: flex;
@@ -123,7 +127,10 @@
 
 .examples-select {
     margin-bottom: .75em;
-
+    display: inline-block;
+    .examples-select-element {
+      width: 100%;
+    }
     &__section-label {
         font-weight: bold;
         font-size: .9rem;
@@ -298,6 +305,12 @@
 
         @include text_code();
 
+    }
+
+    .opblock-summary-path
+    {
+        flex-shrink: 0;
+        max-width: calc(100% - 110px - 15rem);
     }
 
     .opblock-summary-path__deprecated
@@ -642,10 +655,12 @@
 
     overflow-wrap: break-word;
     @include text_code($opblock-body-font-color);
-    span
-    {
-        color: $opblock-body-font-color !important;
-    }
+
+    // disabled to have syntax highliting with react-syntax-highlight
+    // span
+    // {
+    //     color: $opblock-body-font-color !important;
+    // }
 
     .headerline
     {
@@ -660,7 +675,15 @@
     overflow-y: auto;
     max-height: 400px;
     min-height: 6em;
+
+    code {
+        white-space: pre-wrap !important;
+        word-break: break-all;
+    }
   }
+}
+.curl-command {
+  position: relative;
 }
 
 .download-contents {
@@ -924,7 +947,7 @@ span
 
     &.token-not-formatted
     {
-        color: #555; 
+        color: #555;
         font-weight: bold;
     }
 }

@@ -22,7 +22,7 @@ When submitting bug reports, please:
 * be kind with proper reproduction, and enough details.
 * mention library version, related-module version, if any, active theme, or
   anything which may help us identify issue better.
-* ensure the library is loaded, not 404.
+* ensure the library is loaded, not 404, and verify it can be viewed at browser.
 * switch to stock (Responsive) Bartik for just in case it is your custom theme.
 * switch to default formatters, image to Image, text to Default, etc.
 * use matching or similar branches or tags for related modules.

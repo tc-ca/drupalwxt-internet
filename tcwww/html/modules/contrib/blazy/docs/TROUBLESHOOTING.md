@@ -25,7 +25,7 @@
 
 
 
-## 1. VIEWS INTEGRATION
+## 1. VIEWS GOTCHAS
 Blazy provides a simple Views field for File Entity, and Media. Also a Blazy
 Grid views style plugin.
 

@@ -134,3 +134,17 @@ function lightning_layout_update_8010() {
 function lightning_layout_update_8011() {
   Drupal::service('module_installer')->install(['layout_builder_styles']);
 }
+
+/**
+ * Installs the layout_builder_restrictions module.
+ */
+function lightning_layout_update_8012() {
+  Drupal::service('module_installer')->install(['layout_builder_restrictions']);
+}
+
+/**
+ * Installs the layout_library module.
+ */
+function lightning_layout_update_8013() {
+  Drupal::service('module_installer')->install(['layout_library']);
+}

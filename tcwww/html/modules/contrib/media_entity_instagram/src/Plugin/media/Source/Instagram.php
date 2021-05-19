@@ -2,98 +2,25 @@
 
 namespace Drupal\media_entity_instagram\Plugin\media\Source;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Field\FieldTypePluginManagerInterface;
-use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\media\MediaInterface;
-use Drupal\media\MediaSourceBase;
-use Drupal\media\MediaSourceFieldConstraintsInterface;
-use Drupal\media_entity_instagram\InstagramEmbedFetcher;
-use GuzzleHttp\Client;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\media\MediaTypeInterface;
+use Drupal\media\Plugin\media\Source\OEmbed;
 
 /**
- * Provides media type plugin for Instagram.
+ * Implementation of an oEmbed Instagram source.
  *
  * @MediaSource(
- *   id = "instagram",
+ *   id = "oembed:instagram",
  *   label = @Translation("Instagram"),
- *   description = @Translation("Provides business logic and metadata for Instagram."),
- *   allowed_field_types = {"string", "string_long", "link"},
- *   default_thumbnail_filename = "instagram.png"
+ *   description = @Translation("Use Facebooks graph API for reusable instagrams."),
+ *   allowed_field_types = {"string", "link"},
+ *   default_thumbnail_filename = "instagram.png",
+ *   providers = {"Instagram"},
+ *   forms = {"media_library_add" = "\Drupal\media_entity_instagram\Form\InstagramMediaLibraryAddForm"}
  * )
  */
-class Instagram extends MediaSourceBase implements MediaSourceFieldConstraintsInterface {
-
-  /**
-   * The instagram fetcher.
-   *
-   * @var \Drupal\media_entity_instagram\InstagramEmbedFetcher
-   */
-  protected $fetcher;
-
-  /**
-   * Guzzle client.
-   *
-   * @var \GuzzleHttp\Client
-   */
-  protected $httpClient;
-
-  /**
-   * The file system service.
-   *
-   * @var \Drupal\Core\File\FileSystemInterface
-   */
-  protected $fileSystem;
-
-  /**
-   * Constructs a new class instance.
-   *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   Entity type manager service.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
-   *   Entity field manager service.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   Config factory service.
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager
-   *   The field type plugin manager service.
-   * @param \Drupal\media_entity_instagram\InstagramEmbedFetcher $fetcher
-   *   Instagram fetcher service.
-   * @param \GuzzleHttp\Client $httpClient
-   *   Guzzle client.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ConfigFactoryInterface $config_factory, FieldTypePluginManagerInterface $field_type_manager, InstagramEmbedFetcher $fetcher, Client $httpClient, FileSystemInterface $fileSystem) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $field_type_manager, $config_factory);
-    $this->fetcher = $fetcher;
-    $this->httpClient = $httpClient;
-    $this->fileSystem = $fileSystem;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_type.manager'),
-      $container->get('entity_field.manager'),
-      $container->get('config.factory'),
-      $container->get('plugin.manager.field.field_type'),
-      $container->get('media_entity_instagram.instagram_embed_fetcher'),
-      $container->get('http_client'),
-      $container->get('file_system')
-    );
-  }
+class Instagram extends OEmbed {
 
   /**
    * List of validation regular expressions.
@@ -113,120 +40,49 @@ class Instagram extends MediaSourceBase implements MediaSourceFieldConstraintsIn
   public function getMetadataAttributes() {
     return [
       'shortcode' => $this->t('Instagram shortcode'),
-      'id' => $this->t('Media ID'),
-      'type' => $this->t('Media type: image or video'),
-      'thumbnail' => $this->t('Link to the thumbnail'),
-      'thumbnail_local' => $this->t("Copies thumbnail locally and return it's URI"),
-      'thumbnail_local_uri' => $this->t('Returns local URI of the thumbnail'),
-      'username' => $this->t('Author of the post'),
-      'caption' => $this->t('Caption'),
+      'type' => $this->t('Resource type'),
+      'author_name' => $this->t('The name of the author/owner'),
+      'default_name' => $this->t('Default name of the media item'),
+      'provider_name' => $this->t("The name of the provider"),
+      'provider_url' => $this->t('The URL of the provider'),
+      'thumbnail_uri' => $this->t('Local URI of the thumbnail'),
+      'thumbnail_width' => $this->t('Thumbnail width'),
+      'thumbnail_height' => $this->t('Thumbnail height'),
+      'width' => $this->t('The width of the resource'),
+      'html' => $this->t('The HTML representation of the resource'),
     ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getMetadata(MediaInterface $media, $attribute_name) {
-    if ($attribute_name == 'default_name') {
-      // Try to get some fields that need the API, if not available, just use
-      // the shortcode as default name.
-      $username = $this->getMetadata($media, 'username');
-      $id = $this->getMetadata($media, 'id');
-      if ($username && $id) {
-        return $username . ' - ' . $id;
-      }
-      else {
-        $code = $this->getMetadata($media, 'shortcode');
-        if (!empty($code)) {
-          return $code;
+  public function getMetadata(MediaInterface $media, $name) {
+    switch ($name) {
+      case 'default_name':
+        // Try to get some fields that need the API, if not available, just use
+        // the shortcode as default name.
+        $username = $this->getMetadata($media, 'author_name');
+        $shortcode = $this->getMetadata($media, 'shortcode');
+        if ($username && $shortcode) {
+          return $username . ' - ' . $shortcode;
         }
-      }
-      // Fallback to the parent's default name if everything else failed.
-      return parent::getMetadata($media, 'default_name');
-    }
-    elseif ($attribute_name == 'thumbnail_uri') {
-      return $this->getMetadata($media, 'thumbnail_local');
-    }
+        else {
+          if (!empty($shortcode)) {
+            return $shortcode;
+          }
+        }
+        // Fallback to the parent's default name if everything else failed.
+        return parent::getMetadata($media, 'default_name');
 
-    $matches = $this->matchRegexp($media);
-
-    if (!$matches['shortcode']) {
-      return FALSE;
-    }
-
-    if ($attribute_name == 'shortcode') {
-      return $matches['shortcode'];
+      case 'shortcode':
+        $matches = $this->matchRegexp($media);
+        if (is_array($matches) && !empty($matches['shortcode'])) {
+          return $matches['shortcode'];
+        }
+        return FALSE;
     }
 
-    // If we have auth settings return the other fields.
-    if ($instagram = $this->fetcher->fetchInstagramEmbed($matches['shortcode'])) {
-      switch ($attribute_name) {
-        case 'id':
-          if (isset($instagram['media_id'])) {
-            return $instagram['media_id'];
-          }
-          return FALSE;
-
-        case 'type':
-          if (isset($instagram['type'])) {
-            return $instagram['type'];
-          }
-          return FALSE;
-
-        case 'thumbnail':
-          return 'http://instagram.com/p/' . $matches['shortcode'] . '/media/?size=m';
-
-        case 'thumbnail_local':
-          $local_uri = $this->getMetadata($media, 'thumbnail_local_uri');
-
-          if ($local_uri) {
-            if (file_exists($local_uri)) {
-              return $local_uri;
-            }
-            else {
-
-              $directory = dirname($local_uri);
-              $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-
-              $image_url = $this->getMetadata($media, 'thumbnail');
-
-              $response = $this->httpClient->get($image_url);
-              if ($response->getStatusCode() == 200) {
-                return $this->fileSystem->saveData($response->getBody(), $local_uri, FileSystemInterface::EXISTS_REPLACE);
-              }
-            }
-          }
-          return FALSE;
-
-        case 'thumbnail_local_uri':
-          if (isset($instagram['thumbnail_url'])) {
-            return $this->configFactory->get('media_entity_instagram.settings')->get('local_images') . '/' . $matches['shortcode'] . '.' . pathinfo(parse_url($instagram['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
-          }
-          return FALSE;
-
-        case 'username':
-          if (isset($instagram['author_name'])) {
-            return $instagram['author_name'];
-          }
-          return FALSE;
-
-        case 'caption':
-          if (isset($instagram['title'])) {
-            return $instagram['title'];
-          }
-          return FALSE;
-
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSourceFieldConstraints() {
-    return ['InstagramEmbedCode' => []];
+    return parent::getMetadata($media, $name);
   }
 
   /**
@@ -255,6 +111,16 @@ class Instagram extends MediaSourceBase implements MediaSourceFieldConstraintsIn
       }
     }
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function prepareViewDisplay(MediaTypeInterface $type, EntityViewDisplayInterface $display) {
+    $display->setComponent($this->getSourceFieldDefinition($type)->getName(), [
+      'type' => 'instagram_embed',
+      'label' => 'visually_hidden',
+    ]);
   }
 
 }

@@ -164,7 +164,7 @@ class Client {
       foreach (['acquia_search', 'search_api', 'search_api_solr'] as $name) {
         $info = \Drupal::service('extension.list.module')->getExtensionInfo($name);
         // Send the version, or at least the core compatibility as a fallback.
-        $body['search_version'][$name] = isset($info['version']) ? (string) $info['version'] : (string) $info['core'];
+        $body['search_version'][$name] = isset($info['version']) ? (string) $info['version'] : (string) $info['core_version_requirement'];
       }
     }
 

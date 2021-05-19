@@ -36,6 +36,10 @@ function token_language_token_info() {
     'name' => t('Language code'),
     'description' => t('The current language code.'),
   ];
+  $currentLanguageTokens['uppercase_code'] = [
+    'name' => t('Language code (uppercase)'),
+    'description' => t('The current language code in capital letters.'),
+  ];
   $currentLanguageTokens['name'] = [
     'name' => t('Language name'),
     'description' => t('The current language name.'),
@@ -84,6 +88,9 @@ function _token_language_tokens_current_language(array $tokens, array $data = []
   foreach ($tokens as $name => $original) {
     if ($name === 'code') {
       $replacements[$original] = $currentLanguage->getId();
+    }
+    if ($name === 'uppercase_code') {
+      $replacements[$original] = strtoupper($currentLanguage->getId());
     }
     if ($name === 'name') {
       $replacements[$original] = $currentLanguage->getName();

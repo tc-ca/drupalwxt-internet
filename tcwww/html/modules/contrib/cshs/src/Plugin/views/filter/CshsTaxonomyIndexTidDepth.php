@@ -5,19 +5,14 @@ namespace Drupal\cshs\Plugin\views\filter;
 use Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTidDepth;
 
 /**
- * Filter handler for taxonomy terms with depth.
+ * {@inheritdoc}
  *
- * @ingroup views_filter_handlers
- *
- * @ViewsFilter("cshs_taxonomy_index_tid_depth")
+ * @see \cshs_views_plugins_filter_alter()
  */
 class CshsTaxonomyIndexTidDepth extends TaxonomyIndexTidDepth {
 
-  /**
-   * Option ID.
-   */
-  public const ID = 'cshs';
-
   use CshsTaxonomyIndex;
+
+  public const ID = 'taxonomy_index_tid_depth';
 
 }

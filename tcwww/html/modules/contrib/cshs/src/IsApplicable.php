@@ -12,7 +12,7 @@ trait IsApplicable {
   /**
    * {@inheritdoc}
    */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+  public static function isApplicable(FieldDefinitionInterface $field_definition): bool {
     return 'taxonomy_term' === $field_definition->getFieldStorageDefinition()->getSetting('target_type');
   }
 

@@ -90,7 +90,7 @@ class BulkUploadForm extends FormBase {
 
     $variables = [
       '@max_size' => static::bytesToString($max_size),
-      '@extensions' => Element::oxford($extensions),
+      '@extensions' => Element::oxford($extensions, $this->t('and')),
     ];
     $form['dropzone']['#description'] = $this->t('You can upload as many files as you like. Each file can be up to @max_size in size. The following file extensions are accepted: @extensions', $variables);
 
@@ -129,6 +129,7 @@ class BulkUploadForm extends FormBase {
       /** @var \Drupal\file\FileInterface $file */
       $file = $this->entityTypeManager->getStorage('file')->create([
         'uri' => $upload['path'],
+        'uid' => $this->currentUser()->id(),
       ]);
       $file->setTemporary();
       $file->save();

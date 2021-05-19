@@ -203,7 +203,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $excludes = $this->getExcludedFieldOptions();
 
     foreach ($target_bundles as $bundle => $label) {
-      if ($fields = $storage->loadByProperties(['entity_type' => $entity_type, 'bundle' => $bundle])) {
+      if ($fields = $storage->loadByProperties([
+        'entity_type' => $entity_type,
+        'bundle' => $bundle,
+      ])) {
         foreach ((array) $fields as $field) {
           if (in_array($field->getName(), $excludes)) {
             continue;

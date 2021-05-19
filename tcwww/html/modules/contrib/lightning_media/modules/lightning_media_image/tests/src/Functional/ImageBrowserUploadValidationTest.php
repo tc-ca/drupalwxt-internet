@@ -20,6 +20,11 @@ class ImageBrowserUploadValidationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_media_image',
     'node',

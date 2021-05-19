@@ -33,7 +33,7 @@ function linkchecker_form_field_config_form_alter(&$form, FormStateInterface $fo
 
   $form['third_party_settings']['linkchecker'] = [
     '#type' => 'details',
-    '#title' => t('LinkChecker settings'),
+    '#title' => t('Link checker settings'),
   ];
 
   /** @var \Drupal\linkchecker\Plugin\LinkExtractorManager $linkExtractorManager */
@@ -63,7 +63,7 @@ function linkchecker_form_field_config_form_alter(&$form, FormStateInterface $fo
     '#description' => t('Defines which extractor plugin to use'),
     '#empty_value' => '',
     '#options' => $options,
-    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'extractor', '_none'),
+    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'extractor', count($options) === 1 ? key($options) : '_none'),
     '#states' => [
       'required' => [
         ':input[name="third_party_settings[linkchecker][scan]"]' => [

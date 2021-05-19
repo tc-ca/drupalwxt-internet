@@ -13,6 +13,7 @@ use Aws\Endpoint\PartitionEndpointProvider;
 use Aws\EndpointDiscovery\ConfigurationInterface;
 use Aws\EndpointDiscovery\ConfigurationProvider;
 use Aws\EndpointDiscovery\EndpointDiscoveryMiddleware;
+use Aws\Exception\InvalidRegionException;
 use Aws\Retry\ConfigurationInterface as RetryConfigInterface;
 use Aws\Retry\ConfigurationProvider as RetryConfigProvider;
 use Aws\Signature\SignatureProvider;
@@ -133,7 +134,7 @@ class ClientResolver
         'profile' => [
             'type'  => 'config',
             'valid' => ['string'],
-            'doc'   => 'Allows you to specify which profile to use when credentials are created from the AWS credentials file in your HOME directory. This setting overrides the AWS_PROFILE environment variable. Note: Specifying "profile" will cause the "credentials" key to be ignored.',
+            'doc'   => 'Allows you to specify which profile to use when credentials are created from the AWS credentials file in your HOME directory. This setting overrides the AWS_PROFILE environment variable. Note: Specifying "profile" will cause the "credentials" and "use_aws_shared_config_files" keys to be ignored.',
             'fn'    => [__CLASS__, '_apply_profile'],
         ],
         'credentials' => [
@@ -216,6 +217,12 @@ class ClientResolver
             'doc'       => 'Set to false to disable SDK to populate parameters that enabled \'idempotencyToken\' trait with a random UUID v4 value on your behalf. Using default value \'true\' still allows parameter value to be overwritten when provided. Note: auto-fill only works when cryptographically secure random bytes generator functions(random_bytes, openssl_random_pseudo_bytes or mcrypt_create_iv) can be found. You may also provide a callable source of random bytes.',
             'default'   => true,
             'fn'        => [__CLASS__, '_apply_idempotency_auto_fill']
+        ],
+        'use_aws_shared_config_files' => [
+            'type'      => 'value',
+            'valid'     => ['bool'],
+            'doc'       => 'Set to false to disable checking for shared aws config files usually located in \'~/.aws/config\' and \'~/.aws/credentials\'.  This will be ignored if you set the \'profile\' setting.',
+            'default'   => true,
         ],
     ];
 
@@ -530,6 +537,13 @@ class ClientResolver
                 ? $args['api']['metadata']['endpointPrefix']
                 : $args['service'];
 
+            // Check region is a valid host label when it is being used to
+            // generate an endpoint
+            if (!self::isValidRegion($args['region'])) {
+                throw new InvalidRegionException('Region must be a valid RFC'
+                    . ' host label.');
+            }
+
             // Invoke the endpoint provider and throw if it does not resolve.
             $result = EndpointProvider::resolve($value, [
                 'service' => $endpointPrefix,
@@ -581,7 +595,11 @@ class ClientResolver
     public static function _apply_debug($value, array &$args, HandlerList $list)
     {
         if ($value !== false) {
-            $list->interpose(new TraceMiddleware($value === true ? [] : $value));
+            $list->interpose(
+                new TraceMiddleware(
+                    $value === true ? [] : $value,
+                    $args['api'])
+            );
         }
     }
 
@@ -661,6 +679,18 @@ class ClientResolver
         if (defined('HHVM_VERSION')) {
             array_unshift($value, 'HHVM/' . HHVM_VERSION);
         }
+
+        $disabledFunctions = explode(',', ini_get('disable_functions'));
+        if (!ini_get('safe_mode')
+            && function_exists('php_uname')
+            && !in_array('php_uname', $disabledFunctions, true)
+        ) {
+            $osName = "OS/" . php_uname('s') . '/' . php_uname('r');
+            if (!empty($osName)) {
+                array_unshift($value, $osName);
+            }
+        }
+
         array_unshift($value, 'aws-sdk-php/' . Sdk::VERSION);
         $args['ua_append'] = $value;
 
@@ -682,13 +712,6 @@ class ClientResolver
 
     public static function _apply_endpoint($value, array &$args, HandlerList $list)
     {
-        $parts = parse_url($value);
-        if (empty($parts['scheme']) || empty($parts['host'])) {
-            throw new IAE(
-                'Endpoints must be full URIs and include a scheme and host'
-            );
-        }
-
         $args['endpoint'] = $value;
     }
 
@@ -850,5 +873,16 @@ EOT;
             }
         }
         return $options;
+    }
+
+    /**
+     * Validates a region to be used for endpoint construction
+     *
+     * @param $region
+     * @return bool
+     */
+    private static function isValidRegion($region)
+    {
+        return is_valid_hostlabel($region);
     }
 }

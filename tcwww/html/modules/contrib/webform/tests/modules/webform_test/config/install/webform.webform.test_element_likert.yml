@@ -31,6 +31,7 @@ elements: |
     '#type': webform_likert
     '#title': likert_advanced
     '#required': true
+    '#required_error': '{custom error for @name}'
     '#na_answer': true
     '#na_answer_value': N/A
     '#na_answer_text': 'Not applicable'
@@ -209,6 +210,7 @@ settings:
   results_customize: false
   token_view: false
   token_update: false
+  token_delete: false
   serial_disabled: false
 access:
   create:

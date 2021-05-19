@@ -151,7 +151,7 @@ class DynamicEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
   public static function processFormElement(array &$element, FormStateInterface $form_state, array &$complete_form) {
     $name = implode('-', $element['#parents']);
     $js_class = Html::cleanCssIdentifier("js-dynamic-entity-reference-{$name}-target_type");
-    $element['target_type']['#attributes']['class'][] = $js_class;
+    $element['target_type']['#attributes']['data-dynamic-entity-reference'] = $element['target_type']['#attributes']['class'][] = $js_class;
     $auto_complete_paths = $element['#attached']['drupalSettings']['dynamic_entity_reference']['auto_complete_paths'];
     unset($element['#attached']['drupalSettings']['dynamic_entity_reference']['auto_complete_paths']);
     $element['#attached']['drupalSettings']['dynamic_entity_reference'][$js_class] = $auto_complete_paths;
@@ -258,8 +258,8 @@ class DynamicEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       // key in the route parameters.
       $selection_settings = $settings[$target_type]['handler_settings'] ?: [];
       $selection_settings += [
-        'match_operator' => 'CONTAINS',
-        'match_limit' => 10,
+        'match_operator' => $this->getSetting('match_operator'),
+        'match_limit' => $this->getSetting('match_limit'),
       ];
       $data = serialize($selection_settings) . $target_type . $settings[$target_type]['handler'];
       $selection_settings_key = Crypt::hmacBase64($data, Settings::getHashSalt());

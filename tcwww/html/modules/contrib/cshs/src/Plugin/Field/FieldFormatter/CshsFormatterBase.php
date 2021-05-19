@@ -4,9 +4,9 @@ namespace Drupal\cshs\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
-use Drupal\taxonomy\Entity\Term;
 use Drupal\cshs\IsApplicable;
 use Drupal\cshs\TaxonomyStorages;
+use Drupal\taxonomy\TermInterface;
 
 /**
  * Base formatter for CSHS field.
@@ -19,7 +19,7 @@ abstract class CshsFormatterBase extends EntityReferenceFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
+  public static function defaultSettings(): array {
     return [
       'linked' => FALSE,
       'reverse' => FALSE,
@@ -29,7 +29,7 @@ abstract class CshsFormatterBase extends EntityReferenceFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     $element = [];
 
     $element['linked'] = [
@@ -51,7 +51,7 @@ abstract class CshsFormatterBase extends EntityReferenceFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
+  public function settingsSummary(): array {
     $summary = [];
 
     $summary[] = $this->t('Linked to term page: @linked', [
@@ -66,15 +66,38 @@ abstract class CshsFormatterBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * Returns an array of all parents of a given term.
+   * Returns the list of terms labels.
    *
-   * @param Term $term
-   *   Taxonomy term.
+   * @param \Drupal\taxonomy\TermInterface[] $list
+   *   The list of terms.
+   * @param bool $linked
+   *   The state of whether to create a linked label.
    *
-   * @return Term[]
-   *   Parent terms of a given term.
+   * @return string[]|\Drupal\Core\StringTranslation\TranslatableMarkup[]
+   *   The list of labels.
    */
-  protected function getTermParents(Term $term) {
+  protected function getTermsLabels(array $list, bool $linked): array {
+    $terms = [];
+
+    foreach ($list as $item) {
+      $item = $this->getTranslationFromContext($item);
+      $label = $item->label();
+      $terms[] = $linked ? $item->toLink($label)->toString() : $label;
+    }
+
+    return $terms;
+  }
+
+  /**
+   * Returns an array of all parents for a given term.
+   *
+   * @param \Drupal\taxonomy\TermInterface $term
+   *   The taxonomy term.
+   *
+   * @return TermInterface[]
+   *   The parent terms of a given term.
+   */
+  protected function getTermParents(TermInterface $term): array {
     return \array_reverse($this->getTermStorage()->loadAllParents($term->id()));
   }
 

@@ -46,6 +46,9 @@ before loading is hard-coded to [800px at Chrome](https://cs.chromium.org/chromi
 so it might only be good for super tall pages for now, be aware.
 [Read more](https://web.dev/native-lazy-loading/)
 
+This also may trick us to think lazy load not work, check out browsers' Network
+tab to verify that it still does work.
+
 **UPDATE 2020-04-24**: Added a delay to only lazy load once the first found is
   loaded, see [#3120696](https://drupal.org/node/3120696)
 

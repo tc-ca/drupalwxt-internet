@@ -13,6 +13,10 @@
   display: none;
 }
 
+.taxonomy-managervocabulary-terms-form {
+  overflow: auto;
+}
+
 .taxonomy-managervocabulary-terms-form #edit-export {
   display: none;
 }

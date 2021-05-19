@@ -15,6 +15,7 @@ use Drupal\embed\Entity\EmbedButton;
 use Drupal\entity_browser\Entity\EntityBrowser;
 use Drupal\file\Entity\File;
 use Drupal\lightning_core\ConfigHelper as Config;
+use Drupal\lightning_core\Element;
 use Drupal\lightning_core\Entity\EntityViewMode;
 use Drupal\media\Entity\MediaType;
 use Drupal\views\Entity\View;
@@ -46,6 +47,37 @@ function lightning_media_install() {
   // module's default configuration -- which means that it might not exist when
   // the button is installed, resulting in a scary PluginNotFoundException.
   lightning_media_update_8013();
+}
+
+/**
+ * Alerts users of Libraries API dependencies.
+ *
+ * A future version of Lightning Media will remove Libraries API, so
+ * users must add that dependency to composer.json manually.
+ *
+ * @todo Remove this function when Libraries API is no longer shipped with Lightning Media.
+ */
+function lightning_media_requirements() {
+  $requirements = [];
+  $libraries_dependencies = [];
+  $enabled_modules = \Drupal::service('extension.list.module')->getAllInstalledInfo();
+
+  foreach ($enabled_modules as $module => $info) {
+    if (isset($info['dependencies']) && array_intersect($info['dependencies'], ['libraries:libraries', 'libraries'])) {
+      $libraries_dependencies[$module] = $info['name'];
+    }
+  }
+
+  if ($libraries_dependencies) {
+    $requirements['lightning_libraries'] = [
+      'title' => t('Libraries API dependencies'),
+      'value' => t('These modules require Libraries API: %module_list. Lightning Media 4.0 will <strong>not</strong> include Libraries API as a dependency, so you must add that dependency to your composer.json manually. For example: <code>composer require drupal/libraries</code>.', [
+        '%module_list' => Element::oxford($libraries_dependencies),
+      ]),
+      'severity' => REQUIREMENT_WARNING,
+    ];
+  }
+  return $requirements;
 }
 
 /**
@@ -370,6 +402,16 @@ function lightning_media_update_8020() {
   Drupal::configFactory()
     ->getEditable('lightning_media.settings')
     ->set('entity_browser.override_widget', TRUE)
+    ->save();
+}
+
+/**
+ * Sets the default value of the revision_ui config switch.
+ */
+function lightning_media_update_8021() {
+  Drupal::configFactory()
+    ->getEditable('lightning_media.settings')
+    ->set('revision_ui', TRUE)
     ->save();
 }
 

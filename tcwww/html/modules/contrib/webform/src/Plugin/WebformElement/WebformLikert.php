@@ -121,7 +121,7 @@ class WebformLikert extends WebformElementBase {
           'width' => '40%',
         ];
         foreach ($element['#answers'] as $answer_value => $answer_text) {
-          list($answer_title) = explode(WebformOptionsHelper::DESCRIPTION_DELIMITER, $answer_text);
+          list($answer_title) = WebformOptionsHelper::splitOption($answer_text);
           $header[$answer_value] = [
             'data' => $answer_title,
             'align' => 'center',
@@ -133,7 +133,7 @@ class WebformLikert extends WebformElementBase {
 
         $rows = [];
         foreach ($element['#questions'] as $question_key => $question_text) {
-          list($question_title) = explode(WebformOptionsHelper::DESCRIPTION_DELIMITER, $question_text);
+          list($question_title) = WebformOptionsHelper::splitOption($question_text);
 
           $question_value = (isset($value[$question_key])) ? $value[$question_key] : NULL;
           $row = [];
@@ -167,7 +167,7 @@ class WebformLikert extends WebformElementBase {
       case 'list':
         $items = [];
         foreach ($element['#questions'] as $question_key => $question_text) {
-          list($question_title) = explode(WebformOptionsHelper::DESCRIPTION_DELIMITER, $question_text);
+          list($question_title) = WebformOptionsHelper::splitOption($question_text);
           $answer_value = (isset($value[$question_key])) ? $value[$question_key] : NULL;
           $answer_text = ($answer_value !== NULL) ? WebformOptionsHelper::getOptionText($answer_value, $element['#answers'], TRUE) : $this->t('[blank]');
           $items[$question_key] = [
@@ -406,6 +406,9 @@ class WebformLikert extends WebformElementBase {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
+
+    $form['validation']['required_container']['required_error']['#description'] = $this->t('If set, this message will be used when a required likert question is empty, instead of the default "X field is required." message. To include the question title in the required message, please include the @name placeholder in the required message.');
+
     $form['likert'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Likert settings'),

@@ -2,7 +2,6 @@
 
 namespace Drupal\custom_search\Form;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -199,7 +198,7 @@ class CustomSearchBlockForm extends FormBase {
         $terms = $taxonomy_term_storage->loadTree($vid, 0, $vocabulary_depth, TRUE);
         foreach ($terms as $term) {
           $termName = Html::escape($this->entityRepository->getTranslationFromContext($term)->label());
-          $options['c-' . $term->id()] = (Unicode::mb_substr($config['taxonomy'][$vid]['type'], 0, 6) == 'select') ? str_repeat('-', $term->depth) . ' ' . $termName : $termName;
+          $options['c-' . $term->id()] = (mb_substr($config['taxonomy'][$vid]['type'], 0, 6) == 'select') ? str_repeat('-', $term->depth) . ' ' . $termName : $termName;
         }
         $selector_type = $config['taxonomy'][$vid]['type'];
         if ($selector_type == 'selectmultiple') {
@@ -565,7 +564,7 @@ class CustomSearchBlockForm extends FormBase {
    * Helper functions.
    */
   private static function filterKeys($val) {
-    return (strlen($val) > 2 && $val[1] == '-') ? Unicode::mb_substr($val, 2) : $val;
+    return (strlen($val) > 2 && $val[1] == '-') ? mb_substr($val, 2) : $val;
   }
 
 }

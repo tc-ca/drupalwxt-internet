@@ -1,12 +1,12 @@
 name: dropzonejs
 type: module
-description: DropzoneJS
-core: 8.x
+description: The Drupal integration for DropzoneJS.
+core_version_requirement: ^8.8 || ^9
 package: Media
 dependencies:
   - drupal:file
 
-# Information added by Drupal.org packaging script on 2020-01-08
-version: '8.x-2.0-alpha5'
+# Information added by Drupal.org packaging script on 2021-03-01
+version: '8.x-2.5'
 project: 'dropzonejs'
-datestamp: 1578497287
+datestamp: 1614606378

@@ -72,7 +72,8 @@ function _layout_builder_styles_submit_block_form(array $form, FormStateInterfac
   $formObject = $formState->getFormObject();
 
   $component = $formObject->getCurrentComponent();
-  $component->set('layout_builder_styles_style', $formState->getValue('layout_builder_style'));
+  $styles = _layout_builder_styles_prepare_styles_for_saving($formState->getValue('layout_builder_style'));
+  $component->set('layout_builder_styles_style', $styles);
 }
 
 /**
@@ -82,13 +83,16 @@ function _layout_builder_styles_submit_block_form(array $form, FormStateInterfac
  */
 function layout_builder_styles_form_layout_builder_configure_section_alter(&$form, FormStateInterface $form_state, $form_id) {
   $formObject = $form_state->getFormObject();
-
+  $layout_id = $formObject->getLayout()->getPluginId();
   $allStyles = _layout_builder_styles_retrieve_by_type(LayoutBuilderStyleInterface::TYPE_SECTION);
 
   $styleOptions = [];
   foreach ($allStyles as $style) {
-    /** @var \Drupal\layout_builder_styles\LayoutBuilderStyleInterface $style */
-    $styleOptions[$style->id()] = $style->label();
+    $restrictions = $style->getLayoutRestrictions();
+    if (empty($restrictions) || in_array($layout_id, $restrictions)) {
+      /** @var \Drupal\layout_builder_styles\LayoutBuilderStyleInterface $style */
+      $styleOptions[$style->id()] = $style->label();
+    }
   }
 
   if (!empty($styleOptions)) {
@@ -136,7 +140,8 @@ function _layout_builder_styles_submit_section_form(array $form, FormStateInterf
   if (!$config) {
     $config = [];
   }
-  $config = array_merge($config, ['layout_builder_styles_style' => $formState->getValue('layout_builder_style')]);
+  $styles = _layout_builder_styles_prepare_styles_for_saving($formState->getValue('layout_builder_style'));
+  $config = array_merge($config, ['layout_builder_styles_style' => $styles]);
 
   $formObject
     ->getLayout()
@@ -167,9 +172,28 @@ function _layout_builder_styles_add_style_selection_form_element(array &$form, a
     '#weight' => 90,
   ];
 
+  $config = \Drupal::config('layout_builder_styles.settings');
+  // If we're configured to allow a single selection, then we need to check
+  // if the previously saved selected style is actually an array of styles
+  // that were saved from previously allowing multiple. In this case, if there's
+  // just one style that was saved, then choose that as the current value.
+  // If there were multiple saved, we just clear them both out. There's not
+  // a good way to recover from that situation.
+  if ($config && $config->get('multiselect' === 'single')) {
+    if (is_array($selectedStyle)) {
+      $filtered = array_filter($selectedStyle);
+      if (count($filtered) === 1) {
+        $existingSelectedStyle = array_shift($filtered);
+      }
+      else {
+        $existingSelectedStyle = null;
+      }
+      $form['layout_builder_style']['#default_value'] = $existingSelectedStyle;
+    }
+  }
+
   // If we're configured to allow multiple selections, then we need to change
   // the form widget to one that supports multiple selections.
-  $config = \Drupal::config('layout_builder_styles.settings');
   if ($config && $config->get('multiselect') === 'multiple') {
     // The existing value may not be stored as an array if the site admin
     // switched from allowing one selection to allowing multiple.
@@ -191,18 +215,10 @@ function _layout_builder_styles_add_style_selection_form_element(array &$form, a
  */
 function layout_builder_styles_theme_suggestions_block_alter(array &$suggestions, array $variables) {
   // Add theme hook suggestions for block templates based on the configured
-  // style.
-  // This value will be populated only when the module is in
-  // 'single-selection' mode, and a style has been assigned
-  // to the given block, so no additional checks are needed here.
-  if (!empty($variables['elements']['#layout_builder_style'])) {
-    if (is_string($variables['elements']['#layout_builder_style'])) {
-      $styleId = $variables['elements']['#layout_builder_style'];
-    }
-    elseif (count($variables['elements']['#layout_builder_style']) < 2) {
-      $styleId = reset($variables['elements']['#layout_builder_style']);
-    }
-    if (isset($styleId)) {
+  // style. We only act if there is a single style selected for the block.
+  if (!empty($variables['elements']['#layout_builder_style']) && count($variables['elements']['#layout_builder_style']) < 2) {
+    $styleId = reset($variables['elements']['#layout_builder_style']);
+    if (!empty($styleId)) {
       $suggestions[] = 'block__' . $styleId;
       // For each existing suggestion, provide a duplicate one that adds the
       // block style ID.
@@ -210,7 +226,6 @@ function layout_builder_styles_theme_suggestions_block_alter(array &$suggestions
         $suggestions[] = $suggestion . '__' . $styleId;
       }
     }
-
   }
 }
 
@@ -251,4 +266,29 @@ function layout_builder_styles_preprocess_layout(&$variables) {
       $variables['attributes']['class'] = array_merge($variables['attributes']['class'], $grouped_classes);
     }
   }
+}
+
+/**
+ * Prepare submitted style(s) for saving in block/section config.
+ *
+ * This is necessary to groom submitted styles where multiple styles are allowed
+ *
+ *
+ * @param string|array $submittedStyles
+ *   The submitted style(s).
+ *
+ * @return string|array
+ *   The submitted style(s), now formatted correctly for saving.
+ */
+function _layout_builder_styles_prepare_styles_for_saving($submittedStyles) {
+  // Filter out empty selections that may be present from unselected checkboxes.
+  if (is_array($submittedStyles)) {
+    // Remove empty/unselected styles from form.
+    $submittedStyles = array_filter($submittedStyles);
+    // We don't need to store an associative array that the multi select
+    // and checkboxes form widgets provide. We just care to store an array of
+    // the style names as values.
+    return array_values($submittedStyles);
+  }
+  return $submittedStyles;
 }

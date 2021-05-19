@@ -5,19 +5,14 @@ namespace Drupal\cshs\Plugin\views\filter;
 use Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTid;
 
 /**
- * Filter by term ID.
+ * {@inheritdoc}
  *
- * @ingroup views_filter_handlers
- *
- * @ViewsFilter("cshs_taxonomy_index_tid")
+ * @see \cshs_views_plugins_filter_alter()
  */
 class CshsTaxonomyIndexTid extends TaxonomyIndexTid {
 
-  /**
-   * Option ID.
-   */
-  public const ID = 'cshs';
-
   use CshsTaxonomyIndex;
+
+  public const ID = 'taxonomy_index_tid';
 
 }

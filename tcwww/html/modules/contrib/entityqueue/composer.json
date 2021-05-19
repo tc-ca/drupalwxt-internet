@@ -2,7 +2,7 @@
   "name": "drupal/entityqueue",
   "description": "The Entityqueue module allows users to create queues of any entity type.",
   "type": "drupal-module",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0-or-later",
   "homepage": "https://www.drupal.org/project/entityqueue",
   "minimum-stability": "dev",
   "authors": [

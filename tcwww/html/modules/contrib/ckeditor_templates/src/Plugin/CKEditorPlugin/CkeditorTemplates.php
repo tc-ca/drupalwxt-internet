@@ -143,7 +143,15 @@ class CkeditorTemplates extends CKEditorPluginBase implements CKEditorPluginConf
    *   Relative path to the ckeditor plugin folder
    */
   private function getTemplatesPluginPath() {
-    return 'libraries/templates';
+    $pluginPath = 'libraries/ckeditor/plugins/templates';
+
+    if (!file_exists(DRUPAL_ROOT . '/' . $pluginPath)) {
+      // keep supporting module legacy path to avoid breaking change
+      // using this path is deprecated
+      $pluginPath = 'libraries/templates';
+    }
+
+    return $pluginPath;
   }
 
   /**

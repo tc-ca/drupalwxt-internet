@@ -54,7 +54,7 @@ abstract class LinkExtractorBase extends PluginBase implements LinkExtractorInte
     $urls = [];
 
     foreach ($value as $item) {
-      $urls += $this->extractUrlFromField($item);
+      $urls = array_merge($urls, $this->extractUrlFromField($item));
     }
 
     return $urls;

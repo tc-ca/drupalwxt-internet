@@ -7,7 +7,7 @@ namespace Drupal\Tests\codemirror_editor\FunctionalJavascript;
  *
  * @group codemirror_editor
  */
-class SettingsFormTest extends TestBase {
+final class SettingsFormTest extends TestBase {
 
   /**
    * Test callback.

@@ -105,6 +105,25 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $item_settings = $settings;
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
+
+        // Set an image style based on node data properties, yet respects
+        // blazy_settings_alter which might set this earlier at buildSettings.
+        // See https://www.drupal.org/project/drupal/issues/2061377,
+        // https://www.drupal.org/project/drupal/issues/2822389, and
+        // https://www.drupal.org/project/inline_responsive_images.
+        if (empty($item_settings['image_style'])) {
+          $item_settings['image_style'] = $node->getAttribute('data-image-style');
+        }
+        if (empty($item_settings['responsive_image_style'])) {
+          $item_settings['responsive_image_style'] = $node->getAttribute('data-responsive-image-style');
+        }
+        if (!empty($item_settings['responsive_image_style'])) {
+          $item_settings['resimage'] = $this->blazyManager->entityLoad(
+            $item_settings['responsive_image_style'],
+            'responsive_image_style'
+          );
+        }
+
         $this->buildItemSettings($item_settings, $node);
 
         // Extracts image item from SRC attribute.
@@ -339,7 +358,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
-    $build['media_attributes']['class'] = ['media-wrapper', 'media-wrapper--blazy'];
+    $build['media_attributes']['class'] = [
+      'media-wrapper',
+      'media-wrapper--blazy',
+    ];
     // Copy all attributes of the original node to the item_attributes.
     if ($node->attributes->length) {
       foreach ($node->attributes as $attribute) {
@@ -375,7 +397,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     if ($node->parentNode && $node->parentNode->tagName === 'figure') {
       $caption = $node->parentNode->getElementsByTagName('figcaption');
       if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
-        $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
+        $markup = Xss::filter($text, BlazyDefault::TAGS);
+        $build['captions']['alt'] = ['#markup' => $markup];
 
         // Mark the FIGCAPTION for deletion because the caption will be
         // rendered in the Blazy way.
@@ -417,12 +440,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
-
-    if (isset($data['item'])) {
-      return $data['item'];
-    }
-
-    return NULL;
+    return $data['item'];
   }
 
   /**
@@ -478,15 +496,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
             <li><code>&lt;img data-unblazy /&gt;</code></li>
             <li><code>&lt;iframe data-unblazy /&gt;</code></li>
         </ul>
-        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):
+        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):</p>
         <ul>
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly.</p>');
+        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly. Manually add width and height for SVG, and other images without image styles.</p>');
     }
     else {
-      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
+      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.');
     }
   }
 

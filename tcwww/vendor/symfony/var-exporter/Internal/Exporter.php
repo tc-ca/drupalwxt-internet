@@ -62,7 +62,7 @@ class Exporter
                     $value = self::prepare($value, $objectsPool, $refsPool, $objectsCount, $valueIsStatic);
                 }
                 goto handle_value;
-            } elseif (!\is_object($value) && !$value instanceof \__PHP_Incomplete_Class) {
+            } elseif (!\is_object($value) && !$value instanceof \__PHP_Incomplete_Class || $value instanceof \UnitEnum) {
                 goto handle_value;
             }
 
@@ -82,7 +82,7 @@ class Exporter
                 }
 
                 if (!\is_array($properties = $value->__serialize())) {
-                    throw new \Typerror($class.'::__serialize() must return an array');
+                    throw new \TypeError($class.'::__serialize() must return an array');
                 }
 
                 goto prepare_value;
@@ -117,7 +117,7 @@ class Exporter
 
             if (method_exists($class, '__sleep')) {
                 if (!\is_array($sleep = $value->__sleep())) {
-                    trigger_error('serialize(): __sleep should return an array only containing the names of instance-variables to serialize', E_USER_NOTICE);
+                    trigger_error('serialize(): __sleep should return an array only containing the names of instance-variables to serialize', \E_USER_NOTICE);
                     $value = null;
                     goto handle_value;
                 }
@@ -162,7 +162,7 @@ class Exporter
             if ($sleep) {
                 foreach ($sleep as $n => $v) {
                     if (false !== $v) {
-                        trigger_error(sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $n), E_USER_NOTICE);
+                        trigger_error(sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $n), \E_USER_NOTICE);
                     }
                 }
             }
@@ -190,7 +190,7 @@ class Exporter
     public static function export($value, $indent = '')
     {
         switch (true) {
-            case \is_int($value) || \is_float($value): return var_export($value, true);
+            case \is_int($value) || \is_float($value) || $value instanceof \UnitEnum: return var_export($value, true);
             case [] === $value: return '[]';
             case false === $value: return 'false';
             case true === $value: return 'true';

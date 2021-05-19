@@ -5,7 +5,7 @@
  * Install, uninstall and update hooks for Media entity Instagram module.
  */
 
- use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\File\FileSystemInterface;
 
 /**
  * Implements hook_install().

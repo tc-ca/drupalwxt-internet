@@ -33,6 +33,14 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "image" = "image",
  *     "weight" = "weight"
  *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "description",
+ *     "html",
+ *     "image",
+ *     "weight"
+ *   },
  *   links = {
  *     "add-form" = "/admin/config/content/ckeditor_templates/add",
  *     "edit-form" = "/admin/config/content/ckeditor_templates/{ckeditor_template}",

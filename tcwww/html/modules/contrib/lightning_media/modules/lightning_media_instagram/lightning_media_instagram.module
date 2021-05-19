@@ -5,6 +5,7 @@
  * Support for instagram posts as media entities in Lightning.
  */
 
+use Drupal\Core\Update\UpdateKernel;
 use Drupal\lightning_core\OverrideHelper as Override;
 use Drupal\lightning_media_instagram\Plugin\media\Source\Instagram;
 
@@ -12,14 +13,26 @@ use Drupal\lightning_media_instagram\Plugin\media\Source\Instagram;
  * Implements hook_media_source_info_alter().
  */
 function lightning_media_instagram_media_source_info_alter(array &$sources) {
-  $sources['instagram']['input_match'] = [
+  $source = &$sources['oembed:instagram'];
+
+  $source['input_match'] = [
     'constraint' => 'InstagramEmbedCode',
     'field_types' => [
       'string',
       'string_long',
     ],
   ];
-  $sources['instagram']['preview'] = TRUE;
+  $source['preview'] = TRUE;
 
-  Override::pluginClass($sources['instagram'], Instagram::class);
+  Override::pluginClass($source, Instagram::class);
+
+  // There may be at least one media type still using the old 'instagram' source
+  // plugin ID, which was removed in Media Entity Instagram 3.x. If that's the
+  // case, the update process might throw errors about a missing plugin ID. To
+  // smooth that over, we temporarily alias the source plugin ID so that the
+  // update can be finished successfully.
+  // @see media_entity_instagram_post_update_change_source_name()
+  if (Drupal::service('kernel') instanceof UpdateKernel) {
+    $sources['instagram'] = $source;
+  }
 }

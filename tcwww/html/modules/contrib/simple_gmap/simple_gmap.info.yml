@@ -10,7 +10,7 @@ dependencies:
 test_dependencies:
   - address
 
-# Information added by Drupal.org packaging script on 2020-03-30
-version: '8.x-2.1-rc1'
+# Information added by Drupal.org packaging script on 2020-06-06
+version: '3.0.0'
 project: 'simple_gmap'
-datestamp: 1585602814
+datestamp: 1591439944

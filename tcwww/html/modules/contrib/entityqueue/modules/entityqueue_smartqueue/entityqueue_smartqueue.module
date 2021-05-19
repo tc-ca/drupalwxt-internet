@@ -145,5 +145,6 @@ function _entityqueue_smartqueue_get_queues($entity_type_id) {
  * Implements hook_views_data_alter().
  */
 function entityqueue_smartqueue_views_data_alter(&$data) {
+  $data['entity_subqueue']['name']['argument']['title'] = t('Entityqueue smartqueue name');
   $data['entity_subqueue']['name']['argument']['id'] = 'entityqueue_smartqueue_name';
 }

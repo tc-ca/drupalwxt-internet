@@ -1,0 +1,11 @@
+name: 'Acquia Telemetry'
+core: 8.x
+core_version_requirement: '^8 || ^9'
+type: module
+package: Acquia
+description: "Sends anonymized data about Drupal and Acquia product usage for product development purposes."
+
+# Information added by Drupal.org packaging script on 2020-12-03
+version: '1.0.0-alpha5'
+project: 'acquia_telemetry'
+datestamp: 1607015741

@@ -4,25 +4,27 @@
     "description": "Shared functionality for the Lightning distribution.",
     "license": "GPL-2.0-or-later",
     "require": {
+        "drupal/acquia_telemetry-acquia_telemetry": "^1.0-alpha3",
         "drupal/contact_storage": "^1.0",
-        "drupal/core": "^8.8.6 || ~9.0.0-beta3",
+        "drupal/core": "^8.8.6 || ^9.0.1",
         "drupal/metatag": "^1.13",
         "drupal/pathauto": "^1.8",
         "drupal/redirect": "^1.5",
         "drupal/search_api": "^1.16",
         "drupal/token": "^1.7",
-        "phpdocumentor/reflection-docblock": ">=3"
+        "phpdocumentor/reflection-docblock": "^5"
     },
     "conflict": {
         "drupal/drupal-extension": "<3.4.0"
     },
     "require-dev": {
         "acquia/coding-standards": "^0.4.1",
+        "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.6",
         "drupal/core-composer-scaffold": "*",
         "drupal/core-dev": "*",
         "drush/drush": ">=9.7",
-        "oomphinc/composer-installers-extender": "^1.1",
+        "symfony/options-resolver": ">=4",
         "vijaycs85/drupal-quality-checker": "^1.0"
     },
     "config": {
@@ -36,26 +38,26 @@
             "dev-8.x-5.x": "5.x-dev"
         },
         "drupal-scaffold": {
-            "locations": {
-                "web-root": "docroot/"
-            },
             "file-mapping": {
-                "[project-root]/.gitattributes": false,
                 "[project-root]/.editorconfig": false,
-                "[web-root]/example.gitignore": false,
+                "[project-root]/.gitattributes": false,
                 "[web-root]/.csslintrc": false,
+                "[web-root]/INSTALL.txt": false,
+                "[web-root]/example.gitignore": false,
                 "[web-root]/modules/README.txt": false,
                 "[web-root]/profiles/README.txt": false,
+                "[web-root]/robots.txt": false,
                 "[web-root]/sites/README.txt": false,
                 "[web-root]/themes/README.txt": false,
-                "[web-root]/INSTALL.txt": false,
-                "[web-root]/robots.txt": false,
                 "[web-root]/web.config": false
+            },
+            "locations": {
+                "web-root": "docroot/"
             }
         },
         "drush": {
             "services": {
-                "drush.services.yml": "^9"
+                "drush.services.yml": "^9 || ^10"
             }
         },
         "enable-patching": true,
@@ -64,9 +66,7 @@
                 "type:drupal-core"
             ],
             "docroot/libraries/{$name}": [
-                "type:drupal-library",
-                "type:bower-asset",
-                "type:npm-asset"
+                "type:drupal-library"
             ],
             "docroot/modules/contrib/{$name}": [
                 "type:drupal-module"
@@ -78,14 +78,10 @@
                 "type:drupal-theme"
             ]
         },
-        "installer-types": [
-            "bower-asset",
-            "npm-asset"
-        ],
         "patches": {
             "drupal/core": {
-                "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
-                "2815221 - Add quickedit to the latest-revision route": "https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch"
+                "2815221 - Add quickedit to the latest-revision route": "https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch",
+                "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch"
             }
         }
     },
@@ -111,20 +107,19 @@
     "prefer-stable": true,
     "scripts": {
         "post-install-cmd": [
-            "@push"
-        ],
-        "post-update-cmd": [
-            "@push"
+            "@putenv DIR=./docroot/modules/lightning_core",
+            "mkdir -p $DIR",
+            "ln -s -f $PWD/config $DIR",
+            "ln -s -f $PWD/css $DIR",
+            "ln -s -f $PWD/drush.services.yml $DIR",
+            "ln -s -f $PWD/images $DIR",
+            "ln -s -f $PWD/modules $DIR",
+            "ln -s -f $PWD/src $DIR",
+            "ln -s -f $PWD/tests $DIR",
+            "find $PWD -name 'lightning_core.*' -depth 1 -exec ln -s -f {} $DIR ';'",
+            "cp -f phpunit.xml ./docroot/core"
         ],
         "log": "ls -t ./logs/*.md | xargs -I{} sh -c \"cat {}; echo ''\" > CHANGELOG.md",
-        "nuke": "rm -r -f docroot vendor",
-        "pull": "cp -R -f ./docroot/modules/contrib/lightning_core/* .",
-        "push": [
-            "rm -r -f ./docroot/modules/contrib/lightning_core",
-            "mkdir -p ./docroot/modules/contrib/lightning_core",
-            "@composer archive --file lightning_core",
-            "tar -x -f lightning_core.tar -C ./docroot/modules/contrib/lightning_core",
-            "rm lightning_core.tar"
-        ]
+        "nuke": "rm -r -f docroot vendor"
     }
 }

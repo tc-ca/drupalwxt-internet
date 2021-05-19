@@ -168,9 +168,6 @@ business_rules.action.type.send_email:
     to:
       type: string
       label: 'To'
-    subject:
-      type: text
-      label: 'Subject'
     format:
       type: string
       label: 'Mail format'

@@ -9,6 +9,7 @@ use Drupal\ckeditor\Ajax\AddStyleSheetCommand;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -64,10 +65,11 @@ function lightning_media_view_insert(ViewEntityInterface $view) {
     $view->getExecutable()->current_display = NULL;
     // Media library only modifies the URL of the media view in hook_install();
     // we need to make sure the URL is always modified. This basically copies
-    // the code of media_library_install().
-    // @see media_library_install()
+    // the code of media_library_install() on Drupal 8.7 and earlier. We need to
+    // check the Drupal core version because Media Library doesn't change the
+    // path as of Drupal 8.8, and therefore neither should we.
     $display = &$view->getDisplay('media_page_list');
-    if ($display) {
+    if (version_compare(Drupal::VERSION, '8.8.0', '<') && $display) {
       $display['display_options']['path'] = 'admin/content/media-table';
       unset($display['display_options']['menu']);
     }
@@ -363,21 +365,31 @@ function lightning_media_form_alter(array &$form, FormStateInterface $form_state
 }
 
 /**
+ * Implements hook_entity_base_field_info_alter().
+ */
+function lightning_media_entity_base_field_info_alter(array &$fields, EntityTypeInterface $entity_type) {
+  if ($entity_type->id() === 'media' && array_key_exists('revision_log_message', $fields)) {
+    $fields['revision_log_message']->setDisplayConfigurable('form', TRUE);
+  }
+}
+
+/**
  * Implements hook_entity_type_alter().
  */
 function lightning_media_entity_type_alter(array &$entity_types) {
-  if (\Drupal::moduleHandler()->moduleExists('media')) {
-    // Media items are a common reference target, and that's that...
-    $entity_types['media']->set('common_reference_target', TRUE);
+  // Media items are a common reference target, and that's that...
+  $entity_types['media']->set('common_reference_target', TRUE);
+  // Use a configuration flag to determine whether or not to show the revision
+  // UI.
+  $entity_types['media']->set('show_revision_ui', (bool) Drupal::config('lightning_media.settings')->get('revision_ui'));
 
-    // Use our specialized entity form for adding and editing media assets in
-    // order to support dynamic preview generation.
-    Override::entityForm($entity_types['media'], MediaForm::class);
-    Override::entityForm($entity_types['media'], MediaForm::class, 'edit');
+  // Use our specialized entity form for adding and editing media assets in
+  // order to support dynamic preview generation.
+  Override::entityForm($entity_types['media'], MediaForm::class);
+  Override::entityForm($entity_types['media'], MediaForm::class, 'edit');
 
-    // Use our extended storage handler for media bundles.
-    Override::entityHandler($entity_types['media_type'], 'storage', BundleEntityStorage::class);
-  }
+  // Use our extended storage handler for media bundles.
+  Override::entityHandler($entity_types['media_type'], 'storage', BundleEntityStorage::class);
 }
 
 /**

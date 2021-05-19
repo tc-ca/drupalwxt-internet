@@ -5,7 +5,6 @@ namespace Drupal\taxonomy_manager\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\taxonomy\TermStorage;
-use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\taxonomy\VocabularyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -13,8 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Form for deleting given terms.
  */
 class MoveTermsForm extends FormBase {
-
-  use MessengerTrait;
 
   /**
    * The current request.

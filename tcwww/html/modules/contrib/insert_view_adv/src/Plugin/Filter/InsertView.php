@@ -4,6 +4,7 @@ namespace Drupal\insert_view_adv\Plugin\Filter;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\views\Views;
@@ -24,7 +25,7 @@ use Drupal\views\Views;
  *   }
  * )
  */
-class InsertView extends FilterBase {
+class InsertView extends FilterBase implements TrustedCallbackInterface {
 
   /**
    * {@inheritdoc}
@@ -36,6 +37,9 @@ class InsertView extends FilterBase {
     $result = new FilterProcessResult($text);
     // Check first the direct input of shortcode.
     $count = preg_match_all("/\[view:([^=\]]+)=?([^=\]]+)?=?([^\]]*)?\]/i", $text, $matches);
+    // Keep track of the number of times a view was inserted.
+    $insert_view_count = 0;
+
     if ($count) {
       $search = $replace = [];
       foreach ($matches[0] as $key => $value) {
@@ -55,7 +59,7 @@ class InsertView extends FilterBase {
         $search[] = $value;
         $replace[] = $view_output;
       }
-      $text = str_replace($search, $replace, $text);
+      $text = str_replace($search, $replace, $text, $insert_view_count);
     }
     // Check the view inserted from the CKeditor plugin.
     $count = preg_match_all('/(<p>)?(?<json>{(?=.*inserted_view_adv\b)(?=.*arguments\b)(.*)})(<\/p>)?/', $text, $matches);
@@ -85,9 +89,15 @@ class InsertView extends FilterBase {
         $search[] = $value;
         $replace[] = $view_output;
       }
-      $text = str_replace($search, $replace, $text);
+      $text = str_replace($search, $replace, $text, $insert_view_count);
     }
-    $result->setProcessedText($text)->addCacheTags(['insert_view_adv'])->addCacheContexts(['url', 'user.permissions']);
+    // If views were actually inserted, then update the processed text and add
+    // cache tags and contexts. This check is important because cache tags and
+    // contexts may be incorrectly added to a render array and cause
+    // unnecessary cache variations.
+    if ($insert_view_count > 0) {
+      $result->setProcessedText($text)->addCacheTags(['insert_view_adv'])->addCacheContexts(['url', 'user.permissions']);
+    }
 
     return $result;
   }
@@ -107,7 +117,7 @@ class InsertView extends FilterBase {
    * @return array
    *   The rendered array of the view to display.
    */
-  static public function build($view_name, $display_id, $args, $configuration) {
+  public static function build($view_name, $display_id, $args, $configuration) {
     $plain = '';
     // Just in case check if this is an array already.
     if (!is_array($configuration)) {
@@ -132,7 +142,7 @@ class InsertView extends FilterBase {
         return ['#attached' => [], '#markup' => $plain];
       }
     }
-    // Get the view.
+    /** @var \Drupal\views\ViewExecutable $view */
     $view = Views::getView($view_name);
     if (empty($view)) {
       return ['#attached' => [], '#markup' => $plain];
@@ -141,8 +151,33 @@ class InsertView extends FilterBase {
     if (!$view->access($display_id)) {
       return ['#attached' => [], '#markup' => $plain];
     }
+    $view->setDisplay($display_id);
+    /** @var \Symfony\Component\HttpFoundation\Request $request */
+    $request = \Drupal::service('request_stack')->getCurrentRequest();
+    $current_path = $request->getPathInfo();
+    // Workaround for exposed filter reset button.
+    // Because of exposed form redirect on reset, lazyloading throws
+    // Drupal\Core\Form\EnforcedResponseException. For this reason we need to
+    // perform this redirect with javascript without rendering the form.
+    if (\Drupal::currentUser()->isAuthenticated() && \Drupal::moduleHandler()->moduleExists('big_pipe')) {
+      $op = $request->get('op');
+      $display_options = $view->display_handler->getOption('exposed_form');
+      if (!is_null($op) && !empty($display_options) && $op == $display_options['options']['reset_button_label']) {
+        return [
+          '#attached' => [
+            'drupalSettings' => [
+              'insert_view_adv' => [
+                'reset_redirect' => $current_path,
+              ],
+            ],
+            'library' => [
+              'insert_view_adv/reset_redirect'
+            ]
+          ],
+        ];
+      }
+    }
     // Try to get the arguments from the current path.
-    $current_path = \Drupal::service('path.current')->getPath();
     $url_args = explode('/', $current_path);
     foreach ($url_args as $id => $arg) {
       $args = str_replace("%$id", $arg, $args);
@@ -150,7 +185,7 @@ class InsertView extends FilterBase {
     $args = preg_replace(',/?(%\d),', '', $args);
     $args = $args ? explode('/', $args) : [];
 
-    return $view->preview($display_id, $args);
+    return $view->preview($display_id, $args) ?: [];
   }
 
   /**
@@ -218,6 +253,28 @@ class InsertView extends FilterBase {
       '#description' => $this->t('If checked the user will not be allowed to input the argument values, only default will be used.'),
     ];
     return $form;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function setConfiguration(array $configuration) {
+    // Filter out "allowed_views" options that are not actually selected.
+    // Otherwise, they are exported as part of the filter configuration even if
+    // the text format does not use the insert_view_adv filter. They are also
+    // rendered per views insert as part of the cache_render entry since each
+    // enabled view on the site gets an entry in the filter plugin settings.
+    if (!empty($configuration['settings']['allowed_views'])) {
+      $configuration['settings']['allowed_views'] = array_filter($configuration['settings']['allowed_views']);
+    }
+    parent::setConfiguration($configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['build'];
   }
 
 }

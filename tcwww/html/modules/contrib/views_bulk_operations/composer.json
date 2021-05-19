@@ -11,7 +11,8 @@
   ],
   "support": {
     "issues": "https://www.drupal.org/project/issues/views_bulk_operations?version=8.x",
-    "docs": "https://www.drupal.org/docs/8/modules/views-bulk-operations-vbo"
+    "docs": "https://www.drupal.org/docs/8/modules/views-bulk-operations-vbo",
+    "source": "https://git.drupalcode.org/project/views_bulk_operations/-/tree/8.x-3.x"
   },
   "license": "GPL-2.0-or-later",
   "minimum-stability": "dev",

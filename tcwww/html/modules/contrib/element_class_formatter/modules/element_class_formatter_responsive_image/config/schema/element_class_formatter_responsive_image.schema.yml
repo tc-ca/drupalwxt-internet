@@ -1,0 +1,9 @@
+# Schema for the configuration files of the Element Class Formatter Responsive Images submodule.
+
+field.formatter.settings.responsive_image_class:
+  type: field.formatter.settings.responsive_image
+  label: 'Responsive display with class format settings'
+  mapping:
+    class:
+      type: string
+      label: 'Class for the element'

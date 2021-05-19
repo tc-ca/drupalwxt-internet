@@ -8,7 +8,7 @@ tags:
 dependencies:
  - devel
 
-# Information added by Drupal.org packaging script on 2020-06-03
-version: '3.0.0'
+# Information added by Drupal.org packaging script on 2021-03-05
+version: '3.0.1'
 project: 'devel_entity_updates'
-datestamp: 1591220517
+datestamp: 1614938246

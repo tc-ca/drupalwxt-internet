@@ -47,6 +47,8 @@
  * @see template_preprocess_blazy()
  *
  * @ingroup themeable
+ *
+ * @todo remove media--loading for is-b-loading post sub-module updates.
  */
 #}
 {%
@@ -54,7 +56,7 @@
     content ? 'media--rendered',
     settings.bundle ? 'media--bundle--' ~ settings.bundle|clean_class,
     settings.namespace ? 'media--' ~ settings.namespace,
-    settings.lazy and settings.use_loading ? 'media--loading',
+    settings.lazy and settings.use_loading ? 'media--loading is-b-loading',
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
     settings.player ? 'media--player',
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
@@ -70,7 +72,7 @@
       <span class="media__icon media__icon--close"></span>
       <span class="media__icon media__icon--play" data-url="{{ settings.embed_url }}"></span>
     {% else %}
-      {{ iframe }}
+      {{- iframe -}}
     {% endif %}
   {% endblock %}
 {% endset %}
@@ -78,16 +80,16 @@
 {% set media %}
   {% block blazy_media %}
     <div{{ attributes.addClass(classes) }}>
-      {{ preface }}
-      {{ noscript }}
-      {{ content }}
-      {{ image }}
-      {{ overlay }}
-      {{ player }}
+      {{- preface -}}
+      {{- noscript -}}
+      {{- content -}}
+      {{- image -}}
+      {{- overlay -}}
+      {{- player -}}
 
       {# @todo settings.icon is deprecated in 2.0 and is removed from 3.0. Use icon instead. #}
-      {{ settings.icon }}
-      {{ icon }}
+      {{- settings.icon -}}
+      {{- icon -}}
     </div>
   {% endblock %}
 {% endset %}
@@ -96,7 +98,7 @@
   {% block blazy_content %}
     {% if media_attributes %}<div{{ media_attributes }}>{% endif %}
       {% if url and not settings.player %}
-        <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+        <a href="{{ url }}"{{ url_attributes }}>{{- media -}}</a>
 
         {# Allows fieldable captions with A tag, such as social share. #}
         {% if captions and captions.lightbox is not empty %}
@@ -116,21 +118,21 @@
       <div{{ caption_attributes }}>
         {% for caption in captions.inline %}
           {% if caption.content %}
-            <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+            <{{ caption.tag }} {{ caption.attributes }}>{{- caption.content -}}</{{ caption.tag }}>
           {% endif %}
         {% endfor %}
       </div>
     {% endblock %}
   {% endif %}
 
-  {{ postscript }}
+  {{- postscript -}}
 
 {% endset %}
 
 {% if wrapper_attributes %}
   <div{{ wrapper_attributes }}>
-    {{ blazy }}
+    {{- blazy -}}
   </div>
 {% else %}
-  {{ blazy }}
+  {{- blazy }}
 {% endif %}

@@ -30,7 +30,8 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    return ['multimedia' => TRUE, 'view_mode' => 'default'] + parent::getScopedFormElements();
+    return ['multimedia' => TRUE, 'view_mode' => 'default']
+      + parent::getScopedFormElements();
   }
 
 }

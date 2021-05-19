@@ -3,13 +3,13 @@
 namespace Drupal\slick;
 
 use Drupal\slick\Entity\Slick;
-use Drupal\blazy\BlazyFormatterManager;
+use Drupal\blazy\BlazyFormatter;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
  * Implements SlickFormatterInterface.
  */
-class SlickFormatter extends BlazyFormatterManager implements SlickFormatterInterface {
+class SlickFormatter extends BlazyFormatter implements SlickFormatterInterface {
 
   /**
    * {@inheritdoc}
@@ -36,19 +36,15 @@ class SlickFormatter extends BlazyFormatterManager implements SlickFormatterInte
     // Slick specific stuffs.
     $build['optionset'] = Slick::loadWithFallback($settings['optionset']);
 
+    // Only display thumbnail nav if having at least 2 slides. This might be
+    // an issue such as for ElevateZoom Plus module, but it should work it out.
     if (!isset($settings['nav'])) {
       $settings['nav'] = !empty($settings['optionset_thumbnail']) && isset($items[1]);
     }
 
     // Do not bother for SlickTextFormatter, or when vanilla is on.
     if (empty($settings['vanilla'])) {
-      $lazy              = $build['optionset']->getSetting('lazyLoad');
-      $settings['blazy'] = $lazy == 'blazy' || !empty($settings['blazy']);
-      $settings['lazy']  = $settings['blazy'] ? 'blazy' : $lazy;
-
-      if (empty($settings['blazy'])) {
-        $settings['lazy_class'] = $settings['lazy_attribute'] = 'lazy';
-      }
+      $build['optionset']->whichLazy($settings);
     }
     else {
       // Nothing to work with Vanilla on, disable the asnavfor, else JS error.
@@ -67,21 +63,16 @@ class SlickFormatter extends BlazyFormatterManager implements SlickFormatterInte
    * {@inheritdoc}
    */
   public function getThumbnail(array $settings = [], $item = NULL) {
-    $thumbnail = [];
-    $thumbnail_alt = '';
-    if ($item instanceof ImageItem) {
-      $thumbnail_alt = $item->getValue()['alt'];
-    }
     if (!empty($settings['uri'])) {
-      $thumbnail = [
+      return [
         '#theme'      => 'image_style',
-        '#style_name' => isset($settings['thumbnail_style']) ? $settings['thumbnail_style'] : 'thumbnail',
+        '#style_name' => empty($settings['thumbnail_style']) ? 'thumbnail' : $settings['thumbnail_style'],
         '#uri'        => $settings['uri'],
         '#item'       => $item,
-        '#alt'        => $thumbnail_alt,
+        '#alt'        => $item && $item instanceof ImageItem ? $item->getValue()['alt'] : '',
       ];
     }
-    return $thumbnail;
+    return [];
   }
 
 }

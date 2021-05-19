@@ -162,7 +162,8 @@ class MediaHelper {
    *   The file entity.
    * @param int $replace
    *   (optional) What to do if the file already exists. Can be any of the
-   *   constants accepted by file_move().
+   *   constants accepted by file_move(). Defaults to
+   *   \Drupal\Core\File\FileSystemInterface::EXISTS_RENAME.
    *
    * @return \Drupal\file\FileInterface|false
    *   The final file entity (unsaved), or FALSE if an error occurred.
@@ -170,7 +171,7 @@ class MediaHelper {
   public static function useFile(MediaInterface $entity, FileInterface $file, $replace = NULL) {
     // @todo Remove this and just use FileSystemInterface::EXISTS_REPLACE when support for older versions of core is dropped.
     if (is_null($replace)) {
-      $replace = defined(FileSystemInterface::class . '::EXISTS_REPLACE') ? FileSystemInterface::EXISTS_REPLACE : constant('FILE_EXISTS_REPLACE');
+      $replace = defined(FileSystemInterface::class . '::EXISTS_RENAME') ? FileSystemInterface::EXISTS_RENAME : constant('FILE_EXISTS_RENAME');
     }
     $field = static::getSourceField($entity);
     $field->setValue($file);

@@ -3,7 +3,7 @@
 namespace Drupal\blazy;
 
 /**
- * Defines re-usable services and functions for blazy plugins.
+ * Provides common blazy utility static methods.
  */
 interface BlazyInterface {
 

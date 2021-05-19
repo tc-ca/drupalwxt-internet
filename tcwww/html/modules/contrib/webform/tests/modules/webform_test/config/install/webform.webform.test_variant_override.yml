@@ -154,6 +154,7 @@ settings:
   results_customize: false
   token_view: false
   token_update: false
+  token_delete: false
   serial_disabled: false
 access:
   create:
@@ -258,7 +259,7 @@ variants:
         debug:
           status: true
       debug: true
-  no_results:
+  No-Results:
     id: override
     label: 'No results'
     notes: 'Saving of results is disabled.'
@@ -273,7 +274,7 @@ variants:
       elements: ''
       handlers: {  }
       debug: true
-  custom_form_properties:
+  Custom-Form-Properties:
     id: override
     label: Elements
     notes: 'Alters custom form properties.'

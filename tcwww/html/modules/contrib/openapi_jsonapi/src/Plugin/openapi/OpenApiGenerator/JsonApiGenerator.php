@@ -15,7 +15,7 @@ use Drupal\Core\ParamConverter\ParamConverterManagerInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\Url;
 use Drupal\jsonapi\ResourceType\ResourceType;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Drupal\jsonapi\Routing\Routes;
 use Drupal\jsonapi\Routing\Routes as JsonApiRoutes;
 use Drupal\openapi\Plugin\openapi\OpenApiGeneratorBase;
@@ -106,10 +106,10 @@ class JsonApiGenerator extends OpenApiGeneratorBase {
    *   The module handler service.
    * @param \Drupal\Core\ParamConverter\ParamConverterManagerInterface $param_converter_manager
    *   The parameter converter manager service.
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The resource type manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RouteProviderInterface $routing_provider, EntityFieldManagerInterface $field_manager, SerializerInterface $serializer, RequestStack $request_stack, ConfigFactoryInterface $config_factory, AuthenticationCollectorInterface $authentication_collector, SchemaFactory $schema_factory, ModuleHandlerInterface $module_handler, ParamConverterManagerInterface $param_converter_manager, ResourceTypeRepository $resource_type_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RouteProviderInterface $routing_provider, EntityFieldManagerInterface $field_manager, SerializerInterface $serializer, RequestStack $request_stack, ConfigFactoryInterface $config_factory, AuthenticationCollectorInterface $authentication_collector, SchemaFactory $schema_factory, ModuleHandlerInterface $module_handler, ParamConverterManagerInterface $param_converter_manager, ResourceTypeRepositoryInterface $resource_type_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $routing_provider, $field_manager, $serializer, $request_stack, $config_factory, $authentication_collector);
     $this->schemaFactory = $schema_factory;
     $this->moduleHandler = $module_handler;
@@ -149,7 +149,7 @@ class JsonApiGenerator extends OpenApiGeneratorBase {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The resource type manager.
    *
    * @return string[]
@@ -157,7 +157,7 @@ class JsonApiGenerator extends OpenApiGeneratorBase {
    */
   protected static function findDisabledMethods(
     EntityTypeManagerInterface $entity_type_manager,
-    ResourceTypeRepository $resource_type_repository
+    ResourceTypeRepositoryInterface $resource_type_repository
   ) {
     $extract_resource_type_id = function (ResourceType $resource_type) use ($entity_type_manager) {
       $entity_type = $entity_type_manager->getDefinition($resource_type->getEntityTypeId());

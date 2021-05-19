@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Provides a Codemirror test form.
  */
-class CodeMirrorEditorTestForm extends FormBase {
+final class CodeMirrorEditorTestForm extends FormBase {
 
   /**
    * {@inheritdoc}

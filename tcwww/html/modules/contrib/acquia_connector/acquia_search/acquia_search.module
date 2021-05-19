@@ -701,3 +701,22 @@ function acquia_search_get_v3_cores($acquia_identifier) {
 
   return $search_v3_cores;
 }
+
+/**
+ * Disable Search API Solr Warning/Error messages regarding EOL.
+ * @param $variables
+ */
+function acquia_search_preprocess_status_messages(&$variables) {
+  if (isset($variables['message_list'])) {
+    foreach ($variables['message_list'] as $msg_type => $messages) {
+      foreach ($messages as $message_key => $message) {
+        if (strpos((string)$message, "Search API Solr 8.x-1.x") !== FALSE) {
+          unset($variables['message_list'][$msg_type][$message_key]);
+        }
+        if (empty($variables['message_list'][$msg_type])) {
+          unset($variables['message_list'][$msg_type]);
+        }
+      }
+    }
+  }
+}

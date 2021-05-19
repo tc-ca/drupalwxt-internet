@@ -76,6 +76,12 @@ codemirror_plugin_settings:
     toolbar:
       type: boolean
       label: Load toolbar
+    buttons:
+      type: sequence
+      label: Toolbar buttons
+      sequence:
+        type: string
+        label: Button
     lineWrapping:
       type: boolean
       label: Line wrapping

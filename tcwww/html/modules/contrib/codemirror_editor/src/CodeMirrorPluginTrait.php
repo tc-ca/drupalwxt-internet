@@ -2,10 +2,36 @@
 
 namespace Drupal\codemirror_editor;
 
+use Drupal\Core\Form\FormStateInterface;
+
 /**
  * Provides a helper methods to for CodeMirror plugins.
  */
 trait CodeMirrorPluginTrait {
+
+  /**
+   * Returns a list of buttons available for CodeMirror.
+   *
+   * @return array
+   *   A list of buttons.
+   */
+  protected static function getAvailableButtons() {
+    return [
+      'bold',
+      'italic',
+      'underline',
+      'strike-through',
+      'list-numbered',
+      'list-bullet',
+      'link',
+      'horizontal-rule',
+      'undo',
+      'redo',
+      'clear-formatting',
+      'enlarge',
+      'shrink',
+    ];
+  }
 
   /**
    * Returns the default settings for CodeMirror plugin.
@@ -17,6 +43,7 @@ trait CodeMirrorPluginTrait {
     return [
       'mode' => 'text/html',
       'toolbar' => TRUE,
+      'buttons' => static::getAvailableButtons(),
       'lineWrapping' => FALSE,
       'lineNumbers' => FALSE,
       'foldGutter' => FALSE,
@@ -65,6 +92,23 @@ trait CodeMirrorPluginTrait {
         '#title' => t('Load toolbar'),
         '#type' => 'checkbox',
         '#default_value' => $settings['toolbar'],
+      ];
+    }
+
+    if (!$keys || in_array('buttons', $keys)) {
+      $form['buttons'] = [
+        '#type' => 'select',
+        '#multiple' => TRUE,
+        '#title' => t('Toolbar buttons'),
+        '#default_value' => $settings['buttons'],
+        '#options' => array_combine(static::getAvailableButtons(), static::getAvailableButtons()),
+        '#value_callback' => [static::class, 'setButtonsValue'],
+        '#states' => [
+          'visible' => [
+            ':input[name$="[settings_edit_form][settings][toolbar]"]' => ['checked' => TRUE],
+          ],
+        ],
+        '#description' => t('Buttons that will be available inside the toolbar.'),
       ];
     }
 
@@ -135,6 +179,29 @@ trait CodeMirrorPluginTrait {
    */
   protected static function normalizeMode($mode) {
     return \Drupal::service('plugin.manager.codemirror_mode')->normalizeMode($mode);
+  }
+
+  /**
+   * Value callback for CodeMirror buttons.
+   *
+   * Prevent buttons from being stored in config with keyed values.
+   *
+   * @param array $element
+   *   An associative array containing the properties of the element.
+   * @param mixed $input
+   *   The incoming input to populate the form element. If this is FALSE,
+   *   the element's default value should be returned.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return mixed
+   *   The value to assign to the element.
+   */
+  public static function setButtonsValue(array &$element, $input, FormStateInterface $form_state) {
+    if ($input === FALSE) {
+      return $element['#default_value'] ?? [];
+    }
+    return $input;
   }
 
 }

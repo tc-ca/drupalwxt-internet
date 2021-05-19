@@ -1128,6 +1128,7 @@ function install_profile_info($profile, $langcode = 'en') {
   if (!isset($cache[$profile][$langcode])) {
     $profile_path = drupal_get_path('profile', $profile);
     $info = \Drupal::service('extension.list.profile')->getExtensionInfo($profile);
+    $ancestors = \Drupal::service('extension.list.profile')->getAncestors($profile);
 
     $dependency_name_function = function ($dependency) {
       return Dependency::createFromString($dependency)->getName();
@@ -1147,6 +1148,9 @@ function install_profile_info($profile, $langcode = 'en') {
     // Merge dependencies, required modules and locale into install list and
     // remove any duplicates.
     $info['install'] = array_unique(array_merge($info['install'], $required, $info['dependencies'], $locale));
+
+    // Remove the base profiles from the install list.
+    $info['install'] = array_diff($info['install'], array_keys($ancestors));
 
     // If the profile has a config/sync directory use that to install drupal.
     if (is_dir($profile_path . '/config/sync')) {

@@ -1,0 +1,16 @@
+name: 'Client-side Hierarchical Select (Test)'
+type: module
+package: Testing
+description: 'Support module for Client-side Hierarchical Select tests.'
+core_version_requirement: ^8.8 || ^9
+
+dependencies:
+  - cshs:cshs
+  - drupal:node
+  - drupal:taxonomy
+  - drupal:views
+
+# Information added by Drupal.org packaging script on 2021-02-05
+version: '8.x-1.7'
+project: 'cshs'
+datestamp: 1612535875

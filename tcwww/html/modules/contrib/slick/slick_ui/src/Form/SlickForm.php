@@ -57,7 +57,7 @@ class SlickForm extends SlickFormBase {
       '#options'       => $this->admin->getSkinsByGroupOptions(),
       '#empty_option'  => $this->t('- None -'),
       '#default_value' => $slick->getSkin(),
-      '#description'   => $this->t('Skins allow swappable layouts like next/prev links, split image and caption, etc. However a combination of skins and options may lead to unpredictable layouts, get yourself dirty. See main <a href="@url">README</a> for details on Skins. Only useful for custom work, and ignored/overridden by slick formatters or sub-modules.', ['@url' => $readme]),
+      '#description'   => $this->t('Skins allow swappable layouts like next/prev links, split image and caption, etc. However a combination of skins and options may lead to unpredictable layouts, get yourself dirty. See main <a href="@url">README</a> for details on Skins. Only useful for custom work, and ignored/overridden by slick formatters or sub-modules. If you are using Slick Lightbox, this is the only option to change its skin at the Slick Lightbox optionset.', ['@url' => $readme]),
       '#attributes'    => $tooltip,
       '#prefix'        => '<div class="form__header form__half form__half--last has-tooltip clearfix">',
     ];
@@ -134,9 +134,10 @@ class SlickForm extends SlickFormBase {
 
     foreach ($this->getFormElements() as $name => $element) {
       $element['default'] = isset($element['default']) ? $element['default'] : '';
+      $default_value = (NULL !== $slick->getSetting($name)) ? $slick->getSetting($name) : $element['default'];
       $form['settings'][$name] = [
         '#title'         => isset($element['title']) ? $element['title'] : '',
-        '#default_value' => (NULL !== $slick->getSetting($name)) ? $slick->getSetting($name) : $element['default'],
+        '#default_value' => $default_value,
       ];
 
       if (isset($element['type'])) {
@@ -173,7 +174,7 @@ class SlickForm extends SlickFormBase {
 
       // Expand textfield for easy edit.
       if (in_array($name, ['prevArrow', 'nextArrow'])) {
-        $form['settings'][$name]['#attributes']['class'][] = 'js-expandable';
+        $form['settings'][$name]['#default_value'] = trim(strip_tags($default_value));
       }
 
       if (isset($element['field_suffix'])) {
@@ -395,7 +396,7 @@ class SlickForm extends SlickFormBase {
       $elements['asNavFor'] = [
         'type'        => 'textfield',
         'title'       => $this->t('asNavFor target'),
-        'description' => $this->t('Leave empty if using sub-modules to have it auto-matched. Set the slider to be the navigation of other slider (Class or ID Name). Use selector identifier ("." or "#") accordingly. See HTML structure section at README.txt for more info. Overriden by field formatter, or Views style.'),
+        'description' => $this->t('Leave empty if using sub-modules to have it auto-matched. Set the slider to be the navigation of other slider (Class or ID Name). Use selector identifier ("." or "#") accordingly. See HTML structure section at README.md for more info. Overriden by field formatter, or Views style.'),
       ];
 
       $elements['accessibility'] = [
@@ -449,13 +450,13 @@ class SlickForm extends SlickFormBase {
       $elements['prevArrow'] = [
         'type'        => 'textfield',
         'title'       => $this->t('Previous arrow'),
-        'description' => $this->t("Customize the previous arrow markups. Be sure to keep the expected class: slick-prev."),
+        'description' => $this->t("Customize the previous arrow text, default to Previous."),
       ];
 
       $elements['nextArrow'] = [
         'type'        => 'textfield',
         'title'       => $this->t('Next arrow'),
-        'description' => $this->t("Customize the next arrow markups. Be sure to keep the expected class: slick-next."),
+        'description' => $this->t("Customize the next arrow text, default to Next."),
       ];
 
       $elements['downArrow'] = [
@@ -875,7 +876,7 @@ class SlickForm extends SlickFormBase {
       $form_state->setValue('breakpoints_count', $form_state->getValue('breakpoints'));
       if ($form_state->getValue('breakpoints') >= 6) {
         $message = $this->t('You are trying to load too many Breakpoints. Try reducing it to reasonable numbers say, between 1 to 5.');
-        $this->messenger->addMessage($message, 'warning');
+        $this->messenger()->addMessage($message, 'warning');
       }
     }
 
@@ -896,6 +897,23 @@ class SlickForm extends SlickFormBase {
 
     // Update cssEaseBezier value based on cssEaseOverride.
     $form_state->setValue(['options', 'settings', 'cssEaseBezier'], $override);
+
+    // Check if rows is set to 1 and show a warning. See: https://www.drupal.org/project/slick/issues/3123787#comment-13532059
+    if (isset($form['settings']['rows']['#value']) && $form['settings']['rows']['#value'] == 1) {
+      $message = $this->t('Hint: You set Slicks "rows" option to "1" (optionset: %optionset), this will result in markup issues on Slick versions >1.9.0. Consider to set it to "0" instead, or leave it as if not using >1.9.0. Check out <a href=":url">this issue</a> for further information.', [
+        ':url' => 'https://www.drupal.org/project/slick/issues/3123787',
+        '%optionset' => $form['name']['#value'],
+      ]);
+      $this->messenger()->addMessage($message, 'warning');
+    }
+    // Check if slidesPerRow is set to 0 and show a warning. See: https://www.drupal.org/project/slick/issues/3123787#comment-13532059
+    if (isset($form['settings']['slidesPerRow']['#value']) && $form['settings']['slidesPerRow']['#value'] == 0) {
+      $message = $this->t('Important: You set Slicks "slidesPerRow" option to "0" (optionset: %optionset), this will result in browser crashes >1.9.0. Consider to set it to "1" instead. Consider to set it to "0" instead, or leave it as if not using >1.9.0. Check out <a href=":url">this issue</a> for further information.', [
+        ':url' => 'https://www.drupal.org/project/slick/issues/3123787',
+        '%optionset' => $form['name']['#value'],
+      ]);
+      $this->messenger()->addMessage($this->t($message, 'warning'));
+    }
   }
 
   /**

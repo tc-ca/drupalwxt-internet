@@ -37,3 +37,7 @@ content:
 hidden:
   created: true
   uid: true
+  # Hide the URL alias field, because media items do not have a canonical URL by default
+  # as of Drupal 8.7.
+  path: true
+  revision_log_message: true
