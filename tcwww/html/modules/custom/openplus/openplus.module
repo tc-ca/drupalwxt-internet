@@ -96,8 +96,36 @@ function openplus_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_
       $form['actions']['submit']['#attributes']['class'][] = 'btn-primary';
       //$form['actions']['submit']['#submit'][] = 'openplus_search_submit';
     break;
+    case 'views_exposed_form':
+      if ($form['#id'] == 'views-exposed-form-bn-search-block-1') {
+        // Fix validation on submit button HTML
+        $form['actions']['submit']['#name'] = $form['actions']['submit']['#id'];
+
+        $form['#submit'][] = 'openplus_bnsearch_submit';
+
+        $query_parameters = Drupal::request()->query->all();
+
+        if (!empty($query_parameters['bid'])) {
+          $form['#action'] = $form['#action'] . '?bid=' . $query_parameters['bid'];
+          $form['bid'] = [
+            '#type' => 'hidden',
+            '#value' => $query_parameters['bid'],
+            '#weight' => -1,
+          ];
+        }
+      }
+    break;
   }
 
+}
+
+function openplus_bnsearch_submit($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $triggerdElement = $form_state->getTriggeringElement();
+  $id = $triggerdElement['#id'];
+  if ($id == 'edit-reset') {
+    $url = Url::fromUserInput($form['#action']);
+    $form_state->setRedirectUrl($url);
+  }
 }
 
 function openplus_form_node_form_alter(&$form, &$form_state, $form_id) {
