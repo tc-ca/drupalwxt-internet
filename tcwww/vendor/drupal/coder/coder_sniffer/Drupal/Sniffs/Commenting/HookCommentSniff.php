@@ -7,6 +7,11 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\Commenting;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+
 /**
  * Ensures hook comments on function are correct.
  *
@@ -14,18 +19,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Commenting_HookCommentSniff implements PHP_CodeSniffer_Sniff
+class HookCommentSniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_FUNCTION);
+        return [T_FUNCTION];
 
     }//end register()
 
@@ -33,35 +38,32 @@ class Drupal_Sniffs_Commenting_HookCommentSniff implements PHP_CodeSniffer_Sniff
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
-        $find   = PHP_CodeSniffer_Tokens::$methodPrefixes;
-        $find[] = T_WHITESPACE;
 
-        $commentEnd = $phpcsFile->findPrevious($find, ($stackPtr - 1), null, true);
-        if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
-            && $tokens[$commentEnd]['code'] !== T_COMMENT
-        ) {
+        // We are only interested in the most outer scope, ignore methods in classes for example.
+        if (empty($tokens[$stackPtr]['conditions']) === false) {
             return;
         }
 
-        if ($tokens[$commentEnd]['code'] === T_COMMENT) {
+        $commentEnd = $phpcsFile->findPrevious(T_WHITESPACE, ($stackPtr - 1), null, true);
+        if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG) {
             return;
         }
 
         $commentStart = $tokens[$commentEnd]['comment_opener'];
 
-        $empty = array(
-                  T_DOC_COMMENT_WHITESPACE,
-                  T_DOC_COMMENT_STAR,
-                 );
+        $empty = [
+            T_DOC_COMMENT_WHITESPACE,
+            T_DOC_COMMENT_STAR,
+        ];
 
         $short = $phpcsFile->findNext($empty, ($commentStart + 1), $commentEnd, true);
         if ($short === false) {
@@ -89,7 +91,7 @@ class Drupal_Sniffs_Commenting_HookCommentSniff implements PHP_CodeSniffer_Sniff
             if (strstr($matches[0], 'Implements ') === false || strstr($matches[0], 'Implements of') !== false
                 || preg_match('/ (drush_)?hook_[a-zA-Z0-9_]+\(\)( for .+)?\.$/', $matches[0]) !== 1
             ) {
-                $phpcsFile->addWarning('Format should be "* Implements hook_foo().", "* Implements hook_foo_BAR_ID_bar() for xyz_bar().",, "* Implements hook_foo_BAR_ID_bar() for xyz-bar.html.twig.", "* Implements hook_foo_BAR_ID_bar() for xyz-bar.tpl.php.", or "* Implements hook_foo_BAR_ID_bar() for block templates."', $short);
+                $phpcsFile->addWarning('Format should be "* Implements hook_foo().", "* Implements hook_foo_BAR_ID_bar() for xyz_bar().",, "* Implements hook_foo_BAR_ID_bar() for xyz-bar.html.twig.", "* Implements hook_foo_BAR_ID_bar() for xyz-bar.tpl.php.", or "* Implements hook_foo_BAR_ID_bar() for block templates."', $short, 'HookCommentFormat');
             } else {
                 // Check that a hook implementation does not duplicate @param and
                 // @return documentation.
@@ -105,7 +107,21 @@ class Drupal_Sniffs_Commenting_HookCommentSniff implements PHP_CodeSniffer_Sniff
                     }
                 }
             }//end if
+
+            return;
         }//end if
+
+        // Check if the doc block just repeats the function name with
+        // "Implements example_hook_name()".
+        $functionName = $phpcsFile->getDeclarationName($stackPtr);
+        if ($functionName !== null && preg_match("/^[\s]*Implements $functionName\(\)\.$/i", $shortContent) === 1) {
+            $error = 'Hook implementations must be documented with "Implements hook_example()."';
+            $fix   = $phpcsFile->addFixableError($error, $short, 'HookRepeat');
+            if ($fix === true) {
+                $newComment = preg_replace('/Implements [^_]+/', 'Implements hook', $shortContent);
+                $phpcsFile->fixer->replaceToken($short, $newComment);
+            }
+        }
 
     }//end process()
 

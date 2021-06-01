@@ -5,7 +5,7 @@ namespace Drupal\Tests\element_class_formatter\Functional;
 use Drupal\entity_test\Entity\EntityTest;
 
 /**
- * Functional tests for the link list with class formatter.
+ * Functional tests for the string list with class formatter.
  *
  * @group element_class_formatter
  */

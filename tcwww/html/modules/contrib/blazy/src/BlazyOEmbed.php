@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Implements BlazyOEmbedInterface.
+ * Provides OEmbed integration.
  */
 class BlazyOEmbed implements BlazyOEmbedInterface {
 

@@ -17,12 +17,13 @@ class SlickDefault extends BlazyDefault {
    */
   public static function baseSettings() {
     return [
-      'optionset'    => 'default',
-      'override'     => FALSE,
-      'overridables' => [],
-      'skin'         => '',
-      'skin_arrows'  => '',
-      'skin_dots'    => '',
+      'optionset'       => 'default',
+      'override'        => FALSE,
+      'overridables'    => [],
+      'skin'            => '',
+      'skin_arrows'     => '',
+      'skin_dots'       => '',
+      'use_theme_field' => FALSE,
     ] + parent::baseSettings();
   }
 
@@ -74,6 +75,7 @@ class SlickDefault extends BlazyDefault {
       'nav'           => FALSE,
       'navpos'        => FALSE,
       'thumbnail_uri' => '',
+      'route_name'    => '',
       'unslick'       => FALSE,
       'vanilla'       => FALSE,
       'vertical'      => FALSE,
@@ -91,8 +93,8 @@ class SlickDefault extends BlazyDefault {
       'downArrowTarget' => '',
       'downArrowOffset' => '',
       'lazyLoad'        => 'ondemand',
-      'prevArrow'       => '<button type="button" data-role="none" class="slick-prev" aria-label="Previous" tabindex="0">Previous</button>',
-      'nextArrow'       => '<button type="button" data-role="none" class="slick-next" aria-label="Next" tabindex="0">Next</button>',
+      'prevArrow'       => 'Previous',
+      'nextArrow'       => 'Next',
       'rows'            => 1,
       'slidesPerRow'    => 1,
       'slide'           => '',

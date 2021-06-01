@@ -13,6 +13,8 @@ use Symfony\Component\Console\Style\StyleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Tests the update to Lightning Media 3.6.0.
+ *
  * @group lightning_media
  *
  * @covers \Drupal\lightning_media\Update\Update360
@@ -22,9 +24,14 @@ class Update360Test extends UpdatePathTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setDatabaseDumpFiles() {
     $this->databaseDumpFiles = [
-      __DIR__ . '/../../fixtures/3.5.0.php.gz',
+      __DIR__ . '/../../fixtures/Update360Test.php.gz',
     ];
   }
 
@@ -69,6 +76,9 @@ class Update360Test extends UpdatePathTestBase {
     user_role_revoke_permissions('test_creator', $permissions);
   }
 
+  /**
+   * Tests the update.
+   */
   public function test() {
     $io = $this->prophesize(StyleInterface::class);
 

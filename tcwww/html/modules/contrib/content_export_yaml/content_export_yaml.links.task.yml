@@ -1,0 +1,10 @@
+content_export_yaml.setting_task:
+  route_name: content_export_yaml.content_export_yaml_setting_form
+  base_route: content_export_yaml.content_export_yaml_setting_form
+  title: Content Export YAML Settings
+  weight: 1
+content_export_yaml.view_task:
+  route_name: content_export_yaml.manage_content_yaml_form
+  base_route: content_export_yaml.content_export_yaml_setting_form
+  title: Content Export YAML List
+  weight: 2

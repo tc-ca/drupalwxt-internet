@@ -1,11 +1,17 @@
 <?php
 /**
- * DrupalPractice_Sniffs_Objects_GlobalDrupalSniff.
+ * \DrupalPractice\Sniffs\Objects\GlobalDrupalSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace DrupalPractice\Sniffs\Objects;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use DrupalPractice\Project;
 
 /**
  * Checks that \Drupal::service() and friends is not used in forms, controllers, services.
@@ -14,7 +20,7 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class DrupalPractice_Sniffs_Objects_GlobalDrupalSniff implements PHP_CodeSniffer_Sniff
+class GlobalDrupalSniff implements Sniff
 {
 
     /**
@@ -22,30 +28,30 @@ class DrupalPractice_Sniffs_Objects_GlobalDrupalSniff implements PHP_CodeSniffer
      *
      * @var string[]
      */
-    public static $baseClasses = array(
-                                  'BlockBase',
-                                  'ConfigFormBase',
-                                  'ContentEntityForm',
-                                  'ControllerBase',
-                                  'EntityForm',
-                                  'EntityReferenceFormatterBase',
-                                  'FileFormatterBase',
-                                  'FormatterBase',
-                                  'FormBase',
-                                  'ImageFormatter',
-                                  'ImageFormatterBase',
-                                  'WidgetBase',
-                                 );
+    public static $baseClasses = [
+        'BlockBase',
+        'ConfigFormBase',
+        'ContentEntityForm',
+        'ControllerBase',
+        'EntityForm',
+        'EntityReferenceFormatterBase',
+        'FileFormatterBase',
+        'FormatterBase',
+        'FormBase',
+        'ImageFormatter',
+        'ImageFormatterBase',
+        'WidgetBase',
+    ];
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_STRING);
+        return [T_STRING];
 
     }//end register()
 
@@ -53,13 +59,13 @@ class DrupalPractice_Sniffs_Objects_GlobalDrupalSniff implements PHP_CodeSniffer
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                         in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -88,8 +94,13 @@ class DrupalPractice_Sniffs_Objects_GlobalDrupalSniff implements PHP_CodeSniffer
         $classPtr    = key($tokens[$stackPtr]['conditions']);
         $extendsName = $phpcsFile->findExtendedClassName($classPtr);
 
+        // Check if the class implements ContainerInjectionInterface.
+        $implementedInterfaceNames = $phpcsFile->findImplementedInterfaceNames($classPtr);
+        $canAccessContainer        = !empty($implementedInterfaceNames) && in_array('ContainerInjectionInterface', $implementedInterfaceNames);
+
         if (($extendsName === false || in_array($extendsName, static::$baseClasses) === false)
-            && DrupalPractice_Project::isServiceClass($phpcsFile, $classPtr) === false
+            && Project::isServiceClass($phpcsFile, $classPtr) === false
+            && $canAccessContainer === false
         ) {
             return;
         }

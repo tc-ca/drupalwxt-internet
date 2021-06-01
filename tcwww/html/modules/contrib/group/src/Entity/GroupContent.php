@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\EntityOwnerTrait;
 use Drupal\user\UserInterface;
 
 /**
@@ -50,6 +51,7 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
+ *     "owner" = "uid",
  *     "langcode" = "langcode",
  *     "bundle" = "type",
  *     "label" = "label"
@@ -75,6 +77,7 @@ use Drupal\user\UserInterface;
 class GroupContent extends ContentEntityBase implements GroupContentInterface {
 
   use EntityChangedTrait;
+  use EntityOwnerTrait;
 
   /**
    * {@inheritdoc}
@@ -159,36 +162,6 @@ class GroupContent extends ContentEntityBase implements GroupContentInterface {
   /**
    * {@inheritdoc}
    */
-  public function getOwner() {
-    return $this->get('uid')->entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getOwnerId() {
-    return $this->get('uid')->target_id;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwnerId($uid) {
-    $this->set('uid', $uid);
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setOwner(UserInterface $account) {
-    $this->set('uid', $account->id());
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
 
@@ -264,19 +237,8 @@ class GroupContent extends ContentEntityBase implements GroupContentInterface {
   /**
    * {@inheritdoc}
    */
-  protected function invalidateTagsOnSave($update) {
-    parent::invalidateTagsOnSave($update);
-    // Always invalidate our custom list cache tags, even for new entities.
-    if (!$update) {
-      Cache::invalidateTags($this->getCacheTagsToInvalidate());
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheTagsToInvalidate() {
-    $tags = parent::getCacheTagsToInvalidate();
+  public function getListCacheTagsToInvalidate() {
+    $tags = parent::getListCacheTagsToInvalidate();
 
     $group_id = $this->get('gid')->target_id;
     $entity_id = $this->get('entity_id')->target_id;
@@ -310,6 +272,7 @@ class GroupContent extends ContentEntityBase implements GroupContentInterface {
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
+    $fields += static::ownerBaseFieldDefinitions($entity_type);
 
     $fields['gid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Parent group'))
@@ -347,13 +310,9 @@ class GroupContent extends ContentEntityBase implements GroupContentInterface {
         'weight' => -5,
       ]);
 
-    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
+    $fields['uid']
       ->setLabel(t('Group content creator'))
       ->setDescription(t('The username of the group content creator.'))
-      ->setSetting('target_type', 'user')
-      ->setSetting('handler', 'default')
-      ->setDefaultValueCallback('Drupal\group\Entity\GroupContent::getCurrentUserId')
-      ->setTranslatable(TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
 
@@ -380,18 +339,6 @@ class GroupContent extends ContentEntityBase implements GroupContentInterface {
     }
 
     return $fields;
-  }
-
-  /**
-   * Default value callback for 'uid' base field definition.
-   *
-   * @see ::baseFieldDefinitions()
-   *
-   * @return array
-   *   An array of default values.
-   */
-  public static function getCurrentUserId() {
-    return [\Drupal::currentUser()->id()];
   }
 
   /**

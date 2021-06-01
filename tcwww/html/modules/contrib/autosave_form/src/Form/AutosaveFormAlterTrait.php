@@ -171,7 +171,7 @@ trait AutosaveFormAlterTrait {
     $current_user_id = $this->currentUser->id();
     $autosaved_form_state = $this->getLastAutosavedFormState($form_state, $autosave_form_session_id, $current_user_id);
 
-    // If there is non-autsaved state for this session then we have to put the
+    // If there is non-autosaved state for this session then we have to put the
     // user input into a temporary store and on each autosave submit compare
     // against it for changes and after the first change compare with the last
     // autosaved state.

@@ -5,7 +5,7 @@ core_version_requirement: ^8 || ^9
 type: module
 configure: entity_clone.settings
 
-# Information added by Drupal.org packaging script on 2020-05-04
-version: '8.x-1.0-beta4'
+# Information added by Drupal.org packaging script on 2021-03-31
+version: '8.x-1.0-beta6'
 project: 'entity_clone'
-datestamp: 1588605101
+datestamp: 1617210000

@@ -1,0 +1,17 @@
+name: 'Client-side Hierarchical Select: Menu Link'
+description: 'A client-side hierarchical selection of parents for the menu link. Works for node and term forms (with "taxonomy_menu_ui" enabled).'
+package: Widgets
+type: module
+core: 8.x
+php: 7.1
+
+core_version_requirement: ^8 || ^9
+
+dependencies:
+  - cshs:cshs
+  - drupal:menu_ui
+
+# Information added by Drupal.org packaging script on 2021-02-05
+version: '8.x-1.7'
+project: 'cshs'
+datestamp: 1612535875

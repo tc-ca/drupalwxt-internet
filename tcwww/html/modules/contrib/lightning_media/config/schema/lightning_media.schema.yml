@@ -16,6 +16,9 @@ lightning_media.settings:
         override_widget:
           type: boolean
           label: 'Override the default widget of media reference fields'
+    revision_ui:
+      type: boolean
+      label: 'Show revision UI on media forms'
 
 entity_browser.browser.widget.embed_code:
   type: mapping

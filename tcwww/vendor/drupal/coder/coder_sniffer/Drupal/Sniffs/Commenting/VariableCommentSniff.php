@@ -7,38 +7,55 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\Commenting;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\AbstractVariableSniff;
+
 /**
  * Parses and verifies class property doc comments.
  *
- * Laregely copied from Squiz_Sniffs_Commenting_VariableCommentSniff.
+ * Laregely copied from
+ * \PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting\VariableCommentSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Commenting_VariableCommentSniff extends PHP_CodeSniffer_Standards_AbstractVariableSniff
+class VariableCommentSniff extends AbstractVariableSniff
 {
 
 
     /**
      * Called to process class member vars.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    public function processMemberVar(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function processMemberVar(File $phpcsFile, $stackPtr)
     {
-        $tokens       = $phpcsFile->getTokens();
-        $commentToken = array(
-                         T_COMMENT,
-                         T_DOC_COMMENT_CLOSE_TAG,
-                        );
+        $tokens = $phpcsFile->getTokens();
+        $ignore = [
+            T_PUBLIC,
+            T_PRIVATE,
+            T_PROTECTED,
+            T_VAR,
+            T_STATIC,
+            T_WHITESPACE,
+            T_STRING,
+            T_NS_SEPARATOR,
+            T_NULLABLE,
+        ];
 
-        $commentEnd = $phpcsFile->findPrevious($commentToken, $stackPtr);
-        if ($commentEnd === false) {
+        $commentEnd = $phpcsFile->findPrevious($ignore, ($stackPtr - 1), null, true);
+        if ($commentEnd === false
+            || ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
+            && $tokens[$commentEnd]['code'] !== T_COMMENT)
+        ) {
+            $phpcsFile->addError('Missing member variable doc comment', $stackPtr, 'Missing');
             return;
         }
 
@@ -58,20 +75,15 @@ class Drupal_Sniffs_Commenting_VariableCommentSniff extends PHP_CodeSniffer_Stan
             }
 
             return;
-        } else if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG) {
-            return;
-        } else {
-            // Make sure the comment we have found belongs to us.
-            $commentFor = $phpcsFile->findNext(array(T_VARIABLE, T_CLASS, T_INTERFACE), ($commentEnd + 1));
-            if ($commentFor !== $stackPtr) {
-                return;
-            }
         }//end if
 
         $commentStart = $tokens[$commentEnd]['comment_opener'];
 
+        // Ignore variable comments that use inheritdoc, allow both variants.
         $commentContent = $phpcsFile->getTokensAsString($commentStart, ($commentEnd - $commentStart));
-        if (strpos($commentContent, '{@inheritdoc}') !== false) {
+        if (strpos($commentContent, '{@inheritdoc}') !== false
+            || strpos($commentContent, '{@inheritDoc}') !== false
+        ) {
             return;
         }
 
@@ -118,31 +130,31 @@ class Drupal_Sniffs_Commenting_VariableCommentSniff extends PHP_CodeSniffer_Stan
         $varType = $tokens[($foundVar + 2)]['content'];
 
         // There may be multiple types separated by pipes.
-        $suggestedTypes = array();
+        $suggestedTypes = [];
         foreach (explode('|', $varType) as $type) {
-            $suggestedTypes[] = Drupal_Sniffs_Commenting_FunctionCommentSniff::suggestType($type);
+            $suggestedTypes[] = FunctionCommentSniff::suggestType($type);
         }
 
         $suggestedType = implode('|', $suggestedTypes);
 
         // Detect and auto-fix the common mistake that the variable name is
         // appended to the type declaration.
-        $matches = array();
+        $matches = [];
         if (preg_match('/^([^\s]+)(\s+\$.+)$/', $varType, $matches) === 1) {
             $error = 'Do not append variable name "%s" to the type declaration in a member variable comment';
-            $data  = array(
-                      trim($matches[2]),
-                     );
+            $data  = [
+                trim($matches[2]),
+            ];
             $fix   = $phpcsFile->addFixableError($error, ($foundVar + 2), 'InlineVariableName', $data);
             if ($fix === true) {
                 $phpcsFile->fixer->replaceToken(($foundVar + 2), $matches[1]);
             }
         } else if ($varType !== $suggestedType) {
             $error = 'Expected "%s" but found "%s" for @var tag in member variable comment';
-            $data  = array(
-                      $suggestedType,
-                      $varType,
-                     );
+            $data  = [
+                $suggestedType,
+                $varType,
+            ];
             $fix   = $phpcsFile->addFixableError($error, ($foundVar + 2), 'IncorrectVarType', $data);
             if ($fix === true) {
                 $phpcsFile->fixer->replaceToken(($foundVar + 2), $suggestedType);
@@ -157,13 +169,13 @@ class Drupal_Sniffs_Commenting_VariableCommentSniff extends PHP_CodeSniffer_Stan
      *
      * Not required for this sniff.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this token was found.
-     * @param int                  $stackPtr  The position where the double quoted
-     *                                        string was found.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this token was found.
+     * @param int                         $stackPtr  The position where the double quoted
+     *                                               string was found.
      *
      * @return void
      */
-    protected function processVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    protected function processVariable(File $phpcsFile, $stackPtr)
     {
 
     }//end processVariable()
@@ -174,13 +186,13 @@ class Drupal_Sniffs_Commenting_VariableCommentSniff extends PHP_CodeSniffer_Stan
      *
      * Not required for this sniff.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The PHP_CodeSniffer file where this token was found.
-     * @param int                  $stackPtr  The position where the double quoted
-     *                                        string was found.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The PHP_CodeSniffer file where this token was found.
+     * @param int                         $stackPtr  The position where the double quoted
+     *                                               string was found.
      *
      * @return void
      */
-    protected function processVariableInString(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    protected function processVariableInString(File $phpcsFile, $stackPtr)
     {
 
     }//end processVariableInString()

@@ -1,0 +1,3 @@
+manage content export yaml:
+  title: 'Manage content export yaml'
+  description: 'View list content exported and import it via backend'

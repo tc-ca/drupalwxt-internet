@@ -2,26 +2,31 @@ group.list:
   title: 'List'
   base_route: 'entity.group.collection'
   route_name: 'entity.group.collection'
+  weight: 0
 
 group.types:
   title: 'Group types'
   base_route: 'entity.group.collection'
   route_name: 'entity.group_type.collection'
+  weight: 5
 
 group.settings:
   title: 'Settings'
   base_route: 'entity.group.collection'
   route_name: 'group.settings'
+  weight: 10
 
 group.view:
   title: 'View'
   base_route: 'entity.group.canonical'
   route_name: 'entity.group.canonical'
+  weight: 0
 
 group.edit_form:
   title: 'Edit'
   base_route: 'entity.group.canonical'
   route_name: 'entity.group.edit_form'
+  weight: 5
 
 group.delete_form:
   title: 'Delete'
@@ -39,6 +44,7 @@ group_type.edit_form:
   title: 'Edit'
   base_route: 'entity.group_type.edit_form'
   route_name: 'entity.group_type.edit_form'
+  weight: 0
 
 group_type.permissions_form:
   title: 'Permissions'
@@ -51,6 +57,7 @@ group_type.permissions_form.basic:
   route_name: 'entity.group_type.permissions_form'
   base_route: 'entity.group_type.edit_form'
   parent_id: 'group_type.permissions_form'
+  weight: 0
 
 group_type.permissions_form.outsider:
   title: 'Advanced outsider permissions'
@@ -75,11 +82,13 @@ group_content_type.edit_form:
   title: 'Configure'
   base_route: 'entity.group_content_type.edit_form'
   route_name: 'entity.group_content_type.edit_form'
+  weight: 0
 
 group_role.edit_form:
   title: 'Edit'
   base_route: 'entity.group_role.edit_form'
   route_name: 'entity.group_role.edit_form'
+  weight: 0
 
 group_role.delete_form:
   title: 'Delete'
@@ -97,6 +106,7 @@ group_content.view:
   title: 'View'
   base_route: 'entity.group_content.canonical'
   route_name: 'entity.group_content.canonical'
+  weight: 0
 
 group_content.edit:
   title: 'Edit'

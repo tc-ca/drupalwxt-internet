@@ -52,7 +52,7 @@ class ConstraintDelete extends ConfirmFormBase {
   /**
    * Constructor that adds the tempstore from the container for wizard.
    *
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore
    *   The tempstore of the wizard form.
    */
   public function __construct(SharedTempStoreFactory $tempstore) {

@@ -33,9 +33,9 @@ class PasswordReset extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
-    return new static($entity_manager->getStorage('user_role'), $entity_manager->getStorage('user'));
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
+    return new static($entity_type_manager->getStorage('user_role'), $entity_type_manager->getStorage('user'));
   }
 
   /**
@@ -103,10 +103,9 @@ class PasswordReset extends FormBase {
       $users = $this->userStorage->loadByProperties($properties);
 
       $exclude_myself = ($form_state->getValue('exclude_myself') == '1');
-      $account = \Drupal::currentUser();
       /** @var \Drupal\user\UserInterface $user */
       foreach ($users as $user) {
-        if ($exclude_myself && ($user->id() == $account->id())) {
+        if ($exclude_myself && ($user->id() === $this->currentUser()->id())) {
           continue;
         }
         if ($user->hasRole(AccountInterface::ANONYMOUS_ROLE)) {
@@ -116,7 +115,7 @@ class PasswordReset extends FormBase {
         $user->save();
       }
 
-      drupal_set_message(
+      $this->messenger()->addMessage(
         $this->formatPlural(
           count($roles),
           'Reset the %roles role.',
@@ -126,7 +125,7 @@ class PasswordReset extends FormBase {
       );
     }
     else {
-      drupal_set_message($this->t('No roles selected.'), 'warning');
+      $this->messenger()->addWarning($this->t('No roles selected.'));
     }
 
     $form_state->setRedirectUrl(new Url('entity.password_policy.collection'));

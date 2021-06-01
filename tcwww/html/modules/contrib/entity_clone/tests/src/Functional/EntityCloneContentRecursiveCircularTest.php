@@ -66,6 +66,7 @@ class EntityCloneContentRecursiveCircularTest extends NodeTestBase {
     ]);
 
     $this->createEntityReferenceField('node', 'test_content_type', 'test_field_reference', 'Test field reference', 'node');
+    $this->createEntityReferenceField('node', 'test_content_type', 'test_another_field_reference', 'Test another field reference', 'node');
 
     $this->adminUser = $this->drupalCreateUser($this->permissions);
     $this->drupalLogin($this->adminUser);
@@ -144,6 +145,50 @@ class EntityCloneContentRecursiveCircularTest extends NodeTestBase {
       ]);
     $node = reset($nodes);
     $this->assertInstanceOf(Node::class, $node, 'Test original node 2 found in database.');
+  }
+
+  public function testContentWithTwoSameEntityReference() {
+    $child_node1_title = $this->randomMachineName(8);
+    $child_node1 = Node::create([
+      'type' => 'test_content_type',
+      'title' => $child_node1_title,
+    ]);
+    $child_node1->save();
+
+    $parent_node_title = $this->randomMachineName(8);
+    $parent_node = Node::create([
+      'type' => 'test_content_type',
+      'title' => $parent_node_title,
+      'test_field_reference' => $child_node1,
+      'test_another_field_reference' => $child_node1,
+    ]);
+    $parent_node->save();
+
+    $settings = [
+      'node' => [
+        'default_value' => 0,
+        'disable' => 0,
+        'hidden' => 0,
+      ],
+    ];
+    \Drupal::service('config.factory')->getEditable('entity_clone.settings')->set('form_settings', $settings)->save();
+
+    $this->drupalPostForm('entity_clone/node/' . $parent_node->id(), [], t('Clone'));
+
+    $nodes = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->loadByProperties([
+        'title' => $parent_node_title . ' - Cloned',
+      ]);
+    /** @var \Drupal\node\Entity\Node $parent_node_cloned */
+    $parent_node_cloned = reset($nodes);
+
+    $this->drupalGet('node/' . $parent_node_cloned->id());
+
+    $first_reference = $parent_node_cloned->get('test_field_reference')->first()->get('entity')->getTarget()->getValue();
+    $second_reference = $parent_node_cloned->get('test_another_field_reference')->first()->get('entity')->getTarget()->getValue();
+    $this->assertEquals($child_node1->id(), $first_reference->id(), "Entity referenced twice time is correctly reused.");
+    $this->assertEquals($child_node1->id(), $second_reference->id(), "Entity referenced twice time is correctly reused.");
   }
 
 }

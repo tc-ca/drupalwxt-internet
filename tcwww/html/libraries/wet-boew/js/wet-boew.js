@@ -1,7 +1,7 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.35 - 2020-04-16
+ * v4.0.38 - 2020-09-18
  *
  *//*! Modernizr (Custom Build) | MIT & BSD */
 /* Modernizr (Custom Build) | MIT & BSD
@@ -4418,7 +4418,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Country Content
- * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by https://freegeoip.net
+ * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by freegeoip.app
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @nschonni
  */
@@ -4483,7 +4483,7 @@ var componentName = "wb-ctrycnt",
 
 			// From https://github.com/aFarkas/webshim/blob/master/src/shims/geolocation.js#L89-L127
 			$.ajax( {
-				url: "https://freegeoip.net/json/",
+				url: "https://freegeoip.app/json/",
 				dataType: "jsonp",
 				cache: true,
 				jsonp: "callback",
@@ -6862,11 +6862,6 @@ var componentName = "wb-frmvld",
 
 						invalidHandler: function() {
 							submitted = true;
-						},
-
-						/* adds on tab validation */
-						onfocusout: function( element ) {
-							this.element( element );
 						}
 
 					} ); /* end of validate() */
@@ -7158,11 +7153,9 @@ var componentName = "wb-lbx",
 						$content.attr( "role", "document" );
 					}
 
-					$wrap.append( "<span tabindex='0' class='lbx-end wb-inv'></span>" )
-						.find( ".activate-open" )
-						.trigger( "wb-activate" );
-
 					this.contentContainer.attr( "data-pgtitle", document.getElementsByTagName( "H1" )[ 0 ].textContent );
+
+					trapTabbing( $wrap );
 				},
 				close: function() {
 					$document.find( "body" ).removeClass( "wb-modal" );
@@ -7239,6 +7232,9 @@ var componentName = "wb-lbx",
 								.attr( "id", "lbx-title" );
 
 					mfpResponse.data = $response;
+				},
+				ajaxContentAdded: function() {
+					trapTabbing( this.wrap );
 				}
 			};
 		}
@@ -7281,10 +7277,29 @@ var componentName = "wb-lbx",
 
 				$( footer ).append( overlayCloseFtr );
 				if ( !hasFooter ) {
-					$modal.append( footer );
+					$( footer ).insertAfter( $modal.find( ".modal-body" ) );
 				}
 			}
 		}
+	},
+	trapTabbing = function( $wrap ) {
+
+		$wrap.on( "keydown", function( e ) {
+			if ( e.which === 9 ) {
+				var tabbable = $wrap.find( ".mfp-container :tabbable:visible" ),
+					firstTabbable = tabbable.first()[ 0 ],
+					lastTabbable = tabbable.last()[ 0 ],
+					currentFocus = $( document.activeElement )[ 0 ];
+
+				if ( !e.shiftKey && currentFocus === lastTabbable ) {
+					e.preventDefault();
+					firstTabbable.focus();
+				} else if ( e.shiftKey && ( currentFocus === firstTabbable || currentFocus === $wrap[ 0 ] ) ) {
+					e.preventDefault();
+					lastTabbable.focus();
+				}
+			}
+		} );
 	};
 
 // Bind the init event of the plugin
@@ -8286,6 +8301,7 @@ var componentName = "wb-mltmd",
 		"timeupdate",
 		"waiting",
 		"canplay",
+		"seeked",
 		"progress",
 		captionsLoadedEvent,
 		captionsLoadFailedEvent,
@@ -9268,6 +9284,7 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 		break;
 
 	case "canplay":
+	case "seeked":
 		this.loading = clearTimeout( this.loading );
 		$this.removeClass( "waiting" );
 		break;
@@ -11017,6 +11034,9 @@ var componentName = "wb-steps",
 				buttonGroup = fieldset.querySelector( "div.buttons" );
 				if ( legend ) {
 					legend.classList.add( "wb-steps-active" );
+					legend.tabIndex = 0;
+					legend.focus();
+					legend.tabIndex = -1;
 				}
 				if ( elm ) {
 					elm.classList.remove( "hidden" );
@@ -11213,7 +11233,7 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 		// Should be pushed upstream to DataTables
 		$elm.next( ".bottom" ).find( ".paginate_button" )
 			.attr( {
-				"href": "#" + $elm.context.id
+				"href": "#" + $elm.get( 0 ).id
 			} )
 
 			// This is required to override the datatable.js (v1.10.13) behavior to cancel the event propagation on anchor element.
@@ -13203,25 +13223,17 @@ var $document = wb.doc,
 					defaults,
 					wb.getData( $elm, componentName )
 				),
-				attrClick = "data-wb-clicked",
+				attrEngaged = "data-wb-engaged",
 				$buttons = $( "[type=submit]", $elm ),
+				multiple = typeof $elm.data( componentName + "-multiple" ) !== "undefined",
 				classToggle = settings.toggle || "hide",
-				selectorContent = settings.content,
 				selectorSuccess = settings.success,
-				selectorFailure;
-
-			// Success selector is strict minimum
-			if ( !selectorContent ) {
-				throw componentName + " success setting is mandatory";
-			}
-
-			// Use success selector if no failure selector is provided
-			selectorFailure = settings.failure || selectorSuccess;
+				selectorFailure = settings.failure || selectorSuccess;
 
 			// Set "clicked" attribute on element that initiated the form submit
 			$buttons.on( "click", function() {
-				$buttons.removeAttr( attrClick );
-				$( this ).attr( attrClick, "" );
+				$buttons.removeAttr( attrEngaged );
+				$( this ).attr( attrEngaged, "" );
 			} );
 
 			elm.addEventListener( "submit", function( e ) {
@@ -13229,33 +13241,42 @@ var $document = wb.doc,
 				// Prevent regular form submit
 				e.preventDefault();
 
-				var data = $elm.serializeArray(),
-					$btn = $( "[type=submit][" + attrClick + "]", $elm ),
-					$selectorSuccess = $( selectorSuccess ),
-					$selectorFailure = $( selectorFailure );
+				if ( !$( this ).attr( attrEngaged ) ) {
+					var data = $elm.serializeArray(),
+						$btn = $( "[type=submit][" + attrEngaged + "]", $elm ),
+						$selectorSuccess = $( selectorSuccess ),
+						$selectorFailure = $( selectorFailure );
 
-				if ( $btn ) {
-					data.push( { name: $btn.attr( "name" ), value: $btn.val() } );
-				}
-
-				$.ajax( {
-					type: this.method,
-					url: this.attr,
-					data: $.param( data )
-				} )
-				.done( function() {
-					$selectorFailure.addClass( classToggle );
-					$selectorSuccess.removeClass( classToggle );
-				} )
-				.fail( function() {
-					$selectorSuccess.addClass( classToggle );
-					$selectorFailure.removeClass( classToggle );
-				} )
-				.always( function() {
-					if ( selectorContent ) {
-						$( selectorContent ).addClass( classToggle );
+					if ( $btn ) {
+						data.push( { name: $btn.attr( "name" ), value: $btn.val() } );
 					}
-				} );
+					$( this ).attr( attrEngaged, true );
+
+					// Hide feedback messages
+					$selectorFailure.addClass( classToggle );
+					$selectorSuccess.addClass( classToggle );
+
+					$.ajax( {
+						type: this.method,
+						url: this.action,
+						data: $.param( data )
+					} )
+					.done( function() {
+						$selectorSuccess.removeClass( classToggle );
+					} )
+					.fail( function() {
+						$selectorFailure.removeClass( classToggle );
+					} )
+					.always( function() {
+
+						// Make the form submittable again if multiple submits are allowed or hide
+						if ( multiple ) {
+							$elm.removeAttr( attrEngaged );
+						} else {
+							$elm.addClass( classToggle );
+						}
+					} );
+				}
 			} );
 
 			wb.ready( $( elm ), componentName );

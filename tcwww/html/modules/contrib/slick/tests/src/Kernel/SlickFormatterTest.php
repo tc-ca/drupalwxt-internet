@@ -77,7 +77,7 @@ class SlickFormatterTest extends BlazyKernelTestBase {
     $this->displayEmpty = $this->setUpFormatterDisplay($bundle, $data);
 
     $this->formatterInstance = $this->getFormatterInstance();
-    $this->skins = $this->slickManager->getSkins();
+    $this->skins = $this->slickManager->skinManager()->getSkins();
 
     $this->setUpContentWithItems($bundle);
     $this->setUpRealImage();
@@ -131,7 +131,7 @@ class SlickFormatterTest extends BlazyKernelTestBase {
     $settings = $this->getFormatterSettings() + SlickDefault::extendedSettings();
     $settings['uri'] = empty($uri) ? '' : $this->uri;
 
-    $thumbnail = $this->slickFormatter->getThumbnail($settings, $this->image);
+    $thumbnail = $this->slickFormatter->getThumbnail($settings, $this->testItem);
     $this->assertEquals($expected, !empty($thumbnail));
   }
 
@@ -179,29 +179,24 @@ class SlickFormatterTest extends BlazyKernelTestBase {
    *   An array of tested data.
    */
   public function providerTestBuildSettings() {
-    $breakpoints = $this->getDataBreakpoints(TRUE);
-
     $data[] = [
       [
-        'vanilla'     => TRUE,
-        'breakpoints' => [],
+        'vanilla' => TRUE,
       ],
       FALSE,
     ];
     $data[] = [
       [
-        'vanilla'     => FALSE,
-        'breakpoints' => [],
-        'blazy'       => FALSE,
-        'ratio'       => 'fluid',
+        'vanilla' => FALSE,
+        'blazy' => FALSE,
+        'ratio' => 'fluid',
       ],
       TRUE,
     ];
     $data[] = [
       [
-        'vanilla'     => FALSE,
-        'breakpoints' => $breakpoints,
-        'blazy'       => TRUE,
+        'vanilla' => FALSE,
+        'blazy' => TRUE,
       ],
       TRUE,
     ];

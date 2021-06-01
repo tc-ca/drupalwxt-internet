@@ -26,7 +26,7 @@ class FileUpload extends EntityFormProxy {
    */
   protected function getCurrentValue(FormStateInterface $form_state) {
     $value = parent::getCurrentValue($form_state);
-    return $value['fid'];
+    return $value['fid'] ?? NULL;
   }
 
   /**

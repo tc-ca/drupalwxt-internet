@@ -18,6 +18,7 @@ use Drupal\webform\Plugin\WebformElement\WebformElement;
 use Drupal\webform\Plugin\WebformElement\WebformTable;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Plugin\WebformElementManagerInterface;
+use Drupal\webform\Utility\WebformElementHelper;
 use Drupal\webform\WebformEntityElementsValidatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -241,7 +242,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     // Preserve the original elements root properties.
     $elements_original = Yaml::decode($webform->get('elements')) ?: [];
     foreach ($elements_original as $key => $value) {
-      if (Element::property($key)) {
+      if (WebformElementHelper::property($key)) {
         $elements_updated[$key] = $value;
       }
     }
@@ -249,7 +250,7 @@ class WebformUiEntityElementsForm extends BundleEntityFormBase {
     $this->buildUpdatedElementsRecursive($elements_updated, '', $webform_ui_elements, $elements_flattened);
 
     // Update the webform's elements.
-    $webform->setElements($elements_updated);
+    $webform->setUpdating()->setElements($elements_updated);
 
     // Validate only elements required, hierarchy, and rendering.
     $validate_options = [

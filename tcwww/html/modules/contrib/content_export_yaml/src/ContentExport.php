@@ -195,14 +195,14 @@ class ContentExport
     }
 
     /**
-     * Import All Entity
+     * Convert YAML to OBJECT
      */
     function importEntity($yaml_object, $entity)
     {
         $parsed = new Parser();
-        $node_object = $parsed->parse($yaml_object, SymfonyYaml::PARSE_OBJECT);
-        if (is_object($node_object)) {
-            return $this->savingEntity($node_object, $entity);
+        $object = $parsed->parse($yaml_object, SymfonyYaml::PARSE_OBJECT);
+        if (is_object($object)) {
+            return $this->savingEntity($object, $entity);
         } else {
             $this->logger->error('Failed to save item');
         }
@@ -218,17 +218,12 @@ class ContentExport
         $key_label = \Drupal::entityTypeManager()->getDefinition($entity)->getKey('label');
         $bundle_label = \Drupal::entityTypeManager()->getDefinition($entity)->getKey('bundle');
         if ($entity == "user" && $enity_clone->id() == 1) {
-            drupal_set_message(t($entity . " root user " . $enity_clone->label() . " uid=" . $enity_clone->id() . " can not update "));
+            \Drupal::messenger()->addMessage(t($entity . " root user " . $enity_clone->label() . " uid=" . $enity_clone->id() . " can not update "), 'status');
             return FALSE;
         }
         if ($bundle_label == "") {
             $filter = [
                 $id_label => $enity_clone->id()
-            ];
-        } elseif ($key_label == "") {
-            $filter = [
-                $id_label => $enity_clone->id(),
-                $bundle_label => $enity_clone->bundle(),
             ];
         } else {
             $filter = [
@@ -249,7 +244,7 @@ class ContentExport
                 }else{
                     $bundle_label = $enity_clone->bundle();
                 }
-                drupal_set_message(t($bundle_label . " with " . $id_label . "=" . $enity_clone->id() . " update "));
+                \Drupal::messenger()->addMessage(t($bundle_label . " with " . $id_label . "=" . $enity_clone->id() . " update "), 'status');
             }
         } else {
             $enity_clone->{$id_label} = NULL;
@@ -265,7 +260,7 @@ class ContentExport
                 }else{
                     $bundle_label = $enity_clone->bundle();
                 }
-                drupal_set_message(t("New Item of " . $bundle_label . " was created "));
+                \Drupal::messenger()->addMessage(t($bundle_label . " with " . $id_label . "=" . $enity_clone->id() . " created "), 'status');
             }
         }
 
@@ -314,7 +309,7 @@ class ContentExport
                 return $status;
             } else {
                 $this->logger->error('Path directory empty ');
-                drupal_set_message(t('Path directory empty '), 'error');
+                \Drupal::messenger()->addMessage(t('Path directory empty.'), 'error');
 
                 return FALSE;
             }
@@ -353,17 +348,17 @@ class ContentExport
         if (!is_dir($directory)) {
             if ($fileSystem->mkdir($directory, 0777, TRUE) === FALSE) {
                 $this->logger->error('Failed to create directory ' . $directory);
-                drupal_set_message(t('Failed to create directory ' . $directory), 'error');
+                \Drupal::messenger()->addMessage(t('Failed to create directory ' . $directory), 'error');
                 return FALSE;
             }
         }
         if (file_put_contents($directory . '/' . $filename . '.yml', $content) === FALSE) {
-            drupal_set_message(t('Failed to write file ' . $filename), 'error');
+            \Drupal::messenger()->addMessage(t('Failed to write file ' . $filename), 'error');
             $this->logger->error('Failed to write file ' . $filename);
             return FALSE;
         }
         if (@chmod($directory . '/' . $filename . '.html.twig', 0777)) {
-            drupal_set_message(t('Failed to change permission file ' . $filename), 'error');
+            \Drupal::messenger()->addMessage(t('Failed to change permission file ' . $filename), 'error');
             $this->logger->error('Failed to change permission file ' . $filename);
         }
         return TRUE;
@@ -383,7 +378,7 @@ class ContentExport
             @chmod($file_temp, 0777);
             return $file_temp;
         } else {
-            drupal_set_message("failed to download", "error");
+            \Drupal::messenger()->addMessage(t("failed to download"), 'error');
         }
     }
 
@@ -401,10 +396,10 @@ class ContentExport
             }
         }
         if (!copy($file_full_path, $path_export . "/" . $file_name . ".yml")) {
-            drupal_set_message("failed to copy $file_with_path", "error");
+            \Drupal::messenger()->addMessage(t("failed to copy $file_with_path"), 'error');
             return FALSE;
         } else {
-            drupal_set_message("Upload Success", "status");
+            \Drupal::messenger()->addMessage(t("Upload Success"), 'error');
             @chmod($path_export . "/" . $file_name . ".yml", 0777);
             return TRUE;
         }
@@ -423,7 +418,7 @@ class ContentExport
                 return TRUE;
             } else {
                 $this->logger->error('File  not write : ' . $file);
-                drupal_set_message('File  not write : ' . $file, 'error');
+                \Drupal::messenger()->addMessage(t('File  not write : ' . $file), 'error');
 
                 return FALSE;
             }
@@ -456,8 +451,7 @@ class ContentExport
                             try {
                                 $item_object = \Symfony\Component\Yaml\Yaml::parse($item_yaml, SymfonyYaml::PARSE_OBJECT);
                             } catch (Exception $e) {
-                                drupal_set_message("'Message: " . $e->getMessage(), "error");
-
+                                \Drupal::messenger()->addMessage(t('Message: ' . $e->getMessage()), 'error');
                             }
                             if ($item_object && is_object($item_object)) {
                                 $path = str_replace(DRUPAL_ROOT, "", $path_file);

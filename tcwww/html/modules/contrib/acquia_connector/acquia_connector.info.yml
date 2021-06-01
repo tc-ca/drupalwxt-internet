@@ -1,12 +1,14 @@
 name: Acquia Connector
 type: module
-description: 'Allows Drupal to securely communicate with the Acquia Subscription, and checks for updates to Acquia Drupal.'
+description: 'Allows Drupal to securely communicate with Acquia.'
 package: Acquia
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8.9 || ^9
 configure: acquia_connector.settings
 
-# Information added by Drupal.org packaging script on 2020-06-16
-version: '8.x-1.22'
+dependencies:
+  - drupal:path_alias
+
+# Information added by Drupal.org packaging script on 2021-04-14
+version: '3.0.3'
 project: 'acquia_connector'
-datestamp: 1592339210
+datestamp: 1618428135

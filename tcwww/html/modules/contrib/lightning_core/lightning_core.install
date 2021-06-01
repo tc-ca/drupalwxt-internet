@@ -5,7 +5,6 @@
  * Contains install and update routines for Lightning.
  */
 
-use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\lightning_core\ConfigHelper as Config;
 use Drupal\lightning_core\UpdateManager;
 
@@ -57,14 +56,15 @@ function lightning_core_update_8001() {
  * Marks certain node view modes as internal.
  */
 function lightning_core_update_8002() {
-  $view_modes = EntityViewMode::loadMultiple([
+  $storage = Drupal::entityTypeManager()->getStorage('entity_view_mode');
+  $view_modes = $storage->loadMultiple([
     'node.rss',
     'node.search_index',
   ]);
   /** @var \Drupal\Core\Entity\EntityViewModeInterface $view_mode */
   foreach ($view_modes as $view_mode) {
-    $view_mode->setThirdPartySetting('lightning_core', 'internal', TRUE)
-      ->save();
+    $view_mode->setThirdPartySetting('lightning_core', 'internal', TRUE);
+    $storage->save($view_mode);
   }
 }
 

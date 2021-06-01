@@ -123,7 +123,12 @@ function lightning_layout_update_8009() {
  * Installs the layout_builder_st module if needed.
  */
 function lightning_layout_update_8010() {
-  if (Drupal::moduleHandler()->moduleExists('language')) {
+  // The layout_builder_at and layout_builder_st modules cannot be installed
+  // on the same time.
+  // @see https://www.drupal.org/project/layout_builder_at
+  // @see https://www.drupal.org/project/layout_builder_st
+  $module_handler = Drupal::moduleHandler();
+  if ($module_handler->moduleExists('language') && !$module_handler->moduleExists('layout_builder_at')) {
     Drupal::service('module_installer')->install(['layout_builder_st']);
   }
 }
@@ -133,4 +138,18 @@ function lightning_layout_update_8010() {
  */
 function lightning_layout_update_8011() {
   Drupal::service('module_installer')->install(['layout_builder_styles']);
+}
+
+/**
+ * Installs the layout_builder_restrictions module.
+ */
+function lightning_layout_update_8012() {
+  Drupal::service('module_installer')->install(['layout_builder_restrictions']);
+}
+
+/**
+ * Installs the layout_library module.
+ */
+function lightning_layout_update_8013() {
+  Drupal::service('module_installer')->install(['layout_library']);
 }

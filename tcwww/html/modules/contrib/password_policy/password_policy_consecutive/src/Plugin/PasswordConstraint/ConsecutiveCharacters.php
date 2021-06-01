@@ -5,6 +5,7 @@ namespace Drupal\password_policy_consecutive\Plugin\PasswordConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\password_policy\PasswordConstraintBase;
 use Drupal\password_policy\PasswordPolicyValidation;
+use Drupal\user\UserInterface;
 
 /**
  * Enforces a maximum number of consecutive identical characters.
@@ -13,7 +14,7 @@ use Drupal\password_policy\PasswordPolicyValidation;
  *   id = "consecutive",
  *   title = @Translation("Consecutive characters"),
  *   description = @Translation("Verifying that a password has a maximum number of consecutive identical characters."),
- *   error_message = @Translation("Your password has too many consecutive characters.")
+ *   errorMessage = @Translation("Your password has too many consecutive characters.")
  * )
  */
 class ConsecutiveCharacters extends PasswordConstraintBase {
@@ -21,7 +22,7 @@ class ConsecutiveCharacters extends PasswordConstraintBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($password, $user_context) {
+  public function validate($password, UserInterface $user) {
     $validation = new PasswordPolicyValidation();
     $max = $this->getConfiguration()['max_consecutive_characters'];
     if ($max < 2) {

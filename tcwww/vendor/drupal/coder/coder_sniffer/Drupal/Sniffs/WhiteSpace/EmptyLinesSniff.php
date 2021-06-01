@@ -1,14 +1,19 @@
 <?php
 /**
- * Drupal_Sniffs_WhiteSpace_EmptyLinesSniff.
+ * \Drupal\Sniffs\WhiteSpace\EmptyLinesSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\WhiteSpace;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+
 /**
- * Drupal_Sniffs_WhiteSpace_EmptyLinesSniff.
+ * \Drupal\Sniffs\WhiteSpace\EmptyLinesSniff.
  *
  * Checks that there are not more than 2 empty lines following each other.
  *
@@ -16,29 +21,29 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_WhiteSpace_EmptyLinesSniff implements PHP_CodeSniffer_Sniff
+class EmptyLinesSniff implements Sniff
 {
 
     /**
      * A list of tokenizers this sniff supports.
      *
-     * @var array
+     * @var array<string>
      */
-    public $supportedTokenizers = array(
-                                   'PHP',
-                                   'JS',
-                                   'CSS',
-                                  );
+    public $supportedTokenizers = [
+        'PHP',
+        'JS',
+        'CSS',
+    ];
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_WHITESPACE);
+        return [T_WHITESPACE];
 
     }//end register()
 
@@ -46,13 +51,13 @@ class Drupal_Sniffs_WhiteSpace_EmptyLinesSniff implements PHP_CodeSniffer_Sniff
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
         if ($tokens[$stackPtr]['content'] === $phpcsFile->eolChar

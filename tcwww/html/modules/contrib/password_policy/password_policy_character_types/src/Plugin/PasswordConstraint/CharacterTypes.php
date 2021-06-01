@@ -5,6 +5,7 @@ namespace Drupal\password_policy_character_types\Plugin\PasswordConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\password_policy\PasswordConstraintBase;
 use Drupal\password_policy\PasswordPolicyValidation;
+use Drupal\user\UserInterface;
 
 /**
  * Enforces a minimum number of character types for passwords.
@@ -21,7 +22,7 @@ class CharacterTypes extends PasswordConstraintBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($password, $user_context) {
+  public function validate($password, UserInterface $user) {
     $validation = new PasswordPolicyValidation();
     $types = $this->getConfiguration()['character_types'];
     if ($types < 2 || $types > 4) {

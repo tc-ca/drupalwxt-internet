@@ -5,20 +5,8 @@ Move linkchecker_watchdog_log out of .module to a dedicated service.
 Source: https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch
 
 
-Add support for Redirect module
-Source: https://www.drupal.org/files/issues/2020-06-17/3058014-27.patch
-
-
 Undefined offset error
 Source: https://www.drupal.org/files/issues/2020-08-24/undefined-offset-error-3065045-13.patch
-
-
-Link Extract Issue
-Source: https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch
-
-
-Remove Drupal 9 deprecations
-Source: https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch
 
 
 3173634 - Linkchecker breaks entityqueue

@@ -95,7 +95,7 @@
       }
 
       // Continue to show the dialog or activate autosave functionality only in
-      // case the context contains the autosave submit and it is not disbaled.
+      // case the context contains the autosave submit and it is not disabled.
       if (autosave_submit.length === 0 || autosave_submit.is(':disabled') || autosave_submit.hasClass('is-disabled')) {
         return;
       }

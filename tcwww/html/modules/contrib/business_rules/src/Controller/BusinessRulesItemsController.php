@@ -290,7 +290,7 @@ class BusinessRulesItemsController extends ControllerBase {
     $this->item = $item_type;
 
     try {
-      $destination = stristr($this->util->getPreviousUri()->toString(), '/ajax/') ? [] : ['destination' => $this->util->getPreviousUri()->toString()];
+      $destination = stristr($_SERVER["HTTP_REFERER"], '/ajax/') ? [] : ['destination' => $_SERVER["HTTP_REFERER"]];
     }
     catch (\Exception $e) {
       $destination = [];

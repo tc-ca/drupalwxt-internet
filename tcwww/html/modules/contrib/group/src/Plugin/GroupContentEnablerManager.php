@@ -2,12 +2,15 @@
 
 namespace Drupal\group\Plugin;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\group\Entity\GroupTypeInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Manages GroupContentEnabler plugin implementations.
@@ -18,7 +21,16 @@ use Drupal\group\Entity\GroupTypeInterface;
  * @see \Drupal\group\Plugin\GroupContentEnablerBase
  * @see plugin_api
  */
-class GroupContentEnablerManager extends DefaultPluginManager implements GroupContentEnablerManagerInterface {
+class GroupContentEnablerManager extends DefaultPluginManager implements GroupContentEnablerManagerInterface, ContainerAwareInterface {
+
+  use ContainerAwareTrait;
+
+  /**
+   * Contains instantiated handlers keyed by handler type and plugin ID.
+   *
+   * @var array
+   */
+  protected $handlers = [];
 
   /**
    * The entity type manager.
@@ -103,6 +115,62 @@ class GroupContentEnablerManager extends DefaultPluginManager implements GroupCo
     $this->entityTypeManager = $entity_type_manager;
     $this->pluginGroupContentTypeMapCacheKey = $this->cacheKey . '_GCT_map';
     $this->groupTypePluginMapCacheKey = $this->cacheKey . '_GT_map';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasHandler($plugin_id, $handler_type) {
+    if ($definition = $this->getDefinition($plugin_id, FALSE)) {
+      if (isset($definition['handlers'][$handler_type])) {
+        return class_exists($definition['handlers'][$handler_type]);
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHandler($plugin_id, $handler_type) {
+    if (!isset($this->handlers[$handler_type][$plugin_id])) {
+      $definition = $this->getDefinition($plugin_id);
+      if (!isset($definition['handlers'][$handler_type])) {
+        throw new InvalidPluginDefinitionException($plugin_id, sprintf('The "%s" plugin did not specify a %s handler.', $plugin_id, $handler_type));
+      }
+      $this->handlers[$handler_type][$plugin_id] = $this->createHandlerInstance($definition['handlers'][$handler_type], $plugin_id, $definition);
+    }
+
+    return $this->handlers[$handler_type][$plugin_id];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createHandlerInstance($class, $plugin_id, array $definition = NULL) {
+    if (!is_subclass_of($class, 'Drupal\group\Plugin\GroupContentHandlerInterface')) {
+      throw new InvalidPluginDefinitionException($plugin_id, 'Trying to instantiate a handler that does not implement \Drupal\group\Plugin\GroupContentHandlerInterface.');
+    }
+
+    $handler = $class::createInstance($this->container, $plugin_id, $definition);
+    if (method_exists($handler, 'setModuleHandler')) {
+      $handler->setModuleHandler($this->moduleHandler);
+    }
+    return $handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAccessControlHandler($plugin_id) {
+    return $this->getHandler($plugin_id, 'access');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPermissionProvider($plugin_id) {
+    return $this->getHandler($plugin_id, 'permission_provider');
   }
 
   /**
@@ -239,8 +307,14 @@ class GroupContentEnablerManager extends DefaultPluginManager implements GroupCo
   /**
    * {@inheritdoc}
    */
-  public function clearCachedInstalledIds() {
-    $this->clearCachedPluginMaps();
+  public function getPluginIdsByEntityTypeAccess($entity_type_id) {
+    $plugin_ids = [];
+    foreach ($this->getDefinitions() as $plugin_id => $plugin_info) {
+      if (!empty($plugin_info['entity_access']) && $plugin_info['entity_type_id'] == $entity_type_id) {
+        $plugin_ids[] = $plugin_id;
+      }
+    }
+    return $plugin_ids;
   }
 
   /**
@@ -299,13 +373,6 @@ class GroupContentEnablerManager extends DefaultPluginManager implements GroupCo
     }
 
     return $map;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function clearCachedGroupContentTypeIdMap() {
-    $this->clearCachedPluginMaps();
   }
 
   /**

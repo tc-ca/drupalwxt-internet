@@ -10,6 +10,8 @@
 .media.media--ratio {
   display: block;
   height: 0;
+  /* Fixed for overflowing video with hard-coded width like lightboxes. */
+  max-width: 100%;
   min-height: 1px;
   overflow: hidden;
   position: relative;
@@ -19,20 +21,6 @@
 /* Trying to be nice to minimize abrupt changes. */
 .media--ratio.is-b-loaded {
   transition: padding-bottom .2s;
-}
-
-/* Aspect ratio element: IMG, IFRAME, DIV. */
-.media--ratio .media__element {
-  display: block;
-  height: 100%;
-  left: 0;
-  min-height: 1px;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 0;
-  /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
-  object-fit: cover;
 }
 
 /* 1:1 ratio */

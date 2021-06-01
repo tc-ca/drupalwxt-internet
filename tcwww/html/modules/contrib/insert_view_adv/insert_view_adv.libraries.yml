@@ -1,6 +1,12 @@
 preview:
   js:
-    js/preview.js: {}
+    js/preview.js: {  }
   dependencies:
     - core/jquery
     - core/drupal.ajax
+
+reset_redirect:
+  js:
+    js/redirect.js: {  }
+  dependencies:
+    - core/drupalSettings

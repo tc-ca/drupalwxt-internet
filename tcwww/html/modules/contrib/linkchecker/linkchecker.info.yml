@@ -4,7 +4,7 @@ description: 'Periodically checks for broken links in content.'
 core_version_requirement: ^8.8 || ^9
 configure: linkchecker.admin_settings_form
 dependencies:
-  - dynamic_entity_reference:dynamic_entity_reference (>= 1.0)
+  - dynamic_entity_reference:dynamic_entity_reference
   - drupal:system (>= 8.6)
 test_dependencies:
   - redirect:redirect

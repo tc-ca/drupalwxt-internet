@@ -227,7 +227,7 @@ class WebformSubmissionForm extends ContentEntityForm {
    *   The selection plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
-   * @param \Drupal\Core\Form\FormBuilderInterface
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
    *   The form builder.
    */
   public function __construct(
@@ -333,6 +333,14 @@ class WebformSubmissionForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
+   */
+  protected function init(FormStateInterface $form_state) {
+    parent::init($form_state);
+    $this->getWebform()->invokeHandlers('prepareForm', $this->entity, $this->operation, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
    *
    * This is the best place to override an entity form's default settings
    * because it is called immediately after the form object is initialized.
@@ -372,7 +380,8 @@ class WebformSubmissionForm extends ContentEntityForm {
       && $webform->access('test')) {
       $webform->applyVariants($entity);
       $data = $webform->getVariantsData($entity)
-        + $this->generate->getData($webform);
+        + $this->generate->getData($webform)
+        + $data;
     }
 
     // Get the source entity and allow webform submission to be used as a source
@@ -469,7 +478,7 @@ class WebformSubmissionForm extends ContentEntityForm {
     if ($this->operation === 'add'
       && $entity->isNew()
       && $webform->getSetting('autofill')) {
-      if ($last_submission = $this->getLastSubmission()) {
+      if ($last_submission = $this->getStorage()->getLastSubmission($webform, $source_entity, $account, ['in_draft' => FALSE, 'access_check' => FALSE])) {
         $excluded_elements = $webform->getSetting('autofill_excluded_elements') ?: [];
         $last_submission_data = array_diff_key($last_submission->getRawData(), $excluded_elements);
         $data = $last_submission_data + $data;
@@ -622,6 +631,7 @@ class WebformSubmissionForm extends ContentEntityForm {
     // @todo Remove once bubbling of element's max-age to page cache is fixed.
     // @see https://www.drupal.org/project/webform/issues/3015760
     // @see https://www.drupal.org/project/drupal/issues/2352009
+    // @see \Drupal\webform\Element\Webform::preRenderWebformElement
     if ($webform->isScheduled()
       && $this->currentUser()->isAnonymous()
       && $this->moduleHandler->moduleExists('page_cache')) {
@@ -1014,6 +1024,7 @@ class WebformSubmissionForm extends ContentEntityForm {
     $webform_submission = $this->getEntity();
     $webform = $this->getWebform();
     $source_entity = $this->getSourceEntity();
+    $account = $this->currentUser();
 
     // Display test message, except on share page.
     if ($this->isGet() && $this->operation === 'test' && !$this->isSharePage()) {
@@ -1065,9 +1076,9 @@ class WebformSubmissionForm extends ContentEntityForm {
     // Display link to multiple drafts message when user is adding a new
     // submission.
     if ($this->isGet()
+      && $this->operation === 'add'
       && $this->getWebformSetting('draft') !== WebformInterface::DRAFT_NONE
       && $this->getWebformSetting('draft_multiple', FALSE)
-      && ($this->isRoute('webform.canonical') || $this->isWebformEntityReferenceFromSourceEntity())
       && ($previous_draft_total = $this->getStorage()->getTotal($webform, $this->sourceEntity, $this->currentUser(), ['in_draft' => TRUE]))
     ) {
       if ($previous_draft_total > 1) {
@@ -1084,8 +1095,8 @@ class WebformSubmissionForm extends ContentEntityForm {
     // Display link to previous submissions message when user is adding a new
     // submission.
     if ($this->isGet()
+      && $this->operation === 'add'
       && $this->getWebformSetting('form_previous_submissions', FALSE)
-      && ($this->isRoute('webform.canonical') || $this->isWebformEntityReferenceFromSourceEntity())
       && ($webform->access('submission_view_own') || $this->currentUser()->hasPermission('view own webform submission'))
       && ($previous_submission_total = $this->getStorage()->getTotal($webform, $this->sourceEntity, $this->currentUser()))
     ) {
@@ -1093,7 +1104,7 @@ class WebformSubmissionForm extends ContentEntityForm {
         $this->getMessageManager()->display(WebformMessageManagerInterface::PREVIOUS_SUBMISSIONS);
       }
       else {
-        $last_submission = $this->getLastSubmission(FALSE);
+        $last_submission = $this->getStorage()->getLastSubmission($webform, $source_entity, $account);
         if ($last_submission && $webform_submission->id() !== $last_submission->id()) {
           $this->getMessageManager()->display(WebformMessageManagerInterface::PREVIOUS_SUBMISSION);
         }
@@ -1105,7 +1116,7 @@ class WebformSubmissionForm extends ContentEntityForm {
       && $this->operation === 'add'
       && $webform_submission->isNew()
       && $webform->getSetting('autofill')
-      && $this->getLastSubmission()) {
+      && $this->getStorage()->getLastSubmission($webform, $source_entity, $account, ['in_draft' => FALSE, 'access_check' => FALSE])) {
       $this->getMessageManager()->display(WebformMessageManagerInterface::AUTOFILL_MESSAGE);
     }
   }
@@ -2975,6 +2986,9 @@ class WebformSubmissionForm extends ContentEntityForm {
    *
    * @return \Drupal\webform\WebformSubmissionInterface|null
    *   The last completed webform submission for the current user.
+   *
+   * @deprecated Scheduled for removal in Webform 8.x-6.x
+   *   Use $this->getStorage()->getLastSubmission instead.
    */
   protected function getLastSubmission($completed = TRUE) {
     $webform = $this->getWebform();
@@ -3034,6 +3048,13 @@ class WebformSubmissionForm extends ContentEntityForm {
     if ($this->operation === 'api') {
       return FALSE;
     }
+
+    // Disable Ajax if the form has its #method set to 'get'.
+    $elements = $this->getWebform()->getElementsInitialized();
+    if (isset($elements['#method']) && $elements['#method'] === 'get') {
+      return FALSE;
+    }
+
     return $this->getWebformSetting('ajax', FALSE);
   }
 

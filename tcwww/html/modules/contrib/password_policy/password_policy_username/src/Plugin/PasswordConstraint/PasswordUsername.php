@@ -5,6 +5,7 @@ namespace Drupal\password_policy_username\Plugin\PasswordConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\password_policy\PasswordConstraintBase;
 use Drupal\password_policy\PasswordPolicyValidation;
+use Drupal\user\UserInterface;
 
 /**
  * Ensures the password doesn't contain the username.
@@ -21,11 +22,11 @@ class PasswordUsername extends PasswordConstraintBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($password, $user_context) {
+  public function validate($password, UserInterface $user) {
     $config = $this->getConfiguration();
     $validation = new PasswordPolicyValidation();
 
-    if ($config['disallow_username'] && stripos($password, $user_context['name']) !== FALSE) {
+    if ($config['disallow_username'] && stripos($password, $user->getAccountName()) !== FALSE) {
       $validation->setErrorMessage($this->t('Password must not contain the username.'));
     }
 

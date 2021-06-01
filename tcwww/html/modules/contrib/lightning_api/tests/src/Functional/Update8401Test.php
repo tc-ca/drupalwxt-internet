@@ -23,7 +23,8 @@ class Update8401Test extends UpdatePathTestBase {
    */
   protected function setDatabaseDumpFiles() {
     $this->databaseDumpFiles = [
-      __DIR__ . '/../../fixtures/4.4.0.php.gz',
+      $this->getDrupalRoot() . '/core/modules/system/tests/fixtures/update/drupal-8.8.0.bare.standard.php.gz',
+      __DIR__ . '/../../fixtures/4.4.0-drupal-8.8.0.bare.standard.update-8401.php.gz',
     ];
   }
 

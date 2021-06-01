@@ -5,11 +5,13 @@ namespace Drupal\simple_sitemap_engines\Plugin\QueueWorker;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\simple_sitemap\SimplesitemapManager;
+use Drupal\simple_sitemap\Simplesitemap;
+use Drupal\simple_sitemap\Logger;
+use Drupal\Core\State\StateInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Datetime\TimeInterface;
 
 /**
  * Process a queue of search engines to submit sitemaps.
@@ -25,57 +27,85 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SitemapSubmitter extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The search engine entity storage.
+   * The EntityStorage service.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
   protected $engineStorage;
 
   /**
-   * The HTTP client service.
+   * The HTTP Client service.
    *
    * @var \GuzzleHttp\ClientInterface
    */
   protected $httpClient;
 
   /**
-   * The sitemap manager service.
+   * The sitemap generator service.
    *
-   * @var \Drupal\simple_sitemap\SimplesitemapManager
+   * @var \Drupal\simple_sitemap\Simplesitemap
    */
-  protected $sitemapManager;
+  protected $generator;
 
   /**
-   * The simple sitemap logger.
+   * The Drupal logger service.
    *
-   * @var \Psr\Log\LoggerInterface
+   * @var \Drupal\simple_sitemap\Logger
    */
   protected $logger;
 
   /**
-   * Constructs a new class instance.
+   * The Drupal state service.
+   *
+   * @var \Drupal\workflows\StateInterface
+   */
+  protected $state;
+
+  /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * SitemapSubmitter constructor.
    *
    * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
+   *   The config.
    * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
+   *   The plugin id.
+   * @param array $plugin_definition
+   *   The plugin definition.
    * @param \Drupal\Core\Entity\EntityStorageInterface $engine_storage
-   *   The search engine entity storage.
+   *   The EntityStorageInterface.
    * @param \GuzzleHttp\ClientInterface $http_client
-   *   The HTTP client service.
-   * @param \Drupal\simple_sitemap\SimplesitemapManager $sitemap_manager
-   *   The sitemap manager service.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   The simple sitemap logger.
+   *   The client used to submit to engines.
+   * @param \Drupal\simple_sitemap\Simplesitemap $generator
+   *   The generator service.
+   * @param \Drupal\simple_sitemap\Logger $logger
+   *   Standard logger.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   Drupal state service for last submitted.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityStorageInterface $engine_storage, ClientInterface $http_client, SimplesitemapManager $sitemap_manager, LoggerInterface $logger) {
+  public function __construct(array $configuration,
+                              $plugin_id,
+                              array $plugin_definition,
+                              EntityStorageInterface $engine_storage,
+                              ClientInterface $http_client,
+                              Simplesitemap $generator,
+                              Logger $logger,
+                              StateInterface $state,
+                              TimeInterface $time) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->engineStorage = $engine_storage;
     $this->httpClient = $http_client;
-    $this->sitemapManager = $sitemap_manager;
+    $this->generator = $generator;
     $this->logger = $logger;
+    $this->state = $state;
+    $this->time = $time;
   }
 
   /**
@@ -88,8 +118,10 @@ class SitemapSubmitter extends QueueWorkerBase implements ContainerFactoryPlugin
       $plugin_definition,
       $container->get('entity_type.manager')->getStorage('simple_sitemap_engine'),
       $container->get('http_client'),
-      $container->get('simple_sitemap.manager'),
-      $container->get('logger.factory')->get('simple_sitemap')
+      $container->get('simple_sitemap.generator'),
+      $container->get('simple_sitemap.logger'),
+      $container->get('state'),
+      $container->get('datetime.time')
     );
   }
 
@@ -99,17 +131,18 @@ class SitemapSubmitter extends QueueWorkerBase implements ContainerFactoryPlugin
   public function processItem($engine_id) {
     /** @var \Drupal\simple_sitemap_engines\Entity\SearchEngine $engine */
     if ($engine = $this->engineStorage->load($engine_id)) {
-      // Gather URLs for all sitemap variants.
+
       $sitemap_urls = [];
-      foreach ($this->sitemapManager->getSitemapTypes() as $type_name => $type_definition) {
-        $sitemap_generator = $this->sitemapManager->getSitemapGenerator($type_definition['sitemapGenerator']);
-        $variants = $this->sitemapManager->getSitemapVariants($type_name, FALSE);
-        if (!empty($variants)) {
-          // Submit all variants that are enabled for this search engine.
-          foreach ($variants as $id => $variant) {
-            if (in_array($id, $engine->sitemap_variants)) {
-              $sitemap_urls[$variant['label']] = $sitemap_generator->setSitemapVariant($id)->getSitemapUrl();
-            }
+      $manager = $this->generator->getSitemapManager();
+
+      foreach ($manager->getSitemapTypes() as $type_name => $type_definition) {
+        $sitemap_generator = $manager->getSitemapGenerator($type_definition['sitemapGenerator']);
+
+        // Submit all variants that are enabled for this search engine.
+        foreach ($manager->getSitemapVariants($type_name, FALSE) as $variant_id => $variant_definition) {
+          if (in_array($variant_id, $engine->sitemap_variants)
+            && FALSE !== $this->generator->setVariants($variant_id)->getSitemap()) {
+            $sitemap_urls[$variant_definition['label']] = $sitemap_generator->setSitemapVariant($variant_id)->getSitemapUrl();
           }
         }
       }
@@ -120,11 +153,11 @@ class SitemapSubmitter extends QueueWorkerBase implements ContainerFactoryPlugin
         try {
           $this->httpClient->request('GET', $submit_url);
           // Log if submission was successful.
-          $this->logger->info('Sitemap %sitemap submitted to @url', ['%sitemap' => $variant, '@url' => $submit_url]);
+          $this->logger->m('Sitemap @variant submitted to @url', ['@variant' => $variant, '@url' => $submit_url])->log();
           // Record last submission time. This is purely informational; the
           // variable that determines when the next submission should be run is
           // stored in the global state.
-          $engine->last_submitted = time();
+          $this->state->set("simple_sitemap_engines.simple_sitemap_engine.{$engine_id}.last_submitted", $this->time->getRequestTime());
         }
         catch (RequestException $e) {
           // Catch and log exceptions so this submission gets removed from the
@@ -136,7 +169,6 @@ class SitemapSubmitter extends QueueWorkerBase implements ContainerFactoryPlugin
           watchdog_exception('simple_sitemap', $e);
         }
       }
-      $engine->save();
     }
   }
 

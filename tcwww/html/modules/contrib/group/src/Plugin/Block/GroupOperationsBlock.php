@@ -11,7 +11,7 @@ use Drupal\Core\Cache\CacheableMetadata;
  * @Block(
  *   id = "group_operations",
  *   admin_label = @Translation("Group operations"),
- *   context = {
+ *   context_definitions = {
  *     "group" = @ContextDefinition("entity:group", required = FALSE)
  *   }
  * )

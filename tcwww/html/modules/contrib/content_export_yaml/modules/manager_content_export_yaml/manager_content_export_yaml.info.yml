@@ -5,7 +5,12 @@ core: 8.x
 package: 'Content export yaml'
 dependencies:
   - content_export_yaml
-# Information added by Drupal.org packaging script on 2019-11-06
-version: '8.x-2.9'
+# Information added by Drupal.org packaging script on 2019-08-25
+# version: '8.x-2.5'
+# project: 'content_export_yaml'
+# datestamp: 1566735185
+
+# Information added by Drupal.org packaging script on 2021-03-17
+version: '8.x-2.10'
 project: 'content_export_yaml'
-datestamp: 1573043300
+datestamp: 1615956314

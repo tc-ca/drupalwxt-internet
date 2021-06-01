@@ -8,6 +8,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Template\Attribute;
 use Drupal\webform\Entity\WebformSubmission;
+use Drupal\webform\Utility\WebformElementHelper;
+use Drupal\webform\Utility\WebformFormHelper;
 use Drupal\webform\Utility\WebformHtmlHelper;
 use Drupal\webform\Utility\WebformXss;
 use Drupal\webform\WebformSubmissionForm;
@@ -75,7 +77,14 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
     }
 
     if (!empty($element['#states'])) {
-      webform_process_states($element, '#wrapper_attributes');
+      if (!empty($element['#ajax'])) {
+        // The element's #states must be place outside the
+        // computed ajax wrapper.
+        WebformElementHelper::fixStatesWrapper($element);
+      }
+      else {
+        WebformFormHelper::processStates($element, '#wrapper_attributes');
+      }
     }
 
     // Add validate callback.
@@ -101,10 +110,12 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
       // Wrapping the computed element is two div tags.
       // div.js-webform-computed is used to initialize the Ajax updates.
       // div#wrapper_id is used to display response from the Ajax updates.
+      $element += ['#prefix' => '', '#suffix' => ''];
+
       $element['#wrapper_id'] = $wrapper_id;
-      $element['#prefix'] = '<div class="js-webform-computed" data-webform-element-keys="' . implode(',', $element_keys) . '">' .
+      $element['#prefix'] .= '<div class="js-webform-computed" data-webform-element-keys="' . implode(',', $element_keys) . '">' .
         '<div class="js-webform-computed-wrapper" id="' . $wrapper_id . '">';
-      $element['#suffix'] = '</div></div>';
+      $element['#suffix'] = '</div></div>' . $element['#suffix'];
 
       // Add hidden update button.
       $element['update'] = [
@@ -275,19 +286,11 @@ abstract class WebformComputedBase extends FormElement implements WebformCompute
       'data-webform-announce' => t('@title is @value', $t_args),
     ];
     $element['#prefix'] = '<div' . new Attribute($attributes) . '>';
-
     $element['#suffix'] = '</div>';
 
-    // Remove flexbox wrapper because it already been render outside this
-    // computed element's ajax wrapper.
-    // @see \Drupal\webform\Plugin\WebformElementBase::prepareWrapper
+    // Disable states and flexbox wrapper.
     // @see \Drupal\webform\Plugin\WebformElementBase::preRenderFixFlexboxWrapper
-    $preRenderFixFlexWrapper = ['Drupal\webform\Plugin\WebformElement\WebformComputedTwig', 'preRenderFixFlexboxWrapper'];
-    foreach ($element['#pre_render'] as $index => $pre_render) {
-      if (is_array($pre_render) && $pre_render === $preRenderFixFlexWrapper) {
-        unset($element['#pre_render'][$index]);
-      }
-    }
+    $element['#webform_wrapper'] = FALSE;
 
     return $element;
   }

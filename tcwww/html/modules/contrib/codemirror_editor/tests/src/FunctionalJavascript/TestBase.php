@@ -180,4 +180,13 @@ abstract class TestBase extends WebDriverTestBase {
     return '.js-form-item-editor-' . $this->activeEditor;
   }
 
+  /**
+   * Scrolls down the page.
+   */
+  protected function scrollToBottom() {
+    $this->getSession()
+      ->getDriver()
+      ->evaluateScript('window.scrollTo(0, document.body.scrollHeight)');
+  }
+
 }

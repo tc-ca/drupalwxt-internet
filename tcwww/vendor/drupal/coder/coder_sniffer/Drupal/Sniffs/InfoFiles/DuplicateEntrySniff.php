@@ -1,11 +1,16 @@
 <?php
 /**
- * Drupal_Sniffs_InfoFiles_DuplicateEntrySniff.
+ * \Drupal\Sniffs\InfoFiles\DuplicateEntrySniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace Drupal\Sniffs\InfoFiles;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
  * Make sure that entries in info files are specified only once.
@@ -14,18 +19,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sniff
+class DuplicateEntrySniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_INLINE_HTML);
+        return [T_INLINE_HTML];
 
     }//end register()
 
@@ -33,13 +38,13 @@ class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sni
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token in the
-     *                                        stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token in the
+     *                                               stack passed in $tokens.
      *
      * @return int
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         // Only run this sniff once per info file.
         $fileExtension = strtolower(substr($phpcsFile->getFilename(), -4));
@@ -52,7 +57,7 @@ class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sni
         if (empty($duplicates) === false) {
             foreach ($duplicates as $duplicate) {
                 $error = 'Duplicate entry for "%s" in info file';
-                $phpcsFile->addError($error, $stackPtr, 'DuplicateEntry', array($duplicate));
+                $phpcsFile->addError($error, $stackPtr, 'DuplicateEntry', [$duplicate]);
             }
         }
 
@@ -66,12 +71,12 @@ class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sni
      *
      * @param string $data The contents of the info file to parse
      *
-     * @return array A list of configuration keys that appear more than once.
+     * @return array<string> A list of configuration keys that appear more than once.
      */
     protected function findDuplicateInfoFileEntries($data)
     {
-        $info       = array();
-        $duplicates = array();
+        $info       = [];
+        $duplicates = [];
         $constants  = get_defined_constants();
 
         if (preg_match_all(
@@ -96,7 +101,7 @@ class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sni
             foreach ($matches as $match) {
                 // Fetch the key and value string.
                 $i = 0;
-                foreach (array('key', 'value1', 'value2', 'value3') as $var) {
+                foreach (['key', 'value1', 'value2', 'value3'] as $var) {
                     if (isset($match[++$i]) === true) {
                         $$var = $match[$i];
                     } else {
@@ -118,7 +123,7 @@ class Drupal_Sniffs_InfoFiles_DuplicateEntrySniff implements PHP_CodeSniffer_Sni
                     }
 
                     if (isset($parent[$key]) === false || is_array($parent[$key]) === false) {
-                        $parent[$key] = array();
+                        $parent[$key] = [];
                     }
 
                     $parent = &$parent[$key];

@@ -37,6 +37,13 @@ use Drupal\password_policy\PasswordPolicyInterface;
  *     "edit-form" = "/admin/config/security/password-policy/{machine_name}/{step}",
  *     "delete-form" = "/admin/config/security/password-policy/policy/delete/{password_policy}",
  *     "collection" = "/admin/config/security/password-policy"
+ *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *     "password_reset",
+ *     "policy_constraints",
+ *     "roles",
  *   }
  * )
  */

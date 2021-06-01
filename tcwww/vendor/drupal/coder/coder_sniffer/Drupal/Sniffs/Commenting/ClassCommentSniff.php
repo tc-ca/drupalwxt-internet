@@ -7,9 +7,15 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\Commenting;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Util\Tokens;
+
 /**
  * Checks that comment doc blocks exist on classes, interfaces and traits. Largely
- * copied from Squiz_Sniffs_Commenting_ClassCommentSniff.
+ * copied from PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting\ClassCommentSniff.
  *
  * @category  PHP
  * @package   PHP_CodeSniffer
@@ -19,22 +25,22 @@
  * @version   Release: @package_version@
  * @link      http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Sniff
+class ClassCommentSniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(
-                T_CLASS,
-                T_INTERFACE,
-                T_TRAIT,
-               );
+        return [
+            T_CLASS,
+            T_INTERFACE,
+            T_TRAIT,
+        ];
 
     }//end register()
 
@@ -42,16 +48,16 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
-        $find   = PHP_CodeSniffer_Tokens::$methodPrefixes;
+        $find   = Tokens::$methodPrefixes;
         $find[] = T_WHITESPACE;
         $name   = $tokens[$stackPtr]['content'];
 
@@ -59,7 +65,7 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
         if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
             && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
-            $fix = $phpcsFile->addFixableError('Missing %s doc comment', $stackPtr, 'Missing', array($name));
+            $fix = $phpcsFile->addFixableError('Missing %s doc comment', $stackPtr, 'Missing', [$name]);
             if ($fix === true) {
                 $phpcsFile->fixer->addContent($commentEnd, "\n/**\n *\n */");
             }
@@ -77,7 +83,7 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
         $fileTag = $phpcsFile->findNext(T_DOC_COMMENT_TAG, ($start + 1), $commentEnd, false, '@file');
         if ($fileTag !== false) {
             // This is a file comment.
-            $fix = $phpcsFile->addFixableError('Missing %s doc comment', $stackPtr, 'Missing', array($name));
+            $fix = $phpcsFile->addFixableError('Missing %s doc comment', $stackPtr, 'Missing', [$name]);
             if ($fix === true) {
                 $phpcsFile->fixer->addContent($commentEnd, "\n/**\n *\n */");
             }
@@ -86,7 +92,7 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
         }
 
         if ($tokens[$commentEnd]['code'] === T_COMMENT) {
-            $fix = $phpcsFile->addFixableError('You must use "/**" style comments for a %s comment', $stackPtr, 'WrongStyle', array($name));
+            $fix = $phpcsFile->addFixableError('You must use "/**" style comments for a %s comment', $stackPtr, 'WrongStyle', [$name]);
             if ($fix === true) {
                 // Convert the comment into a doc comment.
                 $phpcsFile->fixer->beginChangeset();
@@ -105,7 +111,7 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
 
         if ($tokens[$commentEnd]['line'] !== ($tokens[$stackPtr]['line'] - 1)) {
             $error = 'There must be exactly one newline after the %s comment';
-            $fix   = $phpcsFile->addFixableError($error, $commentEnd, 'SpacingAfter', array($name));
+            $fix   = $phpcsFile->addFixableError($error, $commentEnd, 'SpacingAfter', [$name]);
             if ($fix === true) {
                 $phpcsFile->fixer->beginChangeset();
                 for ($i = ($commentEnd + 1); $tokens[$i]['code'] === T_WHITESPACE && $i < $stackPtr; $i++) {
@@ -114,6 +120,31 @@ class Drupal_Sniffs_Commenting_ClassCommentSniff implements PHP_CodeSniffer_Snif
 
                 $phpcsFile->fixer->addContent($commentEnd, "\n");
                 $phpcsFile->fixer->endChangeset();
+            }
+        }
+
+        $comment = [];
+        for ($i = $start; $i < $commentEnd; $i++) {
+            if ($tokens[$i]['code'] === T_DOC_COMMENT_TAG) {
+                break;
+            }
+
+            if ($tokens[$i]['code'] === T_DOC_COMMENT_STRING) {
+                $comment[] = $tokens[$i]['content'];
+            }
+        }
+
+        $words = explode(' ', implode(' ', $comment));
+        if (count($words) <= 2) {
+            $className = $phpcsFile->getDeclarationName($stackPtr);
+
+            foreach ($words as $word) {
+                // Check if the comment contains the class name.
+                if (strpos($word, $className) !== false) {
+                    $error = 'The class short comment should describe what the class does and not simply repeat the class name';
+                    $phpcsFile->addWarning($error, $commentEnd, 'Short');
+                    break;
+                }
             }
         }
 

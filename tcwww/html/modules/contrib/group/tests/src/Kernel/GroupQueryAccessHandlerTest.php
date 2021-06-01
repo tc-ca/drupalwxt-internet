@@ -45,7 +45,7 @@ class GroupQueryAccessHandlerTest extends GroupKernelTestBase {
     foreach (['view', 'update', 'delete'] as $operation) {
       $conditions = $this->handler->getConditions($operation, $user);
       $this->assertEquals(0, $conditions->count());
-      $this->assertEquals(['user.group_permissions', 'user.permissions'], $conditions->getCacheContexts());
+      $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
       $this->assertFalse($conditions->isAlwaysFalse());
     }
   }

@@ -2,13 +2,16 @@
 
 namespace Drupal\password_policy\EventSubscriber;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
-use Drupal\user\Entity\User;
 
 /**
  * Enforces password reset functionality.
@@ -16,18 +19,66 @@ use Drupal\user\Entity\User;
 class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
 
   /**
+   * The currently logged in user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * The user storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $userStorage;
+
+  /**
+   * The request object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request|null
+   */
+  protected $request;
+
+  /**
+   * PasswordPolicyEventSubscriber constructor.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The currently logged in user.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function __construct(AccountProxyInterface $currentUser, EntityTypeManagerInterface $entityTypeManager, MessengerInterface $messenger, RequestStack $requestStack) {
+    $this->currentUser = $currentUser;
+    $this->messenger = $messenger;
+    $this->request = $requestStack->getCurrentRequest();
+    $this->userStorage = $entityTypeManager->getStorage('user');
+  }
+
+  /**
    * Event callback to look for users expired password.
    */
   public function checkForUserPasswordExpiration(GetResponseEvent $event) {
-    $account = \Drupal::currentUser();
     // There needs to be an explicit check for non-anonymous or else
     // this will be tripped and a forced redirect will occur.
-    if ($account->id() > 0) {
+    if ($this->currentUser->isAuthenticated()) {
       /* @var $user \Drupal\user\UserInterface */
-      $user = User::load($account->id());
-      $request = \Drupal::request();
+      $user = $this->userStorage->load($this->currentUser->id());
 
-      $route_name = $request->attributes->get(RouteObjectInterface::ROUTE_NAME);
+      $route_name = $this->request->attributes->get(RouteObjectInterface::ROUTE_NAME);
       $ignore_route = in_array($route_name, [
         'entity.user.edit_form',
         'system.ajax',
@@ -35,7 +86,7 @@ class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
         'admin_toolbar_tools.flush',
       ]);
 
-      $is_ajax = $request->headers->get('X_REQUESTED_WITH') == 'XMLHttpRequest';
+      $is_ajax = $this->request->headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest';
 
       $user_expired = FALSE;
       if ($user->get('field_password_expiration')->get(0)) {
@@ -48,9 +99,9 @@ class PasswordPolicyEventSubscriber implements EventSubscriberInterface {
       // TODO - Consider excluding admins here.
       if ($user_expired && !$ignore_route && !$is_ajax) {
         $url = new Url('entity.user.edit_form', ['user' => $user->id()]);
-        $url = $url->setAbsolute(TRUE)->toString();
+        $url = $url->setAbsolute()->toString();
         $event->setResponse(new RedirectResponse($url));
-        drupal_set_message(t('Your password has expired, please update it'), 'error');
+        $this->messenger->addError('Your password has expired, please update it');
       }
     }
   }

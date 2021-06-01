@@ -2,96 +2,16 @@
 
 namespace Drupal\group\Entity\Access;
 
-use Drupal\Core\Entity\EntityHandlerInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\entity\QueryAccess\ConditionGroup;
-use Drupal\entity\QueryAccess\QueryAccessEvent;
-use Drupal\entity\QueryAccess\QueryAccessHandlerInterface;
 use Drupal\group\Access\CalculatedGroupPermissionsItemInterface as CGPII;
-use Drupal\group\Access\GroupPermissionCalculatorInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Controls query access for group entities.
  *
  * @see \Drupal\entity\QueryAccess\QueryAccessHandler
  */
-class GroupQueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerInterface {
-
-  /**
-   * The entity type.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeInterface
-   */
-  protected $entityType;
-
-  /**
-   * The event dispatcher.
-   *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-   */
-  protected $eventDispatcher;
-
-  /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountInterface
-   */
-  protected $currentUser;
-
-  /**
-   * The group permission calculator.
-   *
-   * @var \Drupal\group\Access\GroupPermissionCalculatorInterface
-   */
-  protected $groupPermissionCalculator;
-
-  /**
-   * Constructs a new QueryAccessHandlerBase object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   The event dispatcher.
-   * @param \Drupal\Core\Session\AccountInterface $current_user
-   *   The current user.
-   * @param \Drupal\group\Access\GroupPermissionCalculatorInterface $permission_calculator
-   *   The group permission calculator.
-   */
-  public function __construct(EntityTypeInterface $entity_type, EventDispatcherInterface $event_dispatcher, AccountInterface $current_user, GroupPermissionCalculatorInterface $permission_calculator) {
-    $this->entityType = $entity_type;
-    $this->eventDispatcher = $event_dispatcher;
-    $this->currentUser = $current_user;
-    $this->groupPermissionCalculator = $permission_calculator;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('event_dispatcher'),
-      $container->get('current_user'),
-      $container->get('group_permission.chain_calculator')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getConditions($operation, AccountInterface $account = NULL) {
-    $account = $account ?: $this->currentUser;
-    $conditions = $this->buildConditions($operation, $account);
-
-    // Allow other modules to modify the conditions before they are used.
-    $event = new QueryAccessEvent($conditions, $operation, $account);
-    $this->eventDispatcher->dispatch('entity.query_access.' . $this->entityType->id(), $event);
-
-    return $conditions;
-  }
+class GroupQueryAccessHandler extends QueryAccessHandlerBase {
 
   /**
    * Retrieves the group permission name for the given operation.
@@ -133,9 +53,7 @@ class GroupQueryAccessHandler implements EntityHandlerInterface, QueryAccessHand
    *   The conditions.
    */
   protected function buildConditions($operation, AccountInterface $account) {
-    $permission = $this->getPermissionName($operation);
     $conditions = new ConditionGroup('OR');
-    $conditions->addCacheContexts(['user.group_permissions']);
 
     // @todo Remove these lines once we kill the bypass permission.
     // If the account can bypass group access, we do not alter the query at all.
@@ -143,6 +61,9 @@ class GroupQueryAccessHandler implements EntityHandlerInterface, QueryAccessHand
     if ($account->hasPermission('bypass group access')) {
       return $conditions;
     }
+
+    $permission = $this->getPermissionName($operation);
+    $conditions->addCacheContexts(['user.group_permissions']);
 
     $calculated_permissions = $this->groupPermissionCalculator->calculatePermissions($account);
     $allowed_ids = $all_ids = [];
@@ -154,7 +75,7 @@ class GroupQueryAccessHandler implements EntityHandlerInterface, QueryAccessHand
     }
 
     // If no group type or group gave access, we deny access altogether.
-    if (empty($allowed_ids[CGPII::SCOPE_GROUP_TYPE]) && empty($allowed_ids[CGPII::SCOPE_GROUP])) {
+    if (empty($allowed_ids)) {
       $conditions->alwaysFalse();
       return $conditions;
     }

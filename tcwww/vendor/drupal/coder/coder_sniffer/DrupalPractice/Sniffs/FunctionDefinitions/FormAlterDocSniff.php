@@ -1,11 +1,17 @@
 <?php
 /**
- * DrupalPractice_Sniffs_FunctionDefinitions_FormAlterDocSniff.
+ * \DrupalPractice\Sniffs\FunctionDefinitions\FormAlterDocSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace DrupalPractice\Sniffs\FunctionDefinitions;
+
+use PHP_CodeSniffer\Files\File;
+use Drupal\Sniffs\Semantics\FunctionDefinition;
+use DrupalPractice\Project;
 
 /**
  * Checks that the comment "Implements hook_form_alter()." actually matches the
@@ -15,22 +21,22 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class DrupalPractice_Sniffs_FunctionDefinitions_FormAlterDocSniff extends Drupal_Sniffs_Semantics_FunctionDefinition
+class FormAlterDocSniff extends FunctionDefinition
 {
 
 
     /**
      * Process this function definition.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile   The file being scanned.
-     * @param int                  $stackPtr    The position of the function name
-     *                                          in the stack.
-     * @param int                  $functionPtr The position of the function keyword
-     *                                          in the stack.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being scanned.
+     * @param int                         $stackPtr    The position of the function name
+     *                                                 in the stack.
+     * @param int                         $functionPtr The position of the function keyword
+     *                                                 in the stack.
      *
      * @return void
      */
-    public function processFunction(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $functionPtr)
+    public function processFunction(File $phpcsFile, $stackPtr, $functionPtr)
     {
         $tokens        = $phpcsFile->getTokens();
         $docCommentEnd = $phpcsFile->findPrevious(T_WHITESPACE, ($functionPtr - 1), null, true);
@@ -55,17 +61,17 @@ class DrupalPractice_Sniffs_FunctionDefinitions_FormAlterDocSniff extends Drupal
             return;
         }
 
-        $projectName = DrupalPractice_Project::getName($phpcsFile);
+        $projectName = Project::getName($phpcsFile);
         if ($projectName === false) {
             return;
         }
 
         if ($tokens[$stackPtr]['content'] !== $projectName.'_form_alter') {
             $warning = 'Doc comment indicates hook_form_alter() but function signature is "%s" instead of "%s". Did you mean hook_form_FORM_ID_alter()?';
-            $data    = array(
-                        $tokens[$stackPtr]['content'],
-                        $projectName.'_form_alter',
-                       );
+            $data    = [
+                $tokens[$stackPtr]['content'],
+                $projectName.'_form_alter',
+            ];
             $phpcsFile->addWarning($warning, $commentLine, 'Different', $data);
         }
 

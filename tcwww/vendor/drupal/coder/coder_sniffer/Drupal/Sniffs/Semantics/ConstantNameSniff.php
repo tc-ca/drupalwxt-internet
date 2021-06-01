@@ -1,11 +1,15 @@
 <?php
 /**
- * Drupal_Sniffs_Semantics_ConstantNameSniff
+ * \Drupal\Sniffs\Semantics\ConstantNameSniff
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace Drupal\Sniffs\Semantics;
+
+use PHP_CodeSniffer\Files\File;
 
 /**
  * Checks that constants introduced with define() in module or install files start
@@ -15,18 +19,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Semantics_ConstantNameSniff extends Drupal_Sniffs_Semantics_FunctionCall
+class ConstantNameSniff extends FunctionCall
 {
 
 
     /**
      * Returns an array of function names this test wants to listen for.
      *
-     * @return array
+     * @return array<string>
      */
     public function registerFunctionNames()
     {
-        return array('define');
+        return ['define'];
 
     }//end registerFunctionNames()
 
@@ -34,18 +38,18 @@ class Drupal_Sniffs_Semantics_ConstantNameSniff extends Drupal_Sniffs_Semantics_
     /**
      * Processes this function call.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile    The file being scanned.
-     * @param int                  $stackPtr     The position of the function call in
-     *                                           the stack.
-     * @param int                  $openBracket  The position of the opening
-     *                                           parenthesis in the stack.
-     * @param int                  $closeBracket The position of the closing
-     *                                           parenthesis in the stack.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile    The file being scanned.
+     * @param int                         $stackPtr     The position of the function call in
+     *                                                  the stack.
+     * @param int                         $openBracket  The position of the opening
+     *                                                  parenthesis in the stack.
+     * @param int                         $closeBracket The position of the closing
+     *                                                  parenthesis in the stack.
      *
      * @return void
      */
     public function processFunctionCall(
-        PHP_CodeSniffer_File $phpcsFile,
+        File $phpcsFile,
         $stackPtr,
         $openBracket,
         $closeBracket
@@ -70,10 +74,10 @@ class Drupal_Sniffs_Semantics_ConstantNameSniff extends Drupal_Sniffs_Semantics_
         $constant = substr($tokens[$argument['start']]['content'], 1, -1);
         if (strpos($constant, $expectedStart) !== 0) {
             $warning = 'All constants defined by a module must be prefixed with the module\'s name, expected "%s" but found "%s"';
-            $data    = array(
-                        $expectedStart."_$constant",
-                        $constant,
-                       );
+            $data    = [
+                $expectedStart."_$constant",
+                $constant,
+            ];
             $phpcsFile->addWarning($warning, $stackPtr, 'ConstantStart', $data);
         }
 

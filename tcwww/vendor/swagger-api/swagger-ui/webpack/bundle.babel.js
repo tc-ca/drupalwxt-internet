@@ -2,9 +2,18 @@
  * @prettier
  */
 
-import path from "path"
+/** Dev Note: 
+ * StatsWriterPlugin is disabled by default; uncomment to enable
+ * when enabled, rebuilding the bundle will cause error for assetSizeLimit,
+ * which we want to keep out of CI/CD
+ * post build, cli command: npx webpack-bundle-analyzer <path>
+ */ 
 
 import configBuilder from "./_config-builder"
+import { DuplicatesPlugin } from "inspectpack/plugin"
+import { WebpackBundleSizeAnalyzerPlugin } from "webpack-bundle-size-analyzer"
+// import path from "path"
+// import { StatsWriterPlugin } from "webpack-stats-plugin"
 
 const result = configBuilder(
   {
@@ -16,22 +25,26 @@ const result = configBuilder(
   {
     entry: {
       "swagger-ui-bundle": [
-        "./src/polyfills.js", // TODO: remove?
-        "./src/core/index.js",
+        "./src/index.js",
       ],
     },
-
     output: {
+      globalObject: "this",
       library: "SwaggerUIBundle",
     },
-    resolve: {
-      // these aliases make sure that we don't bundle same libraries twice
-      // when the versions of these libraries diverge between swagger-js and swagger-ui
-      alias: {
-        "@babel/runtime-corejs2": path.resolve(__dirname, '..', 'node_modules/@babel/runtime-corejs2'),
-        "js-yaml": path.resolve(__dirname, '..', 'node_modules/js-yaml')
-      },
-    },
+    plugins: [
+      new DuplicatesPlugin({
+        // emit compilation warning or error? (Default: `false`)
+        emitErrors: false,
+        // display full duplicates information? (Default: `false`)
+        verbose: false,
+      }),
+      new WebpackBundleSizeAnalyzerPlugin("log.bundle-sizes.swagger-ui.txt"),
+      // new StatsWriterPlugin({
+      //   filename: path.join("log.bundle-stats.swagger-ui.json"),
+      //   fields: null,
+      // }),
+    ]
   }
 )
 

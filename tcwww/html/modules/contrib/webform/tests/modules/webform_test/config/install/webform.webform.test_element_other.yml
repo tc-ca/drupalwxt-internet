@@ -63,6 +63,14 @@ elements: |
         - One
         - Two
         - Four
+    select_other_zero:
+      '#type': webform_select_other
+      '#title': 'Select other zero'
+      '#options':
+        One: One
+        Two: Two
+        Three: Three
+      '#default_value': 0
   checkboxes_other:
     '#type': details
     '#title': 'Checkboxes other (checkboxes_other)'
@@ -279,6 +287,7 @@ settings:
   results_customize: false
   token_view: false
   token_update: false
+  token_delete: false
   serial_disabled: false
 access:
   create:

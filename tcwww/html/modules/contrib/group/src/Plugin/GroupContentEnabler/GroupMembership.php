@@ -26,7 +26,12 @@ use Drupal\Core\Session\AccountInterface;
  *   pretty_path_key = "member",
  *   reference_label = @Translation("User"),
  *   reference_description = @Translation("The user you want to make a member"),
- *   enforced = TRUE
+ *   enforced = TRUE,
+ *   handlers = {
+ *     "access" = "Drupal\group\Plugin\GroupContentAccessControlHandler",
+ *     "permission_provider" = "Drupal\group\Plugin\GroupMembershipPermissionProvider",
+ *   },
+ *   admin_permission = "administer members"
  * )
  */
 class GroupMembership extends GroupContentEnablerBase {
@@ -71,83 +76,6 @@ class GroupMembership extends GroupContentEnablerBase {
     $cacheable_metadata = new CacheableMetadata();
     $cacheable_metadata->setCacheContexts(['user']);
     return $cacheable_metadata;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getGroupContentPermissions() {
-    $permissions = parent::getGroupContentPermissions();
-
-    // Add extra permissions specific to membership group content entities.
-    $permissions['administer members'] = [
-      'title' => 'Administer group members',
-      'restrict access' => TRUE,
-    ];
-
-    $permissions['join group'] = [
-      'title' => 'Join group',
-      'allowed for' => ['outsider'],
-    ];
-
-    $permissions['leave group'] = [
-      'title' => 'Leave group',
-      'allowed for' => ['member'],
-    ];
-
-    // Update the labels of the default permissions.
-    $permissions['view group_membership content']['title'] = 'View individual group members';
-    $permissions['update own group_membership content']['title'] = 'Edit own membership';
-
-    // Only members can update their membership.
-    $permissions['update own group_membership content']['allowed for'] = ['member'];
-
-    // These are handled by 'administer members', 'join group' or 'leave group'.
-    unset($permissions['create group_membership content']);
-    unset($permissions['update any group_membership content']);
-    unset($permissions['delete any group_membership content']);
-    unset($permissions['delete own group_membership content']);
-
-    return $permissions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function createAccess(GroupInterface $group, AccountInterface $account) {
-    return GroupAccessResult::allowedIfHasGroupPermission($group, $account, 'administer members');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function viewAccess(GroupContentInterface $group_content, AccountInterface $account) {
-    $group = $group_content->getGroup();
-    $permissions = ['view group_membership content', 'administer members'];
-    return GroupAccessResult::allowedIfHasGroupPermissions($group, $account, $permissions, 'OR');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function updateAccess(GroupContentInterface $group_content, AccountInterface $account) {
-    $group = $group_content->getGroup();
-
-    // Allow members to edit their own membership data.
-    if ($group_content->entity_id->entity->id() == $account->id()) {
-      $permissions = ['update own group_membership content', 'administer members'];
-      return GroupAccessResult::allowedIfHasGroupPermissions($group, $account, $permissions, 'OR');
-    }
-
-    return GroupAccessResult::allowedIfHasGroupPermission($group, $account, 'administer members');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function deleteAccess(GroupContentInterface $group_content, AccountInterface $account) {
-    $group = $group_content->getGroup();
-    return GroupAccessResult::allowedIfHasGroupPermission($group, $account, 'administer members');
   }
 
   /**

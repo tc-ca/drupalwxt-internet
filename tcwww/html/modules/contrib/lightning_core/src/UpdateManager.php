@@ -192,7 +192,7 @@ class UpdateManager {
       $doc_comment = trim($method->getDocComment());
 
       if ($doc_comment) {
-        $doc_block = $this->docBlockFactory->create($doc_comment);
+        $doc_block = $this->docBlockFactory->create($method);
 
         if ($doc_block->hasTag('update')) {
           yield new UpdateTask($handler, $method, $doc_block);

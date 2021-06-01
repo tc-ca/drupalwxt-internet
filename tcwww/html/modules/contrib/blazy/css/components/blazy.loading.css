@@ -30,16 +30,20 @@
   }
 }
 
-.media--loading {
+/* @todo deprecated and removed media--loading for is-b-loading to make sense outside media. */
+.media--loading,
+.is-b-loading {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   position: relative;
   min-height: 30px;
 }
 
-.media--loading::before {
+/* Prevents costly double animations when Blur is enabled. */
+.media--loading:not([data-animation])::before,
+.is-b-loading:not([data-animation])::before {
   content: '';
-  display: none;
+  display: block;
   width: 30px;
   height: 30px;
   max-width: 30px;
@@ -58,22 +62,15 @@
 /**
  * With JS being disabled, the NOSCRIPT tag is replaced by SPAN.
  * No worries about video iframes, they are broken without JS anyway.
+ * Hide JS stuffs when being disabled. Ensures to not mess up JS users.
  */
-.blazy--on .media--loading::before {
-  display: block;
-}
-
-/** Hide JS stuffs when being disabled. Ensures to not mess up JS users.
-.media--loading.media--player > span ~ .media__icon, */
 .media--loading > span + .b-lazy,
 .media--loading > span + picture,
 .media--loading > span + a,
-.media--loading.media--player > span ~ .b-lazy {
+.media--loading.media--player > span ~ .b-lazy,
+.is-b-loading > span + .b-lazy,
+.is-b-loading > span + picture,
+.is-b-loading > span + a,
+.is-b-loading.media--player > span ~ .b-lazy {
   display: none;
-}
-
-/* Must blur to avoid artifacts from showing regardless animation name.
-.b-bg.media--loading[data-animation], */
-.media--loading[data-animation] img {
-  filter: blur(6px);
 }

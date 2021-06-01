@@ -25,7 +25,7 @@ components:
   - lightning_media_twitter
   - lightning_media_video
 
-# Information added by Drupal.org packaging script on 2020-02-20
-version: '8.x-3.16'
+# Information added by Drupal.org packaging script on 2021-02-08
+version: '8.x-3.21'
 project: 'lightning_media'
-datestamp: 1582235392
+datestamp: 1612802619

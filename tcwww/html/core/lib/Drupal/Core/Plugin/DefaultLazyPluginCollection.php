@@ -64,9 +64,9 @@ class DefaultLazyPluginCollection extends LazyPluginCollection {
 
     if (!empty($configurations)) {
       $instance_ids = array_keys($configurations);
-      $this->instanceIDs = array_combine($instance_ids, $instance_ids);
+      $this->instanceIds = array_combine($instance_ids, $instance_ids);
       // Store the original order of the instance IDs for export.
-      $this->originalOrder = $this->instanceIDs;
+      $this->originalOrder = $this->instanceIds;
     }
   }
 
@@ -89,10 +89,10 @@ class DefaultLazyPluginCollection extends LazyPluginCollection {
   public function sort() {
     // Iterate to force lazy loading so uasort doesn't trigger changes
     // that cause "Array was modified" warning.
-    foreach($this->instanceIDs as $id){
+    foreach($this->instanceIds as $id){
       $this->get($id)->getPluginId();
     }
-    uasort($this->instanceIDs, [$this, 'sortHelper']);
+    uasort($this->instanceIds, [$this, 'sortHelper']);
     return $this;
   }
 
@@ -111,10 +111,10 @@ class DefaultLazyPluginCollection extends LazyPluginCollection {
   public function getConfiguration() {
     $instances = [];
     // Store the current order of the instances.
-    $current_order = $this->instanceIDs;
+    $current_order = $this->instanceIds;
     // Reorder the instances to match the original order, adding new instances
     // to the end.
-    $this->instanceIDs = $this->originalOrder + $current_order;
+    $this->instanceIds = $this->originalOrder + $current_order;
 
     foreach ($this as $instance_id => $instance) {
       if (PluginHelper::isConfigurable($instance)) {
@@ -125,7 +125,7 @@ class DefaultLazyPluginCollection extends LazyPluginCollection {
       }
     }
     // Restore the current order.
-    $this->instanceIDs = $current_order;
+    $this->instanceIds = $current_order;
     return $instances;
   }
 

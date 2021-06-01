@@ -66,6 +66,13 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
+    $form['native'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Native browser lazy load'),
+      '#default_value' => $config->get('native'),
+      '#description'   => $this->t('Native lazy loading is supported by Chrome 76+ as of 01/2019, and Firefox 76+ 5/2020. Blazy or IO will be used as fallback for other browsers instead. If enabled, Blur effect, preloader animation, image transition, and other animations, or other fancy features which depend on visibility delays, may no longer work for the below-fold contents till we have a nicer integration. This also may trick us to think lazy load not work, check out Blazy docs or project issues for better explanations.'),
+    ];
+
     $form['noscript'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Add noscript'),
@@ -92,7 +99,17 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
       '#default_value' => $config->get('placeholder'),
-      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
+      '#description'   => $this->t("Overrides global 1px placeholder. Can be URL, e.g.: /blank.gif or /blank.svg. Be warned: unlike .svg, browsers have display issues with 1px .gif, see <a href=':url1'>#2795415</a>. Only useful if continuously using Views rewrite results, see <a href=':url2'>#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default inline SVG or Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty. The <b>blank.svg</b> content sample if not using blank.gif: <br><code>&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'/&gt;</code>", [
+        ':url1' => 'https://drupal.org/node/2795415',
+        ':url2' => 'https://drupal.org/node/2908861',
+      ]),
+    ];
+
+    $form['unstyled_extensions'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('Extensions without image styles'),
+      '#default_value' => $config->get('unstyled_extensions'),
+      '#description'   => $this->t('Extensions that should not use (Responsive) image style, space delimited without dot, e.g.: <code>gif apng</code> <br>Normally animated images. No way to distinguish animated from static gif, it is all or nothing. This means no thumbnail, no blur, nor features which makes use image style. Default to svg.'),
     ];
 
     $form['fx'] = [
@@ -101,7 +118,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#empty_option'  => '- None -',
       '#options'       => $this->manager->getImageEffects(),
       '#default_value' => $config->get('fx'),
-      '#description'   => $this->t('Choose the image effect. Note! This will override Placeholder option. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Currently only works with a proper Aspect ratio as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>width: 100%</code> to the blurred image if doable with your design.'),
+      '#description'   => $this->t('Choose the image effect. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Best with a proper Aspect ratio option as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>min-height</code> for each mediaquery. The Placeholder option is still respected.'),
     ];
 
     $form['blazy'] = [
@@ -223,14 +240,25 @@ class BlazySettingsForm extends ConfigFormBase {
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('fx', $form_state->getValue('fx'))
+      ->set('native', $form_state->getValue('native'))
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('placeholder', $form_state->getValue('placeholder'))
-      ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
+      ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
+      ->set('blazy.loadInvisible', $form_state->getValue([
+        'blazy',
+        'loadInvisible',
+      ]))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
-      ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))
-      ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']))
+      ->set('blazy.saveViewportOffsetDelay', $form_state->getValue([
+        'blazy',
+        'saveViewportOffsetDelay',
+      ]))
+      ->set('blazy.validateDelay', $form_state->getValue([
+        'blazy',
+        'validateDelay',
+      ]))
       ->set('blazy.container', $form_state->getValue(['blazy', 'container']))
       ->set('io.enabled', $form_state->getValue(['io', 'enabled']))
       ->set('io.unblazy', $form_state->getValue(['io', 'unblazy']))

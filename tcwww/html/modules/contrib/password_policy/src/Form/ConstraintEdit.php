@@ -56,7 +56,7 @@ class ConstraintEdit extends FormBase {
   /**
    * Overriding the constructor to load in the plugin manager and tempstore.
    *
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore
    *   The tempstore of the wizard form.
    * @param \Drupal\Component\Plugin\PluginManagerInterface $manager
    *   The plugin manager for the password constraints.

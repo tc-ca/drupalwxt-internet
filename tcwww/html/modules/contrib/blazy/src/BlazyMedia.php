@@ -3,9 +3,11 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\media\Entity\Media;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
- * Impelements BlazyMediaInterface.
+ * Provides extra utilities to work with core Media.
  */
 class BlazyMedia implements BlazyMediaInterface {
 
@@ -169,12 +171,24 @@ class BlazyMedia implements BlazyMediaInterface {
       if (isset($value[0]) && !empty($value[0]['target_id'])) {
         // If image, even if multi-value, we can only have one stage per slide.
         if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
-          /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-          $data['item'] = $file->get(0);
+          $reference = $file->referencedEntities()[0];
 
-          // Collects cache tags to be added for each item in the field.
-          $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
-          $settings['uri'] = Blazy::uri($data['item']);
+          /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+          /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
+          $image = $file->first();
+
+          /** @var Drupal\media\Entity\Media $reference */
+          if ($reference instanceof Media) {
+            self::mediaItem($data, $reference);
+          }
+          // @todo re-check this, unknown status for File entity now.
+          elseif ($image instanceof ImageItem) {
+            $data['item'] = $image;
+
+            // Collects cache tags to be added for each item in the field.
+            $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
+            $settings['uri'] = Blazy::uri($data['item']);
+          }
         }
       }
     }

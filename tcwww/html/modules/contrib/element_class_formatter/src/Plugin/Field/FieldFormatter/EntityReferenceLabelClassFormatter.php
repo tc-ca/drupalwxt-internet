@@ -85,7 +85,7 @@ class EntityReferenceLabelClassFormatter extends EntityReferenceLabelFormatter {
     $elements = parent::viewElements($items, $langcode);
     $class = $this->getSetting('class');
 
-    foreach ($items as $delta => $item) {
+    foreach ($this->getEntitiesToView($items, $langcode) as $delta => $item) {
       // If it's a link add the class.
       if (isset($elements[$delta]['#type']) && $elements[$delta]['#type'] === 'link') {
         if (!empty($class)) {

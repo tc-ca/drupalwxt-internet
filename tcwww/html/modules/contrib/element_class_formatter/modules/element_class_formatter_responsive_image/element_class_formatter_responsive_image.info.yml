@@ -1,0 +1,15 @@
+name: Element Class Formatter Responsive Image
+type: module
+description: A field formatter which adds classes to Responsive Image elements.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Fields
+
+dependencies:
+  - element_class_formatter:element_class_formatter
+  - drupal:responsive_image
+
+# Information added by Drupal.org packaging script on 2020-10-23
+version: '8.x-1.3'
+project: 'element_class_formatter'
+datestamp: 1603425795

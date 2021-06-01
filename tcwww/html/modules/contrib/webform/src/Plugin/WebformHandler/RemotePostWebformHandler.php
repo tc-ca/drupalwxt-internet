@@ -2,7 +2,11 @@
 
 namespace Drupal\webform\Plugin\WebformHandler;
 
+use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\TrustedRedirectResponse;
@@ -82,11 +86,11 @@ class RemotePostWebformHandler extends WebformHandlerBase {
   protected $elementManager;
 
   /**
-   * The current request.
+   * The request stack.
    *
-   * @var \Symfony\Component\HttpFoundation\Request
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $request;
+  protected $requestStack;
 
   /**
    * The DrupalKernel instance used in the test.
@@ -137,7 +141,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       $container->get('plugin.manager.webform.element')
     );
 
-    $instance->request = $container->get('request_stack')->getCurrentRequest();
+    $instance->requestStack = $container->get('request_stack');
     $instance->kernel = $container->get('kernel');
 
     return $instance;
@@ -300,6 +304,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       '#options' => [
         'POST' => 'POST',
         'PUT' => 'PUT',
+        'PATCH' => 'PATCH',
         'GET' => 'GET',
       ],
       '#default_value' => $this->configuration['method'],
@@ -395,7 +400,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
     $form['additional']['error_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Custom error response redirect URL'),
-      '#description' => $this->t('The URL or path to redirect to when a remote fails.', $t_args),
+      '#description' => $this->t('The URL or path to redirect to when a remote fails.'),
       '#default_value' => $this->configuration['error_url'],
       '#pattern' => '(https?:\/\/|\/).+',
     ];
@@ -593,6 +598,12 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       $element = $webform->getElement($element_key);
       if (!$element) {
         continue;
+      }
+
+      // Cast markup to string. This only applies to computed Twig values.
+      // @see \Drupal\webform\Element\WebformComputedTwig::computeValue
+      if ($element_value instanceof MarkupInterface) {
+        $data[$element_key] = $element_value = (string) $element_value;
       }
 
       $element_plugin = $this->elementManager->getElementInstance($element);
@@ -962,7 +973,6 @@ class RemotePostWebformHandler extends WebformHandlerBase {
             '#suffix' => '</pre>',
           ],
         ];
-
       }
       if ($tokens = $this->getResponseTokens($response_data, ['webform', 'handler', $this->getHandlerId(), $state])) {
         asort($tokens);
@@ -1055,13 +1065,30 @@ class RemotePostWebformHandler extends WebformHandlerBase {
       if (strpos($error_url, '/') === 0) {
         $error_url = $base_url . preg_replace('#^' . $base_path . '#', '/', $error_url);
       }
-      $response = new TrustedRedirectResponse($error_url);
+
+      $request = $this->requestStack->getCurrentRequest();
+
+      // Build Ajax redirect or trusted redirect response.
+      $wrapper_format = $request->get(MainContentViewSubscriber::WRAPPER_FORMAT);
+      $is_ajax_request = ($wrapper_format === 'drupal_ajax');
+      if ($is_ajax_request) {
+        $response = new AjaxResponse();
+        $response->addCommand(new RedirectCommand($error_url));
+        $response->setData($response->getCommands());
+      }
+      else {
+        $response = new TrustedRedirectResponse($error_url);
+      }
       // Save the session so things like messages get saved.
-      $this->request->getSession()->save();
-      $response->prepare($this->request);
+      $request->getSession()->save();
+      $response->prepare($request);
       // Make sure to trigger kernel events.
-      $this->kernel->terminate($this->request, $response);
+      $this->kernel->terminate($request, $response);
       $response->send();
+      // Only exit, an Ajax request to prevent headers from being overwritten.
+      if ($is_ajax_request) {
+        exit;
+      }
     }
   }
 

@@ -7,7 +7,7 @@ configure: entity.business_rule.collection
 dependencies:
   - dbug:dbug
 
-# Information added by Drupal.org packaging script on 2020-04-27
-version: '8.x-1.0-beta10'
+# Information added by Drupal.org packaging script on 2021-02-18
+version: '8.x-1.0-beta13'
 project: 'business_rules'
-datestamp: 1588003784
+datestamp: 1613614893

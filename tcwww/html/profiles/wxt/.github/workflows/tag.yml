@@ -1,0 +1,117 @@
+name: tag
+on:
+  push:
+    tags:
+    - '*'
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  COMPOSER_MEMORY_LIMIT: -1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Export github reference var
+      run: echo "GITHUB_REFERENCE=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
+
+    - name: Export drupal semver
+      run: echo "DRUPAL_SEMVER=$(echo ${{ env.GITHUB_REFERENCE }} | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\1.\2\3/g')" >> $GITHUB_ENV
+
+    - name: Setup dependencies
+      run: |
+        git config --global user.email "development+drupalwxt@zacharyseguin.ca"
+        git config --global user.name "drupalwxt-svc"
+        git clone --branch 8.x https://drupalwxt-svc:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/drupalwxt/site-wxt.git
+        cd site-wxt
+        rm composer.lock
+
+    - uses: statcan/actions/composer@master
+      with:
+        args: require drupalwxt/wxt:${{ env.GITHUB_REFERENCE }} --working-dir=./site-wxt
+
+    - name: Build out the Drupal infrastructure
+      run: |
+        cd site-wxt
+        git clone --branch master https://github.com/drupalwxt/docker-scaffold.git docker
+        make build
+        docker-compose -f docker-compose-ci.yml up -d
+        docker ps -a
+        sleep 10
+
+    - name: Run installation and tests
+      run: |
+        cd site-wxt
+        make drupal_install
+        make drupal_migrate
+        # Change ownership on html/core to allow files to be copied (see drupal_cs in Makefile)
+        sudo chown -R $(id -u) html/core
+        make test
+
+    - name: Generate tarball
+      run: |
+        sudo rm -rf site-wxt
+        composer global require grasmash/yaml-cli
+        export PATH=/home/runner/.composer/vendor/bin:$PATH
+        ./tarball.sh ${{ env.DRUPAL_SEMVER }}
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.GITHUB_REFERENCE }}
+        release_name: ${{ env.GITHUB_REFERENCE }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./wxt-8.x-${{ env.DRUPAL_SEMVER }}.tar.gz
+        asset_name: wxt-8.x-${{ env.DRUPAL_SEMVER }}.tar.gz
+        asset_content_type: application/tar+gzip
+
+    - name: Checkout repos to update tags
+      run: |
+        git clone --branch 8.x https://drupalwxt-svc:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/drupalwxt/site-wxt.git
+
+    - name: Enter the site-wxt directory
+      working-directory: ./site-wxt
+      run: |
+        rm composer.lock
+
+    - uses: statcan/actions/composer@master
+      env:
+        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+      with:
+        args: install --working-dir=./site-wxt
+
+    - name: Push to site-wxt the latest build sha
+      working-directory: ./site-wxt
+      run: |
+        git add .
+        git commit -m "Update to latest version of WxT ${{ env.GITHUB_REFERENCE }}" || true
+        git push origin 8.x
+
+    # Connect to Container registry
+    - uses: azure/docker-login@v1
+      with:
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    # Container build and push to a Container registry
+    - run: |
+        docker tag site-wxt_web:latest drupalwxt/site-wxt:${{ env.GITHUB_REFERENCE }}
+        docker tag site-wxt_nginx:latest drupalwxt/site-wxt:${{ env.GITHUB_REFERENCE }}-nginx
+        docker tag site-wxt_web:latest drupalwxt/site-wxt:latest
+        docker tag site-wxt_nginx:latest drupalwxt/site-wxt:latest-nginx
+        docker push drupalwxt/site-wxt:${{ env.GITHUB_REFERENCE }}
+        docker push drupalwxt/site-wxt:${{ env.GITHUB_REFERENCE }}-nginx

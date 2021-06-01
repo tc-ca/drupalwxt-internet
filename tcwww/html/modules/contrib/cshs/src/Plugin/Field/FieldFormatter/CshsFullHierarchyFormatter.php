@@ -14,7 +14,7 @@ use Drupal\Core\Field\FieldItemListInterface;
  *   description = @Translation("Display the full hierarchy of the taxonomy term."),
  *   field_types = {
  *     "entity_reference",
- *   }
+ *   },
  * )
  */
 class CshsFullHierarchyFormatter extends CshsFormatterBase {
@@ -22,14 +22,14 @@ class CshsFullHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
+  public static function defaultSettings(): array {
     return ['separator' => ' » '] + parent::defaultSettings();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     $element = parent::settingsForm($form, $form_state);
 
     $element['separator'] = [
@@ -45,7 +45,7 @@ class CshsFullHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsSummary() {
+  public function settingsSummary(): array {
     $summary = parent::settingsSummary();
     $separator = $this->getSetting('separator');
 
@@ -59,20 +59,14 @@ class CshsFullHierarchyFormatter extends CshsFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = [];
-
+  public function viewElements(FieldItemListInterface $items, $langcode): array {
     $linked = $this->getSetting('linked');
     $reverse = $this->getSetting('reverse');
     $separator = $this->getSetting('separator') ?: ' ';
+    $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $term) {
-      $terms = [];
-
-      foreach ($this->getTermParents($term) as $parent) {
-        $terms[] = $linked ? $parent->link() : $this->getTranslationFromContext($parent)->label();
-      }
-
+      $terms = $this->getTermsLabels($this->getTermParents($term), $linked);
       $elements[$delta]['#markup'] = \implode($separator, $reverse ? \array_reverse($terms) : $terms);
     }
 

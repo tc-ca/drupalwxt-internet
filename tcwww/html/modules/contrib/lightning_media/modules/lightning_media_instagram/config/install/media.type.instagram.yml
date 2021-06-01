@@ -1,4 +1,4 @@
-langcode: und
+langcode: en
 status: true
 dependencies:
   module:
@@ -6,7 +6,9 @@ dependencies:
 id: instagram
 label: Instagram
 description: 'Instagram posts.'
-source: instagram
+source: 'oembed:instagram'
+queue_thumbnail_downloads: false
+new_revision: false
 source_configuration:
   source_field: embed_code
 field_map: {  }

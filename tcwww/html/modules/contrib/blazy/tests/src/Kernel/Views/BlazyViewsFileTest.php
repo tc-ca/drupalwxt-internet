@@ -132,7 +132,7 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
 
     $output = $view->preview();
     $output = $this->blazyManager->getRenderer()->renderRoot($output);
-    $this->assertTrue(strpos($output, 'data-blazy') !== FALSE, 'Blazy attribute is added to DIV.');
+    $this->assertStringContainsString('data-blazy', $output);
 
     $element = ['settings' => $settings];
     $view->getStyle()->buildElement($element, $row, $index);

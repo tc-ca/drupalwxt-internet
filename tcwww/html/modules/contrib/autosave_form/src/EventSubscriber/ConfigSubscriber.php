@@ -37,7 +37,7 @@ class ConfigSubscriber implements EventSubscriberInterface {
    * been used and its display has been changed, which is why we purge the whole
    * autosave storage. Otherwise a much more complex detection mechanism will
    * be needed. We though try to prevent the purging in case a change on an
-   * property is made, which does't influence the form functionality - e.g. if
+   * property is made, which doesn't influence the form functionality - e.g. if
    * the label of a field is changed then we don't have to purge the autosave
    * states.
    *

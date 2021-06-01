@@ -7,7 +7,7 @@ namespace Drupal\Tests\codemirror_editor\FunctionalJavascript;
  *
  * @group codemirror_editor
  */
-class FormatterTest extends TestBase {
+final class FormatterTest extends TestBase {
 
   /**
    * {@inheritdoc}

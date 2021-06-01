@@ -9,6 +9,7 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Utility\Token;
 use Drupal\file\FileInterface;
@@ -82,6 +83,13 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
   protected $messenger;
 
   /**
+   * The stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   */
+  protected $streamWrapperManager;
+
+  /**
    * Construct the DropzoneUploadSave object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -100,8 +108,10 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
    *   The token service.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   *   The stream wrapper manager.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MimeTypeGuesserInterface $mimetype_guesser, FileSystemInterface $file_system, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer, ConfigFactoryInterface $config_factory, Token $token, MessengerInterface $messenger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MimeTypeGuesserInterface $mimetype_guesser, FileSystemInterface $file_system, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer, ConfigFactoryInterface $config_factory, Token $token, MessengerInterface $messenger, StreamWrapperManagerInterface $stream_wrapper_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->mimeTypeGuesser = $mimetype_guesser;
     $this->fileSystem = $file_system;
@@ -110,6 +120,7 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
     $this->configFactory = $config_factory;
     $this->token = $token;
     $this->messenger = $messenger;
+    $this->streamWrapperManager = $stream_wrapper_manager;
   }
 
   /**
@@ -117,7 +128,7 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
    */
   public function createFile($uri, $destination, $extensions, AccountProxyInterface $user, array $validators = []) {
     // Create the file entity.
-    $uri = file_stream_wrapper_uri_normalize($uri);
+    $uri = $this->streamWrapperManager->normalizeUri($uri);
     $file_info = new \SplFileInfo($uri);
 
     /** @var \Drupal\file\FileInterface $file */
@@ -229,8 +240,8 @@ class DropzoneJsUploadSave implements DropzoneJsUploadSaveInterface {
    */
   protected function prepareDestination(FileInterface $file, $destination) {
     // Assert that the destination contains a valid stream.
-    $destination_scheme = $this->fileSystem->uriScheme($destination);
-    if (!$this->fileSystem->validScheme($destination_scheme)) {
+    $destination_scheme = $this->streamWrapperManager::getScheme($destination);
+    if (!$this->streamWrapperManager->isValidScheme($destination_scheme)) {
       return FALSE;
     }
 

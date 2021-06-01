@@ -3,6 +3,7 @@
 namespace Drupal\Tests\entity_clone\Functional;
 
 use Drupal\node\Entity\Node;
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 use Drupal\Tests\node\Functional\NodeTestBase;
 
 /**
@@ -12,12 +13,14 @@ use Drupal\Tests\node\Functional\NodeTestBase;
  */
 class EntityCloneContentTest extends NodeTestBase {
 
+  use EntityReferenceTestTrait;
+
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['entity_clone', 'block', 'node', 'datetime'];
+  public static $modules = ['entity_clone', 'block', 'node', 'datetime', 'taxonomy'];
 
   /**
    * Theme to enable by default
@@ -73,6 +76,21 @@ class EntityCloneContentTest extends NodeTestBase {
       ]);
     $node = reset($nodes);
     $this->assertInstanceOf(Node::class, $node, 'Test node cloned found in database.');
+  }
+
+  public function testContentReferenceConfigEntity() {
+    $this->createEntityReferenceField('node', 'page', 'config_field_reference', 'Config field reference', 'taxonomy_vocabulary');
+
+    $node_title = $this->randomMachineName(8);
+    $node = Node::create([
+      'type' => 'page',
+      'title' => $node_title,
+      'config_field_reference' => 'tags'
+    ]);
+    $node->save();
+
+    $this->drupalGet('entity_clone/node/' . $node->id());
+    $this->assertSession()->elementNotExists('css', '#edit-recursive-nodepageconfig-field-reference');
   }
 
 }

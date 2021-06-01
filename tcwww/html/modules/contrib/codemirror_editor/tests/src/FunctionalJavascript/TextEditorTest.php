@@ -2,12 +2,16 @@
 
 namespace Drupal\Tests\codemirror_editor\FunctionalJavascript;
 
+use Drupal\codemirror_editor\CodeMirrorPluginTrait;
+
 /**
  * Tests the CodeMirror text editor.
  *
  * @group codemirror_editor
  */
-class TextEditorTest extends TestBase {
+final class TextEditorTest extends TestBase {
+
+  use CodeMirrorPluginTrait;
 
   /**
    * {@inheritdoc}
@@ -47,6 +51,11 @@ class TextEditorTest extends TestBase {
     $this->assertEditorValue('<strong>Test</strong>');
 
     $this->assertToolbarExists();
+    // 'buttons' is not available from cm.getOption().
+    $buttons = $this->getAvailableButtons();
+    foreach ($buttons as $button) {
+      $this->assertSession()->elementExists('xpath', "//*[@data-cme-button='" . $button . "']");
+    }
     $this->assertEditorOption('mode', 'text/html');
     $this->assertEditorOption('lineWrapping', FALSE);
     $this->assertEditorOption('lineNumbers', FALSE);
@@ -65,6 +74,9 @@ class TextEditorTest extends TestBase {
 
     // Make sure that the form displays default values.
     $this->assertElementExist('//select[@name = "editor[settings][mode]"]/optgroup/option[@value = "text/html" and @selected]');
+    foreach ($buttons as $button) {
+      $this->assertElementExist('//select[@name = "editor[settings][buttons][]"]/option[@value = "' . $button . '" and @selected]');
+    }
     $this->assertElementExist('//input[@name = "editor[settings][toolbar]" and @checked]');
     $this->assertElementExist('//input[@name = "editor[settings][lineWrapping]" and not(@checked)]');
     $this->assertElementExist('//input[@name = "editor[settings][lineNumbers]" and not(@checked)]');
@@ -72,6 +84,7 @@ class TextEditorTest extends TestBase {
     $this->assertElementExist('//input[@name = "editor[settings][autoCloseTags]" and @checked]');
     $this->assertElementExist('//input[@name = "editor[settings][styleActiveLine]" and not(@checked)]');
 
+    $this->scrollToBottom();
     $edit = [
       'editor[settings][mode]' => 'application/xml',
       'editor[settings][toolbar]' => FALSE,
@@ -86,12 +99,39 @@ class TextEditorTest extends TestBase {
     $this->drupalGet('node/1/edit');
 
     $this->assertToolbarNotExists();
+    $this->assertElementNotExist('//select[@name = "editor[settings][buttons][]"]');
     $this->assertEditorOption('mode', 'application/xml');
     $this->assertEditorOption('lineWrapping', TRUE);
     $this->assertEditorOption('lineNumbers', TRUE);
     $this->assertEditorOption('foldGutter', TRUE);
     $this->assertEditorOption('autoCloseTags', FALSE);
     $this->assertEditorOption('styleActiveLine', TRUE);
+
+    // Update buttons config and verify correct rendering on toolbar.
+    $this->drupalGet('admin/config/content/formats/manage/codemirror');
+
+    $buttons_allowed = [
+      'bold',
+      'italic',
+    ];
+    $buttons_disallowed = array_diff($buttons_allowed, $buttons);
+
+    $this->scrollToBottom();
+    $edit = [
+      'editor[settings][toolbar]' => TRUE,
+      'editor[settings][buttons][]' => $buttons_allowed,
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save configuration');
+
+    $this->drupalGet('node/1/edit');
+
+    $this->assertToolbarExists();
+    foreach ($buttons_allowed as $button) {
+      $this->assertSession()->elementExists('xpath', "//*[@data-cme-button='" . $button . "']");
+    }
+    foreach ($buttons_disallowed as $button) {
+      $this->assertSession()->elementNotExists('xpath', "//*[@data-cme-button='" . $button . "']");
+    }
   }
 
   /**

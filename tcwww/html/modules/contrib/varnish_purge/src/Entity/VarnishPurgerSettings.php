@@ -14,6 +14,26 @@ use Drupal\purge\Plugin\Purge\Purger\PurgerSettingsInterface;
  *   config_prefix = "settings",
  *   static_cache = TRUE,
  *   entity_keys = {"id" = "id"},
+ *   config_export = {
+ *     "id",
+ *     "name",
+ *     "invalidationtype",
+ *     "hostname",
+ *     "port",
+ *     "path",
+ *     "request_method",
+ *     "scheme",
+ *     "verify",
+ *     "headers",
+ *     "body",
+ *     "body_content_type",
+ *     "runtime_measurement",
+ *     "timeout",
+ *     "connect_timeout",
+ *     "cooldown_time",
+ *     "max_requests",
+ *     "http_errors",
+ *   }
  * )
  */
 class VarnishPurgerSettings extends PurgerSettingsBase implements PurgerSettingsInterface {

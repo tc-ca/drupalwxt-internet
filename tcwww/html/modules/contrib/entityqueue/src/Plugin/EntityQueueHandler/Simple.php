@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\entityqueue\Entity\EntitySubqueue;
 use Drupal\entityqueue\EntityQueueHandlerBase;
 use Drupal\entityqueue\EntityQueueInterface;
@@ -21,6 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class Simple extends EntityQueueHandlerBase implements ContainerFactoryPluginInterface {
+
+  use RedirectDestinationTrait;
 
   /**
    * The entity repository.
@@ -98,13 +101,13 @@ class Simple extends EntityQueueHandlerBase implements ContainerFactoryPluginInt
     $operations['edit_subqueue'] = [
       'title' => $this->t('Edit items'),
       'weight' => -9,
-      'url' => $subqueue->toUrl('edit-form'),
+      'url' => $subqueue->toUrl('edit-form')->mergeOptions(['query' => $this->getRedirectDestination()->getAsArray()]),
     ];
 
     // Add a 'Translate' operation if translation is enabled for this queue.
     if ($this->moduleHandler->moduleExists('content_translation') && content_translation_translate_access($subqueue)->isAllowed()) {
       $operations['translate_subqueue'] = [
-        'title' => t('Translate subqueue'),
+        'title' => $this->t('Translate subqueue'),
         'url' => $subqueue->toUrl('drupal:content-translation-overview'),
         'weight' => -8,
       ];

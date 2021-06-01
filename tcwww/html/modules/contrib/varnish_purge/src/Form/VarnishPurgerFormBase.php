@@ -306,7 +306,7 @@ abstract class VarnishPurgerFormBase extends PurgerConfigFormBase {
       '#type' => 'number',
       '#step' => 1,
       '#min' => 1,
-      '#max' => 500,
+      '#max' => 50000,
       '#title' => $this->t('Maximum requests'),
       '#default_value' => $settings->max_requests,
       '#required' => TRUE,

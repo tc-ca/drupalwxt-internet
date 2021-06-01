@@ -203,7 +203,9 @@ class BusinessRulesViewsSelection extends PluginBase implements SelectionInterfa
         // Fix html_field_id last char when it ends with _.
         $html_field_id = substr($child, strlen($child) - 1, 1) == '_' ? $html_field_id . '-' : $html_field_id;
 
-        $response->addCommand(new UpdateOptionsCommand($html_field_id, $options));
+        $formatter = $form_field['widget']['#type'];
+
+        $response->addCommand(new UpdateOptionsCommand($html_field_id, $options, $formatter));
       }
     }
     return $response;

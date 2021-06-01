@@ -66,7 +66,7 @@ class EntityCloneMenuTest extends BrowserTestBase {
 
     $edit = [
       'label' => 'Test menu cloned',
-      'id' => 'test_menu_cloned',
+      'id' => 'test-menu-cloned',
     ];
     $this->drupalPostForm('entity_clone/menu/' . $menu->id(), $edit, t('Clone'));
 

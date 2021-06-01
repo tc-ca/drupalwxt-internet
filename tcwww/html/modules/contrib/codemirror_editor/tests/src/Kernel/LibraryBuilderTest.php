@@ -9,7 +9,7 @@ use Drupal\KernelTests\KernelTestBase;
  *
  * @group codemirror_editor
  */
-class LibraryBuilderTest extends KernelTestBase {
+final class LibraryBuilderTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}

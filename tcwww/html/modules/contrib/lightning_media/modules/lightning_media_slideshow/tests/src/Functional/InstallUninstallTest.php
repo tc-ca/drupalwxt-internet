@@ -16,6 +16,11 @@ class InstallUninstallTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
    *
    * Slick Entity Reference has a schema error.
    *

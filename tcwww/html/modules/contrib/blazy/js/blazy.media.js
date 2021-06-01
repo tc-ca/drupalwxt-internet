@@ -133,7 +133,7 @@
     var media = elm.getAttribute('data-media') ? _db.parse(elm.getAttribute('data-media')) : {};
     var img = elm.querySelector('img');
     var alt = img !== null ? img.getAttribute('alt') : 'Video preview';
-    var pad = media ? Math.round(((media.height / media.width) * 100), 2) : 100;
+    var pad = media ? ((media.height / media.width) * 100).toFixed(2) : 100;
     var boxUrl = elm.getAttribute('data-box-url');
     var href = elm.getAttribute('href');
     var oembedUrl = elm.hasAttribute('data-oembed-url') ? elm.getAttribute('data-oembed-url') : href;

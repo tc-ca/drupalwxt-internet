@@ -82,6 +82,11 @@ function webform_token_info() {
     'description' => t('The URL that can used to update the webform submission. The webform must be configured to allow users to update a submission using a secure token.'),
     'type' => 'url',
   ];
+  $webform_submission['delete-url'] = [
+    'name' => t('Delete (token) URL'),
+    'description' => t('The URL that can used to delete the webform submission. The webform must be configured to allow users to delete a submission using a secure token.'),
+    'type' => 'url',
+  ];
   $webform_submission['langcode'] = [
     'name' => t('Langcode'),
     'description' => t('The language code of the webform submission.'),
@@ -103,12 +108,12 @@ function webform_token_info() {
     'description' => t('Is the webform submission in draft.'),
   ];
   $webform_submission['state'] = [
-    'name' => t('State'),
-    'description' => t('The state of the webform submission. (Unsaved, Draft, Completed, Updated, Locked, or Converted)'),
+    'name' => t('State (Name)'),
+    'description' => t('The state of the webform submission. (unsaved, draft, completed, updated, locked, or converted)'),
   ];
-  $webform_submission['state:raw'] = [
-    'name' => t('State (Raw value)'),
-    'description' => t('The state raw value untranslated of the webform submission. (unsaved, draft, completed, updated, locked, or converted)'),
+  $webform_submission['state:label'] = [
+    'name' => t('State (Label)'),
+    'description' => t('The state raw value untranslated of the webform submission. (Unsaved, Draft, Completed, Updated, Locked, or Converted)'),
   ];
   $webform_submission['label'] = [
     'name' => t('Label'),
@@ -293,7 +298,8 @@ function webform_token_info() {
 
   // Append link to token help to source-entity and submitted-to description.
   if (\Drupal::moduleHandler()->moduleExists('token') && \Drupal::moduleHandler()->moduleExists('help')) {
-    $t_args = [':href' => Url::fromRoute('help.page', ['name' => 'token'])->toString()];
+    $token_url = Url::fromRoute('help.page', ['name' => 'token']);
+    $t_args = [':href' => $token_url->toString(TRUE)->getGeneratedUrl()];
     $token_help = t('For a list of the currently available source entity related tokens, please see <a href=":href">token help</a>.', $t_args);
     $webform_submission['source-entity']['description'] = Markup::create($webform_submission['source-entity']['description'] . '<br/>' . $token_help);
     $webform_submission['submitted-to']['description'] = Markup::create($webform_submission['submitted-to']['description'] . '<br/>' . $token_help);
@@ -538,11 +544,9 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
           break;
 
         case 'view-url':
-          $replacements[$original] = $webform_submission->getTokenUrl('view')->toString();
-          break;
-
         case 'update-url':
-          $replacements[$original] = $webform_submission->getTokenUrl('update')->toString();
+        case 'delete-url':
+          $replacements[$original] = $webform_submission->getTokenUrl(str_replace('-url', '', $name))->toString();
           break;
 
         case 'token':
@@ -730,21 +734,21 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
       $replacements += $token_service->generate('webform', $webform_tokens, ['webform' => $webform], $options, $bubbleable_metadata);
     }
     if (($source_entity_tokens = $token_service->findWithPrefix($tokens, 'source-entity')) && ($source_entity = $webform_submission->getSourceEntity(TRUE))) {
-      $replacements += $token_service->generate($source_entity->getEntityTypeId(), $source_entity_tokens, [$source_entity->getEntityTypeId() => $source_entity], $options, $bubbleable_metadata);
+      $type = $source_entity->getEntityType()->get('token_type') ?: $source_entity->getEntityTypeId();
+      $replacements += $token_service->generate($type, $source_entity_tokens, [$type => $source_entity], $options, $bubbleable_metadata);
     }
     if (($submitted_to_tokens = $token_service->findWithPrefix($tokens, 'submitted-to')) && ($submitted_to = $webform_submission->getSourceEntity(TRUE) ?: $webform_submission->getWebform())) {
-      $replacements += $token_service->generate($submitted_to->getEntityTypeId(), $submitted_to_tokens, [$submitted_to->getEntityTypeId() => $submitted_to], $options, $bubbleable_metadata);
+      $type = $submitted_to->getEntityType()->get('token_type') ?: $submitted_to->getEntityTypeId();
+      $replacements += $token_service->generate($type, $submitted_to_tokens, [$type => $submitted_to], $options, $bubbleable_metadata);
     }
-    foreach (['view-url', 'update-url', 'source-url'] as $token) {
+    foreach (['view-url', 'update-url', 'delete-url', 'source-url'] as $token) {
       if ($url_tokens = $token_service->findWithPrefix($tokens, $token)) {
         $url = NULL;
         switch ($token) {
           case 'view-url':
-            $url = $webform_submission->getTokenUrl('view');
-            break;
-
           case 'update-url':
-            $url = $webform_submission->getTokenUrl('update');
+          case 'delete-url':
+            $url = $webform_submission->getTokenUrl(str_replace('-url', '', $token));
             break;
 
           case 'source-url':

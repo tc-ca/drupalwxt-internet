@@ -8,6 +8,9 @@ blazy.settings:
     fx:
       type: string
       label: 'Image effect'
+    native:
+      type: boolean
+      label: 'Native lazy load'
     noscript:
       type: boolean
       label: 'Add noscript'
@@ -17,6 +20,9 @@ blazy.settings:
     placeholder:
       type: string
       label: Placeholder
+    unstyled_extensions:
+      type: string
+      label: 'Extensions without image styles'
     responsive_image:
       type: boolean
       label: 'Support Responsive image'

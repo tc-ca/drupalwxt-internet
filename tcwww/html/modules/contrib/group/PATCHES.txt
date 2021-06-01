@@ -6,7 +6,7 @@ Source: https://www.drupal.org/files/issues/2817109-by-rachel_norfolk-ericras-Ho
 
 
 Enter drupal/group patch #2864721 description here
-Source: https://www.drupal.org/files/issues/2020-01-13/group-translate_content_permission-2864721-19.patch
+Source: https://www.drupal.org/files/issues/2020-07-30/group-translate_content_permission-2864721-20.patch
 
 
 Enter drupal/group patch #2895988 description here

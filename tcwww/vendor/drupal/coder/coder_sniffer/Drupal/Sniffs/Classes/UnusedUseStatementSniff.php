@@ -1,11 +1,17 @@
 <?php
 /**
- * Drupal_Sniffs_Classes_UnusedUseStatementSniff.
+ * \Drupal\Sniffs\Classes\UnusedUseStatementSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace Drupal\Sniffs\Classes;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 /**
  * Checks for "use" statements that are not needed in a file.
@@ -14,18 +20,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_Sniff
+class UnusedUseStatementSniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_USE);
+        return [T_USE];
 
     }//end register()
 
@@ -33,13 +39,13 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token in
-     *                                        the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token in
+     *                                               the stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -55,7 +61,7 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
         }
 
         $classPtr = $phpcsFile->findPrevious(
-            PHP_CodeSniffer_Tokens::$emptyTokens,
+            Tokens::$emptyTokens,
             ($semiColon - 1),
             null,
             true
@@ -81,9 +87,9 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
         if ($namespacePtr !== false && $aliasUsed === false) {
             $nsEnd     = $phpcsFile->findNext(
                 [
-                 T_NS_SEPARATOR,
-                 T_STRING,
-                 T_WHITESPACE,
+                    T_NS_SEPARATOR,
+                    T_STRING,
+                    T_WHITESPACE,
                 ],
                 ($namespacePtr + 1),
                 null,
@@ -94,16 +100,16 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
             $useNamespacePtr = $phpcsFile->findNext([T_STRING], ($stackPtr + 1));
             $useNamespaceEnd = $phpcsFile->findNext(
                 [
-                 T_NS_SEPARATOR,
-                 T_STRING,
+                    T_NS_SEPARATOR,
+                    T_STRING,
                 ],
                 ($useNamespacePtr + 1),
                 null,
                 true
             );
-            $use_namespace   = rtrim($phpcsFile->getTokensAsString($useNamespacePtr, ($useNamespaceEnd - $useNamespacePtr - 1)), '\\');
+            $useNamespace    = rtrim($phpcsFile->getTokensAsString($useNamespacePtr, ($useNamespaceEnd - $useNamespacePtr - 1)), '\\');
 
-            if (strcasecmp($namespace, $use_namespace) === 0) {
+            if (strcasecmp($namespace, $useNamespace) === 0) {
                 $classUsed = false;
             }
         }//end if
@@ -117,14 +123,29 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
                 }
 
                 $beforeUsage = $phpcsFile->findPrevious(
-                    PHP_CodeSniffer_Tokens::$emptyTokens,
+                    Tokens::$emptyTokens,
                     ($classUsed - 1),
                     null,
                     true
                 );
                 // If a backslash is used before the class name then this is some other
                 // use statement.
-                if ($tokens[$beforeUsage]['code'] !== T_USE && $tokens[$beforeUsage]['code'] !== T_NS_SEPARATOR) {
+                if (in_array(
+                    $tokens[$beforeUsage]['code'],
+                    [
+                        T_USE,
+                        T_NS_SEPARATOR,
+                    // If an object operator is used then this is a method call
+                    // with the same name as the class name. Which means this is
+                    // not referring to the class.
+                        T_OBJECT_OPERATOR,
+                    // Function definition, not class invocation.
+                        T_FUNCTION,
+                    // Static method call, not class invocation.
+                        T_DOUBLE_COLON,
+                    ]
+                ) === false
+                ) {
                     return;
                 }
 
@@ -161,8 +182,8 @@ class Drupal_Sniffs_Classes_UnusedUseStatementSniff implements PHP_CodeSniffer_S
             $useNamespacePtr = $phpcsFile->findNext([T_STRING], ($stackPtr + 1));
             $useNamespaceEnd = $phpcsFile->findNext(
                 [
-                 T_NS_SEPARATOR,
-                 T_STRING,
+                    T_NS_SEPARATOR,
+                    T_STRING,
                 ],
                 ($useNamespacePtr + 1),
                 null,

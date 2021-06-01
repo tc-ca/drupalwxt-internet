@@ -34,7 +34,7 @@ class PasswordPolicyValidation {
    * Output validation state.
    *
    * @return bool
-   *   Whether or not the policy has an error or not.
+   *   Whether or not the policy has an error.
    */
   public function isValid() {
     return $this->valid;

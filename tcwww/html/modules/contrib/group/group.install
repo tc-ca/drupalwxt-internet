@@ -18,11 +18,11 @@ use Drupal\group\Entity\Storage\GroupContentStorageSchema;
 function group_update_8001(&$sandbox) {
   // Set up the batch by retrieving all of the group content IDs.
   if (!isset($sandbox['progress'])) {
-    /** @var \Drupal\Core\Entity\EntityTypeManager $entity_type_manager */
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
     $storage_handler = $entity_type_manager->getStorage('group_content');
 
-    $sandbox['ids'] = $storage_handler->getQuery()->execute();
+    $sandbox['ids'] = $storage_handler->getQuery()->accessCheck(FALSE)->execute();
     $sandbox['max'] = count($sandbox['ids']);
     $sandbox['progress'] = 0;
   }
@@ -452,4 +452,73 @@ function group_update_8017() {
   $entity_type = $manager->getEntityType('group_content');
   $entity_type->setHandlerClass('storage_schema', GroupContentStorageSchema::class);
   $manager->updateEntityType($entity_type);
+}
+
+/**
+ * Set the 'owner' entity key and update the owner field.
+ */
+function group_update_8018() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  foreach (['group', 'group_content'] as $entity_type_id) {
+    $entity_type = $definition_update_manager->getEntityType($entity_type_id);
+    $keys = $entity_type->getKeys();
+    $keys['owner'] = 'uid';
+    $entity_type->set('entity_keys', $keys);
+    $definition_update_manager->updateEntityType($entity_type);
+    $definition_update_manager->updateFieldStorageDefinition($definition_update_manager->getFieldStorageDefinition('uid', $entity_type_id));
+  }
+}
+
+/**
+ * Make sure Entity API is installed.
+ */
+function group_update_8019() {
+  if (!\Drupal::moduleHandler()->moduleExists('entity')) {
+    \Drupal::service('module_installer')->install(['entity']);
+    return t('The "Entity API" module has been installed.');
+  }
+}
+
+/**
+ * Make sure VariationCache is installed.
+ */
+function group_update_8020() {
+  if (!\Drupal::moduleHandler()->moduleExists('variationcache')) {
+    \Drupal::service('module_installer')->install(['variationcache']);
+    return t('The "VariationCache" module has been installed.');
+  }
+}
+
+/**
+ * Updates base field definitions that use the old default value callback.
+ */
+function group_update_8021() {
+  $config_factory = \Drupal::configFactory();
+  foreach ($config_factory->listAll('core.base_field_override.') as $config_name) {
+    $base_field_override = $config_factory->getEditable($config_name);
+
+    if ($base_field_override->get('field_name') !== 'uid') {
+      continue;
+    }
+
+    switch ($base_field_override->get('entity_type')) {
+      case 'group':
+        $class = 'Drupal\group\Entity\Group';
+        break;
+
+      case 'group_content':
+        $class = 'Drupal\group\Entity\GroupContent';
+        break;
+
+      default:
+        continue 2;
+    }
+
+    if ($base_field_override->get('default_value_callback') !== $class . '::getCurrentUserId') {
+      continue;
+    }
+
+    $base_field_override->set('default_value_callback', $class . '::getDefaultEntityOwner');
+    $base_field_override->save(TRUE);
+  }
 }

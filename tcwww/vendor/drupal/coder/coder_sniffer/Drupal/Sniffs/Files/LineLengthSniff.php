@@ -1,11 +1,17 @@
 <?php
 /**
- * Drupal_Sniffs_Files_LineLengthSniff.
+ * \Drupal\Sniffs\Files\LineLengthSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace Drupal\Sniffs\Files;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff as GenericLineLengthSniff;
+use PHP_CodeSniffer\Util\Tokens;
 
 /**
  * Checks comment lines in the file, and throws warnings if they are over 80
@@ -15,13 +21,13 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengthSniff
+class LineLengthSniff extends GenericLineLengthSniff
 {
 
     /**
      * The limit that the length of a line should not exceed.
      *
-     * @var int
+     * @var integer
      */
     public $lineLimit = 80;
 
@@ -31,7 +37,7 @@ class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
      *
      * Set to zero (0) to disable.
      *
-     * @var int
+     * @var integer
      */
     public $absoluteLineLimit = 0;
 
@@ -39,17 +45,17 @@ class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
     /**
      * Checks if a line is too long.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param array                $tokens    The token stack.
-     * @param int                  $stackPtr  The first token on the next line.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param array<int, array>           $tokens    The token stack.
+     * @param int                         $stackPtr  The first token on the next line.
      *
      * @return void
      */
-    protected function checkLineLength(PHP_CodeSniffer_File $phpcsFile, $tokens, $stackPtr)
+    protected function checkLineLength($phpcsFile, $tokens, $stackPtr)
     {
-        if (isset(PHP_CodeSniffer_Tokens::$commentTokens[$tokens[($stackPtr - 1)]['code']]) === true) {
-            $doc_comment_tag = $phpcsFile->findFirstOnLine(T_DOC_COMMENT_TAG, ($stackPtr - 1));
-            if ($doc_comment_tag !== false) {
+        if (isset(Tokens::$commentTokens[$tokens[($stackPtr - 1)]['code']]) === true) {
+            $docCommentTag = $phpcsFile->findFirstOnLine(T_DOC_COMMENT_TAG, ($stackPtr - 1));
+            if ($docCommentTag !== false) {
                 // Allow doc comment tags such as long @param tags to exceed the 80
                 // character limit.
                 return;
@@ -69,7 +75,7 @@ class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
             // Code examples between @code and @endcode are allowed to exceed 80
             // characters.
             if (isset($tokens[$stackPtr]) === true && $tokens[$stackPtr]['code'] === T_DOC_COMMENT_WHITESPACE) {
-                $tag = $phpcsFile->findPrevious(array(T_DOC_COMMENT_TAG, T_DOC_COMMENT_OPEN_TAG), ($stackPtr - 1));
+                $tag = $phpcsFile->findPrevious([T_DOC_COMMENT_TAG, T_DOC_COMMENT_OPEN_TAG], ($stackPtr - 1));
                 if ($tokens[$tag]['content'] === '@code') {
                     return;
                 }
@@ -105,12 +111,12 @@ class Drupal_Sniffs_Files_LineLengthSniff extends Generic_Sniffs_Files_LineLengt
     /**
      * Returns the length of a defined line.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile   The file being scanned.
-     * @param int                  $currentLine The current line.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile   The file being scanned.
+     * @param int                         $currentLine The current line.
      *
      * @return int
      */
-    public function getLineLength(PHP_CodeSniffer_File $phpcsFile, $currentLine)
+    public function getLineLength(File $phpcsFile, $currentLine)
     {
         $tokens = $phpcsFile->getTokens();
 

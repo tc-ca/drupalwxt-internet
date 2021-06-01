@@ -5,15 +5,12 @@ namespace Drupal\taxonomy_manager\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\taxonomy\VocabularyInterface;
-use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\taxonomy_manager\TaxonomyManagerHelper;
 
 /**
  * Form for adding terms to a given vocabulary.
  */
 class AddTermsToVocabularyForm extends FormBase {
-
-  use MessengerTrait;
 
   /**
    * {@inheritdoc}

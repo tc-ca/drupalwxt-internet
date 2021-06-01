@@ -2,25 +2,28 @@
 
 namespace Drupal\password_policy;
 
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
+use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\user\UserInterface;
 
 /**
  * An interface to define the expected operations of a password constraint.
  */
-interface PasswordConstraintInterface extends PluginInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
+interface PasswordConstraintInterface extends PluginInspectionInterface, ConfigurableInterface, PluginFormInterface {
 
   /**
    * Returns a true/false status if the password meets the constraint.
    *
    * @param string $password
    *   The password entered by the end user.
+   * @param \Drupal\user\UserInterface
+   *   The user which password is changed.
    *
    * @return PasswordPolicyValidation
    *   Whether or not the password meets the constraint in the plugin.
    */
-  public function validate($password, $user_context);
+  public function validate($password, UserInterface $user);
 
   /**
    * Returns a translated string for the constraint title.

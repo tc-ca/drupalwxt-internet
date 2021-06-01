@@ -13,9 +13,11 @@ use Drupal\Core\Extension\Extension;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Update\UpdateKernel;
+use Drupal\content_moderation\Plugin\WorkflowType\ContentModeration;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\lightning_core\OverrideHelper;
 use Drupal\lightning_scheduler\Plugin\Field\FieldWidget\ModerationStateWidget;
+use Drupal\workflows\WorkflowInterface;
 
 /**
  * Implements hook_library_info_alter().
@@ -88,44 +90,125 @@ function lightning_scheduler_cron() {
  * Implements hook_entity_base_field_info().
  */
 function lightning_scheduler_entity_base_field_info(EntityTypeInterface $entity_type) {
-  $fields = [];
   /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_info */
   $moderation_info = Drupal::service('content_moderation.moderation_information');
 
+  $fields = [];
+  if ($moderation_info->isModeratedEntityType($entity_type)) {
+    $fields += _get_lightning_scheduler_base_field_definitions($entity_type->id());
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function lightning_scheduler_workflow_insert(WorkflowInterface $entity) {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $workflow_plugin = $entity->getTypePlugin();
+  if ($workflow_plugin instanceof ContentModeration) {
+    // Install our base field definitions for every moderated entity type.
+    foreach ($workflow_plugin->getEntityTypes() as $entity_type_id) {
+      foreach (_get_lightning_scheduler_base_field_definitions($entity_type_id) as $field_name => $field_storage_definition) {
+        if (!$entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id)) {
+          $entity_definition_update_manager->installFieldStorageDefinition($field_name, $entity_type_id, 'lightning_scheduler', $field_storage_definition);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function lightning_scheduler_workflow_update(WorkflowInterface $entity) {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  /** @var \Drupal\content_moderation\ModerationInformationInterface $moderation_information */
+  $moderation_information = \Drupal::service('content_moderation.moderation_information');
+
+  // Either install our base field definitions for entity types that are now
+  // moderated, or remove them for those that are not moderated anymore.
+  foreach ($entity_type_manager->getDefinitions() as $entity_type_id => $entity_type) {
+    if ($moderation_information->isModeratedEntityType($entity_type)) {
+      foreach (_get_lightning_scheduler_base_field_definitions($entity_type_id) as $field_name => $field_storage_definition) {
+        if (!$entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id)) {
+          $entity_definition_update_manager->installFieldStorageDefinition($field_name, $entity_type_id, 'lightning_scheduler', $field_storage_definition);
+        }
+      }
+    }
+    else {
+      foreach (array_keys(_get_lightning_scheduler_base_field_definitions($entity_type_id)) as $field_name) {
+        if ($field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id)) {
+          $entity_definition_update_manager->uninstallFieldStorageDefinition($field_storage_definition);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function lightning_scheduler_workflow_delete(WorkflowInterface $entity) {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $workflow_plugin = $entity->getTypePlugin();
+  if ($workflow_plugin instanceof ContentModeration) {
+    // Remove our base field definitions for every entity type that was
+    // moderated.
+    foreach ($workflow_plugin->getEntityTypes() as $entity_type_id) {
+      foreach (array_keys(_get_lightning_scheduler_base_field_definitions($entity_type_id)) as $field_name) {
+        if ($field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id)) {
+          $entity_definition_update_manager->uninstallFieldStorageDefinition($field_storage_definition);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Gets the base field definitions required by this module.
+ *
+ * @param string $entity_type_id
+ *   The ID of the entity type for which to return fields.
+ *
+ * @return \Drupal\Core\Field\BaseFieldDefinition[]
+ *   An array of base field definitions, keyed by their field name.
+ */
+function _get_lightning_scheduler_base_field_definitions($entity_type_id) {
   $migrations = Drupal::service('lightning_scheduler.migrator')->getMigrations();
 
-  if ($moderation_info->canModerateEntitiesOfEntityType($entity_type)) {
-    $fields['scheduled_transition_date'] = BaseFieldDefinition::create('datetime')
+  $fields['scheduled_transition_date'] = BaseFieldDefinition::create('datetime')
+    ->setDisplayConfigurable('view', FALSE)
+    ->setDisplayConfigurable('form', FALSE)
+    ->setLabel(t('Scheduled transition date'))
+    ->setTranslatable(TRUE)
+    ->setRevisionable(TRUE)
+    ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+
+  $fields['scheduled_transition_state'] = BaseFieldDefinition::create('string')
+    ->setDisplayConfigurable('view', FALSE)
+    ->setDisplayConfigurable('form', FALSE)
+    ->setLabel(t('Scheduled transition state'))
+    ->setTranslatable(TRUE)
+    ->setRevisionable(TRUE)
+    ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+
+  // If the entity type has not yet been migrated, we need to continue to
+  // define the base fields from the 1.x version.
+  if (in_array($entity_type_id, $migrations, TRUE)) {
+    $fields['scheduled_publication'] = BaseFieldDefinition::create('datetime')
       ->setDisplayConfigurable('view', FALSE)
       ->setDisplayConfigurable('form', FALSE)
-      ->setLabel(t('Scheduled transition date'))
       ->setTranslatable(TRUE)
-      ->setRevisionable(TRUE)
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+      ->setRevisionable(TRUE);
 
-    $fields['scheduled_transition_state'] = BaseFieldDefinition::create('string')
+    $fields['scheduled_moderation_state'] = BaseFieldDefinition::create('string')
       ->setDisplayConfigurable('view', FALSE)
       ->setDisplayConfigurable('form', FALSE)
-      ->setLabel(t('Scheduled transition state'))
       ->setTranslatable(TRUE)
-      ->setRevisionable(TRUE)
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
-
-    // If the entity type has not yet been migrated, we need to continue to
-    // define the base fields from the 1.x version.
-    if (in_array($entity_type->id(), $migrations, TRUE)) {
-      $fields['scheduled_publication'] = BaseFieldDefinition::create('datetime')
-        ->setDisplayConfigurable('view', FALSE)
-        ->setDisplayConfigurable('form', FALSE)
-        ->setTranslatable(TRUE)
-        ->setRevisionable(TRUE);
-
-      $fields['scheduled_moderation_state'] = BaseFieldDefinition::create('string')
-        ->setDisplayConfigurable('view', FALSE)
-        ->setDisplayConfigurable('form', FALSE)
-        ->setTranslatable(TRUE)
-        ->setRevisionable(TRUE);
-    }
+      ->setRevisionable(TRUE);
   }
 
   return $fields;

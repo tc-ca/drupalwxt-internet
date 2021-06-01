@@ -68,7 +68,12 @@ function blazy_test_library_info_alter(array &$libraries, $extension) {
 
   $path = \Drupal::root() . '/libraries/blazy/blazy.js';
   if (!is_file($path)) {
-    $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/npm/blazy/blazy.js' => ['type' => 'external', 'weight' => -4]];
+    $libraries['blazy']['js'] = [
+      'https://cdn.jsdelivr.net/npm/blazy/blazy.js' => [
+        'type' => 'external',
+        'weight' => -4,
+      ],
+    ];
     unset($libraries['blazy']['js']['/libraries/blazy/blazy.js']);
   }
 }

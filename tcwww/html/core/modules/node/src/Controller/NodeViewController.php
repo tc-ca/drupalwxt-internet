@@ -82,7 +82,7 @@ class NodeViewController extends EntityViewController {
       // This means that the page will vary by user.permissions. We also rely on
       // the access checking fallback to ensure the correct cacheability
       // metadata if we have to check access.
-      if ($this->currentUser->isAuthenticated() || $url->access($this->currentUser)) {
+      if ($this->isValidRel($rel) && ($this->currentUser->isAuthenticated() || $url->access($this->currentUser))) {
         // Set the node path as the canonical URL to prevent duplicate content.
         $build['#attached']['html_head_link'][] = [
           [
@@ -126,6 +126,44 @@ class NodeViewController extends EntityViewController {
    */
   public function title(EntityInterface $node) {
     return $this->entityRepository->getTranslationFromContext($node)->label();
+  }
+
+  /**
+   * Checks if rel attribute is w3c.org valid
+   *
+   * @param string $rel
+   *   The unchecked rel attribute.
+   *
+   * @return bool
+   *   The valid state
+   */
+  private function isValidRel($rel) {
+    // List of all supported rel tags.
+    $validRelList = [
+      'alternate',
+      'author',
+      'bookmark',
+      'canonical',
+      'external',
+      'help',
+      'icon',
+      'shortcut icon',
+      'license',
+      'manifest',
+      'modulepreload',
+      'next',
+      'nofollow',
+      'noopener',
+      'noreferrer',
+      'pingback',
+      'prefetch',
+      'preload',
+      'prev',
+      'shortlink',
+      'stylesheet',
+      'tag',
+    ];
+    return in_array($rel, $validRelList, FALSE);
   }
 
 }

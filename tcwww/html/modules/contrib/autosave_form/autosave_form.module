@@ -49,7 +49,7 @@ function autosave_form_form_alter(&$form, FormStateInterface $form_state, $form_
       ->get('allowed_content_entity_types');
 
     // Autosave is enabled if either no restriction has been made or the current
-    // entity type is part of the restriction and as well eiher no restriction
+    // entity type is part of the restriction and as well either no restriction
     // on bundle level has been made or the current bundle is part of that
     // restriction.
     if (!empty($allowed_content_entity_types)) {

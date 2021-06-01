@@ -7,28 +7,25 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\ControlStructures;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use PHP_CodeSniffer\Util\Tokens;
+
 /**
  * Verifies that control statements conform to their coding standards.
  *
- * Largely copied from Squiz_Sniffs_ControlStructures_ControlSignatureSniff and
- * adapted for Drupal's else on new lines.
+ * Largely copied from
+ * \PHP_CodeSniffer\Standards\Squiz\Sniffs\ControlStructures\ControlSignatureSniff
+ * and adapted for Drupal's else on new lines.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeSniffer_Sniff
+class ControlSignatureSniff implements Sniff
 {
-
-    /**
-     * A list of tokenizers this sniff supports.
-     *
-     * @var array
-     */
-    public $supportedTokenizers = array(
-                                   'PHP',
-                                   'JS',
-                                  );
 
 
     /**
@@ -38,18 +35,18 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
      */
     public function register()
     {
-        return array(
-                T_TRY,
-                T_CATCH,
-                T_DO,
-                T_WHILE,
-                T_FOR,
-                T_IF,
-                T_FOREACH,
-                T_ELSE,
-                T_ELSEIF,
-                T_SWITCH,
-               );
+        return [
+            T_TRY,
+            T_CATCH,
+            T_DO,
+            T_WHILE,
+            T_FOR,
+            T_IF,
+            T_FOREACH,
+            T_ELSE,
+            T_ELSEIF,
+            T_SWITCH,
+        ];
 
     }//end register()
 
@@ -57,13 +54,13 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token in the
-     *                                        stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token in the
+     *                                               stack passed in $tokens.
      *
      * @return void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -85,10 +82,10 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
 
         if ($found !== 1) {
             $error = 'Expected 1 space after %s keyword; %s found';
-            $data  = array(
-                      strtoupper($tokens[$stackPtr]['content']),
-                      $found,
-                     );
+            $data  = [
+                strtoupper($tokens[$stackPtr]['content']),
+                $found,
+            ];
 
             $fix = $phpcsFile->addFixableError($error, $stackPtr, 'SpaceAfterKeyword', $data);
             if ($fix === true) {
@@ -116,7 +113,7 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
                     $found = '"'.str_replace($phpcsFile->eolChar, '\n', $content).'"';
                 }
 
-                $fix = $phpcsFile->addFixableError($error, $closer, 'SpaceAfterCloseParenthesis', array($found));
+                $fix = $phpcsFile->addFixableError($error, $closer, 'SpaceAfterCloseParenthesis', [$found]);
                 if ($fix === true) {
                     if ($closer === ($opener - 1)) {
                         $phpcsFile->fixer->addContent($closer, ' ');
@@ -155,7 +152,7 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
 
                 // Skip all empty tokens on the same line as the opener.
                 if ($tokens[$next]['line'] === $tokens[$opener]['line']
-                    && (isset(PHP_CodeSniffer_Tokens::$emptyTokens[$code]) === true
+                    && (isset(Tokens::$emptyTokens[$code]) === true
                     || $code === T_CLOSE_TAG)
                 ) {
                     continue;
@@ -198,7 +195,7 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
 
             if ($found !== 0) {
                 $error = 'Expected 0 spaces before semicolon; %s found';
-                $data  = array($found);
+                $data  = [$found];
                 $fix   = $phpcsFile->addFixableError($error, $closer, 'SpaceBeforeSemicolon', $data);
                 if ($fix === true) {
                     $phpcsFile->fixer->replaceToken(($closer + 1), '');
@@ -248,7 +245,7 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
             || $tokens[$stackPtr]['code'] === T_ELSEIF
             || $tokens[$stackPtr]['code'] === T_CATCH
         ) {
-            $closer = $phpcsFile->findPrevious(PHP_CodeSniffer_Tokens::$emptyTokens, ($stackPtr - 1), null, true);
+            $closer = $phpcsFile->findPrevious(Tokens::$emptyTokens, ($stackPtr - 1), null, true);
             if ($closer === false || $tokens[$closer]['code'] !== T_CLOSE_CURLY_BRACKET) {
                 return;
             }
@@ -271,7 +268,7 @@ class Drupal_Sniffs_ControlStructures_ControlSignatureSniff implements PHP_CodeS
 
             if ($found !== 1) {
                 $error = 'Expected 1 space after closing brace; %s found';
-                $data  = array($found);
+                $data  = [$found];
                 $fix   = $phpcsFile->addFixableError($error, $closer, 'SpaceAfterCloseBrace', $data);
                 if ($fix === true) {
                     if ($found === 0) {

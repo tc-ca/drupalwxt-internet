@@ -105,10 +105,13 @@ function lightning_layout_tweak_layout_builder_ui(array $element, FormStateInter
  * Implements template_preprocess_block().
  */
 function lightning_layout_preprocess_block(array &$variables) {
-  if ($variables['base_plugin_id'] === 'inline_block') {
-    /** @var \Drupal\block_content\BlockContentInterface $block_content */
-    $block_content = $variables['content']['#block_content'];
-    $variables['attributes']['data-inline-block-uuid'] = $block_content->uuid();
+  // We need to check for the presence of the actual block content entity,
+  // because it might not exist. For example, if the inline block was deployed
+  // in config, but the block content was not -- which is entirely likely, since
+  // core has no mechanism to deploy content -- we'll try to call uuid() on
+  // NULL, which is a fatal error.
+  if ($variables['base_plugin_id'] === 'inline_block' && isset($variables['content']['#block_content'])) {
+    $variables['attributes']['data-inline-block-uuid'] = $variables['content']['#block_content']->uuid();
   }
 }
 

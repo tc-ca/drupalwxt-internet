@@ -69,7 +69,8 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
       'style'      => TRUE,
     ];
 
-    foreach (['background', 'caches', 'fieldable_form', 'id', 'vanilla'] as $key) {
+    $keys = ['background', 'caches', 'fieldable_form', 'id', 'vanilla'];
+    foreach ($keys as $key) {
       $definition[$key] = TRUE;
     }
 

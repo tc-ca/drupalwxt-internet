@@ -48,22 +48,18 @@ interface BlazyMediaInterface {
   public static function wrap(array $field = []);
 
   /**
-   * Extracts image from File for the main background/stage, image or video.
+   * Extracts image from non-media entities for the main background/ stage.
    *
    * Main image can be separate image item from video thumbnail for highres.
    * Fallback to default thumbnail if any, which has no file API. This used to
    * be for non-media File Entity Reference at 1.x, things changed since then.
-   * This is no longer needed nor functional since BlazyFileFormatter is already
-   * deprecated for BlazyMediaFormatter.
+   * This is currently reused for Paragraphs which embeds Media.
    *
    * @param array $element
    *   The element array might contain item and settings.
    * @param object $entity
    *   The file entity or entityreference which might have image item.
    *
-   * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1+. Use
-   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
-   * @see https://www.drupal.org/node/3103018
    * @see \Drupal\blazy\Dejavu\BlazyEntityMediaBase::buildElement
    */
   public static function imageItem(array &$element, $entity);

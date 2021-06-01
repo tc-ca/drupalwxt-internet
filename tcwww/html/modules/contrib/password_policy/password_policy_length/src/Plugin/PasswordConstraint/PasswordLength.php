@@ -5,6 +5,7 @@ namespace Drupal\password_policy_length\Plugin\PasswordConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\password_policy\PasswordConstraintBase;
 use Drupal\password_policy\PasswordPolicyValidation;
+use Drupal\user\UserInterface;
 
 /**
  * Enforces a specific character length for passwords.
@@ -21,7 +22,7 @@ class PasswordLength extends PasswordConstraintBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($password, $user_context) {
+  public function validate($password, UserInterface $user) {
     $configuration = $this->getConfiguration();
     $validation = new PasswordPolicyValidation();
     switch ($configuration['character_operation']) {
@@ -98,7 +99,11 @@ class PasswordLength extends PasswordConstraintBase {
         $operation = $this->t('at most');
         break;
     }
-    return $this->t('Password character length of @operation @characters', ['@operation' => $operation, '@characters' => $this->configuration['character_length']]);
+
+    return $this->formatPlural($this->configuration['character_length'], 'Password character length of @operation 1 character', 'Password character length of @operation @characters characters', [
+      '@operation' => $operation,
+      '@characters' => $this->configuration['character_length'],
+    ]);
   }
 
 }

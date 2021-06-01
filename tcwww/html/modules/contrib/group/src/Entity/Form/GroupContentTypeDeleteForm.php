@@ -61,6 +61,7 @@ class GroupContentTypeDeleteForm extends EntityDeleteForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $entity_count = $this->entityTypeManager->getStorage('group_content')
       ->getQuery()
+      ->accessCheck(FALSE)
       ->condition('type', $this->entity->id())
       ->count()
       ->execute();

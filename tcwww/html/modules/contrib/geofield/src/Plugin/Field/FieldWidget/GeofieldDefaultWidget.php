@@ -34,10 +34,7 @@ class GeofieldDefaultWidget extends GeofieldBaseWidget {
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     foreach ($values as $delta => $value) {
-      /* @var \Geometry $geom */
-      if ($geom = $this->geoPhpWrapper->load($value['value'])) {
-        $values[$delta]['value'] = $geom->out('wkt');
-      }
+      $values[$delta]['value'] = $this->geofieldBackendValue($value['value']);
     }
     return $values;
   }

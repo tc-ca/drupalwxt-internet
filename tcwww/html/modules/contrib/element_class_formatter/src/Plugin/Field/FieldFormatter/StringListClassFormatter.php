@@ -4,11 +4,10 @@ namespace Drupal\element_class_formatter\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Template\Attribute;
 
 /**
- * Formatter for displaying links in an HTML list.
+ * Formatter for displaying strings in an HTML list.
  *
  * @FieldFormatter(
  *   id="string_list_class",
@@ -21,51 +20,7 @@ use Drupal\Core\Template\Attribute;
  */
 class StringListClassFormatter extends FormatterBase {
 
-  use ElementClassTrait;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function defaultSettings() {
-    $default_settings = parent::defaultSettings() + [
-      'list_type' => 'ul',
-    ];
-
-    return ElementClassTrait::elementClassDefaultSettings($default_settings);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $elements = parent::settingsForm($form, $form_state);
-    $class = $this->getSetting('class');
-
-    $elements['list_type'] = [
-      '#title' => $this->t('List type'),
-      '#type' => 'select',
-      '#options' => [
-        'ul' => 'Un-ordered list',
-        'ol' => 'Ordered list',
-      ],
-      '#default_value' => $this->getSetting('list_type'),
-    ];
-
-    return $this->elementClassSettingsForm($elements, $class);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsSummary() {
-    $summary = parent::settingsSummary();
-    $class = $this->getSetting('class');
-    if ($tag = $this->getSetting('list_type')) {
-      $summary[] = $this->t('List type: @tag', ['@tag' => $tag]);
-    }
-
-    return $this->elementClassSettingsSummary($summary, $class);
-  }
+  use ElementListClassTrait;
 
   /**
    * {@inheritdoc}
@@ -78,7 +33,11 @@ class StringListClassFormatter extends FormatterBase {
       $attributes->addClass($class);
     }
     foreach ($items as $delta => $item) {
-      $elements[$delta] = $item->getValue()['value'];
+      $elements[$delta] = [
+        '#type' => 'inline_template',
+        '#template' => '{{ value|nl2br }}',
+        '#context' => ['value' => $item->value],
+      ];
     }
 
     return [

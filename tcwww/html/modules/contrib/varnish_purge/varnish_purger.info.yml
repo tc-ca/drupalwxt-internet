@@ -7,7 +7,7 @@ dependencies:
   - purge:purge
   - purge:purge_tokens
 
-# Information added by Drupal.org packaging script on 2020-05-25
-version: '8.x-2.0'
+# Information added by Drupal.org packaging script on 2021-03-17
+version: '8.x-2.1'
 project: 'varnish_purge'
-datestamp: 1590398139
+datestamp: 1615977070

@@ -1,3 +1,8 @@
+## 3.16.0
+* Dropped support for Drupal 8.7 and earlier.
+* Added Composer 2 compatibility.
+* Updated Autosave Form to 1.2 and unpinned it.
+
 ## 3.15.0
 * Added compatibility with Drupal 9.
 * Added the ability to opt into moderation when creating a new content type in

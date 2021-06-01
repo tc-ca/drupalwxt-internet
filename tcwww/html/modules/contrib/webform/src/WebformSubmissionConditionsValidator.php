@@ -4,7 +4,6 @@ namespace Drupal\webform;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\webform\Plugin\WebformElement\TextBase;
 use Drupal\webform\Plugin\WebformElement\WebformCompositeBase;
@@ -164,6 +163,18 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
             $element['#required'] = $result;
             break;
 
+          case 'readonly':
+
+            // Set custom readonly attribute and class.
+            // We can't use the custom #readonly property because it is
+            // processed before cross page targets.
+            // @see \Drupal\webform\Plugin\WebformElementBase::prepare
+            if ($result) {
+              $element['#attributes']['readonly'] = 'readonly';
+              $element['#wrapper_attributes']['class'][] = 'webform-readonly';
+            }
+            break;
+
           case 'disabled':
             $element['#disabled'] = $result;
             break;
@@ -222,7 +233,7 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
     $cross_page_conditions = [];
     foreach ($conditions as $index => $value) {
       if (is_int($index) && is_array($value) && WebformArrayHelper::isSequential($value)) {
-        $cross_page_conditions[$index] = $this->replaceCrossPageTargets($conditions, $webform_submission, $targets, $form);
+        $cross_page_conditions[$index] = $this->replaceCrossPageTargets($value, $webform_submission, $targets, $form);
       }
       else {
         $cross_page_conditions[$index] = $value;
@@ -303,7 +314,7 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
   protected function validateFormRecursive(array $form, FormStateInterface $form_state) {
     foreach ($form as $key => $element) {
       if (!WebformElementHelper::isElement($element, $key)
-        || !Element::isVisibleElement($element)) {
+        || !WebformElementHelper::isAccessibleElement($element)) {
         continue;
       }
       $this->validateFormElement($element, $form_state);
@@ -675,7 +686,7 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
     // If no element is found try checking file uploads which use
     // :input[name="files[ELEMENT_KEY].
     // @see \Drupal\webform\Plugin\WebformElement\WebformManagedFileBase::getElementSelectorOptions
-    if (!$element && strpos($selector, ':input[name="files[') === 0) {
+    if (!$element && strpos($selector, ':input[name="files[') !== FALSE) {
       $element_key = static::getInputNameAsArray($input_name, 1);
       $element = $webform_submission->getWebform()->getElement($element_key);
     }
@@ -960,8 +971,8 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
         $element['#_webform_access'] = $element['#access'];
       }
 
-      // Skip if element is not visible.
-      if (!Element::isVisibleElement($element)) {
+      // Skip if element is not accessible.
+      if (!WebformElementHelper::isAccessibleElement($element)) {
         continue;
       }
 
@@ -1060,12 +1071,12 @@ class WebformSubmissionConditionsValidator implements WebformSubmissionCondition
       }
       elseif (is_int($index)) {
         $selector = key($value);
+        $targets[$selector] = $selector;
       }
       else {
         $selector = $index;
+        $targets[$selector] = $selector;
       }
-
-      $targets[$selector] = $selector;
     }
   }
 

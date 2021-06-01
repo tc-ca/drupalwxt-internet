@@ -23,8 +23,14 @@ function template_preprocess_slick_test(&$variables) {
 }
 
 /**
- * Implements hook_slick_skins_info().
+ * Implements hook_library_info_alter().
  */
-function slick_test_slick_skins_info() {
-  return '\Drupal\slick_test\SlickSkinTest';
+function slick_test_library_info_alter(array &$libraries, $extension) {
+  if ($extension === 'slick') {
+    $path = \Drupal::root() . '/libraries/slick/slick/slick.min.js';
+    if (!is_file($path)) {
+      $libraries['slick']['js'] = ['https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js' => ['type' => 'external', 'weight' => -4]];
+      unset($libraries['slick']['js']['/libraries/slick/slick/slick.min.js']);
+    }
+  }
 }

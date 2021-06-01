@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\group\Kernel;
 
+use Drupal\Core\Site\Settings;
+
 /**
  * Tests the import or synchronization of group type entities.
  *
@@ -35,9 +37,10 @@ class GroupTypeImportTest extends GroupKernelTestBase {
 
     // Manually add the 'import' group type to the synchronization directory.
     $test_dir = __DIR__ . '/../../modules/group_test_config/sync';
-    $sync_dir = config_get_config_directory(CONFIG_SYNC_DIRECTORY);
-    $this->assertNotFalse(file_unmanaged_copy("$test_dir/group.type.import.yml", "$sync_dir/group.type.import.yml"), 'Copied the group type Yaml file to the sync dir.');
-    $this->assertNotFalse(file_unmanaged_copy("$test_dir/group.role.import-outsider.yml", "$sync_dir/group.role.import-outsider.yml"), 'Copied the group role Yaml file to the sync dir.');
+    $sync_dir = Settings::get('config_sync_directory');
+    $file_system = $this->container->get('file_system');
+    $file_system->copy("$test_dir/group.type.import.yml", "$sync_dir/group.type.import.yml");
+    $file_system->copy("$test_dir/group.role.import-outsider.yml", "$sync_dir/group.role.import-outsider.yml");
 
     // Import the content of the sync directory.
     $this->configImporter()->import();

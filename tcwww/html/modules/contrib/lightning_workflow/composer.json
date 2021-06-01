@@ -4,21 +4,20 @@
     "description": "Tools to improve your content workflow.",
     "license": "GPL-2.0-or-later",
     "require": {
-        "cweagans/composer-patches": "^1.6",
-        "drupal/autosave_form": "1.1",
+        "drupal/autosave_form": "^1.2",
         "drupal/conflict": "^2.0-alpha2",
-        "drupal/core": "^8.6.18 || ~9.0.0",
+        "drupal/core": "^8.8.10 || ^9.0.6",
         "drupal/diff": "^1.0",
         "drupal/lightning_core": "3.* || 4.* || 5.*",
         "drupal/moderation_dashboard": "^1.0",
         "drupal/moderation_sidebar": "^1.2"
     },
     "require-dev": {
+        "composer/installers": "^1.9",
         "drupal/core-composer-scaffold": "*",
         "drupal/core-dev": "*",
         "drupal/inline_entity_form": "^1.0",
         "drush/drush": ">=9.7",
-        "oomphinc/composer-installers-extender": "^1.1",
         "vijaycs85/drupal-quality-checker": "^1.0"
     },
     "config": {
@@ -54,9 +53,7 @@
                 "type:drupal-core"
             ],
             "docroot/libraries/{$name}": [
-                "type:drupal-library",
-                "type:bower-asset",
-                "type:npm-asset"
+                "type:drupal-library"
             ],
             "docroot/modules/contrib/{$name}": [
                 "type:drupal-module"
@@ -67,15 +64,6 @@
             "docroot/themes/contrib/{$name}": [
                 "type:drupal-theme"
             ]
-        },
-        "installer-types": [
-            "bower-asset",
-            "npm-asset"
-        ],
-        "patches": {
-            "drupal/autosave_form": {
-                "3109317 - Run tests against Drupal 9": "https://www.drupal.org/files/issues/2020-05-15/autosave_form-1.1-core-version-requirement.patch"
-            }
         }
     },
     "autoload": {
@@ -99,23 +87,17 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "post-install-cmd": [
-            "@push",
-            "@drupal-scaffold"
-        ],
         "post-update-cmd": [
-            "@push",
-            "@drupal-scaffold"
+            "@putenv DIR=./docroot/modules/lightning_workflow",
+            "mkdir -p $DIR",
+            "ln -s -f $PWD/config $DIR",
+            "ln -s -f $PWD/images $DIR",
+            "ln -s -f $PWD/modules $DIR",
+            "ln -s -f $PWD/src $DIR",
+            "ln -s -f $PWD/tests $DIR",
+            "find $PWD -name 'lightning_workflow.*' -depth 1 -exec ln -s -f {} $DIR ';'",
+            "cp -f phpunit.xml ./docroot/core"
         ],
-        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
-        "nuke": "rm -r -f docroot vendor",
-        "pull": "cp -R -f ./docroot/modules/contrib/lightning_workflow/* .",
-        "push": [
-            "rm -r -f ./docroot/modules/contrib/lightning_workflow",
-            "mkdir -p ./docroot/modules/contrib/lightning_workflow",
-            "@composer archive --file lightning_workflow",
-            "tar -x -f lightning_workflow.tar -C ./docroot/modules/contrib/lightning_workflow",
-            "rm lightning_workflow.tar"
-        ]
+        "nuke": "rm -r -f docroot vendor"
     }
 }

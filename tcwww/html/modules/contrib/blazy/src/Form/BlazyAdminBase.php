@@ -142,18 +142,23 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     // https://drafts.csswg.org/css-multicol
     if (!empty($definition['style'])) {
       $form['style'] = [
-        '#type'          => 'select',
-        '#title'         => $this->t('Display style'),
-        '#description'   => $this->t('Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Unless required, leave empty to use default formatter, or style.'),
-        '#enforced'      => TRUE,
-        '#empty_option'  => '- None -',
-        '#options'       => [
+        '#type'         => 'select',
+        '#title'        => $this->t('Display style'),
+        '#description'  => $this->t('Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Unless required, leave empty to use default formatter, or style.'),
+        '#enforced'     => TRUE,
+        '#empty_option' => '- None -',
+        '#options'      => [
           'column' => $this->t('CSS3 Columns'),
           'grid'   => $this->t('Grid Foundation'),
         ],
-        '#weight'             => -112,
-        '#wrapper_attributes' => ['class' => ['form-item--style', 'form-item--tooltip-bottom']],
-        '#required'           => !empty($definition['grid_required']),
+        '#required' => !empty($definition['grid_required']),
+        '#weight'   => -112,
+        '#wrapper_attributes' => [
+          'class' => [
+            'form-item--style',
+            'form-item--tooltip-bottom',
+          ],
+        ],
       ];
     }
 
@@ -410,7 +415,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
         '#weight'      => -96,
       ];
     }
@@ -421,7 +426,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
         '#options'     => is_array($definition['images']) ? $definition['images'] : [],
-        '#description' => $this->t('Main background/stage/poster image field. You may want to add a new Image field to this entity.'),
+        '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity.'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
     }
@@ -631,7 +636,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       43200,
       86400,
     ];
-    $period = array_map([$this->dateFormatter, 'formatInterval'], array_combine($period, $period));
+
+    $period = array_map([$this->dateFormatter, 'formatInterval'],
+      array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];
   }

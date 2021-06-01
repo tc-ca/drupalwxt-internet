@@ -5,278 +5,12 @@
     "license": "GPL-2.0+",
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "require-dev": {
-        "behat/behat": "^3.0",
-        "behat/mink": "~1.7",
-        "behat/mink-extension": "*",
-        "behat/mink-goutte-driver": "*",
-        "behat/mink-selenium2-driver": "*",
-        "composer/composer": "^1.4",
-        "drupal/coder": "~8.2.0",
-        "drupal/console": "~1.8.0",
-        "drupal/drupal-extension": "~3.4.0",
-        "pdepend/pdepend": "2.1.0",
-        "phpmd/phpmd": "@stable",
-        "phpunit/phpunit": "^4.8.35 || ^6.1",
-        "jcalderonzumba/gastonjs": "~1.0.2",
-        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
-        "mikey179/vfsstream": "~1.2",
-        "sebastian/phpcpd": "*",
-        "squizlabs/php_codesniffer": "2.*",
-        "symfony/css-selector": "~2.8|~3.0",
-        "symfony/phpunit-bridge": "^3.4.3"
-    },
-    "config": {
-        "secure-http": false,
-        "prestissimo": {
-            "maxConnections": 10,
-            "minConnections": 5
-        }
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
-        },
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        },
-        {
-            "type": "composer",
-            "url": "https://drupalwxt.github.io/composer-extdeps/"
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "toc/toc",
-                "version": "v0.3.2",
-                "type": "drupal-library",
-                "dist": {
-                    "url": "https://raw.githubusercontent.com/jgallen23/toc/greenkeeper/update-all/dist/toc.min.js",
-                    "type": "file"
-                }
-            }
-        }
-    ],
-    "scripts": {
-      "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
-      "post-root-package-install": [
-          "DrupalWxT\\WxT\\ScriptHandler::postCreateProject"
-      ],
-      "pre-install-cmd": [
-          "DrupalWxT\\WxT\\ScriptHandler::checkComposerVersion"
-      ],
-      "pre-update-cmd": [
-          "DrupalWxT\\WxT\\ScriptHandler::checkComposerVersion"
-      ],
-      "post-install-cmd": [
-          "@composer drupal-scaffold",
-          "DrupalWxT\\WxT\\ScriptHandler::deployLibraries"
-      ],
-      "post-update-cmd": [
-          "@composer drupal-scaffold",
-          "DrupalWxT\\WxT\\ScriptHandler::deployLibraries"
-      ]
-    },
-    "extra": {
-        "installer-types": [
-           "bower-asset",
-           "npm-asset"
-        ],
-        "installer-paths": {
-            "html/core": [
-                "type:drupal-core"
-            ],
-            "html/libraries/{$name}" : [
-                "type:drupal-library",
-                "type:bower-asset",
-                "type:npm-asset",
-                "type:drupal-console-library"
-            ],
-            "html/modules/custom/{$name}": [
-                "drupal/wxt_library"
-            ],
-            "html/modules/contrib/{$name}": [
-                "type:drupal-module"
-            ],
-            "html/profiles/{$name}": [
-                "type:drupal-profile"
-            ],
-            "html/themes/custom/{$name}": [
-                "drupal/wxt_bootstrap"
-            ],
-            "html/themes/contrib/{$name}": [
-                "type:drupal-theme"
-            ],
-            "drush/contrib/{$name}": [
-                "type:drupal-drush"
-            ]
-        },
-        "enable-patching": true,
-        "patches": {
-            "deployer/recipes": {
-                "Enter deployer/recipes patch #80 description here":
-                "https://patch-diff.githubusercontent.com/raw/deployphp/recipes/pull/80.patch"
-            },
-            "drupal/core": {
-                "2988018 - Performance issues with path alias generated queries on PostgreSQL":
-                "https://www.drupal.org/files/issues/2020-01-03/pathalias_postgres_ilike_performance.patch",
-                "2652000 Views do not add the active class anymore":
-                "https://www.drupal.org/files/issues/2020-01-09/2652000-84.patch",
-                "3045171 - Form blocks rendered inside layout builder break save":
-                "https://www.drupal.org/files/issues/2020-02-04/layout-builder-save-issue-3045171-140.patch",
-                "2885278 - Node local tasks tabs do not appear on node revisions":
-                "https://www.drupal.org/files/issues/2019-11-12/drupal-node_revision_local_tasks_canonical-2885278-15.patch",
-		"2845144 - User cannot reference unpublished content":
-		"https://www.drupal.org/files/issues/2019-03-26/user_cant_reference_unpublished_content-2845144-24.patch",
-                "2797583 - Dynamically provide action plugins for every moderation state change":
-                "https://www.drupal.org/files/issues/2020-01-25/2797583-149.patch",
-                "3001188 - Make it possible to add relationships to layout builder":
-                "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch",
-                "2429699 - Add Views EntityReference filter to be available for all entity reference fields":
-                "https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch",
-                "2972308 - Allow users to translate content they can edit":
-                "https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch",
-                "26552 - Allow users with access to unpublished nodes to create unpublished books ":
-                "https://www.drupal.org/files/issues/2020-09-02/26552-178.patch",
-                "3173808 - Allow different content-types for child book pages":
-                "https://www.drupal.org/files/issues/2020-10-06/book-config_child_settings-3173808-4.patch",
-                "3020298 - Book navigation block does not appear on unpublished book outline pages":
-                "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
-                "3117782 - Book title in breadcrumb not translated":
-                "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
-                "2470896 - Make Book navigation translatable":
-                "patches/2470896-190-d8.patch",
-                "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage":
-                "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
-                "TBD - make book nav links translatable":
-                "patches/book-nav_link_trans-tbd.patch",
-                "TBD - make book nav titles translatable":
-                "patches/book-nav_link-titles.patch",
-                "Cannot save unpublished versions of published content for users without manage book privileges":
-                "patches/2918537-61-no_tests.patch",
-                "2918784 - Views RSS row plugin incorrectly assumes links are relative":
-                "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch",
-                "3025164 - use Entity Query to filter nodes with content moderation module enabled":
-                "https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch"
-            },
-            "drupal/cshs": {
-                "2948891 - InvalidArgumentException: Value is not a valid entity.":
-                "https://www.drupal.org/files/issues/2018-09-20/InvalidArgumentException-value-is-not-a-valid-entity-2948891-7.patch"
-            },
-            "drupal/ckeditor_templates_ui": {
-                "3109348 - Add ability to set conditions (by language and content-type) on templates":
-                "https://www.drupal.org/files/issues/2020-01-27/ckeditor_templates_ui-conditions_feature-3109348-2.patch"
-            },
-            "drupal/diff": {
-               "3004705 - The getModerationState() function fails to take translations into consideration":
-               "https://www.drupal.org/files/issues/2018-12-03/ModerationState-error-of-translated-node-in-revision-overview-page-3004705-4.patch",
-               "2882334: Revisions are not visible for some nodes":
-               "https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch",
-               "3169729 - No local tasks on compare revisions page":
-               "https://www.drupal.org/files/issues/2020-09-08/diff_add-local-tasks-3169729-2.patch"
-            },
-            "drupal/facets": {
-                "2984465 - Hide facets when it is configured to hide the block":
-                "https://www.drupal.org/files/issues/2019-06-11/facets-empty-block-2984465-31.patch"
-            },
-            "drupal/taxonomy_manager": {
-                "3046752 - AJAX error when editing term content":
-                "https://www.drupal.org/files/issues/2019-07-30/taxonomy_manager-3046752-1.patch",
-                "3025793 - Parameter must be an array":
-                "https://www.drupal.org/files/issues/2019-01-14/taxonomy_manager-dev-parameter-count-3025793-3.patch",
-                "2662060 - Created Terms can't be Translated":
-                "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
-            },
-            "drupal/entityqueue": {
-              "3150981 - Simple queue loses labels":
-              "https://www.drupal.org/files/issues/2020-06-15/remove-item-translation-3150981-10.patch",
-              "3172482 - Increase label maxlength from 32 to 255":
-              "https://www.drupal.org/files/issues/2020-09-22/entityqueue_label-maxlength_3172482_2.patch",
-              "3124403 - Type error when subqueue creation fails":
-              "https://www.drupal.org/files/issues/2020-04-02/type-error-3124403-2.patch"
-            },
-            "drupal/file_delete": {
-              "3115158 - Add functionality to immediately delete files and override usage check":
-              "https://www.drupal.org/files/issues/2020-02-21/3115158-2.patch"
-            },
-            "drupal/linkit": {
-                "2895153 - Linkit filter should honour the URL query and fragment":
-                "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
-            },
-            "drupal/library_manager": {
-                "3138547 - Add dependency form fails with google_tag":
-                "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch",
-                "3143565 - Condition logic issue skips libraries that should be attached":
-                "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
-            },
-            "drupal/linkchecker": {
-              "Move linkchecker_watchdog_log out of .module to a dedicated service.":
-              "https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch",
-              "Add support for Redirect module":
-              "https://www.drupal.org/files/issues/2020-06-17/3058014-27.patch",
-              "Undefined offset error":
-              "https://www.drupal.org/files/issues/2020-08-24/undefined-offset-error-3065045-13.patch", 
-              "Link Extract Issue":
-              "https://www.drupal.org/files/issues/2020-06-08/3132326-9.patch",
-              "Remove Drupal 9 deprecations":
-              "https://www.drupal.org/files/issues/2020-05-18/3136822-24.patch",
-              "3173634 - Linkchecker breaks entityqueue":
-              "patches/linkchecker_entityqueue_error-3173634.patch"
-            },
-            "drupal/moderation_dashboard": {
-              "3048782 - Call to a member function hasPermission() on string":
-              "https://www.drupal.org/files/issues/2020-05-04/user_load_moderation_dashboard_updated_with_DI_for_beta_version_3048782.patch"
-            },
-            "drupal/node_authlink": {
-              "Problems with viewing draft translations":
-              "https://www.drupal.org/files/issues/2020-08-05/node_authlink-view_translation_problems-3163638-2.patch"
-            },
-            "drupal/views_url_alias": {
-                "3104606 - Implement path alias changes in 8.x-1.x":
-                "https://www.drupal.org/files/issues/2020-01-13/3104606-15.patch"
-            },
-            "drupal/pathauto": {
-                "2973478 - Aliases are not created for affected translations":
-                "https://www.drupal.org/files/issues/2018-07-12/2973478-4.patch"
-            },
-            "drupal/redis": {
-                "3004561 - Enable ssl scheme":
-                "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
-            },
-            "drupal/tocify": {
-                "3185176 - Tocify as a field":
-                "https://www.drupal.org/files/issues/2020-11-27/tocify-field-3185176-4.patch"
-            }
-        },
-         "patches-ignore": {
-            "drupal/lightning_core": {
-              "drupal/core": {
-                "1356276 - Allow profiles to define a base/parent profile and load them in the correct order":
-                "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
-                "2914389 - Allow profiles to exclude dependencies of their parent":
-                "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
-              }
-            },
-            "drupal/lightning": {
-                "drupal/core": {
-                    "1356276 - Allow profiles to define a base/parent profile and load them in the correct order":
-                    "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
-                    "2914389 - Allow profiles to exclude dependencies of their parent":
-                    "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
-                }
-            }
-        }
-    },
     "require": {
-        "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6.0",
-        "oomphinc/composer-installers-extender": "^1.1",
-        "drupal-composer/drupal-scaffold": "^2.0.0",
+        "drupal/core-composer-scaffold": "*",
+        "drupalwxt/wxt": "3.0.24",
         "drush/drush": "^9.0",
-        "drupalwxt/wxt": "3.0.12",
-        "acquia/lightning": "4.1.5",
+        "oomphinc/composer-installers-extender": "^1.1 || ^2",
         "drupal/shield": "^1.2",
         "drupal/ckeditor_templates": "^1.1",
         "drupal/ckeditor_templates_ui": "^1.2",
@@ -351,10 +85,222 @@
         "drupal/protected_pages": "^1.3",
         "drupal/tablefield": "^2.2",
         "drupal/node_revision_delete": "^1.0@RC",
-        "drupal/openid_connect_windows_aad": "^1.3",
-        "drupal/h5p": "^1.0@RC"
+        "drupal/openid_connect_windows_aad": "^1.3"
     },
-    "replace": {
+    "require-dev": {
+        "drupal/core-dev": "^8.8",
+        "drupal/console": "~1.9.0",
+        "drupal/console-extend-plugin": "dev-master as 0.9.4",
+        "drupal/drupal-extension": "~3.4.0",
+        "squizlabs/php_codesniffer": "^3.3"
+    },
+    "config": {
+        "secure-http": false,
+        "prestissimo": {
+            "maxConnections": 10,
+            "minConnections": 5
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        },
+        {
+            "type": "composer",
+            "url": "https://drupalwxt.github.io/composer-extdeps/"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/ossobuffo/drupal-console-extend-plugin.git"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "toc/toc",
+                "version": "v0.3.2",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://raw.githubusercontent.com/jgallen23/toc/greenkeeper/update-all/dist/toc.min.js",
+                    "type": "file"
+                }
+            }
+        }
+    ],
+    "scripts": {
+        "post-create-project-cmd": "rm -r -f .travis.yml behat.yml .travis-ci",
+        "quick-start": [
+            "composer install"
+        ]
+    },
+    "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "html/"
+            }
+        },
+        "installer-types": [
+            "bower-asset",
+            "npm-asset"
+        ],
+        "installer-paths": {
+            "html/core": [
+                "type:drupal-core"
+            ],
+            "html/libraries/{$name}": [
+                "type:drupal-console-library",
+                "type:drupal-library",
+                "type:bower-asset",
+                "type:npm-asset"
+            ],
+            "html/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "html/profiles/{$name}": [
+                "type:drupal-profile"
+            ],
+            "html/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/contrib/{$name}": [
+                "type:drupal-drush"
+            ]
+        },
+        "composer-exit-on-patch-failure": true,
+        "enable-patching": true,
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
+        "patches": { 
+            "deployer/recipes": {
+                "Enter deployer/recipes patch #80 description here":
+                "https://patch-diff.githubusercontent.com/raw/deployphp/recipes/pull/80.patch"
+            },
+            "drupal/core": {
+                "2988018 - Performance issues with path alias generated queries on PostgreSQL":
+                "https://www.drupal.org/files/issues/2020-01-03/pathalias_postgres_ilike_performance.patch",
+                "2652000 Views do not add the active class anymore":
+                "https://www.drupal.org/files/issues/2020-01-09/2652000-84.patch",
+                "2885278 - Node local tasks tabs do not appear on node revisions":
+                "https://www.drupal.org/files/issues/2019-11-12/drupal-node_revision_local_tasks_canonical-2885278-15.patch",
+                "2845144 - User cannot reference unpublished content":
+                "https://www.drupal.org/files/issues/2019-03-26/user_cant_reference_unpublished_content-2845144-24.patch",
+                "2797583 - Dynamically provide action plugins for every moderation state change":
+                "https://www.drupal.org/files/issues/2020-01-25/2797583-149.patch",
+                "3001188 - Make it possible to add relationships to layout builder":
+                "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch",
+                "2429699 - Add Views EntityReference filter to be available for all entity reference fields":
+                "https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch",
+                "2972308 - Allow users to translate content they can edit":
+                "https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch",
+                "3020298 - Book navigation block does not appear on unpublished book outline pages":
+                "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
+                "3117782 - Book title in breadcrumb not translated":
+                "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
+                "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage":
+                "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
+                "Cannot save unpublished versions of published content for users without manage book privileges":
+                "patches/2918537-61-no_tests.patch",
+                "2918784 - Views RSS row plugin incorrectly assumes links are relative":
+                "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch",
+                "3025164 - use Entity Query to filter nodes with content moderation module enabled":
+                "https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch"
+            },
+            "drupal/ckeditor_templates_ui": {
+                "3109348 - Add ability to set conditions (by language and content-type) on templates":
+                "https://www.drupal.org/files/issues/2020-01-27/ckeditor_templates_ui-conditions_feature-3109348-2.patch"
+            },
+            "drupal/diff": {
+               "3004705 - The getModerationState() function fails to take translations into consideration":
+               "https://www.drupal.org/files/issues/2018-12-03/ModerationState-error-of-translated-node-in-revision-overview-page-3004705-4.patch",
+               "2882334: Revisions are not visible for some nodes":
+               "https://www.drupal.org/files/issues/2020-09-28/2882334-diff-missing_some_revisions-13.patch",
+               "3169729 - No local tasks on compare revisions page":
+               "https://www.drupal.org/files/issues/2020-09-08/diff_add-local-tasks-3169729-2.patch"
+            },
+            "drupal/taxonomy_manager": {
+                "3046752 - AJAX error when editing term content":
+                "https://www.drupal.org/files/issues/2019-07-30/taxonomy_manager-3046752-1.patch",
+                "2662060 - Created Terms can't be Translated":
+                "https://www.drupal.org/files/issues/2020-06-01/taxonomy_manager-translate_terms-2662060-11.patch"
+            },
+            "drupal/entityqueue": {
+              "3124403 - Type error when subqueue creation fails":
+              "https://www.drupal.org/files/issues/2020-04-02/type-error-3124403-2.patch"
+            },
+            "drupal/file_delete": {
+              "3115158 - Add functionality to immediately delete files and override usage check":
+              "https://www.drupal.org/files/issues/2020-02-21/3115158-2.patch"
+            },
+            "drupal/linkit": {
+                "2895153 - Linkit filter should honour the URL query and fragment":
+                "https://www.drupal.org/files/issues/2020-01-28/linkit_substitution_query_fragment-2895153-11.patch"
+            },
+            "drupal/library_manager": {
+                "3138547 - Add dependency form fails with google_tag":
+                "https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_wsod-3138547-2.patch",
+                "3143565 - Condition logic issue skips libraries that should be attached":
+                "https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch"
+            },
+            "drupal/linkchecker": {
+              "Move linkchecker_watchdog_log out of .module to a dedicated service.":
+              "https://www.drupal.org/files/issues/2020-04-23/3109178-14.patch",
+              "Undefined offset error":
+              "https://www.drupal.org/files/issues/2020-08-24/undefined-offset-error-3065045-13.patch",
+              "3173634 - Linkchecker breaks entityqueue":
+              "patches/linkchecker_entityqueue_error-3173634.patch"
+            },
+            "drupal/moderation_dashboard": {
+              "3048782 - Call to a member function hasPermission() on string":
+              "https://www.drupal.org/files/issues/2020-05-04/user_load_moderation_dashboard_updated_with_DI_for_beta_version_3048782.patch"
+            },
+            "drupal/node_authlink": {
+              "Problems with viewing draft translations":
+              "https://www.drupal.org/files/issues/2020-08-05/node_authlink-view_translation_problems-3163638-2.patch"
+            },
+            "drupal/views_url_alias": {
+                "3104606 - Implement path alias changes in 8.x-1.x":
+                "https://www.drupal.org/files/issues/2020-01-13/3104606-15.patch"
+            },
+            "drupal/pathauto": {
+                "2973478 - Aliases are not created for affected translations":
+                "https://www.drupal.org/files/issues/2018-07-12/2973478-4.patch"
+            },
+            "drupal/redis": {
+                "3004561 - Enable ssl scheme":
+                "https://www.drupal.org/files/issues/2019-06-26/override-default-scheme-and-persistent-for-predis-3004561-12.patch"
+            },
+            "drupal/tocify": {
+                "3185176 - Tocify as a field":
+                "https://www.drupal.org/files/issues/2020-11-27/tocify-field-3185176-4.patch"
+            },
+            "drupalwxt/wxt": {
+                "3187057 - The configuration property settings.allowed_values.0.label.0 doesn't exist":
+                "https://www.drupal.org/files/issues/2021-03-18/3187057-feat-wxt-additional-update-config.patch"
+            }
+        },
+        "patches-ignore": {
+            "acquia/lightning": {
+                "drupal/core": {
+                    "1356276 - Allow profiles to define a base/parent profile and load them in the correct order":
+                    "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
+                    "2914389 - Allow profiles to exclude dependencies of their parent":
+                    "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
+                }
+            },
+            "drupal/lightning_core": {
+                "drupal/core": {
+                    "1356276 - Allow profiles to define a base/parent profile and load them in the correct order":
+                    "https://www.drupal.org/files/issues/2019-11-05/1356276-531-8.8.x-4.patch",
+                    "2914389 - Allow profiles to exclude dependencies of their parent":
+                    "https://www.drupal.org/files/issues/2018-07-09/2914389-8-do-not-test.patch"
+                }
+            }
+        }
     },
     "autoload": {
         "classmap": [

@@ -234,7 +234,7 @@ class EntityQueueUIController extends ControllerBase {
             'error' => [$this->t('The operation could not be performed for the following reasons:')]
           ],
           '#status_headings' => [
-            'error' => t('Error message'),
+            'error' => $this->t('Error message'),
           ],
           '#weight' => -10,
         ];

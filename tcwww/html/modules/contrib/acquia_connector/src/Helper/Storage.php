@@ -59,6 +59,9 @@ class Storage {
     \Drupal::state()->deleteMultiple([
       'acquia_connector.key',
       'acquia_connector.identifier',
+      'spi.site_name',
+      'spi.site_machine_name',
+      'acquia_subscription_data',
     ]);
   }
 

@@ -2,8 +2,13 @@
 
 namespace Drupal\Tests\linkchecker\Kernel;
 
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\linkchecker\Entity\LinkCheckerLink;
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
+use Drupal\Tests\node\Traits\NodeCreationTrait;
 
 /**
  * Test for linkchecker.clean_up service.
@@ -14,6 +19,8 @@ use Drupal\linkchecker\Entity\LinkCheckerLink;
  */
 class LinkcheckerCleanUpTest extends KernelTestBase {
 
+  use NodeCreationTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -21,6 +28,11 @@ class LinkcheckerCleanUpTest extends KernelTestBase {
     'system',
     'linkchecker',
     'dynamic_entity_reference',
+    'node',
+    'user',
+    'field',
+    'filter',
+    'text',
   ];
 
   /**
@@ -43,13 +55,61 @@ class LinkcheckerCleanUpTest extends KernelTestBase {
   public function setUp() {
     parent::setUp();
     $this->installSchema('system', 'sequences');
+    $this->installEntitySchema('node');
+    $this->installEntitySchema('user');
     $this->installEntitySchema('linkcheckerlink');
-    $this->installConfig('linkchecker');
+    $this->installConfig(['field', 'node', 'filter', 'linkchecker']);
+    $this->installSchema('linkchecker', 'linkchecker_index');
 
     $this->linkCleanUp = $this->container->get('linkchecker.clean_up');
     $this->linkCheckerLinkStorage = $this->container->get('entity_type.manager')
-      ->getStorage('linkcheckerlink')
-    ;
+      ->getStorage('linkcheckerlink');
+  }
+
+  /**
+   * @covers ::cleanUpForEntity
+   */
+  public function testEntityCleanup() {
+    $urls = [
+      'http://httpstat.us/304',
+      'http://httpstat.us/503',
+    ];
+
+    $node_type = NodeType::create([
+      'type' => 'page',
+    ]);
+    $node_type->save();
+    node_add_body_field($node_type);
+    $node = $this->createNode([
+      'type' => 'page',
+      'body' => [
+        [
+          'value' => '
+          <a href="http://httpstat.us/304">The nightmare continues</a>'
+        ],
+      ],
+    ]);
+    $fieldDefinition = $node->get('body')->getFieldDefinition();
+    /** @var \Drupal\field\Entity\FieldConfig $config */
+    $config = $fieldDefinition->getConfig($node->bundle());
+    $config->setThirdPartySetting('linkchecker', 'scan', TRUE);
+    $config->setThirdPartySetting('linkchecker', 'extractor', 'html_link_extractor');
+    $config->save();
+
+    foreach ($urls as $url) {
+      $link = $this->createDummyLink($url);
+      $link->setParentEntity($node);
+      $link->setParentEntityFieldName($config->getName());
+      $link->save();
+    }
+
+    // So, given we have 2 link entities that seemingly belong to this new
+    // entity, and then we run the cleanup function to see which links should
+    // really be there, we now expect it to be 1 link, since only one of them
+    // are found in the node body.
+    $this->assertCount(2, $this->linkCheckerLinkStorage->loadMultiple(NULL));
+    $this->linkCleanUp->cleanUpForEntity($node);
+    $this->assertCount(1, $this->linkCheckerLinkStorage->loadMultiple(NULL));
   }
 
   /**
@@ -78,6 +138,7 @@ class LinkcheckerCleanUpTest extends KernelTestBase {
    * Helper function for link creation.
    */
   protected function createDummyLink($url) {
+    /** @var \Drupal\linkchecker\Entity\LinkCheckerLink $link */
     $link = LinkCheckerLink::create([
       'url' => $url,
       'entity_id' => [

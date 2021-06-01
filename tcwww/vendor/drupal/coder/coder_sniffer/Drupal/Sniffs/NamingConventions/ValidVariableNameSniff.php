@@ -1,14 +1,19 @@
 <?php
 /**
- * Drupal_Sniffs_NamingConventions_ValidVariableNameSniff.
+ * \Drupal\Sniffs\NamingConventions\ValidVariableNameSniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\NamingConventions;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\AbstractVariableSniff;
+
 /**
- * Drupal_Sniffs_NamingConventions_ValidVariableNameSniff.
+ * \Drupal\Sniffs\NamingConventions\ValidVariableNameSniff.
  *
  * Checks the naming of member variables.
  *
@@ -16,33 +21,25 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class Drupal_Sniffs_NamingConventions_ValidVariableNameSniff
-
-    extends PHP_CodeSniffer_Standards_AbstractVariableSniff
+class ValidVariableNameSniff extends AbstractVariableSniff
 {
 
 
     /**
      * Processes class member variables.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return void
      */
-    protected function processMemberVar(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    protected function processMemberVar(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
         $memberProps = $phpcsFile->getMemberProperties($stackPtr);
         if (empty($memberProps) === true) {
-            return;
-        }
-
-        $memberName = ltrim($tokens[$stackPtr]['content'], '$');
-
-        if (strpos($memberName, '_') === false) {
             return;
         }
 
@@ -59,10 +56,38 @@ class Drupal_Sniffs_NamingConventions_ValidVariableNameSniff
             if ($extendsName !== false && strpos($extendsName, 'ConfigEntity') !== false) {
                 return;
             }
+
+            // Plugin annotations may have underscores in class properties.
+            // For example, see \Drupal\Core\Field\Annotation\FieldFormatter.
+            // The only class named "Plugin" in Drupal core is
+            // \Drupal\Component\Annotation\Plugin while many Views plugins
+            // extend \Drupal\views\Annotation\ViewsPluginAnnotationBase.
+            if ($extendsName !== false && in_array(
+                $extendsName,
+                [
+                    'Plugin',
+                    'ViewsPluginAnnotationBase',
+                ]
+            ) !== false
+            ) {
+                return;
+            }
+
+            $implementsNames = $phpcsFile->findImplementedInterfaceNames($classPtr);
+            if ($implementsNames !== false && in_array('AnnotationInterface', $implementsNames) !== false) {
+                return;
+            }
+        }//end if
+
+        // The name of a property must start with a lowercase letter, properties
+        // with underscores are not allowed, except the cases handled above.
+        $memberName = ltrim($tokens[$stackPtr]['content'], '$');
+        if (preg_match('/^[a-z]/', $memberName) === 1 && strpos($memberName, '_') === false) {
+            return;
         }
 
         $error = 'Class property %s should use lowerCamel naming without underscores';
-        $data  = array($tokens[$stackPtr]['content']);
+        $data  = [$tokens[$stackPtr]['content']];
         $phpcsFile->addError($error, $stackPtr, 'LowerCamelName', $data);
 
     }//end processMemberVar()
@@ -71,28 +96,28 @@ class Drupal_Sniffs_NamingConventions_ValidVariableNameSniff
     /**
      * Processes normal variables.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file where this token was found.
-     * @param int                  $stackPtr  The position where the token was found.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file where this token was found.
+     * @param int                         $stackPtr  The position where the token was found.
      *
      * @return void
      */
-    protected function processVariable(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    protected function processVariable(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
         $varName = ltrim($tokens[$stackPtr]['content'], '$');
 
-        $phpReservedVars = array(
-                            '_SERVER',
-                            '_GET',
-                            '_POST',
-                            '_REQUEST',
-                            '_SESSION',
-                            '_ENV',
-                            '_COOKIE',
-                            '_FILES',
-                            'GLOBALS',
-                           );
+        $phpReservedVars = [
+            '_SERVER',
+            '_GET',
+            '_POST',
+            '_REQUEST',
+            '_SESSION',
+            '_ENV',
+            '_COOKIE',
+            '_FILES',
+            'GLOBALS',
+        ];
 
         // If it's a php reserved var, then its ok.
         if (in_array($varName, $phpReservedVars) === true) {
@@ -115,12 +140,12 @@ class Drupal_Sniffs_NamingConventions_ValidVariableNameSniff
     /**
      * Processes variables in double quoted strings.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file where this token was found.
-     * @param int                  $stackPtr  The position where the token was found.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file where this token was found.
+     * @param int                         $stackPtr  The position where the token was found.
      *
      * @return void
      */
-    protected function processVariableInString(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    protected function processVariableInString(File $phpcsFile, $stackPtr)
     {
         // We don't care about variables in strings.
         return;

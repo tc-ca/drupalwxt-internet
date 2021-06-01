@@ -1,0 +1,26 @@
+   <table border="1">
+   <tr><td>
+   <div><b>File Path</b> : {{ item.file_path }}</div>
+   <div><b>Entity type </b> : {{ item.entity_type }}   {%  if(item.is_entity == null ) %} <span style="color:red"> not exist in your site </span>{% endif %}</div>
+   <div><b>Bundle</b> : {{ item.bundle }}  {%  if(item.is_bundle == null) %} <span style="color:red"> not exist in your site </span>{% endif %} </div>
+   </td></tr>
+   </table>
+   <table border="1">
+   <tr>
+     <th> {{'FILE YAML CONTENT'|t }}  </th>
+     <th> {{'SITE  CONTENT'|t}}  </th>
+   </tr>
+   <tr>
+   <td>
+        {% for key,value in item.file %}
+              <div><b>{{key}}</b> : {{ value }}</div>
+        {% endfor %}
+ 
+   </td>
+    <td>
+          {% for key,value in item.database %}
+                  <div><b>{{key}}</b> : {{ value }}</div>
+          {% endfor %}
+   </td>
+   </tr>
+   </table>

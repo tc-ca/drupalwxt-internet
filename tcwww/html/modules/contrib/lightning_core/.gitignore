@@ -1,0 +1,4 @@
+docroot/
+vendor/
+.idea/
+.DS_Store

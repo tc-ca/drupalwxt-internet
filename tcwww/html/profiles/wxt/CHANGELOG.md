@@ -1,4 +1,276 @@
+## v3.0.24
+
+* Update Drupal Core to [8.9.16](https://www.drupal.org/project/drupal/releases/8.9.16)
+  * [SA-core-2021-003](https://www.drupal.org/sa-core-2021-003)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+> Note: N/A
+
+## v3.0.23
+
+* Update Drupal Core to [8.9.14](https://www.drupal.org/project/drupal/releases/8.9.14)
+  * [SA-core-2021-002](https://www.drupal.org/sa-core-2021-002)
+* Update minimum webform version to 5.25 ([SA-CONTRIB-2021-004](https://www.drupal.org/sa-contrib-2021-004))
+* Update group to 1.3 ([SA-CONTRIB-2020-032](https://www.drupal.org/sa-contrib-2020-032), [SA-CONTRIB-2020-033](https://www.drupal.org/sa-contrib-2020-033), [SA-CONTRIB-2020-030](https://www.drupal.org/sa-contrib-2020-030))
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+> Note: There were problem in the build process so this is the next release tag.
+
+## v3.0.19
+
+* Update Drupal Core to [8.9.13](https://www.drupal.org/project/drupal/releases/8.9.13)
+  * [SA-core-2021-001](https://www.drupal.org/sa-core-2021-001)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.18
+
+* Update Drupal Core to [8.8.12](https://www.drupal.org/project/drupal/releases/8.8.12)
+  * [SA-core-2020-013](https://www.drupal.org/sa-core-2020-013)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.17
+
+* Update Drupal Core to [8.8.11](https://www.drupal.org/project/drupal/releases/8.8.11)
+  * [SA-core-2020-012](https://www.drupal.org/sa-core-2020-012)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.16
+
+- Updates to Composer
+  - Support for Composer v2.0.0
+  - Switch to drupal/core-dev to streamline our composer.json
+- Updates for WxT Bootstrap
+  - Template issue for Main Menu
+- Updates for WxT Library
+  - Improve Canada.ca search submit
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.15
+
+- Updates to Drupal
+  - Added language token to token module
+- Updates for WxT
+  - Ran drupal-check for Drupal 9 support
+  - Added new drush command for sub profile generation
+  - Section on configuration split added to README.md
+  - Updated Search API
+  - Optimized default URL alias for french
+  - Support for inline webform report a problem block
+  - Added Redis contributed module to build
+- Updates for WxT Bootstrap
+  - Ran drupal-check for Drupal 9 support
+  - Updated Bootstrap to 3.23
+  - Additional WCAG logic for "skip to" section
+  - Additional WCAG only one li element
+- Updates for WxT Library
+  - Ran drupal-check for Drupal 9 support
+  - WCAG missing form label
+- Update openapi_jsonapi to 2.0-rc2
+- Update search_api to 1.18
+- Update simple_gmap to 3.0
+- Update lightning to 4.107
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+**Note:** The following modules are no longer provided and were never used by WXT. If you use these modules you will need to add them to your project's composer.json file or include them in your code base using another method.
+
+* Search API Solr (`search_api_solr`)
+* Facets (`facets`)
+
+## v3.0.14
+
+Security updates:
+
+* Update Drupal Core to [8.8.10](https://www.drupal.org/project/drupal/releases/8.9.6)
+  * [SA-core-2020-007](https://www.drupal.org/sa-core-2020-007)
+  * [SA-core-2020-008](https://www.drupal.org/sa-core-2020-008)
+  * [SA-core-2020-009](https://www.drupal.org/sa-core-2020-009)
+  * [SA-core-2020-010](https://www.drupal.org/sa-core-2020-010)
+  * [SA-core-2020-011](https://www.drupal.org/sa-core-2020-011)
+- Updates for WxT Library
+  - Updates to WET-BOEW Library v4.0.38
+- Updates for WxT Bootstrap
+  - Add missing aria-label
+  - Link Canada Logo
+  - Search Box handling
+  - Article Role and About
+
+Features/Updates:
+
+- Update Lightning [4.1.7](https://github.com/acquia/lightning/releases/tag/4.1.7)
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+## v3.0.13
+
+Features/Updates:
+
+- Updates for Lightning
+  - Patch to Lightning Workflow for entityqueue upgrade issue
+- Updates for WxT Bootstrap
+  - Element figcaption nesting
+  - Duplicated data-trgt element
+  - Remove unncessary article role
+  - Issue with nesting in content footer
+  - dropdown.js bootstrap backport
+  - Custom block theme suggestions
+  - Add wb-inv span for search
+  - Theme suggestions order
+- Updates for WxT Library
+  - Remove dependency on core search
+  - Add core_version_requirement for D9
+
+**Note:** We are working towards moving to Drupal 9 in the near future.
+
+Upgrade path:
+
+- Update your codebase:
+  - `composer update`
+
+- Run database updates:
+  - `drush cache:rebuild`
+  - `drush updatedb`
+
+- Run Lightning configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:lightning`
+
+- Run WxT configuration updates:
+  - `drush cache:rebuild`
+  - `drush update:wxt`
+
+- Manual changes:
+  - If you happen to notice "The ... field needs to be uninstalled" from the status report screen
+  - Goto the `admin/config/workflow/workflows/manage/editorial` screen and re-save the Editorial workflow
+
 ## v3.0.12
+
 Security updates:
 
 * Update Drupal Core to [8.8.8](https://www.drupal.org/project/drupal/releases/8.8.8)
@@ -7,6 +279,7 @@ Security updates:
   * [SA-CORE-2020-006](https://www.drupal.org/sa-core-2020-006)
 
 Features/Updates:
+
   - Update Lightning [4.1.5](https://github.com/acquia/lightning/releases/tag/4.1.5)
   - Update acquia_connector to 1.22
   - Update admin_toolbar to 2.3
@@ -51,6 +324,7 @@ Upgrade path:
   - `drush update:wxt`
 
 ## v3.0.11
+
 Security updates:
 
 * Update Drupal Core to [8.8.6](https://www.drupal.org/project/drupal/releases/8.8.6)

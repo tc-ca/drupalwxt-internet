@@ -46,22 +46,14 @@ class GeofieldItem extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $field) {
     /* @var \Drupal\geofield\Plugin\GeofieldBackendManager $backend_manager */
     $backend_manager = \Drupal::service('plugin.manager.geofield_backend');
-    $backend_plugin = NULL;
-
     try {
       /* @var \Drupal\geofield\Plugin\GeofieldBackendPluginInterface $backend_plugin */
       if (!empty($field->getSetting('backend')) && $backend_manager->getDefinition($field->getSetting('backend')) != NULL) {
         $backend_plugin = $backend_manager->createInstance($field->getSetting('backend'));
       }
     }
-    catch (\Exception $e) {
-      watchdog_exception("geofiedl_backend_manager", $e);
-      try {
-        $backend_plugin = $backend_manager->createInstance('geofield_backend_default');
-      }
-      catch (PluginException $e) {
-        watchdog_exception("geofiedl_backend_manager", $e);
-      }
+    catch (PluginException $e) {
+      watchdog_exception("geofield_backend_manager", $e);
     }
     return [
       'columns' => [
@@ -187,7 +179,7 @@ class GeofieldItem extends FieldItemBase {
       '#title' => $this->t('Storage Backend'),
       '#default_value' => $this->getSetting('backend'),
       '#options' => $backend_options,
-      '#description' => $this->t("Select the Geospatial storage backend you would like to use to store geofield geometry data. If you don't know what this means, select 'Default'."),
+      '#description' => $this->t("Select the Geospatial storage backend you would like to use to store geofield geometry data. If you don't know what this means, select 'Default Backend'."),
     ];
 
     return $element;
@@ -206,11 +198,11 @@ class GeofieldItem extends FieldItemBase {
         $geo_php_wrapper = \Drupal::service('geofield.geophp');
         /* @var \Geometry|null $geometry */
         $geometry = $geo_php_wrapper->load($value);
-        return isset($geometry) ? $geometry->isEmpty() : TRUE;
+        return $geometry instanceof \Geometry ? $geometry->isEmpty() : TRUE;
       }
     }
     catch (\Exception $e) {
-      watchdog_exception('geofield_mising_data_exception', $e);
+      watchdog_exception('geofield get value exception', $e);
     }
     return TRUE;
   }
@@ -251,17 +243,10 @@ class GeofieldItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public function prepareCache() {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
-    $value = [
+    return [
       'value' => \Drupal::service('geofield.wkt_generator')->WktGenerateGeometry(),
     ];
-    return $value;
   }
 
 }

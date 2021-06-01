@@ -1,0 +1,13 @@
+field.widget.settings.cshs:
+  type: mapping
+  label: 'CSHS field widget settings'
+  mapping:
+    force_deepest:
+      type: boolean
+      label: 'Force selection of deepest level'
+    parent:
+      type: string
+      label: 'Parent'
+    level_labels:
+      type: string
+      label: 'Labels per hierarchy-level'

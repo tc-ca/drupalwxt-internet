@@ -171,11 +171,12 @@ function lightning_core_modules_installed(array $modules) {
       $view_modes[] = $entity_type->id() . '.token';
     }
 
-    $view_modes = EntityViewMode::loadMultiple($view_modes);
+    $storage = Drupal::entityTypeManager()->getStorage('entity_view_mode');
+    $view_modes = $storage->loadMultiple($view_modes);
     /** @var \Drupal\Core\Entity\EntityViewModeInterface $view_mode */
     foreach ($view_modes as $view_mode) {
-      $view_mode->setThirdPartySetting('lightning_core', 'internal', TRUE)
-        ->save();
+      $view_mode->setThirdPartySetting('lightning_core', 'internal', TRUE);
+      $storage->save($view_mode);
     }
   }
 }
@@ -200,8 +201,11 @@ function lightning_core_block_view_alter(array &$build, BlockPluginInterface $bl
  */
 function lightning_core_form_user_form_alter(array &$form) {
   if (isset($form['account']['roles'])) {
+    $roles = Drupal::entityTypeManager()
+      ->getStorage('user_role')
+      ->loadMultiple();
     /** @var \Drupal\user\RoleInterface $role */
-    foreach (Role::loadMultiple() as $id => $role) {
+    foreach ($roles as $id => $role) {
       if ($role instanceof EntityDescriptionInterface) {
         $form['account']['roles']['#legend'][$id] = $role->getDescription();
       }
@@ -220,7 +224,9 @@ function lightning_core_form_alter(array &$form, FormStateInterface $form_state)
     // allows the revision UI to be shown.
     $form_display = $form_object->getFormDisplay($form_state);
     $form_mode = $form_display->getTargetEntityTypeId() . '.' . $form_display->getMode();
-    $form_mode = EntityFormMode::load($form_mode);
+    $form_mode = Drupal::entityTypeManager()
+      ->getStorage('entity_form_mode')
+      ->load($form_mode);
     if ($form_mode) {
       $form['revision_information']['#access'] = $form_mode->getThirdPartySetting('lightning_core', 'revision_ui', TRUE);
     }

@@ -1,11 +1,17 @@
 <?php
 /**
- * DrupalPractice_Sniffs_Constants_GlobalConstantSniff
+ * \DrupalPractice\Sniffs\Constants\GlobalConstantSniff
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace DrupalPractice\Sniffs\Constants;
+
+use DrupalPractice\Project;
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
  * Checks that globally defined constants are not used in Drupal 8 and higher.
@@ -14,18 +20,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class DrupalPractice_Sniffs_Constants_GlobalConstantSniff implements PHP_CodeSniffer_Sniff
+class GlobalConstantSniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_CONST);
+        return [T_CONST];
 
     }//end register()
 
@@ -33,13 +39,13 @@ class DrupalPractice_Sniffs_Constants_GlobalConstantSniff implements PHP_CodeSni
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The current file being processed.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The current file being processed.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
-     * @return void
+     * @return void|int
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
@@ -48,9 +54,10 @@ class DrupalPractice_Sniffs_Constants_GlobalConstantSniff implements PHP_CodeSni
             return;
         }
 
-        $coreVersion = DrupalPractice_Project::getCoreVersion($phpcsFile);
-        if ($coreVersion !== '8.x') {
-            return;
+        $coreVersion = Project::getCoreVersion($phpcsFile);
+        if ($coreVersion < 8) {
+            // No need to check this file again, mark it as done.
+            return ($phpcsFile->numTokens + 1);
         }
 
         // Allow constants if they are deprecated.

@@ -19,6 +19,11 @@ class QuickEditMediaBrowserTest extends QuickEditJavascriptTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'node',
     'file',

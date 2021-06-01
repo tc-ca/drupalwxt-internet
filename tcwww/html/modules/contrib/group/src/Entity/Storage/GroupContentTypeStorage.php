@@ -28,6 +28,13 @@ class GroupContentTypeStorage extends ConfigEntityStorage implements GroupConten
   protected $pluginManager;
 
   /**
+   * Statically caches loaded group content types by target entity type ID.
+   *
+   * @var \Drupal\group\Entity\GroupContentTypeInterface[][]
+   */
+  protected $byEntityTypeCache = [];
+
+  /**
    * Constructs a GroupContentTypeStorage object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
@@ -81,7 +88,11 @@ class GroupContentTypeStorage extends ConfigEntityStorage implements GroupConten
    */
   public function loadByEntityTypeId($entity_type_id) {
     $plugin_ids = [];
-    
+
+    if (isset($this->byEntityTypeCache[$entity_type_id])) {
+      return $this->byEntityTypeCache[$entity_type_id];
+    }
+
     /** @var \Drupal\group\Plugin\GroupContentEnablerInterface $plugin */
     foreach ($this->pluginManager->getAll() as $plugin_id => $plugin) {
       if ($plugin->getEntityTypeId() === $entity_type_id) {
@@ -91,11 +102,13 @@ class GroupContentTypeStorage extends ConfigEntityStorage implements GroupConten
 
     // If no responsible group content plugins were found, we return nothing.
     if (empty($plugin_ids)) {
+      $this->byEntityTypeCache[$entity_type_id] = [];
       return [];
     }
 
     // Otherwise load all group content types being handled by gathered plugins.
-    return $this->loadByContentPluginId($plugin_ids);
+    $this->byEntityTypeCache[$entity_type_id] = $this->loadByContentPluginId($plugin_ids);
+    return $this->byEntityTypeCache[$entity_type_id];
   }
 
   /**
@@ -118,8 +131,16 @@ class GroupContentTypeStorage extends ConfigEntityStorage implements GroupConten
       'content_plugin' => $plugin_id,
       'plugin_config' => $plugin->getConfiguration(),
     ];
-    
+
     return $this->create($values);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetCache(array $ids = NULL) {
+    parent::resetCache($ids);
+    $this->byEntityTypeCache = [];
   }
 
 }

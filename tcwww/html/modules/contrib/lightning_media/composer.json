@@ -5,36 +5,36 @@
     "license": "GPL-2.0-or-later",
     "require": {
         "bower-asset/cropper": "^2.3",
-        "bower-asset/dropzone": "^5.1",
         "bower-asset/slick-carousel": "^1.8",
-        "drupal/core": "~8.6.18 || ~8.7.11 || ~8.8.1 || 8.9.* || 9.0.*",
+        "drupal/core": "^8.6.18",
         "drupal/crop": "^2.0.0-rc1",
-        "drupal/dropzonejs": "2.0.0-alpha5",
+        "drupal/dropzonejs": "^2.0",
         "drupal/embed": "^1.0",
         "drupal/entity_browser": "^2.3",
         "drupal/entity_embed": "^1.0",
         "drupal/image_widget_crop": "^2.1",
         "drupal/inline_entity_form": "^1.0",
-        "drupal/libraries": "3.0-alpha1",
+        "drupal/libraries": "^3.0-alpha6",
         "drupal/lightning_core": "3.* || 4.* || 5.*",
-        "drupal/media_entity_instagram": "^2.0",
-        "drupal/media_entity_twitter": "^2.1",
-        "drupal/slick": "2.0",
+        "drupal/media_entity_instagram": "^3",
+        "drupal/media_entity_twitter": "^2.5",
+        "drupal/slick": "^2.0",
         "drupal/slick_entityreference": "^2.0",
         "drupal/video_embed_field": "^2.0",
         "drupal/views_infinite_scroll": "^1.6",
+        "npm-asset/dropzone": "^5.7.4",
+        "oomphinc/composer-installers-extender": "^1.1 || ^2",
         "vardot/blazy": "^1.8"
     },
+    "conflict": {
+        "drupal/slick": "2.1"
+    },
     "require-dev": {
-        "cweagans/composer-patches": "^1.6",
-        "drupal-composer/drupal-scaffold": "^2.6",
-        "drupal/drupal-extension": "^3.4",
-        "drupal/facets": "^1.2",
-        "drupal/schema_metatag": "^1.3",
-        "drush/drush": "^9.7",
-        "oomphinc/composer-installers-extender": "^1.1",
-        "vijaycs85/drupal-quality-checker": "^1.0",
-        "webflo/drupal-core-require-dev": "*"
+        "cweagans/composer-patches": "^1.7",
+        "drupal/core-composer-scaffold": "^8",
+        "drupal/core-dev": "^8",
+        "drush/drush": ">=9.7",
+        "symfony/options-resolver": ">=4"
     },
     "config": {
         "preferred-install": {
@@ -44,6 +44,25 @@
     "extra": {
         "branch-alias": {
             "dev-8.x-3.x": "3.x-dev"
+        },
+        "composer-exit-on-patch-failure": true,
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "docroot/"
+            },
+            "file-mapping": {
+                "[project-root]/.gitattributes": false,
+                "[project-root]/.editorconfig": false,
+                "[web-root]/example.gitignore": false,
+                "[web-root]/.csslintrc": false,
+                "[web-root]/modules/README.txt": false,
+                "[web-root]/profiles/README.txt": false,
+                "[web-root]/sites/README.txt": false,
+                "[web-root]/themes/README.txt": false,
+                "[web-root]/INSTALL.txt": false,
+                "[web-root]/robots.txt": false,
+                "[web-root]/web.config": false
+            }
         },
         "enable-patching": true,
         "installer-paths": {
@@ -70,8 +89,8 @@
             "npm-asset"
         ],
         "patches": {
-            "drupal/libraries": {
-                "2882709 - Misnamed interface causes \"Fatal error: Cannot declare interface Drupal\\libraries\\ExternalLibrary\\Utility\\LibraryAccessorIdInterface\"": "https://www.drupal.org/files/issues/2882709-2-interface-libraryidaccessorinterface-misnamed.patch"
+            "drupal/media_entity_instagram": {
+                "Fix PHP 7.4 error when accessing an array offset of null": "https://www.drupal.org/files/issues/2020-12-18/3143958-7-media_entity_instagram_source_field_check.patch"
             }
         }
     },
@@ -97,22 +116,17 @@
     "prefer-stable": true,
     "scripts": {
         "post-install-cmd": [
-            "@push",
-            "@drupal-scaffold"
+            "@putenv DIR=./docroot/modules/lightning_media",
+            "mkdir -p $DIR",
+            "ln -s -f $PWD/config $DIR",
+            "ln -s -f $PWD/css $DIR",
+            "ln -s -f $PWD/images $DIR",
+            "ln -s -f $PWD/modules $DIR",
+            "ln -s -f $PWD/src $DIR",
+            "ln -s -f $PWD/tests $DIR",
+            "find $PWD -name 'lightning_media.*' -depth 1 -exec ln -s -f {} $DIR ';'",
+            "cp -f phpunit.xml ./docroot/core"
         ],
-        "post-update-cmd": [
-            "@push",
-            "@drupal-scaffold"
-        ],
-        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
-        "nuke": "rm -r -f docroot vendor",
-        "pull": "cp -R -f ./docroot/modules/contrib/lightning_media/* .",
-        "push": [
-            "rm -r -f ./docroot/modules/contrib/lightning_media",
-            "mkdir -p ./docroot/modules/contrib/lightning_media",
-            "@composer archive --file lightning_media",
-            "tar -x -f lightning_media.tar -C ./docroot/modules/contrib/lightning_media",
-            "rm lightning_media.tar"
-        ]
+        "nuke": "rm -r -f docroot vendor"
     }
 }

@@ -20,7 +20,7 @@ class GroupIdArgumentTest extends ViewsKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['group', 'field', 'text', 'group_test_config', 'user', 'group_test_views'];
+  public static $modules = ['group', 'options', 'entity', 'variationcache', 'field', 'text', 'group_test_config', 'group_test_views'];
 
   /**
    * Views used by this test.

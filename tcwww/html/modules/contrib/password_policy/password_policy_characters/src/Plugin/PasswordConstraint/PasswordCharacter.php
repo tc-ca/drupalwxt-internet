@@ -5,6 +5,7 @@ namespace Drupal\password_policy_characters\Plugin\PasswordConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\password_policy\PasswordConstraintBase;
 use Drupal\password_policy\PasswordPolicyValidation;
+use Drupal\user\UserInterface;
 
 /**
  * Enforces a number of a type of character in passwords.
@@ -13,7 +14,7 @@ use Drupal\password_policy\PasswordPolicyValidation;
  *   id = "password_policy_character_constraint",
  *   title = @Translation("Password character type"),
  *   description = @Translation("Verifying that a password has a specific number of characters"),
- *   error_message = @Translation("The password does not contain a the correct number of certain characters.")
+ *   errorMessage = @Translation("The password does not contain a the correct number of certain characters.")
  * )
  */
 class PasswordCharacter extends PasswordConstraintBase {
@@ -21,7 +22,7 @@ class PasswordCharacter extends PasswordConstraintBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($password, $user_context) {
+  public function validate($password, UserInterface $user) {
     $configuration = $this->getConfiguration();
     $validation = new PasswordPolicyValidation();
     $character_distribution = count_chars($password);

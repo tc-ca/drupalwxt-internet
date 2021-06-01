@@ -16,12 +16,12 @@ administrators have the ability to manually expire all passwords by
 role.
 
 
-**Enable**
+### Enable
 
 -  Download and enable the module
 
 
-**Plugins**
+### Plugins
 
 All plugins are installed as separate modules. The only policies that 
 are out of the box is the Password Reset feature.
@@ -32,7 +32,7 @@ of Password Policy)
 -  Zxcvbn (https://github.com/nerdstein/password_policy_zxcvbn)
 
 
-**Configure**
+### Configure
 
 -  Enable all plugin modules
 -  Go to Password Policy's configuration page 
@@ -42,7 +42,7 @@ of Password Policy)
 -  Select which roles the policies applies to
 
 
-**Architecture**
+### Architecture
 
 -  Password Policy provides a plugin manager that defines an interface 
 for constraints and the constraint's policies

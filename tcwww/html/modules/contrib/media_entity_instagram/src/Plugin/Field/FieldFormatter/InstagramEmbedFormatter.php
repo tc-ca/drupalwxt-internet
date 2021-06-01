@@ -2,14 +2,16 @@
 
 namespace Drupal\media_entity_instagram\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\media\Entity\MediaType;
+use Drupal\media\IFrameMarkup;
+use Drupal\media\OEmbed\Resource;
+use Drupal\media\OEmbed\ResourceException;
+use Drupal\media\Plugin\Field\FieldFormatter\OEmbedFormatter;
 use Drupal\media_entity_instagram\Plugin\media\Source\Instagram;
-use Drupal\media_entity_instagram\InstagramEmbedFetcher;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,22 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class InstagramEmbedFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
-
-  /**
-   * The instagram fetcher.
-   *
-   * @var \Drupal\media_entity_instagram\InstagramEmbedFetcher
-   */
-  protected $fetcher;
-
-  /**
-   * Constructs a InstagramEmbedFormatter instance.
-   */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, InstagramEmbedFetcher $fetcher) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->fetcher = $fetcher;
-  }
+class InstagramEmbedFormatter extends OEmbedFormatter {
 
   /**
    * {@inheritdoc}
@@ -52,8 +39,23 @@ class InstagramEmbedFormatter extends FormatterBase implements ContainerFactoryP
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('media_entity_instagram.instagram_embed_fetcher')
+      $container->get('messenger'),
+      $container->get('media.oembed.resource_fetcher'),
+      $container->get('media_entity_instagram.oembed.url_resolver'),
+      $container->get('logger.factory'),
+      $container->get('config.factory'),
+      $container->get('media.oembed.iframe_url_helper')
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    $settings = parent::defaultSettings();
+    $settings['hidecaption'] = FALSE;
+    unset($settings['max_height']);
+    return $settings;
   }
 
   /**
@@ -61,38 +63,46 @@ class InstagramEmbedFormatter extends FormatterBase implements ContainerFactoryP
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = [];
-    $settings = $this->getSettings();
+    $max_width = $this->getSetting('max_width');
+
     foreach ($items as $delta => $item) {
-      $matches = [];
+      $main_property = $item->getFieldDefinition()->getFieldStorageDefinition()->getMainPropertyName();
+      $value = $item->{$main_property};
 
-      foreach (Instagram::$validationRegexp as $pattern => $key) {
-        if (preg_match($pattern, $this->getEmbedCode($item), $item_matches)) {
-          $matches[] = $item_matches;
-        }
+      if (empty($value)) {
+        continue;
       }
 
-      if (!empty($matches)) {
-        $matches = reset($matches);
+      try {
+        $resource_url = $this->urlResolver->getResourceUrl($value, $max_width, NULL, $this->getSettings());
+        $resource = $this->resourceFetcher->fetchResource($resource_url);
+      }
+      catch (ResourceException $exception) {
+        $this->logger->error("Could not retrieve the remote URL (@url).", ['@url' => $value]);
+        continue;
       }
 
-      if (!empty($matches['shortcode'])) {
+      switch ($resource->getType()) {
+        case Resource::TYPE_LINK:
+        case Resource::TYPE_PHOTO:
+          return parent::viewElements($items, $langcode);
 
-        if ($instagram = $this->fetcher->fetchInstagramEmbed($matches['shortcode'], $settings['hidecaption'], $settings['width'])) {
+        default:
           $element[$delta] = [
-            '#theme' => 'media_entity_instagram_post',
-            '#post' => (string) $instagram['html'],
-            '#shortcode' => $matches['shortcode'],
+            '#theme' => 'media_oembed_iframe',
+            '#resource' => $resource,
+            '#media' => IFrameMarkup::create($resource->getHtml()),
+            '#attached' => [
+              'library' => [
+                'media_entity_instagram/integration',
+              ],
+            ],
           ];
-        }
-      }
-    }
 
-    if (!empty($element)) {
-      $element['#attached'] = [
-        'library' => [
-          'media_entity_instagram/integration',
-        ],
-      ];
+          CacheableMetadata::createFromObject($resource)
+            ->addCacheTags($this->config->getCacheTags())
+            ->applyTo($element[$delta]);
+      }
     }
 
     return $element;
@@ -101,34 +111,16 @@ class InstagramEmbedFormatter extends FormatterBase implements ContainerFactoryP
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
-    return [
-      'width' => NULL,
-      'hidecaption' => FALSE,
-    ] + parent::defaultSettings();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
-
-    $elements['width'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Width'),
-      '#default_value' => $this->getSetting('width'),
-      '#min' => 320,
-      '#description' => $this->t('Max width of instagram.'),
-    ];
-
     $elements['hidecaption'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Caption hidden'),
+      '#title' => $this->t('Hide caption'),
       '#default_value' => $this->getSetting('hidecaption'),
-      '#description' => $this->t('Enable to hide caption of Instagram posts.'),
+      '#description' => $this->t('Hide caption of Instagram posts.'),
     ];
 
+    unset($elements['max_height']);
     return $elements;
   }
 
@@ -136,44 +128,26 @@ class InstagramEmbedFormatter extends FormatterBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $settings = $this->getSettings();
-
-    $summary = [];
-
-    if ($this->getSetting('width')) {
-      $summary[] = $this->t('Width: @width px', [
-        '@width' => $this->getSetting('width'),
-      ]);
-    }
-
+    $summary = parent::settingsSummary();
     $summary[] = $this->t('Caption: @hidecaption', [
-      '@hidecaption' => $settings['hidecaption'] ? $this->t('Hidden') : $this->t('Visible'),
+      '@hidecaption' => $this->getSetting('hidecaption') ? $this->t('Hidden') : $this->t('Visible'),
     ]);
-
     return $summary;
   }
 
   /**
-   * Extracts the raw embed code from input which may or may not be wrapped.
-   *
-   * @param mixed $value
-   *   The input value. Can be a normal string or a value wrapped by the
-   *   Typed Data API.
-   *
-   * @return string|null
-   *   The raw embed code.
+   * {@inheritdoc}
    */
-  protected function getEmbedCode($value) {
-    if (is_string($value)) {
-      return $value;
-    }
-    elseif ($value instanceof FieldItemInterface) {
-      $class = get_class($value);
-      $property = $class::mainPropertyName();
-      if ($property) {
-        return $value->$property;
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    if (parent::isApplicable($field_definition)) {
+      $media_type = $field_definition->getTargetBundle();
+
+      if ($media_type) {
+        $media_type = MediaType::load($media_type);
+        return $media_type && $media_type->getSource() instanceof Instagram;
       }
     }
+    return FALSE;
   }
 
 }

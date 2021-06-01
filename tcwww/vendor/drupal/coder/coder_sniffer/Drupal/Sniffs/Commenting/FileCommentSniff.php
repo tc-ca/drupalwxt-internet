@@ -7,6 +7,11 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
+namespace Drupal\Sniffs\Commenting;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+
 /**
  * Parses and verifies the doc comments for files.
  *
@@ -21,29 +26,18 @@
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
 
-class Drupal_Sniffs_Commenting_FileCommentSniff implements PHP_CodeSniffer_Sniff
+class FileCommentSniff implements Sniff
 {
-
-
-    /**
-     * A list of tokenizers this sniff supports.
-     *
-     * @var array
-     */
-    public $supportedTokenizers = array(
-                                   'PHP',
-                                   'JS',
-                                  );
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_OPEN_TAG);
+        return [T_OPEN_TAG];
 
     }//end register()
 
@@ -51,16 +45,14 @@ class Drupal_Sniffs_Commenting_FileCommentSniff implements PHP_CodeSniffer_Sniff
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The file being scanned.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
      * @return int
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
-        $this->currentFile = $phpcsFile;
-
         $tokens       = $phpcsFile->getTokens();
         $commentStart = $phpcsFile->findNext(T_WHITESPACE, ($stackPtr + 1), null, true);
 
@@ -80,23 +72,27 @@ class Drupal_Sniffs_Commenting_FileCommentSniff implements PHP_CodeSniffer_Sniff
                 && $secondOopKeyword === false
                 && $namespace !== false
             ) {
-                $fix = $phpcsFile->addFixableError('Namespaced classes, interfaces and traits should not begin with a file doc comment', $commentStart, 'NamespaceNoFileDoc');
-                if ($fix === true) {
-                    $phpcsFile->fixer->beginChangeset();
+                if ($tokens[$commentStart]['code'] === T_COMMENT) {
+                    $phpcsFile->addError('Namespaced classes, interfaces and traits should not begin with a file doc comment', $commentStart, 'NamespaceNoFileDoc');
+                } else {
+                    $fix = $phpcsFile->addFixableError('Namespaced classes, interfaces and traits should not begin with a file doc comment', $commentStart, 'NamespaceNoFileDoc');
+                    if ($fix === true) {
+                        $phpcsFile->fixer->beginChangeset();
 
-                    for ($i = $commentStart; $i <= ($tokens[$commentStart]['comment_closer'] + 1); $i++) {
-                        $phpcsFile->fixer->replaceToken($i, '');
+                        for ($i = $commentStart; $i <= ($tokens[$commentStart]['comment_closer'] + 1); $i++) {
+                            $phpcsFile->fixer->replaceToken($i, '');
+                        }
+
+                        // If, after removing the comment, there are two new lines
+                        // remove them.
+                        if ($tokens[($commentStart - 1)]['content'] === "\n" && $tokens[$i]['content'] === "\n") {
+                            $phpcsFile->fixer->replaceToken($i, '');
+                        }
+
+                        $phpcsFile->fixer->endChangeset();
                     }
-
-                    // If, after removing the comment, there are two new lines
-                    // remove them.
-                    if ($tokens[($commentStart - 1)]['content'] === "\n" && $tokens[$i]['content'] === "\n") {
-                        $phpcsFile->fixer->replaceToken($i, '');
-                    }
-
-                    $phpcsFile->fixer->endChangeset();
                 }
-            }
+            }//end if
 
             if ($namespace !== false) {
                 return ($phpcsFile->numTokens + 1);
@@ -184,8 +180,8 @@ class Drupal_Sniffs_Commenting_FileCommentSniff implements PHP_CodeSniffer_Sniff
         }//end if
 
         if ($fileTag === false || $tokens[$fileTag]['line'] !== ($tokens[$commentStart]['line'] + 1)) {
-            $second_line = $phpcsFile->findNext(array(T_DOC_COMMENT_STAR, T_DOC_COMMENT_CLOSE_TAG), ($commentStart + 1), $commentEnd);
-            $fix         = $phpcsFile->addFixableError('The second line in the file doc comment must be "@file"', $second_line, 'FileTag');
+            $secondLine = $phpcsFile->findNext([T_DOC_COMMENT_STAR, T_DOC_COMMENT_CLOSE_TAG], ($commentStart + 1), $commentEnd);
+            $fix        = $phpcsFile->addFixableError('The second line in the file doc comment must be "@file"', $secondLine, 'FileTag');
             if ($fix === true) {
                 if ($fileTag === false) {
                     $phpcsFile->fixer->addContent($commentStart, "\n * @file");

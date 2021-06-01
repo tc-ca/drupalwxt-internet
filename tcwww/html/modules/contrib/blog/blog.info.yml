@@ -11,3 +11,8 @@ dependencies:
   - drupal:text
   - drupal:user
   - drupal:views
+
+# Information added by Drupal.org packaging script on 2020-04-03
+version: '8.x-2.0-beta1'
+project: 'blog'
+datestamp: 1585928711

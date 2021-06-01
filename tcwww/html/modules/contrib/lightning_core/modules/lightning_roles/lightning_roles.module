@@ -26,13 +26,15 @@ function lightning_roles_node_type_insert(NodeTypeInterface $node_type) {
     return str_replace('?', $node_type->id(), $permission);
   };
 
+  $storage = Drupal::entityTypeManager()->getStorage('user_role');
+
   foreach ($config as $key => $info) {
     if (empty($info['enabled'])) {
       continue;
     }
     $role_id = $node_type->id() . '_' . $key;
 
-    $role = Role::load($role_id) ?: Role::create([
+    $role = $storage->load($role_id) ?: $storage->create([
       'id' => $role_id,
       'label' => str_replace('?', $node_type->label(), $info['label']),
       'is_admin' => FALSE,
@@ -59,9 +61,10 @@ function lightning_roles_node_type_delete(NodeTypeInterface $node_type) {
   }
 
   $config = \Drupal::config('lightning_roles.settings')->get('content_roles');
+  $storage = Drupal::entityTypeManager()->getStorage('user_role');
 
   foreach (array_keys($config) as $key) {
-    $role = Role::load($node_type->id() . '_' . $key);
+    $role = $storage->load($node_type->id() . '_' . $key);
     if ($role) {
       $role->delete();
     }

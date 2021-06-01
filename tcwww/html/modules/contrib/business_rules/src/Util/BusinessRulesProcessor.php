@@ -11,6 +11,8 @@ use Drupal\business_rules\Events\BusinessRulesEvent;
 use Drupal\business_rules\VariableObject;
 use Drupal\business_rules\VariablesSet;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\dbug\Dbug;
@@ -121,20 +123,28 @@ class BusinessRulesProcessor {
   private $util;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * BusinessRulesProcessor constructor.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   Drupal container.
    */
   public function __construct(ContainerInterface $container) {
-    $this->configFactory    = $container->get('config.factory');
-    $this->storage          = $container->get('config.storage');
-    $this->util             = $container->get('business_rules.util');
-    $this->actionManager    = $container->get('plugin.manager.business_rules.action');
+    $this->configFactory = $container->get('config.factory');
+    $this->storage = $container->get('config.storage');
+    $this->util = $container->get('business_rules.util');
+    $this->actionManager = $container->get('plugin.manager.business_rules.action');
     $this->conditionManager = $container->get('plugin.manager.business_rules.condition');
-    $this->variableManager  = $container->get('plugin.manager.business_rules.variable');
-    $this->config           = $this->configFactory->get('business_rules.settings');
-    $this->eventDispatcher  = $container->get('event_dispatcher');
+    $this->variableManager = $container->get('plugin.manager.business_rules.variable');
+    $this->config = $this->configFactory->get('business_rules.settings');
+    $this->eventDispatcher = $container->get('event_dispatcher');
+    $this->entityTypeManager = $container->get('entity_type.manager');
   }
 
   /**
@@ -703,6 +713,38 @@ class BusinessRulesProcessor {
     else {
       throw new \Exception(get_class($value) . '::evaluate should return instance of ' . get_class(new VariableObject()) . ' or ' . get_class(new VariablesSet()) . '.');
     }
+  }
+
+  /**
+   * Check if a Business Rule exists for the entity or not.
+   *
+   * @param string $reacts_on
+   *   The Event Name.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The Entity.
+   *
+   * @return bool
+   *   TRUE if the business rule exists, FALSE otherwise.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function ruleExists($reacts_on, EntityInterface $entity) {
+
+    if (!($entity instanceof ContentEntityInterface)) {
+      return FALSE;
+    }
+
+    $business_rule_entity = $this->entityTypeManager
+      ->getStorage('business_rule')
+      ->loadByProperties(
+        [
+          'reacts_on' => $reacts_on,
+          'target_entity_type' => $entity->getEntityTypeId(),
+          'target_bundle' => $entity->bundle(),
+        ]
+      );
+    return !empty($business_rule_entity);
   }
 
   /**

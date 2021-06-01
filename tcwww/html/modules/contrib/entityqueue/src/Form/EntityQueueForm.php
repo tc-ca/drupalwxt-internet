@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
@@ -100,7 +101,7 @@ class EntityQueueForm extends BundleEntityFormBase {
     $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $queue->id(),
-      '#maxlength' => 32,
+      '#maxlength' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
       '#machine_name' => [
         'exists' => '\Drupal\entityqueue\Entity\EntityQueue::load',
       ],
@@ -279,7 +280,10 @@ class EntityQueueForm extends BundleEntityFormBase {
       '#type' => 'container',
     ];
 
-    $selection_handler = $this->selectionManager->getInstance($queue->getEntitySettings());
+    $entity_settings = $queue->getEntitySettings();
+    $entity_settings += $entity_settings['handler_settings'];
+    unset($entity_settings['handler_settings']);
+    $selection_handler = $this->selectionManager->getInstance($entity_settings);
     $form['entity_settings']['settings']['handler_settings'] += $selection_handler->buildConfigurationForm([], $form_state);
 
     // For entityqueue's purposes, the 'target_bundles' setting of the 'default'

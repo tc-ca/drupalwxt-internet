@@ -144,20 +144,12 @@ final class Update330 implements ContainerInjectionInterface {
   /**
    * Checks if moderation is enabled for content items.
    *
-   * In Drupal 8.6 and earlier, this is TRUE if content _can_ be moderated, not
-   * necessarily if it actually _has_ been opted into moderation. In Drupal 8.7
-   * and later, this is TRUE only if at least one content type actually _has_
-   * opted into moderation.
-   *
    * @return bool
    *   TRUE if moderation is enabled for content items, FALSE otherwise.
    */
   private function isModerationEnabled() {
     $entity_type = $this->entityTypeManager->getDefinition('node');
-
-    return version_compare(\Drupal::VERSION, '8.7.0', '>=')
-      ? $this->moderationInformation->isModeratedEntityType($entity_type)
-      : $this->moderationInformation->canModerateEntitiesOfEntityType($entity_type);
+    return $this->moderationInformation->isModeratedEntityType($entity_type);
   }
 
 }

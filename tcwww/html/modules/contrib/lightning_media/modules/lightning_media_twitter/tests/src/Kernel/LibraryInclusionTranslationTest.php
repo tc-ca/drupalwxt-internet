@@ -35,7 +35,7 @@ class LibraryInclusionTranslationTest extends KernelTestBase {
     $media = Media::create([
       'bundle' => 'tweet',
       'name' => $this->randomString(),
-      'embed_code' => $this->randomString(),
+      'embed_code' => 'https://twitter.com/PhenaProxima/status/1158431969920901126',
       'field_media_in_library' => TRUE,
     ]);
     $media->addTranslation('hu', [

@@ -1,12 +1,19 @@
 <?php
 
 /**
- * DrupalPractice_Sniffs_InfoFiles_NamespacedDependencySniff.
+ * \DrupalPractice\Sniffs\InfoFiles\NamespacedDependencySniff.
  *
  * @category PHP
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
+
+namespace DrupalPractice\Sniffs\InfoFiles;
+
+use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Sniffs\Sniff;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
  * Checks that all declared dependencies are namespaced.
@@ -15,18 +22,18 @@
  * @package  PHP_CodeSniffer
  * @link     http://pear.php.net/package/PHP_CodeSniffer
  */
-class DrupalPractice_Sniffs_InfoFiles_NamespacedDependencySniff implements PHP_CodeSniffer_Sniff
+class NamespacedDependencySniff implements Sniff
 {
 
 
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
-        return array(T_INLINE_HTML);
+        return [T_INLINE_HTML];
 
     }//end register()
 
@@ -34,18 +41,31 @@ class DrupalPractice_Sniffs_InfoFiles_NamespacedDependencySniff implements PHP_C
     /**
      * Processes this test, when one of its tokens is encountered.
      *
-     * @param PHP_CodeSniffer_File $phpcsFile The current file being processed.
-     * @param int                  $stackPtr  The position of the current token
-     *                                        in the stack passed in $tokens.
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The current file being processed.
+     * @param int                         $stackPtr  The position of the current token
+     *                                               in the stack passed in $tokens.
      *
-     * @return int
+     * @return int|void
      */
-    public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
 
         $fileExtension = strtolower(substr($phpcsFile->getFilename(), -9));
         if ($fileExtension !== '.info.yml') {
+            return ($phpcsFile->numTokens + 1);
+        }
+
+        $contents = file_get_contents($phpcsFile->getFilename());
+        try {
+            $info = Yaml::parse($contents);
+            // Themes are allowed to have not namespaced dependencies, see
+            // https://www.drupal.org/project/drupal/issues/474684.
+            if (isset($info['type']) === true && $info['type'] === 'theme') {
+                return ($phpcsFile->numTokens + 1);
+            }
+        } catch (ParseException $e) {
+            // If the YAML is invalid we ignore this file.
             return ($phpcsFile->numTokens + 1);
         }
 

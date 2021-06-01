@@ -10,7 +10,8 @@ INTRODUCTION
 ------------
 
 Layout Builder Styles allows site builders to select from a list of styles to
-apply to layout builder blocks and layout builder sections. A "style" is just a representation of one or more CSS classes that will be applied. Additionally,
+apply to layout builder blocks and layout builder sections. A "style" is just
+a representation of one or more CSS classes that will be applied. Additionally,
 for blocks, a block template suggestion is added for the selected style.
 
  * For a full description of the module, visit the project page:

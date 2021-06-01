@@ -4,3 +4,17 @@
  * @file
  * Contains wxt_ext_webform.module.
  */
+
+/**
+ * Implements hook_theme().
+ */
+function wxt_ext_webform_theme($existing, $type, $theme, $path) {
+  return [
+    'gcweb-inline-webform' =>
+    [
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+  ];
+}

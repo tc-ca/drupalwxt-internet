@@ -8,7 +8,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Template\Attribute;
 
 /**
- * Implements BlazyInterface.
+ * Provides common blazy utility static methods.
  */
 class Blazy implements BlazyInterface {
 
@@ -67,7 +67,7 @@ class Blazy implements BlazyInterface {
     // Makes a little order here due to twig ignoring the preset priority.
     $attributes = &$variables['attributes'];
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
-    $attributes['class'] = array_merge(['media'], $classes);
+    $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
   }
 
   /**
@@ -108,8 +108,9 @@ class Blazy implements BlazyInterface {
     BlazyUtil::imageUrl($settings);
 
     // The SVG placeholder should accept either original, or styled image.
+    $is_media = in_array($settings['type'], ['audio', 'video']);
     $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
-    $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
+    $settings['use_media'] = $settings['embed_url'] && $is_media;
     $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
   }
 
@@ -155,18 +156,18 @@ class Blazy implements BlazyInterface {
     // Respects hand-coded image attributes.
     if ($item) {
       if (!isset($attributes['alt'])) {
-        $attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+        $attributes['alt'] = empty($item->alt) ? NULL : trim($item->alt);
       }
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $attributes['title'] = $item->title;
+        $attributes['title'] = trim($item->title);
       }
     }
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.
-    if (!isset($attributes['width']) && $settings['extension'] != 'svg') {
+    if (!isset($attributes['width']) && empty($settings['unstyled'])) {
       $image['#height'] = $settings['height'];
       $image['#width'] = $settings['width'];
     }
@@ -268,7 +269,9 @@ class Blazy implements BlazyInterface {
 
     // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
     // See https://web.dev/native-lazy-loading/
-    $attributes['loading'] = 'lazy';
+    if (!empty($settings['native'])) {
+      $attributes['loading'] = 'lazy';
+    }
   }
 
   /**
@@ -339,7 +342,7 @@ class Blazy implements BlazyInterface {
         if (isset($variables['sources']) && is_array($variables['sources'])) {
           foreach ($variables['sources'] as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
-            $source->removeAttribute('srcset');
+            $source->setAttribute('srcset', '');
           }
         }
 
@@ -398,8 +401,9 @@ class Blazy implements BlazyInterface {
         }
       }
 
+      $attrs = ['data-b-lazy', 'data-b-preview'];
       $variables['attributes']->addClass(['media__element']);
-      $variables['attributes']->removeAttribute(['data-b-lazy', 'data-b-preview']);
+      $variables['attributes']->removeAttribute($attrs);
     }
   }
 
@@ -480,7 +484,10 @@ class Blazy implements BlazyInterface {
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {
-    return in_array(self::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
+    return in_array(self::routeMatch()->getRouteName(), [
+      'entity_embed.preview',
+      'media.filter.preview',
+    ]);
   }
 
   /**

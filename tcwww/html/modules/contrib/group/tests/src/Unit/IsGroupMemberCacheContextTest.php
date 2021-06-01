@@ -49,8 +49,6 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
    * Tests getting the context value from a non-calculated cache context.
    *
    * @covers ::getContext
-   * @expectedException \LogicException
-   * @expectedExceptionMessage No group ID provided for user.is_group_member cache context.
    */
   public function testGetContextWithoutId() {
     $cache_context = new IsGroupMemberCacheContext(
@@ -58,6 +56,9 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
       $this->createEntityTypeManager(1)->reveal(),
       $this->createGroupMembershipLoader(FALSE)->reveal()
     );
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('No group ID provided for user.is_group_member cache context.');
     $cache_context->getContext();
   }
 
@@ -65,8 +66,6 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
    * Tests getting the context value while specifying a non-existent group.
    *
    * @covers ::getContext
-   * @expectedException \LogicException
-   * @expectedExceptionMessage Incorrect group ID provided for user.is_group_member cache context.
    */
   public function testGetContextWithInvalidGroupId() {
     $cache_context = new IsGroupMemberCacheContext(
@@ -74,6 +73,9 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
       $this->createEntityTypeManager(1)->reveal(),
       $this->createGroupMembershipLoader(FALSE)->reveal()
     );
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('Incorrect group ID provided for user.is_group_member cache context.');
     $cache_context->getContext(2);
   }
 
@@ -109,8 +111,6 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
    * Tests getting the cacheable metadata from a non-calculated cache context.
    *
    * @covers ::getCacheableMetadata
-   * @expectedException \LogicException
-   * @expectedExceptionMessage No group ID provided for user.is_group_member cache context.
    */
   public function testGetCacheableMetadataWithoutId() {
     $cache_context = new IsGroupMemberCacheContext(
@@ -118,6 +118,9 @@ class IsGroupMemberCacheContextTest extends UnitTestCase {
       $this->createEntityTypeManager(1)->reveal(),
       $this->createGroupMembershipLoader(FALSE)->reveal()
     );
+
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('No group ID provided for user.is_group_member cache context.');
     $cache_context->getCacheableMetadata();
   }
 

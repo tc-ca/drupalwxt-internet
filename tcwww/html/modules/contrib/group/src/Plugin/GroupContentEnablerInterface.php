@@ -2,9 +2,10 @@
 
 namespace Drupal\group\Plugin;
 
+use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Component\Plugin\DerivativeInspectionInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\group\Entity\GroupContentInterface;
@@ -18,7 +19,7 @@ use Drupal\group\Entity\GroupInterface;
  * @see \Drupal\group\Plugin\GroupContentEnablerBase
  * @see plugin_api
  */
-interface GroupContentEnablerInterface extends PluginInspectionInterface, DerivativeInspectionInterface, ConfigurablePluginInterface, PluginFormInterface {
+interface GroupContentEnablerInterface extends PluginInspectionInterface, DerivativeInspectionInterface, ConfigurableInterface, DependentPluginInterface, PluginFormInterface {
 
   /**
    * Returns the plugin provider.
@@ -117,6 +118,14 @@ interface GroupContentEnablerInterface extends PluginInspectionInterface, Deriva
    *   The 'enforced' status.
    */
   public function isEnforced();
+
+  /**
+   * Returns whether this plugin can only be (un)installed through code.
+   *
+   * @return bool
+   *   The 'code_only' status.
+   */
+  public function isCodeOnly();
 
   /**
    * Retrieves the label for a piece of group content.
@@ -228,6 +237,9 @@ interface GroupContentEnablerInterface extends PluginInspectionInterface, Deriva
    *   the structure of a group permission.
    *
    * @see GroupPermissionHandlerInterface::getPermissions()
+   *
+   * @deprecated in Group 1.0, will be removed before Group 2.0. Retrieve the
+   *   permission_provider handler from the plugin manager instead.
    */
   public function getPermissions();
 
@@ -244,6 +256,9 @@ interface GroupContentEnablerInterface extends PluginInspectionInterface, Deriva
    *
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
+   *
+   * @deprecated in Group 1.0, will be removed before Group 2.0. Retrieve the
+   *   access handler from the plugin manager instead.
    */
   public function createEntityAccess(GroupInterface $group, AccountInterface $account);
 
@@ -260,6 +275,9 @@ interface GroupContentEnablerInterface extends PluginInspectionInterface, Deriva
    *
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
+   *
+   * @deprecated in Group 1.0, will be removed before Group 2.0. Retrieve the
+   *   access handler from the plugin manager instead.
    */
   public function createAccess(GroupInterface $group, AccountInterface $account);
 
@@ -279,6 +297,9 @@ interface GroupContentEnablerInterface extends PluginInspectionInterface, Deriva
    *
    * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
+   *
+   * @deprecated in Group 1.0, will be removed before Group 2.0. Retrieve the
+   *   access handler from the plugin manager instead.
    */
   public function checkAccess(GroupContentInterface $group_content, $operation, AccountInterface $account);
 

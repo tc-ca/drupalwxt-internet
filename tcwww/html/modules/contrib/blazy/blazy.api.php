@@ -257,8 +257,20 @@ function hook_blazy_settings_alter(array &$build, $items) {
   // Overrides one pixel placeholder on particular pages relevant if using Views
   // rewrite results which may strip out Data URI.
   // See https://drupal.org/node/2908861.
-  if (isset($settings['entity_id']) && in_array($settings['entity_id'], [45, 67])) {
-    $settings['placeholder'] = 'https://mysite.com/blank.gif';
+  if (isset($settings['entity_id'])
+    && in_array($settings['entity_id'], [45, 67])) {
+    $settings['placeholder'] = '/blank.gif';
+  }
+
+  // Alternatively override views blocks identified by `current_view_mode` with
+  // a blank SVG since 1px gif has issues with non-square sizes, see #2908861:
+  // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'/>
+  // Adjust plugin ID since Blazy has few formatters, not Views style:
+  // blazy for plain old Image, blazy_media for Media, blazy_oembed for oEmbed.
+  $blazy = isset($settings['plugin_id']) && $settings['plugin_id'] == 'blazy_media';
+  $rewriten = ['block_categories', 'block_popular', 'block_related'];
+  if ($blazy && isset($settings['current_view_mode']) && in_array($settings['current_view_mode'], $rewriten)) {
+    $settings['placeholder'] = '/blank.svg';
   }
 }
 

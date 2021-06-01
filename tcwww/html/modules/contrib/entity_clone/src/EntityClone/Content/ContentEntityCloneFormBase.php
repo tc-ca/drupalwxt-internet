@@ -3,6 +3,7 @@
 namespace Drupal\entity_clone\EntityClone\Content;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityStorageInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -94,7 +95,8 @@ class ContentEntityCloneFormBase implements EntityHandlerInterface, EntityCloneF
         if ($field_definition instanceof FieldConfigInterface && in_array($field_definition->getType(), ['entity_reference', 'entity_reference_revisions'], TRUE)) {
           $field = $entity->get($field_id);
           /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $value */
-          if ($field->count() > 0) {
+          if ($field->count() > 0
+            && $this->entityTypeManager->getStorage($field->getSetting('target_type')) instanceof ContentEntityStorageInterface) {
             $form['recursive'] = array_merge($form['recursive'], $this->getRecursiveFormElement($field_definition, $field_id, $field, $discovered_entities));
           }
         }

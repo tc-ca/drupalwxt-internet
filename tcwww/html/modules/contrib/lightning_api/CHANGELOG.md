@@ -1,3 +1,8 @@
+## 4.6.0
+* Dropped support for Drupal 8.7.
+* Several internal infrastructure changes, but nothing that should affect users of
+  Lightning API.
+
 ## 4.5.0
 * Updated OpenAPI to 2.0-rc1 and shipped the new OpenAPI JSON:API and OpenAPI
   REST modules with Lightning API (these dependencies will be removed in

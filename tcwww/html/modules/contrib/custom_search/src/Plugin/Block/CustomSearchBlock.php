@@ -10,7 +10,7 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StreamWrapper\PublicStream;
-use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -267,8 +267,8 @@ class CustomSearchBlock extends BlockBase implements ContainerFactoryPluginInter
       ];
       $friendly_path = NULL;
       $default_image = 'search.png';
-      if (\Drupal::service('file_system')->uriScheme($this->configuration['submit']['image_path']) == 'public') {
-        $friendly_path = StreamWrapperManagerInterface::getTarget($this->configuration['submit']['image_path']);
+      if (StreamWrapperManager::getScheme($this->configuration['submit']['image_path']) == 'public') {
+        $friendly_path = StreamWrapperManager::getTarget($this->configuration['submit']['image_path']);
       }
       if ($this->configuration['submit']['image_path'] && isset($friendly_path)) {
         $local_file = strtr($this->configuration['submit']['image_path'], ['public:/' => PublicStream::basePath()]);
@@ -279,7 +279,7 @@ class CustomSearchBlock extends BlockBase implements ContainerFactoryPluginInter
 
       $form['submit']['image_path']['#description'] = t('Examples: <code>@implicit-public-file</code> (for a file in the public filesystem), <code>@explicit-file</code>, or <code>@local-file</code>.', [
         '@implicit-public-file' => isset($friendly_path) ? $friendly_path : $default_image,
-        '@explicit-file' => \Drupal::service('file_system')->uriScheme($this->configuration['submit']['image_path']) !== FALSE ? $this->configuration['submit']['image_path'] : 'public://' . $default_image,
+        '@explicit-file' => StreamWrapperManager::getScheme($this->configuration['submit']['image_path']) !== FALSE ? $this->configuration['submit']['image_path'] : 'public://' . $default_image,
         '@local-file' => $local_file,
       ]);
       $form['submit']['image'] = [
@@ -1273,7 +1273,7 @@ class CustomSearchBlock extends BlockBase implements ContainerFactoryPluginInter
       return $path;
     }
     // Prepend 'public://' for relative file paths within public filesystem.
-    if (\Drupal::service('file_system')->uriScheme($path) === FALSE) {
+    if (StreamWrapperManager::getScheme($path) === FALSE) {
       $path = 'public://' . $path;
     }
     if (is_file($path)) {

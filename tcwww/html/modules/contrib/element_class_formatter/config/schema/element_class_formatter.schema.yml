@@ -59,20 +59,6 @@ field.formatter.settings.image_class:
       type: string
       label: 'Class for the element'
 
-field.formatter.settings.responsive_image_class:
-  type: mapping
-  label: 'Responsive display with class format settings'
-  mapping:
-    image_link:
-      type: string
-      label: 'Link image to'
-    responsive_image_style:
-      type: string
-      label: 'Responsive image style'
-    class:
-      type: string
-      label: 'Class for the element'
-
 field.formatter.settings.link_class:
   type: mapping
   label: 'Link display with class format settings'
@@ -121,6 +107,23 @@ field.formatter.settings.link_list_class:
     target:
       type: string
       label: 'Open link in new window'
+
+field.formatter.settings.link_ally_class:
+  type: mapping
+  label: 'Link (with screenreader text)'
+  mapping:
+    class:
+      type: string
+      label: 'Class for the element'
+    link_text:
+      type: label
+      label: 'Custom text to use for the link'
+    screenreader_text:
+      type: label
+      label: 'Screenreader text to use for the link'
+    tag:
+      type: string
+      label: 'Wrapper tag'
 
 field.formatter.settings.email_link_class:
   type: mapping
@@ -171,3 +174,9 @@ field.formatter.settings.wrapper_class:
     link_class:
       type: string
       label: 'Class for the link'
+    summary:
+      type: boolean
+      label: 'Show summary instead of value'
+    trim:
+      type: integer
+      label: 'Trim length'

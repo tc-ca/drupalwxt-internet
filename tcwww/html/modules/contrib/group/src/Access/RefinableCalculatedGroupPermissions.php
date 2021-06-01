@@ -76,11 +76,11 @@ class RefinableCalculatedGroupPermissions implements RefinableCalculatedGroupPer
    *   mismatching items.
    */
   protected function mergeItems(CalculatedGroupPermissionsItemInterface $a, CalculatedGroupPermissionsItemInterface $b) {
-    if ($a->getScope() !== $b->getScope()) {
+    if ($a->getScope() != $b->getScope()) {
       throw new \LogicException('Trying to merge two items of different scopes.');
     }
 
-    if ($a->getIdentifier() !== $b->getIdentifier()) {
+    if ($a->getIdentifier() != $b->getIdentifier()) {
       throw new \LogicException('Trying to merge two items with different identifiers.');
     }
 

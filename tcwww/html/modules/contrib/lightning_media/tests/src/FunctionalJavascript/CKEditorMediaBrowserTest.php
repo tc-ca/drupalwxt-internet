@@ -23,6 +23,11 @@ class CKEditorMediaBrowserTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'image_widget_crop',
     'lightning_media_document',

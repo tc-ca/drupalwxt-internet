@@ -22,6 +22,11 @@ class EmbeddedMediaTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_media_image',
     'lightning_media_instagram',
@@ -83,6 +88,7 @@ class EmbeddedMediaTest extends WebDriverTestBase {
     $this->selectItem($items[0]);
     $this->getSession()->getPage()->pressButton('Place');
 
+    $this->waitForEntityBrowserToClose();
     $this->waitForStandardEmbedForm();
   }
 

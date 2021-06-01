@@ -365,7 +365,7 @@ abstract class ContentEntityAutosaveFormTestBase extends AutosaveFormTestBase {
     // Assure the first autosave submission for gathering the initial input has
     // been executed before making any changes, otherwise it might happen that
     // a change is made too fast and makes its way into the initial user input
-    // used for comparision in order to determine if a new autosave state has
+    // used for comparison in order to determine if a new autosave state has
     // to be created or not.
     $this->assertTrue($this->waitForAutosaveSubmits(1));
 

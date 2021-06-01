@@ -14,24 +14,46 @@ class EntityReferenceLabelClassFormatterTest extends ElementClassFormatterTestBa
   const TEST_CLASS = 'test-entity-ref-class';
 
   /**
-   * {@inheritdoc}
+   * Tests element reference label class formatter.
+   *
+   * @dataProvider providerFormatterCases
    */
-  public function testClassFormatter() {
+  public function testClassFormatter($link = TRUE, $tag = 'a') {
     $formatter_settings = [
       'class' => self::TEST_CLASS,
       'tag' => 'div',
+      'link' => $link,
     ];
     $field_config = $this->createEntityField('entity_reference_label_class', 'entity_reference', $formatter_settings);
     $referenced_node = $this->drupalCreateNode(['type' => 'referenced_content']);
+    $referenced_node2 = $this->drupalCreateNode([
+      'type' => 'referenced_content',
+      'status' => 0,
+    ]);
 
     $entity = EntityTest::create([
-      $field_config->getName() => [['target_id' => $referenced_node->id()]],
+      $field_config->getName() => [$referenced_node, $referenced_node2],
     ]);
     $entity->save();
 
     $this->drupalGet($entity->toUrl());
     $assert_session = $this->assertSession();
-    $assert_session->elementExists('css', 'a.' . self::TEST_CLASS);
+    $assert_session->elementExists('css', $tag . '.' . self::TEST_CLASS);
+    $assert_session->pageTextContains($referenced_node->label());
+    $assert_session->pageTextNotContains($referenced_node2->label());
+  }
+
+  /**
+   * Data provider for ::testClassFormatter().
+   *
+   * @return array
+   *   Test cases.
+   */
+  public function providerFormatterCases() {
+    return [
+      'linked' => [],
+      'not linked' => [FALSE, 'div'],
+    ];
   }
 
 }

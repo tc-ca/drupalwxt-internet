@@ -66,32 +66,4 @@ interface GroupRoleSynchronizerInterface {
    */
   public function getGroupRoleIdsByUserRoles($role_ids);
 
-  /**
-   * Creates group roles for all user roles.
-   *
-   * @param string[] $group_type_ids
-   *   (optional) A list of group type IDs to synchronize roles for. Leave empty
-   *   to synchronize roles for all group types.
-   * @param string[] $role_ids
-   *   (optional) A list of user role IDs to synchronize. Leave empty to
-   *   synchronize all user roles.
-   *
-   * @deprecated in Group 1.0-rc3, will be removed before Group 1.0. Use
-   *   \Drupal\group\Entity\Storage\GroupRoleStorage::createSynchronized()
-   *   instead.
-   */
-  public function createGroupRoles($group_type_ids = NULL, $role_ids = NULL);
-
-  /**
-   * Updates the label of all group roles for a user role.
-   *
-   * @param \Drupal\User\RoleInterface $role
-   *   The user role to update the group role labels for.
-   *
-   * @deprecated in Group 1.0-rc3, will be removed before Group 1.0. Use
-   *   \Drupal\group\Entity\Storage\GroupRoleStorage::updateSynchronizedLabels()
-   *   instead.
-   */
-  public function updateGroupRoleLabels(RoleInterface $role);
-
 }

@@ -15,13 +15,11 @@ class ConvertBundles {
    */
   public static function getEntities($type, $bundles) {
     // Get the entity IDs to update.
-    $column = 'type';
-    // TODO: Find columns for all entity types.
-    if ($type == 'taxonomy_term') {
-      $column = 'vid';
-    }
-    $query = \Drupal::service('entity.query')->get($type);
-    $query->condition($column, $bundles);
+    $definition = \Drupal::entityTypeManager()->getDefinition($type);
+    $column = $definition->getKey('bundle');
+
+    $query = \Drupal::entityQuery($type);
+    $query->condition($column, $bundles, 'IN');
     $ids = $query->execute();
     $entities = [];
     foreach ($ids as $id) {
@@ -134,7 +132,7 @@ class ConvertBundles {
       if ($from == $to) {
         $update_fields[] = $from;
       }
-      elseif (in_array($from, $fields_new_to) && !in_array($from, $userInput)) {
+      elseif (in_array($from, $fields_new_to) && in_array($from, $userInput)) {
         $map_fields['create_new'][] = [
           'field' => $from,
           'value' => $to,
@@ -186,16 +184,11 @@ class ConvertBundles {
     $results = [];
     $db = Database::getConnection();
     // Base tables have 'nid' and 'type' columns.
-    // TODO switch column names based on entity type!!!
-    $id = 'id';
-    $type = 'type';
-    if ($entity_type == 'node') {
-      $id = 'nid';
-    }
-    elseif ($entity_type == 'taxonomy_term') {
-      $id = 'tid';
-      $type = 'vid';
-    }
+
+    $definition = \Drupal::entityTypeManager()->getDefinition($entity_type);
+    $id = $definition->getKey('id');
+    $type = $definition->getKey('bundle');
+
     foreach ($base_table_names as $table_name) {
       $results[] = $db->update($table_name)
         ->fields([$type => $to_type])
@@ -299,8 +292,7 @@ class ConvertBundles {
           ]);
         }
         elseif (!empty($value)) {
-          $val_name = $entity->get($map_to['field'])->getFieldDefinition()->getFieldStorageDefinition()->getMainPropertyName();
-          $entity->get($map_to['field'])->setValue([[$val_name => $value]]);
+          $entity->set($map_to['field'], $old_entity->get($map_from)->getValue());
         }
       }
       $entity->save();
@@ -330,7 +322,7 @@ class ConvertBundles {
     else {
       $message = t('Finished with an error.');
     }
-    drupal_set_message($message);
+    \Drupal::messenger()->addStatus($message);
   }
 
 }

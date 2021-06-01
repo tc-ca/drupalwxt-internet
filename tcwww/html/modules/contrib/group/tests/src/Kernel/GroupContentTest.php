@@ -86,8 +86,7 @@ class GroupContentTest extends GroupKernelTestBase {
   /**
    * Tests that custom list cache tags are properly invalidated.
    *
-   * @covers ::getCacheTagsToInvalidate
-   * @uses \Drupal\group\Entity\GroupContent::invalidateTagsOnSave
+   * @covers ::getListCacheTagsToInvalidate
    */
   public function testGetCacheTagsToInvalidate() {
     $cache = \Drupal::cache();

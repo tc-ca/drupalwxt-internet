@@ -11,6 +11,8 @@ use Drupal\Core\Extension\Extension;
 
 /**
  * A facade to assist with manipulating default config.
+ *
+ * Leveraged from code provided by Acquia for the Lightning distribution.
  */
 class ConfigHelper extends InstallStorage {
 
@@ -98,7 +100,7 @@ class ConfigHelper extends InstallStorage {
 
     $prefixes = $this->getConfigPrefixes();
 
-    return $storage->create(
+    return $storage->createFromStorageRecord(
       $this->read($prefixes[$entity_type] . '.' . $id)
     );
   }

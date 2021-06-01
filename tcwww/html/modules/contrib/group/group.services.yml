@@ -17,12 +17,12 @@ services:
       - { name: 'access_check', applies_to: '_group_owns_content' }
   access_check.group_content.create:
     class: 'Drupal\group\Access\GroupContentCreateAccessCheck'
-    arguments: ['@entity.manager']
+    arguments: ['@entity_type.manager']
     tags:
       - { name: 'access_check', applies_to: '_group_content_create_access' }
   access_check.group_content.create_any:
     class: 'Drupal\group\Access\GroupContentCreateAnyAccessCheck'
-    arguments: ['@entity.manager']
+    arguments: ['@entity_type.manager']
     tags:
       - { name: 'access_check', applies_to: '_group_content_create_any_access' }
   access_check.group_content.create_entity:
@@ -41,31 +41,6 @@ services:
     tags:
       - { name: 'cache.bin' }
 
-  cache_context.group:
-    class: 'Drupal\group\Cache\Context\GroupCacheContext'
-    arguments: ['@current_route_match', '@entity_type.manager']
-    tags:
-      - { name: 'cache.context'}
-  cache_context.group.type:
-    class: 'Drupal\group\Cache\Context\GroupTypeCacheContext'
-    arguments: ['@current_route_match', '@entity_type.manager']
-    tags:
-      - { name: 'cache.context'}
-  cache_context.group_membership:
-    class: 'Drupal\group\Cache\Context\GroupMembershipCacheContext'
-    arguments: ['@current_route_match', '@current_user', '@entity_type.manager']
-    tags:
-      - { name: 'cache.context'}
-  cache_context.group_membership.audience:
-    class: 'Drupal\group\Cache\Context\GroupMembershipAudienceCacheContext'
-    arguments: ['@current_route_match', '@current_user', '@entity_type.manager']
-    tags:
-      - { name: 'cache.context'}
-  cache_context.group_membership.roles:
-    class: 'Drupal\group\Cache\Context\GroupMembershipRolesCacheContext'
-    arguments: ['@current_route_match', '@current_user', '@entity_type.manager']
-    tags:
-      - { name: 'cache.context'}
   cache_context.route.group:
     class: 'Drupal\group\Cache\Context\RouteGroupCacheContext'
     arguments: ['@current_route_match', '@entity_type.manager']
@@ -147,6 +122,7 @@ services:
   plugin.manager.group_content_enabler:
     class: 'Drupal\group\Plugin\GroupContentEnablerManager'
     arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@entity_type.manager']
+    parent: container.trait
     tags:
       - { name: plugin_manager_cache_clear }
 
@@ -171,20 +147,19 @@ services:
     arguments: [corefix_static_no_serialize]
 
   # Core also has a tendency to not allow people to vary their caches by cache
-  # contexts unless they abuse the render cache's built-in tools. we've fixed
+  # contexts unless they abuse the render cache's built-in tools. We've fixed
   # this in core, but it's taking a while to get reviewed and we simply can no
-  # allow it to block further Group releases. So into the CoreFix folder it
-  # goes. We'll swap it out with the real deal once that lands.
+  # allow it to block further Group releases. So we created the VariationCache
+  # module on drupal.org for now and will swap it out with the real deal once
+  # the core issue lands.
+  # See https://www.drupal.org/project/variationcache
   # See https://www.drupal.org/project/drupal/issues/2551419
-  corefix_variation_cache_factory:
-    class: Drupal\group\CoreFix\Cache\VariationCacheFactory
-    arguments: ['@request_stack', '@cache_factory', '@cache_contexts_manager']
-  # @todo Rename to variation_cache.group_permission
+  # @todo Rename to variation_cache.group_permission in 8.2.0.
   variation_cache.group_default:
-    class: Drupal\group\CoreFix\Cache\VariationCacheBackendInterface
-    factory: corefix_variation_cache_factory:get
+    class: Drupal\variationcache\Cache\VariationCacheInterface
+    factory: variation_cache_factory:get
     arguments: [group_permission]
   variation_cache.corefix_static_no_serialize:
-    class: Drupal\group\CoreFix\Cache\VariationCacheBackendInterface
-    factory: corefix_variation_cache_factory:get
+    class: Drupal\variationcache\Cache\VariationCacheInterface
+    factory: variation_cache_factory:get
     arguments: [corefix_static_no_serialize]

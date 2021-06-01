@@ -180,7 +180,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       $this->assertNotEmpty($wrap);
 
       $render = $this->blazyManager->getRenderer()->renderRoot($build[$this->testFieldName]);
-      $this->assertTrue(strpos($render, 'data-blazy') !== FALSE);
+      $this->assertStringContainsString('data-blazy', $render);
     }
     else {
       $this->assertFalse($render);

@@ -98,7 +98,7 @@ class GroupRoleStorageTest extends GroupKernelTestBase {
   public function testLoadSynchronizedByGroupTypes() {
     $actual = array_keys($this->storage->loadSynchronizedByGroupTypes(['default']));
     $expected = [$this->groupRoleSynchronizer->getGroupRoleId('default', 'test')];
-    $this->assertEquals($expected, $actual, 'Can load synchronized group roles by group types.', 0.0, 10, TRUE);
+    $this->assertEqualsCanonicalizing($expected, $actual, 'Can load synchronized group roles by group types.');
   }
 
   /**
@@ -112,7 +112,7 @@ class GroupRoleStorageTest extends GroupKernelTestBase {
       $this->groupRoleSynchronizer->getGroupRoleId('default', 'test'),
       $this->groupRoleSynchronizer->getGroupRoleId('other', 'test')
     ];
-    $this->assertEquals($expected, $actual, 'Can load synchronized group roles by user roles.', 0.0, 10, TRUE);
+    $this->assertEqualsCanonicalizing($expected, $actual, 'Can load synchronized group roles by user roles.');
   }
 
   /**
@@ -127,7 +127,7 @@ class GroupRoleStorageTest extends GroupKernelTestBase {
    */
   protected function compareMemberRoles($expected, $include_implied, $message) {
     $group_roles = $this->storage->loadByUserAndGroup($this->account, $this->group, $include_implied);
-    $this->assertEquals($expected, array_keys($group_roles), $message, 0.0, 10, TRUE);
+    $this->assertEqualsCanonicalizing($expected, array_keys($group_roles), $message);
   }
 
 }

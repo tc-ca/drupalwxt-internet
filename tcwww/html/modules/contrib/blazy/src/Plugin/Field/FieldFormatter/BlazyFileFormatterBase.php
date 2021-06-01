@@ -70,11 +70,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   public function getScopedFormElements() {
     $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
+    $captions = ['title' => $this->t('Title'), 'alt' => $this->t('Alt')];
 
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
-      'captions'          => ['title' => $this->t('Title'), 'alt' => $this->t('Alt')],
+      'captions'          => $captions,
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,

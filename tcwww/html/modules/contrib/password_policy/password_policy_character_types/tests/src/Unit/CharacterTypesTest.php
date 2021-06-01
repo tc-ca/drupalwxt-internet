@@ -24,7 +24,8 @@ class CharacterTypesTest extends UnitTestCase {
     $character_types
       ->method('getConfiguration')
       ->willReturn(['character_types' => $types]);
-    $this->assertEquals($character_types->validate($password, NULL)->isValid(), $result);
+    $user = $this->getMockBuilder('Drupal\user\Entity\User')->disableOriginalConstructor()->getMock();
+    $this->assertEquals($character_types->validate($password, $user)->isValid(), $result);
   }
 
   /**

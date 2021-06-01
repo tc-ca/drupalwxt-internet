@@ -82,9 +82,6 @@ class LinkWidget extends WidgetBase {
     elseif ($scheme === 'route') {
       $displayable_string = ltrim($displayable_string, 'route:');
     }
-    elseif ($uri == 'route:<nolink>') {
-      $displayable_string = '<nolink>';
-    }
 
     return $displayable_string;
   }
@@ -120,9 +117,6 @@ class LinkWidget extends WidgetBase {
     // Support linking to nothing.
     elseif (in_array($string, ['<nolink>', '<none>'], TRUE)) {
       $uri = 'route:' . $string;
-    }
-    elseif ($string == '<nolink>') {
-      $uri = 'route:<nolink>';
     }
     // Detect a schemeless string, map to 'internal:' URI.
     elseif (!empty($string) && parse_url($string, PHP_URL_SCHEME) === NULL) {

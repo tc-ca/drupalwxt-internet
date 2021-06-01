@@ -7,7 +7,7 @@ namespace Drupal\Tests\codemirror_editor\FunctionalJavascript;
  *
  * @group codemirror_editor
  */
-class FilterTest extends TestBase {
+final class FilterTest extends TestBase {
 
   /**
    * {@inheritdoc}
@@ -71,6 +71,7 @@ class FilterTest extends TestBase {
     $xpath = '//input[@name = "filters[codemirror_editor][settings][foldGutter]" and not(@checked)]';
     $assert_session->elementExists('xpath', $xpath);
 
+    $this->scrollToBottom();
     $edit = [
       'filters[codemirror_editor][settings][lineNumbers]' => FALSE,
       'filters[codemirror_editor][settings][foldGutter]' => TRUE,

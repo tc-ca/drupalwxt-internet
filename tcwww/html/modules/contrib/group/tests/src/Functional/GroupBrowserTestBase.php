@@ -31,6 +31,11 @@ abstract class GroupBrowserTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
     $this->entityTypeManager = $this->container->get('entity_type.manager');

@@ -18,6 +18,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PasswordPolicyConstraintForm extends FormBase {
 
   /**
+   * The form builder.
+   *
+   * @var \Drupal\Core\Form\FormBuilderInterface
+   */
+  protected $formBuilder;
+
+  /**
    * Plugin manager for constraints.
    *
    * @var \Drupal\Component\Plugin\PluginManagerInterface
@@ -35,7 +42,10 @@ class PasswordPolicyConstraintForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('plugin.manager.password_policy.password_constraint'));
+    return new static(
+      $container->get('plugin.manager.password_policy.password_constraint'),
+      $container->get('form_builder')
+    );
   }
 
   /**
@@ -43,9 +53,12 @@ class PasswordPolicyConstraintForm extends FormBase {
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $manager
    *   Plugin manager for constraints.
+   * @param \Drupal\Core\Form\FormBuilderInterface $formBuilder
+   *   The form builder.
    */
-  public function __construct(PluginManagerInterface $manager) {
+  public function __construct(PluginManagerInterface $manager, FormBuilderInterface $formBuilder) {
     $this->manager = $manager;
+    $this->formBuilder = $formBuilder;
   }
 
   /**
@@ -130,7 +143,7 @@ class PasswordPolicyConstraintForm extends FormBase {
    */
   public function add(array &$form, FormStateInterface $form_state) {
     $constraint = $form_state->getValue('constraint');
-    $content = \Drupal::formBuilder()->getForm('\Drupal\password_policy\Form\ConstraintEdit', $constraint, $this->machineName);
+    $content = $this->formBuilder->getForm(ConstraintEdit::class, $constraint, $this->machineName);
     $content['#attached']['library'][] = 'core/drupal.dialog.ajax';
     $url = Url::fromRoute('entity.password_policy.constraint.add', [
       'machine_name' => $this->machineName,

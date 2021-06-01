@@ -543,6 +543,11 @@
       }
     });
 
+    // Supports both BG and regular image.
+    var cn = me.closest(el, '.media');
+    cn = cn === null ? el : cn;
+    var blur = cn.querySelector('.b-blur--tmp');
+
     function animationEnd() {
       me.removeAttrs(el, props);
 
@@ -552,6 +557,10 @@
       me.forEach(props, function (key) {
         el.style.removeProperty(key);
       });
+
+      if (blur !== null && blur.parentNode !== null) {
+        blur.parentNode.removeChild(blur);
+      }
 
       me.unbindEvent(el, 'animationend', animationEnd);
     }

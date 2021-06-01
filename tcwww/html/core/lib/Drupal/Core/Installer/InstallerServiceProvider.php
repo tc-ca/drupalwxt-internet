@@ -48,6 +48,7 @@ class InstallerServiceProvider extends NormalInstallerServiceProvider implements
       // we don't need to ship with a custom proxy class.
       ->setLazy(FALSE);
 
+    // Use a performance optimised module extension list.
     parent::register($container);
   }
 

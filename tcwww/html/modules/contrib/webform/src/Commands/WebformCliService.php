@@ -7,6 +7,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Serialization\Yaml;
+use Drupal\Core\Site\Settings;
 use Drupal\webform\Controller\WebformResultsExportController;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Entity\WebformSubmission;
@@ -285,7 +286,7 @@ class WebformCliService implements WebformCliServiceInterface {
       'core' => ['8+'],
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
       'examples' => [
-        'webform-repair' => 'Generates HTML documentation used by the Webform module\'s documentation pages.',
+        'webform-docs' => 'Generates HTML documentation used by the Webform module\'s documentation pages.',
       ],
       'aliases' => ['wfd'],
     ];
@@ -489,8 +490,6 @@ class WebformCliService implements WebformCliServiceInterface {
     $entity_type_manager = \Drupal::service('entity_type.manager');
     /** @var \Drupal\webform\WebformSubmissionStorageInterface $submission_storage */
     $submission_storage = $entity_type_manager->getStorage('webform_submission');
-    /** @var \Drupal\webform\WebformRequestInterface $request_handler */
-    $request_handler = \Drupal::service('webform.request');
 
     // Make sure there are submissions that need to be deleted.
     if (!$submission_storage->getTotal($webform)) {
@@ -499,7 +498,7 @@ class WebformCliService implements WebformCliServiceInterface {
     }
 
     if (!$webform) {
-      $submission_total = \Drupal::entityQuery('webform_submission')->count()->execute();
+      $submission_total = \Drupal::entityQuery('webform_submission')->count()->accessCheck(FALSE)->execute();
       $form_total = \Drupal::entityQuery('webform')->count()->execute();
 
       $t_args = [
@@ -512,7 +511,7 @@ class WebformCliService implements WebformCliServiceInterface {
         return $this->drush_user_abort();
       }
 
-      $form = new WebformResultsClearForm($entity_type_manager, $request_handler);
+      $form = WebformResultsClearForm::create(\Drupal::getContainer());
       $form->batchSet();
       $this->drush_backend_batch_process();
     }
@@ -529,7 +528,7 @@ class WebformCliService implements WebformCliServiceInterface {
         return $this->drush_user_abort();
       }
 
-      $form = new WebformSubmissionsPurgeForm($entity_type_manager, $request_handler);
+      $form = WebformSubmissionsPurgeForm::create(\Drupal::getContainer());
       $form->batchSet($webform, $source_entity);
       $this->drush_backend_batch_process();
     }
@@ -547,7 +546,8 @@ class WebformCliService implements WebformCliServiceInterface {
 
     $target = $target ?: 'webform';
 
-    if (!isset($config_directories[$target])
+    if (empty(Settings::get('config_' . $target . '_directory', FALSE))
+      && !(isset($config_directories) && isset($config_directories[$target]))
       && !(\Drupal::moduleHandler()->moduleExists($target) && file_exists(drupal_get_path('module', $target) . '/config'))
       && !file_exists(realpath($target))) {
       $t_args = ['@target' => $target];
@@ -564,7 +564,15 @@ class WebformCliService implements WebformCliServiceInterface {
     $target = $target ?: 'webform';
     $prefix = $this->drush_get_option('prefix', 'webform');
 
-    if (isset($config_directories[$target])) {
+    // [Drupal 8.8+] The sync directory is defined in $settings
+    // and not $config_directories.
+    // @see https://www.drupal.org/node/3018145
+    $config_directory = Settings::get('config_' . $target . '_directory');
+    if ($config_directory) {
+      $file_directory_path = DRUPAL_ROOT . '/' . $config_directory;
+      $dependencies = $this->drush_get_option('dependencies');
+    }
+    elseif (isset($config_directories) && isset($config_directories[$target])) {
       $file_directory_path = DRUPAL_ROOT . '/' . $config_directories[$target];
       $dependencies = $this->drush_get_option('dependencies');
     }

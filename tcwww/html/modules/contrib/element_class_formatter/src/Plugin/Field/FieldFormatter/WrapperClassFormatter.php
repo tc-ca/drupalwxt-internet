@@ -7,6 +7,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Link;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * A field formatter for wrapping text with a class.
@@ -36,6 +37,8 @@ class WrapperClassFormatter extends FormatterBase {
       'link' => '0',
       'link_class' => '',
       'tag' => 'div',
+      'summary' => FALSE,
+      'trim' => 200,
     ];
 
     return ElementClassTrait::elementClassDefaultSettings($default_settings);
@@ -83,6 +86,23 @@ class WrapperClassFormatter extends FormatterBase {
       '#default_value' => $this->getSetting('tag'),
     ];
 
+    $elements['summary'] = [
+      '#title' => $this->t('Use summary'),
+      '#type' => 'checkbox',
+      '#description' => $this->t('Output the summary instead of the field value.'),
+      '#default_value' => $this->getSetting('summary'),
+      '#access' => $this->fieldDefinition->getType() === 'text_with_summary',
+    ];
+
+    $elements['trim'] = [
+      '#title' => $this->t('Trim'),
+      '#type' => 'number',
+      '#min' => 1,
+      '#description' => $this->t('Trim length of value when summary is not set.'),
+      '#default_value' => $this->getSetting('trim'),
+      '#access' => $this->fieldDefinition->getType() === 'text_with_summary',
+    ];
+
     return $this->elementClassSettingsForm($elements, $class);
   }
 
@@ -94,13 +114,17 @@ class WrapperClassFormatter extends FormatterBase {
     $class = $this->getSetting('class');
     if ($linked = $this->getSetting('link')) {
       $summary[] = $this->t('Link: @link', ['@link' => $linked ? 'yes' : 'no']);
-
       if ($linked_class = $this->getSetting('link_class')) {
         $summary[] = $this->t('Link class: @link_class', ['@link_class' => $linked_class]);
       }
-      if ($tag = $this->getSetting('tag')) {
-        $summary[] = $this->t('Wrapper: @tag', ['@tag' => $tag]);
-      }
+    }
+    if ($this->getSetting('summary')) {
+      $summary[] = $this->t('Output: Summary if present, otherwise the value trimmed to %char characters', [
+        '%char' => $this->getSetting('trim'),
+      ]);
+    }
+    if ($tag = $this->getSetting('tag')) {
+      $summary[] = $this->t('Tag: @tag', ['@tag' => $tag]);
     }
 
     return $this->elementClassSettingsSummary($summary, $class);
@@ -119,7 +143,6 @@ class WrapperClassFormatter extends FormatterBase {
 
     $parent = $items->getParent()->getValue();
     foreach ($items as $delta => $item) {
-      $text = $item->getValue()['value'];
       if (!empty($item->format)) {
         $text = [
           '#type' => 'processed_text',
@@ -128,15 +151,27 @@ class WrapperClassFormatter extends FormatterBase {
           '#langcode' => $item->getLangcode(),
         ];
       }
+      else {
+        $text = [
+          '#type' => 'inline_template',
+          '#template' => '{{ value|nl2br }}',
+          '#context' => ['value' => $item->value],
+        ];
+      }
+      if ($this->getSetting('summary')) {
+        $text = [
+          '#plain_text' => !empty($item->summary) ? strip_tags($item->summary) : text_summary(strip_tags($item->value), 'plain_text', $this->getSetting('trim')),
+        ];
+      }
       $text = render($text);
 
-      if ($this->getSetting('link') && $parent->urlInfo()) {
+      if ($this->getSetting('link') && $parent instanceof EntityInterface) {
         $link_attributes = new Attribute();
         $link_class = $this->getSetting('link_class');
         if (!empty($link_class)) {
           $link_attributes->addClass($link_class);
         }
-        $link = Link::fromTextAndUrl($text, $parent->urlInfo())->toRenderable();
+        $link = Link::fromTextAndUrl($text, $parent->toUrl())->toRenderable();
         $link['#attributes'] = $link_attributes->toArray();
         $text = render($link);
       }

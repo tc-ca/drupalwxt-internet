@@ -14,6 +14,11 @@ class MediaBrowserEmbedCodeWidgetTest extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'lightning_media_video',
   ];

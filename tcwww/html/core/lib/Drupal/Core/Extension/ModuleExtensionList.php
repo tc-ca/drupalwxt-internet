@@ -105,6 +105,7 @@ class ModuleExtensionList extends ExtensionList {
    */
   protected function getProfileDirectories(ExtensionDiscovery $discovery) {
     $discovery->setProfileDirectories([]);
+    $all_profiles = $discovery->scan('profile');
     $profiles = $this->profileList->getAncestors($this->installProfile);
 
     $profile_directories = array_map(function (Extension $profile) {

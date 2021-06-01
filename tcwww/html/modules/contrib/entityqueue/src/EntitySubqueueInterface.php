@@ -53,6 +53,28 @@ interface EntitySubqueueInterface extends ContentEntityInterface, EntityChangedI
   public function removeItem(EntityInterface $entity);
 
   /**
+   * Checks whether the subqueue has a given item.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   An entity object
+   *
+   * @return bool
+   *   TRUE if the item was found, FALSE otherwise.
+   */
+  public function hasItem(EntityInterface $entity);
+
+  /**
+   * Gets the position (delta) of the given subqueue item.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The item in the subqueue.
+   *
+   * @return int|bool
+   *   The position of the given item in the subqueue, or FALSE if not found.
+   */
+  public function getItemPosition(EntityInterface $entity);
+
+  /**
    * Reverses the items of this subqueue.
    *
    * @return $this

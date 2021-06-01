@@ -24,7 +24,8 @@ class ConsecutiveCharactersTest extends UnitTestCase {
     $characters
       ->method('getConfiguration')
       ->willReturn(['max_consecutive_characters' => $count]);
-    $this->assertEquals($characters->validate($password, NULL)->isValid(), $result);
+    $user = $this->getMockBuilder('Drupal\user\Entity\User')->disableOriginalConstructor()->getMock();
+    $this->assertEquals($characters->validate($password, $user)->isValid(), $result);
   }
 
   /**
