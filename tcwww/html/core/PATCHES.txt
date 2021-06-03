@@ -57,6 +57,18 @@ Source: https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external
 Source: https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch
 
 
+2869592 - Disabled update module shouldn't produce a status report warning
+Source: https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch
+
+
+2815221 - Add quickedit to the latest-revision route
+Source: https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch
+
+
+Enter drupal/core patch #2752443 description here
+Source: https://www.drupal.org/files/issues/in_correct_order_and-2752443-1.patch
+
+
 Enter drupal/core patch #1356276 description here
 Source: https://www.drupal.org/files/issues/2019-12-27/1356276-88x-603.patch
 
@@ -91,10 +103,6 @@ Source: https://www.drupal.org/files/issues/2020-06-22/2699157-38.drupal.Plugin-
 
 Enter drupal/core patch #2715483 description here
 Source: https://www.drupal.org/files/issues/2020-01-09/regression-2715483-22.patch
-
-
-Enter drupal/core patch #2752443 description here
-Source: https://www.drupal.org/files/issues/in_correct_order_and-2752443-1.patch
 
 
 2759397 - Patch EntityReferenceItemNormalizer to prevent recursion
@@ -147,13 +155,5 @@ Source: https://www.drupal.org/files/issues/2018-12-05/3017710-20.patch
 
 Enter drupal/core patch #3081656 description here
 Source: https://www.drupal.org/files/issues/2020-11-17/2488350-3-100.patch
-
-
-2869592 - Disabled update module shouldn't produce a status report warning
-Source: https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch
-
-
-2815221 - Add quickedit to the latest-revision route
-Source: https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch
 
 

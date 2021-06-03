@@ -27,12 +27,12 @@ class InstalledVersions
 private static $installed = array (
   'root' => 
   array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
+    'pretty_version' => 'dev-develop',
+    'version' => 'dev-develop',
     'aliases' => 
     array (
     ),
-    'reference' => '8e94bd030bceb7c8c255e95d9a7fa9b04a6509c2',
+    'reference' => 'cc7056fa5ab9dcd119814c93d3e605757d22a264',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -66,12 +66,12 @@ private static $installed = array (
     ),
     'aws/aws-sdk-php' => 
     array (
-      'pretty_version' => '3.183.9',
-      'version' => '3.183.9.0',
+      'pretty_version' => '3.183.11',
+      'version' => '3.183.11.0',
       'aliases' => 
       array (
       ),
-      'reference' => '3b3aafdceac4cb820e2ae65a8785e4d07db471a7',
+      'reference' => 'f42dcf893227842aca11e8ea19f7b2123cf3244b',
     ),
     'behat/behat' => 
     array (
@@ -838,12 +838,12 @@ private static $installed = array (
     ),
     'drupal/conditional_fields' => 
     array (
-      'pretty_version' => '1.0.0-alpha10',
-      'version' => '1.0.0.0-alpha10',
+      'pretty_version' => '4.0.0-alpha1',
+      'version' => '4.0.0.0-alpha1',
       'aliases' => 
       array (
       ),
-      'reference' => '8.x-1.0-alpha10',
+      'reference' => '4.0.0-alpha1',
     ),
     'drupal/config' => 
     array (
@@ -2199,12 +2199,12 @@ private static $installed = array (
     ),
     'drupal/openid_connect' => 
     array (
-      'pretty_version' => '1.0.0',
-      'version' => '1.0.0.0',
+      'pretty_version' => '1.1.0',
+      'version' => '1.1.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '8.x-1.0',
+      'reference' => '8.x-1.1',
     ),
     'drupal/openid_connect_windows_aad' => 
     array (
@@ -2929,12 +2929,12 @@ private static $installed = array (
     ),
     'drupalwxt/site-wxt' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => 'dev-develop',
+      'version' => 'dev-develop',
       'aliases' => 
       array (
       ),
-      'reference' => '8e94bd030bceb7c8c255e95d9a7fa9b04a6509c2',
+      'reference' => 'cc7056fa5ab9dcd119814c93d3e605757d22a264',
     ),
     'drupalwxt/wxt' => 
     array (
@@ -3744,12 +3744,12 @@ private static $installed = array (
     ),
     'symfony/config' => 
     array (
-      'pretty_version' => 'v4.4.23',
-      'version' => '4.4.23.0',
+      'pretty_version' => 'v4.4.25',
+      'version' => '4.4.25.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'be9e601f17fc684ddfd6c675fdfcd04bb51fa928',
+      'reference' => '2803882bb10353d277d4539635dd688a053d571c',
     ),
     'symfony/console' => 
     array (
@@ -3940,6 +3940,15 @@ private static $installed = array (
       ),
       'reference' => 'eca0bf41ed421bed1b57c4958bab16aa86b757d0',
     ),
+    'symfony/polyfill-php81' => 
+    array (
+      'pretty_version' => 'v1.23.0',
+      'version' => '1.23.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'e66119f3de95efc359483f810c4c3e6436279436',
+    ),
     'symfony/process' => 
     array (
       'pretty_version' => 'v3.4.47',
@@ -3996,12 +4005,12 @@ private static $installed = array (
     ),
     'symfony/var-dumper' => 
     array (
-      'pretty_version' => 'v4.4.22',
-      'version' => '4.4.22.0',
+      'pretty_version' => 'v4.4.25',
+      'version' => '4.4.25.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'c194bcedde6295f3ec3e9eba1f5d484ea97c41a7',
+      'reference' => '31ea689a8e7d2410016b0d25fc15a1ba05a6e2e0',
     ),
     'symfony/yaml' => 
     array (

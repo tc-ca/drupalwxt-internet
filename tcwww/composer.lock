@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "78d71d188a17885e4af080524270443b",
+    "content-hash": "abd0f2e0f6682b89bcd9e96693dd9f10",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -192,16 +192,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.183.9",
+            "version": "3.183.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "3b3aafdceac4cb820e2ae65a8785e4d07db471a7"
+                "reference": "f42dcf893227842aca11e8ea19f7b2123cf3244b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3b3aafdceac4cb820e2ae65a8785e4d07db471a7",
-                "reference": "3b3aafdceac4cb820e2ae65a8785e4d07db471a7",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/f42dcf893227842aca11e8ea19f7b2123cf3244b",
+                "reference": "f42dcf893227842aca11e8ea19f7b2123cf3244b",
                 "shasum": ""
             },
             "require": {
@@ -276,9 +276,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.183.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.183.11"
             },
-            "time": "2021-05-28T18:28:19+00:00"
+            "time": "2021-06-02T18:14:10+00:00"
         },
         {
             "name": "bower-asset/cropper",
@@ -303,7 +303,7 @@
             "version": "3.6.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jquery/jquery-dist.git",
+                "url": "git@github.com:jquery/jquery-dist.git",
                 "reference": "e786e3d9707ffd9b0dd330ca135b66344dcef85a"
             },
             "dist": {
@@ -4022,26 +4022,29 @@
         },
         {
             "name": "drupal/conditional_fields",
-            "version": "1.0.0-alpha10",
+            "version": "4.0.0-alpha1",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/conditional_fields.git",
-                "reference": "8.x-1.0-alpha10"
+                "reference": "4.0.0-alpha1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/conditional_fields-8.x-1.0-alpha10.zip",
-                "reference": "8.x-1.0-alpha10",
-                "shasum": "ac11881a07eaf3ce796dea1cb0e537434d1fbd3d"
+                "url": "https://ftp.drupal.org/files/projects/conditional_fields-4.0.0-alpha1.zip",
+                "reference": "4.0.0-alpha1",
+                "shasum": "2e5f493f1ae09494857f58fde97715cdb7e21553"
             },
             "require": {
                 "drupal/core": "^8 || ^9"
             },
+            "require-dev": {
+                "drupal/paragraphs": "*"
+            },
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.0-alpha10",
-                    "datestamp": "1610130227",
+                    "version": "4.0.0-alpha1",
+                    "datestamp": "1621481938",
                     "security-coverage": {
                         "status": "not-covered",
                         "message": "Project has not opted into security advisory coverage!"
@@ -4054,8 +4057,8 @@
             ],
             "authors": [
                 {
-                    "name": "Adyax",
-                    "homepage": "https://www.adyax.com/"
+                    "name": "OlgaRabodzei",
+                    "homepage": "https://www.drupal.org/user/3389198"
                 },
                 {
                     "name": "colan",
@@ -4086,7 +4089,7 @@
                     "homepage": "https://www.drupal.org/user/3589086"
                 }
             ],
-            "description": "Conditional fields",
+            "description": "Define dependencies between fields based on their states and values.",
             "homepage": "https://www.drupal.org/project/conditional_fields",
             "support": {
                 "source": "https://git.drupalcode.org/project/conditional_fields"
@@ -8053,7 +8056,7 @@
             "extra": {
                 "drupal": {
                     "version": "8.x-3.0-beta1",
-                    "datestamp": "1609758293",
+                    "datestamp": "1618261123",
                     "security-coverage": {
                         "status": "not-covered",
                         "message": "Beta releases are not covered by Drupal security advisories."
@@ -10338,17 +10341,17 @@
         },
         {
             "name": "drupal/openid_connect",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/openid_connect.git",
-                "reference": "8.x-1.0"
+                "reference": "8.x-1.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/openid_connect-8.x-1.0.zip",
-                "reference": "8.x-1.0",
-                "shasum": "62127d6f81950124c41a76f921678ab6f0a651e3"
+                "url": "https://ftp.drupal.org/files/projects/openid_connect-8.x-1.1.zip",
+                "reference": "8.x-1.1",
+                "shasum": "9153c4ecbadd1ea11b2dff41de30b8c90103ea9b"
             },
             "require": {
                 "drupal/core": "^8.8 || ^9",
@@ -10357,8 +10360,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.0",
-                    "datestamp": "1608316550",
+                    "version": "8.x-1.1",
+                    "datestamp": "1622655960",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -19070,16 +19073,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v4.4.22",
+            "version": "v4.4.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "c194bcedde6295f3ec3e9eba1f5d484ea97c41a7"
+                "reference": "31ea689a8e7d2410016b0d25fc15a1ba05a6e2e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/c194bcedde6295f3ec3e9eba1f5d484ea97c41a7",
-                "reference": "c194bcedde6295f3ec3e9eba1f5d484ea97c41a7",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/31ea689a8e7d2410016b0d25fc15a1ba05a6e2e0",
+                "reference": "31ea689a8e7d2410016b0d25fc15a1ba05a6e2e0",
                 "shasum": ""
             },
             "require": {
@@ -19139,7 +19142,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v4.4.22"
+                "source": "https://github.com/symfony/var-dumper/tree/v4.4.25"
             },
             "funding": [
                 {
@@ -19155,7 +19158,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-04-19T13:36:17+00:00"
+            "time": "2021-05-27T09:48:32+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -23178,22 +23181,23 @@
         },
         {
             "name": "symfony/config",
-            "version": "v4.4.23",
+            "version": "v4.4.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "be9e601f17fc684ddfd6c675fdfcd04bb51fa928"
+                "reference": "2803882bb10353d277d4539635dd688a053d571c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/be9e601f17fc684ddfd6c675fdfcd04bb51fa928",
-                "reference": "be9e601f17fc684ddfd6c675fdfcd04bb51fa928",
+                "url": "https://api.github.com/repos/symfony/config/zipball/2803882bb10353d277d4539635dd688a053d571c",
+                "reference": "2803882bb10353d277d4539635dd688a053d571c",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.1.3",
                 "symfony/filesystem": "^3.4|^4.0|^5.0",
-                "symfony/polyfill-ctype": "~1.8"
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-php81": "^1.22"
             },
             "conflict": {
                 "symfony/finder": "<3.4"
@@ -23234,7 +23238,7 @@
             "description": "Helps you find, load, combine, autofill and validate configuration values of any kind",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/config/tree/v4.4.23"
+                "source": "https://github.com/symfony/config/tree/v4.4.25"
             },
             "funding": [
                 {
@@ -23250,7 +23254,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-07T13:37:51+00:00"
+            "time": "2021-05-26T11:20:16+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -23538,6 +23542,85 @@
                 }
             ],
             "time": "2020-11-13T16:28:59+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php81",
+            "version": "v1.23.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php81.git",
+                "reference": "e66119f3de95efc359483f810c4c3e6436279436"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php81/zipball/e66119f3de95efc359483f810c4c3e6436279436",
+                "reference": "e66119f3de95efc359483f810c4c3e6436279436",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.23-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php81\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.1+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php81/tree/v1.23.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-05-21T13:25:03+00:00"
         },
         {
             "name": "theseer/tokenizer",
