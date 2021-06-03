@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-develop',
-    'version' => 'dev-develop',
+    'pretty_version' => 'dev-master',
+    'version' => 'dev-master',
     'aliases' => 
     array (
     ),
-    'reference' => 'cc7056fa5ab9dcd119814c93d3e605757d22a264',
+    'reference' => 'f63182fff8aa37e9a11d3ea9fa4b008f4622fb78',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -650,6 +650,15 @@
       array (
         0 => '8.9.16',
       ),
+    ),
+    'drupal/book_tree_menu' => 
+    array (
+      'pretty_version' => '1.0.0',
+      'version' => '1.0.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '8.x-1.0',
     ),
     'drupal/bootstrap' => 
     array (
@@ -2903,12 +2912,12 @@
     ),
     'drupalwxt/site-wxt' => 
     array (
-      'pretty_version' => 'dev-develop',
-      'version' => 'dev-develop',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
       ),
-      'reference' => 'cc7056fa5ab9dcd119814c93d3e605757d22a264',
+      'reference' => 'f63182fff8aa37e9a11d3ea9fa4b008f4622fb78',
     ),
     'drupalwxt/wxt' => 
     array (
