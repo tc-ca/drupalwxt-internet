@@ -78,7 +78,7 @@ class TaxonomyManagerAdmin extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'taxonomy_manager.settings_form';
+    return 'taxonomy_manager_settings_form';
   }
 
 }

@@ -2,14 +2,14 @@
 
 namespace Drupal\taxonomy_manager\Tests;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests the configuration form.
  *
  * @group taxonomy_manager
  */
-class TaxonomyManagerConfigTest extends WebTestBase {
+class TaxonomyManagerConfigTest extends BrowserTestBase {
 
   /**
    * Modules to install.

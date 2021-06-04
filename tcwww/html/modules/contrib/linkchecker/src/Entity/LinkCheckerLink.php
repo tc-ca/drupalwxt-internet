@@ -285,7 +285,8 @@ class LinkCheckerLink extends ContentEntityBase implements LinkCheckerLinkInterf
     // Code related to the link.
     $fields['code'] = BaseFieldDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('Status code'))
-      ->setDescription(new TranslatableMarkup('HTTP status code from link checking.'));
+      ->setDescription(new TranslatableMarkup('HTTP status code from link checking.'))
+      ->setDefaultValue(-1);
 
     // Error related to the link.
     $fields['error'] = BaseFieldDefinition::create('string_long')

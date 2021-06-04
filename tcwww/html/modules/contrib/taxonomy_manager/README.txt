@@ -22,6 +22,7 @@ Features:
 REQUIREMENTS
 ------------
   - Taxonomy module enabled
+  - jQuery UI module: https://www.drupal.org/project/jquery_ui
   - JavaScript enabled in your browser
   - a user with 'administer taxonomy' permission
 
@@ -29,11 +30,10 @@ REQUIREMENTS
 INSTALLATION
 ------------
 1. Place the entire taxonomy_manager directory into your Drupal
-   sites/all/modules/ directory.
+   `modules` directory or run `composer require drupal/taxonomy_manager`.
 
 2. Enable the taxonomy manager module by navigating to:
-     administer > extend
-
+     `extend`
 
 
 USING THE TAXONOMY MANAGER

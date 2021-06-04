@@ -7,12 +7,10 @@ use Drupal\geofield\Plugin\GeofieldBackendBase;
 /**
  * PostgreSQL/PostGIS Backend for Geofield.
  *
- * Definition of a Geofield Backend storing values in EWKB Format, suitable for
- * PostgreSQL/PostGIS,
- *
  * @GeofieldBackend(
  *   id = "geofield_backend_postgis",
- *   admin_label = @Translation("Geofield PostgreSQL/PostGIS Backend")
+ *   admin_label = @Translation("PostGIS Geometry"),
+ *   description = @Translation("Geofield Backend storing values in EWKB Format, suitable for PostgreSQL/PostGIS (needs PostGis enabled)")
  * )
  */
 class GeofieldBackendPostgis extends GeofieldBackendBase {
@@ -22,9 +20,9 @@ class GeofieldBackendPostgis extends GeofieldBackendBase {
    */
   public function schema() {
     return [
-      'type' => 'geometry',
-      'size' => 'big',
+      'type' => 'blob',
       'not null' => FALSE,
+      'pgsql_type' => 'geometry',
     ];
   }
 

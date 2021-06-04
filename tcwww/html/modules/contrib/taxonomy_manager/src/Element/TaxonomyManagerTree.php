@@ -74,7 +74,7 @@ class TaxonomyManagerTree extends FormElement {
     if (is_array($input) && !empty($input)) {
       foreach ($input as $tid) {
         $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
-        if ($term && $term->getVocabularyId() == $element['#vocabulary']) {
+        if ($term && $term->bundle() == $element['#vocabulary']) {
           $selected_terms[] = $tid;
         }
       }

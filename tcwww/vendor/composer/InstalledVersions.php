@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'f63182fff8aa37e9a11d3ea9fa4b008f4622fb78',
+    'reference' => '5275a0922d0dfc571f88a94e66a33f8080449056',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -66,12 +66,12 @@ private static $installed = array (
     ),
     'aws/aws-sdk-php' => 
     array (
-      'pretty_version' => '3.183.11',
-      'version' => '3.183.11.0',
+      'pretty_version' => '3.183.12',
+      'version' => '3.183.12.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'f42dcf893227842aca11e8ea19f7b2123cf3244b',
+      'reference' => 'ee5225729f6428870b5168576b0450c0bb668976',
     ),
     'behat/behat' => 
     array (
@@ -1221,12 +1221,12 @@ private static $installed = array (
     ),
     'drupal/cshs' => 
     array (
-      'pretty_version' => '1.7.0',
-      'version' => '1.7.0.0',
+      'pretty_version' => '2.3.0',
+      'version' => '2.3.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '8.x-1.7',
+      'reference' => '8.x-2.3',
     ),
     'drupal/csv_serialization' => 
     array (
@@ -1620,12 +1620,12 @@ private static $installed = array (
     ),
     'drupal/geofield' => 
     array (
-      'pretty_version' => '1.30.0',
-      'version' => '1.30.0.0',
+      'pretty_version' => '1.31.0',
+      'version' => '1.31.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '8.x-1.30',
+      'reference' => '8.x-1.31',
     ),
     'drupal/google_tag' => 
     array (
@@ -1904,13 +1904,12 @@ private static $installed = array (
     ),
     'drupal/linkchecker' => 
     array (
-      'pretty_version' => 'dev-1.x',
-      'version' => 'dev-1.x',
+      'pretty_version' => '1.0.0-alpha1',
+      'version' => '1.0.0.0-alpha1',
       'aliases' => 
       array (
-        0 => '1.x-dev',
       ),
-      'reference' => '5fb195580f6a70590e723c2e1f24fee7fb562af3',
+      'reference' => '8.x-1.0-alpha1',
     ),
     'drupal/linkit' => 
     array (
@@ -2609,12 +2608,12 @@ private static $installed = array (
     ),
     'drupal/taxonomy_manager' => 
     array (
-      'pretty_version' => '1.0.0-beta2',
-      'version' => '1.0.0.0-beta2',
+      'pretty_version' => '2.0.4',
+      'version' => '2.0.4.0',
       'aliases' => 
       array (
       ),
-      'reference' => '8.x-1.0-beta2',
+      'reference' => '2.0.4',
     ),
     'drupal/telephone' => 
     array (
@@ -2943,7 +2942,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'f63182fff8aa37e9a11d3ea9fa4b008f4622fb78',
+      'reference' => '5275a0922d0dfc571f88a94e66a33f8080449056',
     ),
     'drupalwxt/wxt' => 
     array (
@@ -3717,12 +3716,12 @@ private static $installed = array (
     ),
     'swagger-api/swagger-ui' => 
     array (
-      'pretty_version' => 'v3.49.0',
-      'version' => '3.49.0.0',
+      'pretty_version' => 'v3.50.0',
+      'version' => '3.50.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'bbfa31beae18df5118dfcdfec257bd64dc8f61a2',
+      'reference' => '91858cc811d3cddb45ef604365e2c88cd96e4ca0',
     ),
     'symfony-cmf/routing' => 
     array (

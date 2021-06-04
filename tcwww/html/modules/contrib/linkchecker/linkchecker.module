@@ -33,7 +33,7 @@ function linkchecker_form_field_config_form_alter(&$form, FormStateInterface $fo
 
   $form['third_party_settings']['linkchecker'] = [
     '#type' => 'details',
-    '#title' => t('Link checker settings'),
+    '#title' => t('LinkChecker settings'),
   ];
 
   /** @var \Drupal\linkchecker\Plugin\LinkExtractorManager $linkExtractorManager */
@@ -63,7 +63,7 @@ function linkchecker_form_field_config_form_alter(&$form, FormStateInterface $fo
     '#description' => t('Defines which extractor plugin to use'),
     '#empty_value' => '',
     '#options' => $options,
-    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'extractor', count($options) === 1 ? key($options) : '_none'),
+    '#default_value' => $fieldConfig->getThirdPartySetting('linkchecker', 'extractor', '_none'),
     '#states' => [
       'required' => [
         ':input[name="third_party_settings[linkchecker][scan]"]' => [
@@ -108,7 +108,7 @@ function linkchecker_entity_insert(EntityInterface $entity) {
     return;
   }
 
-  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+  if ($entity instanceof FieldableEntityInterface) {
     /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
     $extractor = \Drupal::service('linkchecker.extractor');
     $links = $extractor->extractFromEntity($entity);
@@ -127,7 +127,7 @@ function linkchecker_entity_update(EntityInterface $entity) {
     return;
   }
 
-  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+  if ($entity instanceof FieldableEntityInterface) {
     /** @var \Drupal\linkchecker\LinkExtractorService $extractor */
     $extractor = \Drupal::service('linkchecker.extractor');
     $links = $extractor->extractFromEntity($entity);
@@ -146,7 +146,7 @@ function linkchecker_entity_delete(EntityInterface $entity) {
     return;
   }
 
-  if ($entity instanceof FieldableEntityInterface && $entity->getEntityTypeId() == 'node') {
+  if ($entity instanceof FieldableEntityInterface) {
     \Drupal::service('linkchecker.clean_up')->cleanUpForEntity($entity);
   }
 }

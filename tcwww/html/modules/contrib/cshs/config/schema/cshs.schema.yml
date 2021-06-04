@@ -11,3 +11,6 @@ field.widget.settings.cshs:
     level_labels:
       type: string
       label: 'Labels per hierarchy-level'
+    none_label:
+      type: string
+      label: 'The "no selection" label'

@@ -100,8 +100,7 @@ class CshsWidget extends WidgetBase {
       }, $items->getValue());
     }
     else {
-      /* @noinspection NullPointerExceptionInspection */
-      $element['target_id']['#default_value'] = $items->get($delta)->getValue();
+      $element['target_id']['#default_value'] = $items->get($delta)->target_id ?? NULL;
     }
 
     return $element;
@@ -111,6 +110,7 @@ class CshsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state): array {
+    // This is the case when `$this->handlesMultipleValues()` returns `TRUE`.
     if (!empty($values['target_id']) && \is_array($values['target_id'])) {
       $list = [];
 

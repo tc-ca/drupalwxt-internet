@@ -22,13 +22,23 @@ class DeleteTermsForm extends FormBase {
   protected $termStorage;
 
   /**
+   * The taxonomy messenger helper.
+   *
+   * @var \Drupal\taxonomy_manager\TaxonomyManagerHelper
+   */
+  protected $taxonomyManagerHelper;
+
+  /**
    * DeleteTermsForm constructor.
    *
-   * @param \Drupal\taxonomy\TermStorage $termStorage
+   * @param \Drupal\taxonomy\TermStorage $term_storage
    *   Object with convenient methods to manage terms.
+   * @param \Drupal\taxonomy_manager\TaxonomyManagerHelper $taxonomy_manager_helper
+   *   The taxonomy messenger helper.
    */
-  public function __construct(TermStorage $termStorage) {
-    $this->termStorage = $termStorage;
+  public function __construct(TermStorage $term_storage, TaxonomyManagerHelper $taxonomy_manager_helper) {
+    $this->termStorage = $term_storage;
+    $this->taxonomyManagerHelper = $taxonomy_manager_helper;
   }
 
   /**
@@ -36,7 +46,8 @@ class DeleteTermsForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')->getStorage('taxonomy_term')
+      $container->get('entity_type.manager')->getStorage('taxonomy_term'),
+      $container->get('taxonomy_manager.helper')
     );
   }
 
@@ -89,7 +100,7 @@ class DeleteTermsForm extends FormBase {
     $selected_terms = $form_state->getValue('selected_terms');
     $delete_orphans = $form_state->getValue('delete_orphans');
 
-    $info = TaxonomyManagerHelper::deleteTerms($selected_terms, $delete_orphans);
+    $info = $this->taxonomyManagerHelper->deleteTerms($selected_terms, $delete_orphans);
     $this->messenger()->addMessage($this->t("Deleted terms: %deleted_term_names", ['%deleted_term_names' => implode(', ', $info['deleted_terms'])]));
     if (count($info['remaining_child_terms'])) {
       $this->messenger()->addMessage($this->t("Remaining child terms with different parents: %remaining_child_term_names", ['%remaining_child_term_names' => implode(', ', $info['remaining_child_terms'])]));
@@ -102,7 +113,7 @@ class DeleteTermsForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'taxonomy_manager.delete_form';
+    return 'taxonomy_manager_delete_form';
   }
 
 }

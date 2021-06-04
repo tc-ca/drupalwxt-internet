@@ -8,6 +8,7 @@ use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Component\Plugin\Exception\PluginException;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Plugin implementation of the 'geofield' field type.
@@ -35,9 +36,7 @@ class GeofieldItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function defaultFieldSettings() {
-    return [
-      'backend' => 'geofield_backend_default',
-    ] + parent::defaultFieldSettings();
+    return [] + parent::defaultFieldSettings();
   }
 
   /**
@@ -160,28 +159,30 @@ class GeofieldItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
-    // Backend plugins need to define requirement/settings methods,
-    // allow them to inject data here.
-    $element = [];
+  public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
+    $settings = $this->getSettings();
 
+    // Provides a field for the geofield storage backend plugin.
     $backend_manager = \Drupal::service('plugin.manager.geofield_backend');
-
     $backends = $backend_manager->getDefinitions();
     $backend_options = [];
-
+    $backend_descriptions_list = '<ul>';
     foreach ($backends as $id => $backend) {
       $backend_options[$id] = $backend['admin_label'];
+      $backend_descriptions_list .= '<li>' . $backend['admin_label'] . ': ' . $backend['description'] . '</li>';
     }
-
     $element['backend'] = [
       '#type' => 'select',
-      '#title' => $this->t('Storage Backend'),
-      '#default_value' => $this->getSetting('backend'),
+      '#title' => $this->t('Storage backend'),
+      '#default_value' => $settings['backend'],
       '#options' => $backend_options,
-      '#description' => $this->t("Select the Geospatial storage backend you would like to use to store geofield geometry data. If you don't know what this means, select 'Default Backend'."),
+      '#description' => [
+        '#markup' => $this->t('Select the Backend for storing Geofield data. The following are available: @backend_descriptions_list', [
+          '@backend_descriptions_list' => new FormattableMarkup($backend_descriptions_list, []),
+        ]),
+      ],
+      '#disabled' => $has_data,
     ];
-
     return $element;
   }
 

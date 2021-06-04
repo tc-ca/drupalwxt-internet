@@ -9,7 +9,3 @@ Undefined offset error
 Source: https://www.drupal.org/files/issues/2020-08-24/undefined-offset-error-3065045-13.patch
 
 
-3173634 - Linkchecker breaks entityqueue
-Source: patches/linkchecker_entityqueue_error-3173634.patch
-
-

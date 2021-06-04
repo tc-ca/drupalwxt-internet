@@ -2,15 +2,15 @@
 
 namespace Drupal\taxonomy_manager\Tests;
 
-use Drupal\simpletest\WebTestBase;
-use Drupal\taxonomy\Tests\TaxonomyTestTrait;
+use Drupal\Tests\BrowserTestBase;
+use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
 
 /**
  * All pages of the module are accessible. (Routing and menus are OK)
  *
  * @group taxonomy_manager
  */
-class TaxonomyManagerPagesTest extends WebTestBase {
+class TaxonomyManagerPagesTest extends BrowserTestBase {
   use TaxonomyTestTrait;
 
   /**
@@ -28,6 +28,13 @@ class TaxonomyManagerPagesTest extends WebTestBase {
   private $adminUser;
 
   /**
+   * Modules to install.
+   *
+   * @var array
+   */
+  public static $modules = ['taxonomy_manager'];
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -36,13 +43,6 @@ class TaxonomyManagerPagesTest extends WebTestBase {
     $this->adminUser = $this->drupalCreateUser(['administer taxonomy']);
     $this->vocabulary = $this->createVocabulary();
   }
-
-  /**
-   * Modules to install.
-   *
-   * @var array
-   */
-  public static $modules = ['taxonomy_manager'];
 
   /**
    * Configuration page is accessible.

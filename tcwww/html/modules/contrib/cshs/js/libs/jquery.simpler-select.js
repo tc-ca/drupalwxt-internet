@@ -1,6 +1,13 @@
 /**
  * @file
  * Render standard select with hierarchical options: as set of selects, one for each level of the hierarchy.
+ *
+ * @typedef {Object} CshsOption
+ * @property {number|string} value
+ * @property {string} label
+ * @property {string} [group]
+ * @property {number|string} parent
+ * @property {CshsOption[]} children
  */
 
 (function ($, pluginName) {
@@ -8,6 +15,7 @@
 
   // Create the defaults once.
   var defaults = {
+    noFirstLevelNone: false,
     noneLabel: '- Please choose -',
     noneValue: '_none',
     labels: []
@@ -17,7 +25,6 @@
   function Plugin(element, options) {
     this.$element = $(element);
     this.$currentSelect = null;
-
     this.settings = $.extend({}, defaults, options);
     this.selectOptions = [];
 
@@ -34,7 +41,7 @@
 
         that.selectOptions.push({
           value: $option.val(),
-          label: $option.text(),
+          label: jQuery.trim($option.text()),
           parent: $option.data('parent') || 0,
           children: []
         });
@@ -48,7 +55,7 @@
 
       var initialValue = that.$element.val();
       var initialParents = [];
-      var $selectElement = that.createSelect(tree);
+      var $selectElement = that.createSelect(tree, undefined, undefined, !that.settings.noFirstLevelNone);
       var $currentSelect = $selectElement;
 
       if (initialValue) {
@@ -93,34 +100,38 @@
     /**
      * Given an array of options, build an HTML select element.
      *
-     * @param {HTMLElement[]|HTMLOptionElement[]} options
+     * @param {CshsOption[]} options
      *   List of options.
-     * @param {String} [parent]
+     * @param {string} [parent=this.settings.noneValue]
      *   Parent option.
-     * @param {Number} [level]
+     * @param {number} [level=0]
      *   Nesting level.
+     * @param {boolean} [addNoneOption=true]
+     *   The state of whether to add the `_none` option.
      *
      * @return {jQuery|null}
      *   Newly created element.
      */
-    createSelect: function (options, parent, level) {
+    createSelect: function (options, parent, level, addNoneOption) {
       if (!options || options.length < 1) {
         return null;
       }
 
+      addNoneOption = typeof addNoneOption === 'boolean' ? addNoneOption : true;
       parent = parent || this.settings.noneValue;
       level = level || 0;
 
       var that = this;
-      var $select = $('<select class="simpler-select"></select>').addClass(that.$element.attr('class'));
+      var selectId = that.$element.attr('id') + '--level-' + level;
       var $wrapper = $('<div class="select-wrapper"></div>');
+      var $select = $('<select></select>')
+        .addClass(['simpler-select', that.$element.attr('class')])
+        .attr('id', selectId);
 
-      if (that.$element.hasClass('error')) {
-        $select.addClass('error');
+      if (addNoneOption) {
+        // Use `text()` to ensure the HTML nodes won't be created.
+        $select.append($('<option value="' + that.settings.noneValue + '" data-parent-value="' + parent + '"></option>').text(that.settings.noneLabel));
       }
-
-      // Always add the "_none" option.
-      $select.append('<option value="' + that.settings.noneValue + '" data-parent-value="' + parent + '">' + that.settings.noneLabel + '</option>');
 
       $.each(options, function (i, option) {
         // Do not add "_none" option (already added by code above).
@@ -176,7 +187,7 @@
       });
 
       if (that.settings.labels[level]) {
-        $wrapper.append('<label>' + that.settings.labels[level] + '</label>');
+        $wrapper.append('<label for="' + selectId + '">' + that.settings.labels[level] + '</label>');
       }
 
       $wrapper.append($select);
@@ -187,14 +198,14 @@
     /**
      * Given an flat array an tree is built.
      *
-     * @param {Object[]} array
+     * @param {CshsOption[]} array
      *   Options list.
-     * @param {Object} [parent]
+     * @param {CshsOption} [parent]
      *   Parent option.
-     * @param {Array} [tree]
+     * @param {CshsOption[]} [tree=[]]
      *   Existing options.
      *
-     * @return {Array}
+     * @return {CshsOption[]}
      *   Options tree.
      */
     buildTree: function (array, parent, tree) {
@@ -227,7 +238,7 @@
      *
      * @param {jQuery} $select
      *   Wrapper element.
-     * @param {String} value
+     * @param {string} value
      *   New value to set.
      */
     selectSetValue: function ($select, value) {
@@ -257,22 +268,22 @@
     /**
      * Get the hierarchy level of given select.
      *
-     * @return {Number}
+     * @return {number}
      *   Number of wrappers.
      */
     selectGetLevel: function () {
-      return this.$currentSelect.parents('.form-type-cshs').find('.select-wrapper').length;
+      return this.$currentSelect.parents('.js-form-type-cshs').find('.select-wrapper').length;
     },
 
     /**
      * Given a value build an array of all parents (from leave to root).
      *
-     * @param {String} value
+     * @param {string} value
      *   Value of option.
-     * @param {Array} [parents]
+     * @param {string[]} [parents=[]]
      *   Parent options.
      *
-     * @return {Array}
+     * @return {string[]}
      *   Updated parent options list.
      */
     getAllParents: function (value, parents) {
@@ -295,7 +306,7 @@
     /**
      * Tiny helper to get the option jQuery object.
      *
-     * @param {String} value
+     * @param {string} value
      *   Value of an option.
      *
      * @return {jQuery}
@@ -308,16 +319,16 @@
     /**
      * Helper to get the info-object which corresponds to an option value.
      *
-     * @param {String} value
+     * @param {string} value
      *   Value of an option.
      *
-     * @return {Object}
+     * @return {CshsOption}
      *   Element.
      */
     getOptionInfoByValue: function (value) {
       var optionInfo = {};
 
-      $.each(this.selectOptions, function (idx, option) {
+      this.selectOptions.forEach(function (option) {
         if (option.value == value) {
           optionInfo = option;
           return false;

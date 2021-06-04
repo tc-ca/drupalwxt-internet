@@ -19,3 +19,12 @@ function taxonomy_manager_uninstall() {
   \Drupal::configFactory()->getEditable('taxonomy_manager.settings')->delete();
   \Drupal::messenger()->addMessage(t("Taxonomy manager module has been uninstalled successfully."));
 }
+
+/**
+ * Issue #3164182: JQuery UI is being phased out from Drupal core.
+ */
+function taxonomy_manager_update_8200() {
+  \Drupal::service('module_installer')->install([
+    'jquery_ui',
+  ]);
+}

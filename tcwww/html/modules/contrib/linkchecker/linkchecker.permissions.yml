@@ -5,8 +5,8 @@ access own broken links report:
   title: 'Access own broken links report'
   description: 'Allows users to access their user specific broken links report.'
 administer linkchecker:
-  title: 'Administer Link checker'
-  description: 'Allows users to administer Link checker settings.'
+  title: 'Administer linkchecker'
+  description: 'Allows users to administer linkchecker settings.'
   restrict access: true
 edit linkchecker link settings:
   title: 'Edit link settings'

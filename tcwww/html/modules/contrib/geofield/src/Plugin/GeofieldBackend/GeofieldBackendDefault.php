@@ -11,7 +11,8 @@ use Drupal\geofield\Plugin\GeofieldBackendBase;
  *
  * @GeofieldBackend(
  *   id = "geofield_backend_default",
- *   admin_label = @Translation("Geofield Default Backend (WKT)")
+ *   admin_label = @Translation("Default (WKT)"),
+ *   description = @Translation("Default Geofield Backend for storing values in WKT Format")
  * )
  */
 class GeofieldBackendDefault extends GeofieldBackendBase {

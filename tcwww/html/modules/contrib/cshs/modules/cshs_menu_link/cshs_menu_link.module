@@ -5,6 +5,8 @@
  * Client-side Hierarchical Select: Menu Link.
  */
 
+use Drupal\cshs\Element\CshsElement;
+
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  *
@@ -16,6 +18,9 @@ function cshs_menu_link_form_node_form_alter(array &$form): void {
     $element =& $form['menu']['link']['menu_parent'];
     $element['#type'] = 'cshs';
     $element['#attached']['library'][] = 'cshs_menu_link/cshs_menu_link';
+    $element['#none_label'] = \t('- Select -');
+    $element['#description'] = \t('The menu link is created below the selected menu item. Optionally, select additional levels to place the link deeper in the menu structure.');
+    $element['#no_first_level_none'] = TRUE;
 
     // The first item is always a menu name so the below processing
     // is relevant only if there is at least one link additionally.
@@ -32,19 +37,19 @@ function cshs_menu_link_form_node_form_alter(array &$form): void {
         // Assume there is no parent until we know that.
         $parent = '';
 
-        if ($link = $link_manager->getDefinition($link_id, FALSE)) {
-          if (!empty($link['parent'])) {
+        if ($link_id !== '') {
+          if ($link = $link_manager->getDefinition($link_id, FALSE)) {
+            // The `parent` is either an empty string or link ID.
+            // It is ok to have a parent like `$menu_name:` as it means
+            // the link is top-level and its parent is the menu itself.
             $parent = $menu_name . ':' . $link['parent'];
           }
-        }
-        else {
-          \assert(FALSE, \sprintf('The link with ID "%s" must exist!', $link_id));
+          else {
+            \assert(FALSE, \sprintf('The link with ID "%s" must exist!', $link_id));
+          }
         }
 
-        $element['#options'][$id] = [
-          'name' => $label,
-          'parent_tid' => $parent,
-        ];
+        $element['#options'][$id] = CshsElement::option($label, $parent);
       }
     }
   }

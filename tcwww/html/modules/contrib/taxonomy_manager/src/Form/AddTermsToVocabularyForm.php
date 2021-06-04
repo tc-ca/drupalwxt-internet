@@ -6,11 +6,45 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\taxonomy\VocabularyInterface;
 use Drupal\taxonomy_manager\TaxonomyManagerHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form for adding terms to a given vocabulary.
  */
 class AddTermsToVocabularyForm extends FormBase {
+
+  /**
+   * The taxonomy messenger helper.
+   *
+   * @var \Drupal\taxonomy_manager\TaxonomyManagerHelper
+   */
+  protected $taxonomyManagerHelper;
+
+  /**
+   * AddTermsToVocabularyForm constructor.
+   *
+   * @param \Drupal\taxonomy_manager\TaxonomyManagerHelper $taxonomy_manager_helper
+   *   The taxonomy messenger helper.
+   */
+  public function __construct(TaxonomyManagerHelper $taxonomy_manager_helper) {
+    $this->taxonomyManagerHelper = $taxonomy_manager_helper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('taxonomy_manager.helper')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'taxonomy_manager_add_form';
+  }
 
   /**
    * {@inheritdoc}
@@ -53,6 +87,9 @@ class AddTermsToVocabularyForm extends FormBase {
     $form['add'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add'),
+      '#attributes' => array(
+        'onclick' => 'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
+      ),
     ];
     return $form;
   }
@@ -68,7 +105,7 @@ class AddTermsToVocabularyForm extends FormBase {
     $parents = $form_state->getValue('parents');
     $mass_terms = $form_state->getValue('mass_add');
 
-    $new_terms = TaxonomyManagerHelper::massAddTerms($mass_terms, $taxonomy_vocabulary->id(), $parents, $term_names_too_long);
+    $new_terms = $this->taxonomyManagerHelper->massAddTerms($mass_terms, $taxonomy_vocabulary->id(), $parents, $term_names_too_long);
     foreach ($new_terms as $term) {
       $term_names[] = $term->label();
     }
@@ -78,13 +115,6 @@ class AddTermsToVocabularyForm extends FormBase {
     }
     $this->messenger()->addMessage($this->t("Terms added: %terms", ['%terms' => implode(', ', $term_names)]));
     $form_state->setRedirect('taxonomy_manager.admin_vocabulary', ['taxonomy_vocabulary' => $taxonomy_vocabulary->id()]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'taxonomy_manager.add_form';
   }
 
 }

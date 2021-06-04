@@ -2,13 +2,13 @@
 
 namespace Drupal\cshs;
 
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Tags;
 use Drupal\Component\Utility\Html;
 use Drupal\cshs\Element\CshsElement;
 use Drupal\taxonomy\VocabularyInterface;
+use Drupal\field\FieldStorageConfigInterface;
 
 /**
  * @internal DO NOT refer to this constant in your code as it is most likely
@@ -53,6 +53,7 @@ trait CshsOptionsFromHelper {
       'save_lineage' => FALSE,
       'hierarchy_depth' => 0,
       'required_depth' => 0,
+      'none_label' => CshsElement::NONE_LABEL,
     ];
   }
 
@@ -123,6 +124,10 @@ trait CshsOptionsFromHelper {
       '@level_labels' => empty($settings['level_labels']) ? $none : $this->getTranslatedLevelLabels(),
     ]);
 
+    $summary[] = $this->t('The "no selection" label: @none_label', [
+      '@none_label' => $this->getTranslatedNoneLabel(),
+    ]);
+
     return $summary;
   }
 
@@ -161,7 +166,8 @@ trait CshsOptionsFromHelper {
         '#min' => 0,
         '#type' => 'number',
         '#title' => $title,
-        '#description' => $this->t(\implode(' ', $description)),
+        // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
+        '#description' => $this->t(\implode('<br />', $description)),
         '#default_value' => $this->getSetting($option_name),
         '#states' => [
           'disabled' => [
@@ -182,16 +188,36 @@ trait CshsOptionsFromHelper {
     // the "$this->fieldDefinition" is not available. Moreover, we don't
     // need to provide the "save_lineage" there.
     if ($this instanceof WidgetBase) {
+      $errors = [];
       $field_storage = $this->fieldDefinition->getFieldStorageDefinition();
-      \assert($field_storage instanceof FieldStorageDefinitionInterface);
-      $is_unlimited = $field_storage->getCardinality() === FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED;
+      \assert($field_storage instanceof FieldStorageConfigInterface);
+      $is_unlimited = $field_storage->getCardinality() === FieldStorageConfigInterface::CARDINALITY_UNLIMITED;
+      $description = [
+        'Save all parents of the selected term. Please note that you will not have a',
+        'familiar field when multiple items can be added via the "Add more" button.',
+        'In fact, the field will look like a "single" and the selected terms will',
+        'be stored each as a separate field value.',
+      ];
+
+      if ($this->getStorage($field_storage->getTargetEntityTypeId())->countFieldData($field_storage, TRUE)) {
+        $errors[] = 'There is data for this field in the database. This setting can no longer be changed.';
+      }
+
+      if (!$is_unlimited) {
+        $errors[] = 'The option can be enabled only for fields with unlimited cardinality.';
+      }
+
+      if (!empty($errors)) {
+        \array_unshift($description, \sprintf('<b class="color-error">%s</b>', \implode('<br />', $errors)));
+      }
 
       $element['save_lineage'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Save lineage'),
-        '#description' => $this->t('Save all parents of selected terms. The field must allow an unlimited number of items.'),
+        '#disabled' => !empty($errors),
+        // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
+        '#description' => $this->t(\implode('<br />', $description)),
         '#default_value' => $is_unlimited && $this->getSetting('save_lineage'),
-        '#disabled' => !$is_unlimited,
       ];
     }
 
@@ -200,6 +226,13 @@ trait CshsOptionsFromHelper {
       '#title' => $this->t('Labels per hierarchy-level'),
       '#description' => $this->t('Enter labels for each hierarchy-level separated by comma.'),
       '#default_value' => $this->getTranslatedLevelLabels(),
+    ];
+
+    $element['none_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('The "no selection" label'),
+      '#description' => $this->t('The label for an empty option.'),
+      '#default_value' => $this->getTranslatedNoneLabel(),
     ];
 
     $element['#element_validate'][] = [$this, 'validateSettingsForm'];
@@ -268,6 +301,7 @@ trait CshsOptionsFromHelper {
       '#multiple' => $settings['save_lineage'],
       '#vocabulary' => $vocabulary,
       '#none_value' => CshsElement::NONE_VALUE,
+      '#none_label' => $this->getTranslatedNoneLabel(),
       '#default_value' => CshsElement::NONE_VALUE,
       '#force_deepest' => $settings['force_deepest'],
       '#required_depth' => $settings['required_depth'],
@@ -298,21 +332,18 @@ trait CshsOptionsFromHelper {
     if (!isset($cache[$cache_id])) {
       $storage = $this->getTermStorage();
       $cache[$cache_id] = [
-        $none_value => [
-          // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
-          'name' => $this->t(CshsElement::NONE_LABEL),
-          'parent_tid' => 0,
-        ],
+        // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
+        $none_value => CshsElement::option($this->t(CshsElement::NONE_LABEL)),
       ];
 
       if ($this->needsTranslatedContent()) {
-        $get_name = function (\stdClass $term) use ($storage): string {
+        $get_name = function (object $term) use ($storage): string {
           return $this->getTranslationFromContext($storage->load($term->tid))->label();
         };
       }
       else {
         // Avoid loading the entity if we don't need its specific translation.
-        $get_name = static function (\stdClass $term): string {
+        $get_name = static function (object $term): string {
           return $term->name;
         };
       }
@@ -328,10 +359,7 @@ trait CshsOptionsFromHelper {
         // Allow only published terms.
         if ((bool) $term->status) {
           $parents = \array_values($term->parents);
-          $cache[$cache_id][$term->tid] = [
-            'name' => \str_repeat('- ', $term->depth) . $get_name($term),
-            'parent_tid' => (int) \reset($parents),
-          ];
+          $cache[$cache_id][$term->tid] = CshsElement::option($get_name($term), (int) \reset($parents));
         }
       }
     }
@@ -355,14 +383,34 @@ trait CshsOptionsFromHelper {
       return $return_as_string ? '' : [];
     }
 
-    $labels = Tags::explode($labels);
-
-    foreach ($labels as $i => $label) {
-      // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
-      $labels[$i] = $this->t(Html::escape($label));
-    }
+    $labels = \array_map([$this, 'getTranslatedValue'], Tags::explode($labels));
 
     return $return_as_string ? \implode(', ', $labels) : $labels;
+  }
+
+  /**
+   * Returns the translated label for the "no selection" option.
+   *
+   * @return string
+   *   The label.
+   */
+  private function getTranslatedNoneLabel(): string {
+    return $this->getTranslatedValue($this->getSetting('none_label') ?: CshsElement::NONE_LABEL);
+  }
+
+  /**
+   * Returns the translated label.
+   *
+   * @param string $value
+   *   The value for translate.
+   *
+   * @return string
+   *   The translated value.
+   */
+  private function getTranslatedValue(string $value): string {
+    $value = \trim($value);
+    // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
+    return $value === '' ? $value : (string) $this->t(Html::escape($value));
   }
 
 }

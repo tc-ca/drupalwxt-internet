@@ -33,12 +33,36 @@ class CshsElement extends Select {
     $info['#none_value'] = static::NONE_VALUE;
     // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
     $info['#none_label'] = $this->t(static::NONE_LABEL);
+    // Do no add the `<option value="#none_value">#none_label</option>`
+    // to the first level selection.
+    $info['#no_first_level_none'] = FALSE;
     $info['#theme'] = static::ID;
     $info['#process'][] = [static::class, 'processElement'];
     $info['#pre_render'][] = [static::class, 'preRender'];
     $info['#element_validate'][] = [static::class, 'validateElement'];
 
     return $info;
+  }
+
+  /**
+   * Returns the `cshs` option structure.
+   *
+   * @param string $name
+   *   The value.
+   * @param int|string $parent
+   *   The parent.
+   *
+   * @return array
+   *   The option structure.
+   *
+   * @see formatOptions()
+   */
+  public static function option(string $name, $parent = 0): array {
+    \assert(\is_numeric($parent) || \is_string($parent), $name);
+    return [
+      'name' => $name,
+      'parent_tid' => $parent,
+    ];
   }
 
   /**
@@ -58,6 +82,7 @@ class CshsElement extends Select {
       'labels' => $element['#labels'],
       'noneLabel' => $element['#none_label'],
       'noneValue' => $element['#none_value'],
+      'noFirstLevelNone' => $element['#no_first_level_none'],
     ];
 
     static::setAttributes($element, [
@@ -160,10 +185,7 @@ class CshsElement extends Select {
 
         // The default `All` option coming from Views has `$data` as a string.
         if (\is_string($data)) {
-          $data = [
-            'name' => $data,
-            'parent_tid' => 0,
-          ];
+          $data = static::option($data);
         }
 
         $options[] = [

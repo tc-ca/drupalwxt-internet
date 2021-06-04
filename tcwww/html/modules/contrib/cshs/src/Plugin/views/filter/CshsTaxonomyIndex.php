@@ -166,6 +166,10 @@ trait CshsTaxonomyIndex {
         'type' => 'integer',
         'label' => 'Required depth',
       ],
+      'none_label' => [
+        'type' => 'string',
+        'label' => 'The "no selection" label',
+      ],
     ];
   }
 

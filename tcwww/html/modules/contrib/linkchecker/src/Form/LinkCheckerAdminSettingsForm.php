@@ -149,7 +149,7 @@ class LinkCheckerAdminSettingsForm extends ConfigFormBase {
     $form['general'] = [
       '#type' => 'details',
       '#title' => $this->t('General settings'),
-      '#description' => $this->t('Configure the fields under each <a href=":url">content type</a> that should be scanned for broken links.', [
+      '#description' => $this->t('Configure the <a href=":url">content types</a> that should be scanned for broken links.', [
         ':url' => Url::fromRoute('entity.node_type.collection')
           ->toString(),
       ]),

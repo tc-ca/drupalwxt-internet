@@ -9,15 +9,13 @@ use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormBuilder;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Url;
-use Drupal\Core\Utility\LinkGeneratorInterface;
 use Drupal\taxonomy\VocabularyInterface;
 use Drupal\taxonomy_manager\TaxonomyManagerHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,35 +26,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TaxonomyManagerForm extends FormBase {
 
   /**
-   * The module handler.
+   * The config factory.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $moduleHandler;
+  protected $configFactory;
 
   /**
-   * The link generator.
-   *
-   * @var \Drupal\Core\Utility\LinkGeneratorInterface
-   */
-  protected $linkGenerator;
-
-  /**
-   * The url generator.
-   *
-   * @var \Drupal\Core\Routing\UrlGeneratorInterface
-   */
-  protected $urlGenerator;
-
-  /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
-   * The form builder service.
+   * The form builder.
    *
    * @var \Drupal\Core\Form\FormBuilder
    */
@@ -70,34 +47,59 @@ class TaxonomyManagerForm extends FormBase {
   protected $entityFormBuilder;
 
   /**
-   * Constructs a \Drupal\taxonomy_manager\Form\TaxonomyManagerForm object.
+   * The entity type manager.
    *
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *   The module handler.
-   * @param \Drupal\Core\Utility\LinkGeneratorInterface $link_generator
-   *   The link generator service.
-   * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
-   *   The url generator.
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $taxonomyTypeManager;
+
+  /**
+   * Current path.
+   *
+   * @var \Drupal\Core\Path\CurrentPathStack
+   */
+  protected $currentPath;
+
+  /**
+   * The url generator service.
+   *
+   * @var \Drupal\Core\Routing\UrlGeneratorInterface
+   */
+  protected $urlGenerator;
+
+  /**
+   * The taxonomy messenger helper.
+   *
+   * @var \Drupal\taxonomy_manager\TaxonomyManagerHelper
+   */
+  protected $taxonomyManagerHelper;
+
+  /**
+   * Constructs a new TaxonomyManagerForm object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The form builder.
+   * @param \Drupal\Core\Entity\EntityFormBuilderInterface $form_builder
+   *   The entity form builder.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\Core\Form\FormBuilder $form_builder
-   *   The form builder.
-   * @param \Drupal\Core\Entity\EntityFormBuilderInterface $entity_form_builder
-   *   The entity form builder.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
    * @param \Drupal\Core\Path\CurrentPathStack $current_path
    *   The current path.
+   * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
+   *   The url generator service.
+   * @param \Drupal\taxonomy_manager\TaxonomyManagerHelper $taxonomy_manager_helper
+   *   The taxonomy messenger helper.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, LinkGeneratorInterface $link_generator, UrlGeneratorInterface $url_generator, EntityTypeManagerInterface $entity_type_manager, FormBuilder $form_builder, EntityFormBuilderInterface $entity_form_builder, ConfigFactoryInterface $config_factory, CurrentPathStack $current_path) {
-    $this->moduleHandler = $module_handler;
-    $this->linkGenerator = $link_generator;
-    $this->urlGenerator = $url_generator;
-    $this->entityTypeManager = $entity_type_manager;
+  public function __construct(ConfigFactoryInterface $config_factory, FormBuilderInterface $form_builder, EntityFormBuilderInterface $entity_form_builder, EntityTypeManagerInterface $entity_type_manager, CurrentPathStack $current_path, UrlGeneratorInterface $url_generator, TaxonomyManagerHelper $taxonomy_manager_helper) {
+    $this->configFactory = $config_factory;
     $this->formBuilder = $form_builder;
     $this->entityFormBuilder = $entity_form_builder;
-    $this->configFactory = $config_factory;
+    $this->taxonomyTypeManager = $entity_type_manager->getStorage('taxonomy_term');
     $this->currentPath = $current_path;
+    $this->urlGenerator = $url_generator;
+    $this->taxonomyManagerHelper = $taxonomy_manager_helper;
   }
 
   /**
@@ -105,14 +107,13 @@ class TaxonomyManagerForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('module_handler'),
-      $container->get('link_generator'),
-      $container->get('url_generator'),
-      $container->get('entity_type.manager'),
+      $container->get('config.factory'),
       $container->get('form_builder'),
       $container->get('entity.form_builder'),
-      $container->get('config.factory'),
-      $container->get('path.current')
+      $container->get('entity_type.manager'),
+      $container->get('path.current'),
+      $container->get('url_generator'),
+      $container->get('taxonomy_manager.helper')
     );
   }
 
@@ -120,7 +121,7 @@ class TaxonomyManagerForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'taxonomy_manager.vocabulary_terms_form';
+    return 'taxonomy_manager_vocabulary_terms_form';
   }
 
   /**
@@ -153,22 +154,13 @@ class TaxonomyManagerForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, VocabularyInterface $taxonomy_vocabulary = NULL) {
-    // Advagg clash warning.
-    if (
-      ($this->moduleHandler->moduleExists('advagg'))
-      // && ($this->config('advagg_mod.settings').
-      // ->get('js_adjust_sort_external')).
-    ) {
-      $this->messenger()->addWarning($this->t('<em>Advanced CSS/JS Aggregation</em> module is enabled. Make sure that <em>%settings_link</em> setting is switched off.', [
-        '%settings_link' => $this->linkGenerator->generate($this->t('Move all external scripts to the top of the execution order'), new Url('advagg_mod.settings')),
-      ]));
-    }
-
-    // Build the form.
-    $form['voc'] = ['#type' => 'value', "#value" => $taxonomy_vocabulary];
+    $form['voc'] = [
+      '#type' => 'value',
+      "#value" => $taxonomy_vocabulary,
+    ];
     $form['#attached']['library'][] = 'taxonomy_manager/form';
 
-    if (TaxonomyManagerHelper::vocabularyIsEmpty($taxonomy_vocabulary->id())) {
+    if ($this->taxonomyManagerHelper->vocabularyIsEmpty($taxonomy_vocabulary->id())) {
       $form['text'] = [
         '#markup' => $this->t('No terms available'),
       ];
@@ -180,6 +172,7 @@ class TaxonomyManagerForm extends FormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Toolbar'),
     ];
+
     $form['toolbar']['add'] = [
       '#type' => 'submit',
       '#name' => 'add',
@@ -188,6 +181,7 @@ class TaxonomyManagerForm extends FormBase {
         'callback' => '::addFormCallback',
       ],
     ];
+
     $form['toolbar']['delete'] = [
       '#type' => 'submit',
       '#name' => 'delete',
@@ -199,6 +193,7 @@ class TaxonomyManagerForm extends FormBase {
         'callback' => '::deleteFormCallback',
       ],
     ];
+
     $form['toolbar']['move'] = [
       '#type' => 'submit',
       '#name' => 'move',
@@ -207,6 +202,7 @@ class TaxonomyManagerForm extends FormBase {
         'callback' => '::moveFormCallback',
       ],
     ];
+
     $form['toolbar']['export'] = [
       '#type' => 'submit',
       '#name' => 'export',
@@ -214,6 +210,48 @@ class TaxonomyManagerForm extends FormBase {
       '#ajax' => [
         'callback' => '::exportFormCallback',
       ],
+    ];
+
+    $form['toolbar']['miniexport'] = [
+      '#type' => 'submit',
+      '#name' => 'export',
+      '#value' => $this->t('Export all'),
+      '#ajax' => [
+        'callback' => '::exportListFormCallback',
+      ],
+    ];
+    /* Vocabulary switcher */
+    $vocabularies = \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary')->loadMultiple();
+    foreach ($vocabularies as $voc) {
+      $voc_list[$voc->id()] = $voc->label();
+    }
+
+    $current_path = \Drupal::service('path.current')->getPath();
+    $url_parts = explode('/',$current_path);
+    $voc_id = end($url_parts);
+    $form['toolbar']['vocabulary_switcher'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Vocabulary switcher'),
+      '#options' => $voc_list,
+      '#attributes' => ['onchange' => "form.submit('taxonomy-manager-vocabulary-terms-form')"],
+      '#default_value' => $voc_id,
+    ];
+
+    /* Autocomplete function redirecting to taxonomy term details page */
+    $form['toolbar']['search_terms'] = [
+      '#title' => $this->t('Search all terms in this vocabulary'),
+      '#type' => 'entity_autocomplete',
+      '#target_type' => 'taxonomy_term',
+      '#selection_settings' => [
+        'target_bundles' => [$voc_id],
+      ],
+    ];
+
+    $form['toolbar']['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Submit'),
+      '#submit' => ['::taxonomy_term_submit_handler'],
+      '#attributes' => ['class' => ['taxonomy-manager-hidden-button']],
     ];
 
     /* Taxonomy manager. */
@@ -234,7 +272,9 @@ class TaxonomyManagerForm extends FormBase {
     $form['taxonomy']['manager']['tree'] = [
       '#type' => 'taxonomy_manager_tree',
       '#vocabulary' => $taxonomy_vocabulary->id(),
-      '#pager_size' => $this->configFactory->get('taxonomy_manager.settings')->get('taxonomy_manager_pager_tree_page_size'),
+      '#pager_size' => $this->configFactory
+        ->get('taxonomy_manager.settings')
+        ->get('taxonomy_manager_pager_tree_page_size'),
     ];
 
     $form['taxonomy']['manager']['pager'] = ['#type' => 'pager'];
@@ -258,8 +298,18 @@ class TaxonomyManagerForm extends FormBase {
   /**
    * {@inheritdoc}
    */
+  public function taxonomy_term_submit_handler(array &$form, FormStateInterface $form_state) {
+    $tid = $form_state->getValue(['search_terms']);
+    $url = Url::fromRoute('entity.taxonomy_term.edit_form', array('taxonomy_term' => $tid));
+    $form_state->setRedirectUrl($url);
+  }
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // $selected_terms = $form_state->getValue(['taxonomy', 'manager', 'tree']);.
+    $form_state->getValue(['taxonomy', 'manager', 'tree']);
+    $url = Url::fromRoute('taxonomy_manager.admin_vocabulary', array('taxonomy_vocabulary' => $form_state->getValue(['vocabulary_switcher'])));
+    $form_state->setRedirectUrl($url);
   }
 
   /**
@@ -291,12 +341,24 @@ class TaxonomyManagerForm extends FormBase {
   }
 
   /**
+   * AJAX callback handler for export terms from a given vocabulary.
+   */
+  public function exportListFormCallback($form, FormStateInterface $form_state) {
+    return $this->modalHelper($form_state, 'Drupal\taxonomy_manager\Form\ExportTermsMiniForm', 'taxonomy_manager.admin_vocabulary.exportlist', $this->t('Export terms'));
+  }
+
+  /**
+   * AJAX callback handler for export terms from a given vocabulary.
+   */
+  public function exportCsvFormCallback($form, FormStateInterface $form_state) {
+    return $this->modalHelper($form_state, 'Drupal\taxonomy_manager\Form\ExportTermsMiniForm', 'taxonomy_manager.admin_vocabulary.exportlist', $this->t('Export terms (CSV)'));
+  }
+
+  /**
    * AJAX callback handler for the term data form.
    */
   public function termDataCallback($form, FormStateInterface $form_state) {
-    $taxonomy_term = $this->entityTypeManager
-      ->getStorage('taxonomy_term')
-      ->load($form_state->getValue('load-term-data'));
+    $taxonomy_term = $this->taxonomyTypeManager->load($form_state->getValue('load-term-data'));
 
     $term_form = $this->entityFormBuilder->getForm($taxonomy_term, 'default');
 
@@ -314,17 +376,17 @@ class TaxonomyManagerForm extends FormBase {
     $term_form['#prefix'] = '<div id="taxonomy-term-data-form">';
     $term_form['#suffix'] = '</div>';
     $current_path = $this->currentPath->getPath();
-
     // Change the form action url form the current site to the add form.
-    $term_form['#action'] = $this->urlGenerator->generateFromRoute(
-      'entity.taxonomy_term.edit_form',
-      ['taxonomy_term' => $taxonomy_term->id()],
-      [
-        'query' => [
-          'destination' => $current_path,
-        ],
-      ]
-    );
+    $term_form['#action'] = $this->urlGenerator
+      ->generateFromRoute(
+        'entity.taxonomy_term.edit_form',
+        ['taxonomy_term' => $taxonomy_term->id()],
+        [
+          'query' => [
+            'destination' => $current_path,
+          ],
+        ]
+      );
 
     $response = new AjaxResponse();
     $response->addCommand(new ReplaceCommand('#taxonomy-term-data-form', $term_form));
@@ -362,8 +424,8 @@ class TaxonomyManagerForm extends FormBase {
     $del_form = $this->formBuilder->getForm($class_name, $taxonomy_vocabulary, $selected_terms);
     $del_form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
-    // Change the form action url form the current site to the add form.
-    $del_form['#action'] = $this->url($route_name, ['taxonomy_vocabulary' => $taxonomy_vocabulary->id()]);
+    // Change the form action url form the current site to the current form.
+    $del_form['#action'] = Url::fromRoute($route_name, ['taxonomy_vocabulary' => $taxonomy_vocabulary->id()])->toString();
 
     $response = new AjaxResponse();
     $response->addCommand(new OpenModalDialogCommand($title, $del_form, ['width' => '700']));

@@ -1,21 +1,19 @@
 jquery.fancytree:
   remote: https://github.com/mar10/fancytree
-  version: 2.30.1
+  version: 2.37.0
   license:
     name: MIT
     url: https://github.com/mar10/fancytree/wiki/LicenseInfo
     gpl-compatible: true
   css:
     component:
-      //cdn.jsdelivr.net/npm/jquery.fancytree@2.30.1/dist/skin-lion/ui.fancytree.min.css: {}
+      //cdn.jsdelivr.net/npm/jquery.fancytree@2.37.0/dist/skin-lion/ui.fancytree.min.css: {}
   js:
-    //cdn.jsdelivr.net/npm/jquery.fancytree@2.30.1/dist/jquery.fancytree.min.js: { type: external, minified: true }
+    //cdn.jsdelivr.net/npm/jquery.fancytree@2.37.0/dist/jquery.fancytree.min.js: { type: external, minified: true }
   dependencies:
     - core/jquery
-    - core/jquery.ui
-    - core/jquery.ui.widget
-    - core/jquery.ui.effects.core
-    - core/jquery.ui.effects.blind
+    - jquery_ui/core
+    - jquery_ui/widget
 
 tree:
   version: 1.x

@@ -2,13 +2,77 @@
 
 namespace Drupal\taxonomy_manager;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\language\Entity\ContentLanguageSettings;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class for taxonomy manager helper.
  */
 class TaxonomyManagerHelper {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $taxonomyTypeManager;
+
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The manages modules.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Create an TaxonomyManagerHelper object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The manages modules.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LanguageManagerInterface $language_manager, AccountInterface $current_user, ModuleHandlerInterface $module_handler) {
+    $this->taxonomyTypeManager = $entity_type_manager->getStorage('taxonomy_term');
+    $this->languageManager = $language_manager;
+    $this->currentUser = $current_user;
+    $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('language_manager'),
+      $container->get('current_user'),
+      $container->get('module_handler')
+    );
+  }
 
   /**
    * Checks if voc has terms.
@@ -19,9 +83,9 @@ class TaxonomyManagerHelper {
    * @return bool
    *   True, if terms already exists, else false
    */
-  public static function vocabularyIsEmpty($vid) {
+  public function vocabularyIsEmpty($vid) {
     /** @var \Drupal\taxonomy\TermStorageInterface $term_storage */
-    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $term_storage = $this->taxonomyTypeManager;
     return empty($term_storage->loadTree($vid));
   }
 
@@ -44,7 +108,7 @@ class TaxonomyManagerHelper {
    * @return array
    *   An array of the newly inserted term objects
    */
-  public static function massAddTerms($input, $vid, $parents, array &$term_names_too_long = []) {
+  public function massAddTerms($input, $vid, $parents, array &$term_names_too_long = []) {
     $new_terms = [];
     $terms = explode("\n", str_replace("\r", '', $input));
     $parents = !empty($parents) ? $parents : 0;
@@ -56,6 +120,7 @@ class TaxonomyManagerHelper {
         continue;
       }
       $matches = [];
+
       // Child term prefixed with one or more dashes.
       if (preg_match('/^(-){1,}/', $name, $matches)) {
         $depth = strlen($matches[0]);
@@ -73,6 +138,7 @@ class TaxonomyManagerHelper {
         $depth = 0;
         $current_parents = $parents;
       }
+
       // Truncate long string names that will cause database exceptions.
       if (strlen($name) > 255) {
         $term_names_too_long[] = $name;
@@ -82,24 +148,30 @@ class TaxonomyManagerHelper {
       $filter_formats = filter_formats();
       $format = array_pop($filter_formats);
 
-      // need to get language config
-      $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_term', $vid);
-      $lang_setting = $language_configuration->getDefaultLangcode();
+      // Set default language.
+      $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
 
-      if ($lang_setting == 'site_default') {
-        $langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
-      }
-      elseif ($lang_setting == 'current_interface') {
-        $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
-      }
-      elseif ($lang_setting == 'authors_default') {
-        $langcode = \Drupal::currentUser()->getPreferredLangcode();
-      }
-      elseif ($lang_setting == 'und' || $lang_setting == 'zxx' ) {
-        $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
-      }
-      else {
-        $langcode = $lang_setting; // fixed value set like 'en'
+      // Check if site is multilingual.
+      if (\Drupal::moduleHandler()->moduleExists('language')) {
+        $language_configuration = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_term', $vid);
+        $lang_setting = $language_configuration->getDefaultLangcode();
+
+        if ($lang_setting == 'site_default') {
+          $langcode = $this->languageManager->getDefaultLanguage()->getId();
+        }
+        elseif ($lang_setting == 'current_interface') {
+          $langcode = $this->languageManager->getCurrentLanguage()->getId();
+        }
+        elseif ($lang_setting == 'authors_default') {
+          $langcode = $this->currentUser->getPreferredLangcode();
+        }
+        elseif ($lang_setting == 'und' || $lang_setting == 'zxx') {
+          $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
+        }
+        else {
+          // Fixed value set like 'en'.
+          $langcode = $lang_setting;
+        }
       }
 
       $values = [
@@ -109,13 +181,14 @@ class TaxonomyManagerHelper {
         'vid' => $vid,
         'langcode' => $langcode,
       ];
+
       if (!empty($current_parents)) {
         foreach ($current_parents as $p) {
           $values['parent'][] = ['target_id' => $p];
         }
 
       }
-      $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->create($values);
+      $term = $this->taxonomyTypeManager->create($values);
       $term->save();
       $new_terms[] = $term;
       $last_parents[$depth] = $term;
@@ -135,17 +208,17 @@ class TaxonomyManagerHelper {
    * @param bool $delete_orphans
    *   If TRUE, orphans get deleted.
    */
-  public static function deleteTerms(array $tids, $delete_orphans = FALSE) {
+  public function deleteTerms(array $tids, $delete_orphans = FALSE) {
     $deleted_terms = [];
     $remaining_child_terms = [];
 
     while (count($tids) > 0) {
       $orphans = [];
       foreach ($tids as $tid) {
-        $children = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadChildren($tid);
+        $children = $this->taxonomyTypeManager->loadChildren($tid);
         if (!empty($children)) {
           foreach ($children as $child) {
-            $parents = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadParents($child->id());
+            $parents = $this->taxonomyTypeManager->loadParents($child->id());
             if ($delete_orphans) {
               if (count($parents) == 1) {
                 $orphans[$child->tid] = $child->id();
@@ -169,13 +242,13 @@ class TaxonomyManagerHelper {
                   $parents_array = [0];
                 }
                 $child->parent = $parents_array;
-                \Drupal::entityTypeManager()->getStorage('taxonomy_term')->deleteTermHierarchy([$child->id()]);
-                \Drupal::entityTypeManager()->getStorage('taxonomy_term')->updateTermHierarchy($child);
+                $this->taxonomyTypeManager->deleteTermHierarchy([$child->id()]);
+                $this->taxonomyTypeManager->updateTermHierarchy($child);
               }
             }
           }
         }
-        $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+        $term = $this->taxonomyTypeManager->load($tid);
         if ($term) {
           $deleted_terms[] = $term->getName();
           $term->delete();
