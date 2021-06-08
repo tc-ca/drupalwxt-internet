@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '5275a0922d0dfc571f88a94e66a33f8080449056',
+    'reference' => '795fb7fb63fcef5f2c8f6d3a61798aed23cb7069',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -66,12 +66,12 @@ private static $installed = array (
     ),
     'aws/aws-sdk-php' => 
     array (
-      'pretty_version' => '3.183.12',
-      'version' => '3.183.12.0',
+      'pretty_version' => '3.183.15',
+      'version' => '3.183.15.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'ee5225729f6428870b5168576b0450c0bb668976',
+      'reference' => 'ca0865f4aed816dd54c2101acc32cd4daa176b09',
     ),
     'behat/behat' => 
     array (
@@ -199,12 +199,12 @@ private static $installed = array (
     ),
     'composer/ca-bundle' => 
     array (
-      'pretty_version' => '1.2.9',
-      'version' => '1.2.9.0',
+      'pretty_version' => '1.2.10',
+      'version' => '1.2.10.0',
       'aliases' => 
       array (
       ),
-      'reference' => '78a0e288fdcebf92aa2318a8d3656168da6ac1a5',
+      'reference' => '9fdb22c2e97a614657716178093cd1da90a64aa8',
     ),
     'composer/composer' => 
     array (
@@ -1045,8 +1045,8 @@ private static $installed = array (
     ),
     'drupal/core-composer-scaffold' => 
     array (
-      'pretty_version' => '9.1.9',
-      'version' => '9.1.9.0',
+      'pretty_version' => '9.1.10',
+      'version' => '9.1.10.0',
       'aliases' => 
       array (
       ),
@@ -2487,12 +2487,12 @@ private static $installed = array (
     ),
     'drupal/simple_gmap' => 
     array (
-      'pretty_version' => '3.0.0',
-      'version' => '3.0.0.0',
+      'pretty_version' => '3.0.1',
+      'version' => '3.0.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '3.0.0',
+      'reference' => '3.0.1',
     ),
     'drupal/simple_oauth' => 
     array (
@@ -2942,7 +2942,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '5275a0922d0dfc571f88a94e66a33f8080449056',
+      'reference' => '795fb7fb63fcef5f2c8f6d3a61798aed23cb7069',
     ),
     'drupalwxt/wxt' => 
     array (
