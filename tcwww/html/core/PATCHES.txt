@@ -33,6 +33,10 @@ Source: https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch
 Source: https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch
 
 
+3173808 - Allow different content-types for child book pages
+Source: https://www.drupal.org/files/issues/2021-01-31/3173808-9-Make-book-child-content-type-configura.patch
+
+
 3020298 - Book navigation block does not appear on unpublished book outline pages
 Source: https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch
 
@@ -55,6 +59,10 @@ Source: https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external
 
 3025164 - use Entity Query to filter nodes with content moderation module enabled
 Source: https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch
+
+
+2470896 - Make Book navigation translatable
+Source: https://www.drupal.org/files/issues/2020-12-15/2470896_233.patch
 
 
 2869592 - Disabled update module shouldn't produce a status report warning

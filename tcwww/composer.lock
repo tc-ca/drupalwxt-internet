@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0368a041933cf5c08253d0f35c168a4c",
+    "content-hash": "3db1a49dbe2e56abeff3431522d44496",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -192,16 +192,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.183.15",
+            "version": "3.184.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ca0865f4aed816dd54c2101acc32cd4daa176b09"
+                "reference": "d5fa8bc58a90947cdcd08efa3f306422debaffc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ca0865f4aed816dd54c2101acc32cd4daa176b09",
-                "reference": "ca0865f4aed816dd54c2101acc32cd4daa176b09",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d5fa8bc58a90947cdcd08efa3f306422debaffc6",
+                "reference": "d5fa8bc58a90947cdcd08efa3f306422debaffc6",
                 "shasum": ""
             },
             "require": {
@@ -276,9 +276,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.183.15"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.184.0"
             },
-            "time": "2021-06-08T18:14:14+00:00"
+            "time": "2021-06-09T18:25:48+00:00"
         },
         {
             "name": "bower-asset/cropper",
@@ -1572,16 +1572,16 @@
         },
         {
             "name": "cweagans/composer-patches",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "ae02121445ad75f4eaff800cc532b5e6233e2ddf"
+                "reference": "9888dcc74993c030b75f3dd548bb5e20cdbd740c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/ae02121445ad75f4eaff800cc532b5e6233e2ddf",
-                "reference": "ae02121445ad75f4eaff800cc532b5e6233e2ddf",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/9888dcc74993c030b75f3dd548bb5e20cdbd740c",
+                "reference": "9888dcc74993c030b75f3dd548bb5e20cdbd740c",
                 "shasum": ""
             },
             "require": {
@@ -1614,9 +1614,9 @@
             "description": "Provides a way to patch Composer packages.",
             "support": {
                 "issues": "https://github.com/cweagans/composer-patches/issues",
-                "source": "https://github.com/cweagans/composer-patches/tree/1.7.0"
+                "source": "https://github.com/cweagans/composer-patches/tree/1.7.1"
             },
-            "time": "2020-09-30T17:56:20+00:00"
+            "time": "2021-06-08T15:12:46+00:00"
         },
         {
             "name": "defuse/php-encryption",

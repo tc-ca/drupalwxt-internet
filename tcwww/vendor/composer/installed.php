@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '795fb7fb63fcef5f2c8f6d3a61798aed23cb7069',
+    'reference' => 'd1db5ce013442310243264021e5f48c814f8954f',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -40,12 +40,12 @@
     ),
     'aws/aws-sdk-php' => 
     array (
-      'pretty_version' => '3.183.15',
-      'version' => '3.183.15.0',
+      'pretty_version' => '3.184.0',
+      'version' => '3.184.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'ca0865f4aed816dd54c2101acc32cd4daa176b09',
+      'reference' => 'd5fa8bc58a90947cdcd08efa3f306422debaffc6',
     ),
     'behat/behat' => 
     array (
@@ -324,12 +324,12 @@
     ),
     'cweagans/composer-patches' => 
     array (
-      'pretty_version' => '1.7.0',
-      'version' => '1.7.0.0',
+      'pretty_version' => '1.7.1',
+      'version' => '1.7.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'ae02121445ad75f4eaff800cc532b5e6233e2ddf',
+      'reference' => '9888dcc74993c030b75f3dd548bb5e20cdbd740c',
     ),
     'defuse/php-encryption' => 
     array (
@@ -2916,7 +2916,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '795fb7fb63fcef5f2c8f6d3a61798aed23cb7069',
+      'reference' => 'd1db5ce013442310243264021e5f48c814f8954f',
     ),
     'drupalwxt/wxt' => 
     array (
