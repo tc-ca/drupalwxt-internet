@@ -263,17 +263,17 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.183.15",
-            "version_normalized": "3.183.15.0",
+            "version": "3.184.0",
+            "version_normalized": "3.184.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ca0865f4aed816dd54c2101acc32cd4daa176b09"
+                "reference": "d5fa8bc58a90947cdcd08efa3f306422debaffc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ca0865f4aed816dd54c2101acc32cd4daa176b09",
-                "reference": "ca0865f4aed816dd54c2101acc32cd4daa176b09",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d5fa8bc58a90947cdcd08efa3f306422debaffc6",
+                "reference": "d5fa8bc58a90947cdcd08efa3f306422debaffc6",
                 "shasum": ""
             },
             "require": {
@@ -309,7 +309,7 @@
                 "ext-openssl": "Allows working with CloudFront private distributions and verifying received SNS messages",
                 "ext-sockets": "To use client-side monitoring"
             },
-            "time": "2021-06-08T18:14:14+00:00",
+            "time": "2021-06-09T18:25:48+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -350,7 +350,7 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.183.15"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.184.0"
             },
             "install-path": "../aws/aws-sdk-php"
         },
@@ -2485,17 +2485,17 @@
         },
         {
             "name": "cweagans/composer-patches",
-            "version": "1.7.0",
-            "version_normalized": "1.7.0.0",
+            "version": "1.7.1",
+            "version_normalized": "1.7.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "ae02121445ad75f4eaff800cc532b5e6233e2ddf"
+                "reference": "9888dcc74993c030b75f3dd548bb5e20cdbd740c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/ae02121445ad75f4eaff800cc532b5e6233e2ddf",
-                "reference": "ae02121445ad75f4eaff800cc532b5e6233e2ddf",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/9888dcc74993c030b75f3dd548bb5e20cdbd740c",
+                "reference": "9888dcc74993c030b75f3dd548bb5e20cdbd740c",
                 "shasum": ""
             },
             "require": {
@@ -2506,7 +2506,7 @@
                 "composer/composer": "~1.0 || ~2.0",
                 "phpunit/phpunit": "~4.6"
             },
-            "time": "2020-09-30T17:56:20+00:00",
+            "time": "2021-06-08T15:12:46+00:00",
             "type": "composer-plugin",
             "extra": {
                 "class": "cweagans\\Composer\\Patches"
@@ -2530,7 +2530,7 @@
             "description": "Provides a way to patch Composer packages.",
             "support": {
                 "issues": "https://github.com/cweagans/composer-patches/issues",
-                "source": "https://github.com/cweagans/composer-patches/tree/1.7.0"
+                "source": "https://github.com/cweagans/composer-patches/tree/1.7.1"
             },
             "install-path": "../cweagans/composer-patches"
         },
@@ -6375,12 +6375,14 @@
                     "3001188 - Make it possible to add relationships to layout builder": "https://www.drupal.org/files/issues/2019-06-05/3001188-8.patch",
                     "2429699 - Add Views EntityReference filter to be available for all entity reference fields": "https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch",
                     "2972308 - Allow users to translate content they can edit": "https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch",
+                    "3173808 - Allow different content-types for child book pages": "https://www.drupal.org/files/issues/2021-01-31/3173808-9-Make-book-child-content-type-configura.patch",
                     "3020298 - Book navigation block does not appear on unpublished book outline pages": "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
                     "3117782 - Book title in breadcrumb not translated": "https://www.drupal.org/files/issues/2020-10-20/book-breadcrumb_title_xlate-3177182-3.patch",
                     "2928108-49 - Call to a member function isTranslatable() on null in SqlContentEntityStorage": "https://www.drupal.org/files/issues/2019-12-05/2928108-49.patch",
                     "Cannot save unpublished versions of published content for users without manage book privileges": "patches/2918537-61-no_tests.patch",
                     "2918784 - Views RSS row plugin incorrectly assumes links are relative": "https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch",
                     "3025164 - use Entity Query to filter nodes with content moderation module enabled": "https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch",
+                    "2470896 - Make Book navigation translatable": "https://www.drupal.org/files/issues/2020-12-15/2470896_233.patch",
                     "2869592 - Disabled update module shouldn't produce a status report warning": "https://www.drupal.org/files/issues/2869592-remove-update-warning-7.patch",
                     "2815221 - Add quickedit to the latest-revision route": "https://www.drupal.org/files/issues/2019-11-27/2815221-125.patch",
                     "Enter drupal/core patch #2752443 description here": "https://www.drupal.org/files/issues/in_correct_order_and-2752443-1.patch",
