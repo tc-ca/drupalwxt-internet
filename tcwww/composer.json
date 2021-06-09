@@ -198,6 +198,8 @@
                 "https://www.drupal.org/files/issues/2020-06-21/2429699-334.patch",
                 "2972308 - Allow users to translate content they can edit":
                 "https://www.drupal.org/files/issues/2019-12-03/allow-users-to-translate-editable-content-2972308-41.patch",
+                "3173808 - Allow different content-types for child book pages":
+                "https://www.drupal.org/files/issues/2021-01-31/3173808-9-Make-book-child-content-type-configura.patch",
                 "3020298 - Book navigation block does not appear on unpublished book outline pages":
                 "https://www.drupal.org/files/issues/2020-02-21/3020298-11.patch",
                 "3117782 - Book title in breadcrumb not translated":
