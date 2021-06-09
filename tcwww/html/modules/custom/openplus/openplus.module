@@ -43,13 +43,13 @@ function openplus_preprocess_page(&$variables) {
  * Set active and active-trail class for book toc recursively.
  */
 function openplus_preprocess_book_tree(&$variables) {
+  $current_path = \Drupal::request()->getRequestUri();
   foreach ($variables['items'] as &$item) {
     if ($item['in_active_trail']) {
-      //if ($item['url'] == $current_path) {
-      if ($item['localized_options']['set_active_class']) {
+      if ($item['url']->toString() == $current_path) {
         $item['is_active'] = TRUE;
       } elseif (count($item['below'])) {
-         _openplus_menu_process_submenu($item['below']);
+         _openplus_menu_process_submenu($item['below'], $current_path);
       }
     }
   }
@@ -58,13 +58,13 @@ function openplus_preprocess_book_tree(&$variables) {
 /**
  * Set active and active-trail class for sub-menus recursively.
  */
-function _openplus_menu_process_submenu(&$submenu) {
+function _openplus_menu_process_submenu(&$submenu, $current_path) {
   foreach ($submenu as &$item) {
     if ($item['in_active_trail']) {
-      if ($item['localized_options']['set_active_class']) {
+      if ($item['url']->toString() == $current_path) {
         $item['is_active'] = TRUE;
       } elseif (count($item['below'])) {
-        _openplus_menu_process_submenu($item['below']);
+        _openplus_menu_process_submenu($item['below'], $current_path);
       }
     }
   }
