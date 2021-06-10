@@ -37,14 +37,14 @@ class BookTest extends BrowserTestBase {
   /**
    * A user with permission to view a book and access printer-friendly version.
    *
-   * @var object
+   * @var \Drupal\user\UserInterface
    */
   protected $webUser;
 
   /**
    * A user with permission to create and edit books and to administer blocks.
    *
-   * @var object
+   * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
@@ -285,6 +285,31 @@ class BookTest extends BrowserTestBase {
     $this->assertText($block->label(), 'Book navigation block is displayed.');
     $this->assertText($this->book->label(), new FormattableMarkup('Link to book root (@title) is displayed.', ['@title' => $nodes[0]->label()]));
     $this->assertNoText($nodes[0]->label(), 'No links to individual book pages are displayed.');
+
+    // Ensure that an unpublished node does not appear in the navigation for a
+    // user without access. By unpublishing a parent page, child pages should
+    // not appear in the navigation. The node_access_test module is disabled
+    // since it interferes with this logic.
+
+    /** @var \Drupal\Core\Extension\ModuleInstaller $installer */
+    $installer = \Drupal::service('module_installer');
+    $installer->uninstall(['node_access_test']);
+    node_access_rebuild();
+
+    $nodes[0]->setUnPublished();
+    $nodes[0]->save();
+
+    // Verify the user does not have access to the unpublished node.
+    $this->assertFalse($nodes[0]->access('view', $this->webUser));
+
+    // Verify the unpublished book page does not appear in the navigation.
+    $this->drupalLogin($this->webUser);
+    $this->drupalGet($nodes[0]->toUrl());
+    $this->assertResponse(403);
+    $this->drupalGet($this->book->toUrl());
+    $this->assertNoText($nodes[0]->getTitle(), 'Unpublished book page does not appear in the navigation for users without access.');
+    $this->assertNoText($nodes[1]->getTitle(), 'Published child page does not appear below an unpublished parent.');
+    $this->assertNoText($nodes[2]->getTitle(), 'Published child page does not appear below an unpublished parent.');
   }
 
   /**
@@ -487,14 +512,14 @@ class BookTest extends BrowserTestBase {
     $book_manager = \Drupal::service('book.manager');
 
     // Mock a link for a new book.
-    $link = ['nid' => 1, 'has_children' => 0, 'original_bid' => 0, 'parent_depth_limit' => 8, 'pid' => 0, 'weight' => 0, 'bid' => 1];
+    $link = ['nid' => 1, 'has_children' => 0, 'original_bid' => 0, 'pid' => 0, 'weight' => 0, 'bid' => 0];
     $new = TRUE;
 
     // Save the link.
     $return = $book_manager->saveBookLink($link, $new);
 
     // Add the link defaults to $link so we have something to compare to the return from saveBookLink().
-    $link += $book_manager->getLinkDefaults($link['nid']);
+    $link = $book_manager->getLinkDefaults($link['nid']);
 
     // Test the return from saveBookLink.
     $this->assertEqual($return, $link);
@@ -582,6 +607,29 @@ class BookTest extends BrowserTestBase {
 
     $elements = $this->xpath('//table//ul[@class="dropbutton"]/li/a');
     $this->assertEqual($elements[0]->getText(), 'View', 'View link is found from the list.');
+    $this->assertEqual(count($nodes), count($elements), 'All the book pages are displayed on the book outline page.');
+
+    // Unpublish a book in the hierarchy.
+    $nodes[0]->setUnPublished();
+    $nodes[0]->save();
+
+    // Node should still appear on the outline for admins.
+    $this->drupalGet('admin/structure/book/' . $this->book->id());
+    $elements = $this->xpath('//table//ul[@class="dropbutton"]/li/a');
+    $this->assertEqual(count($nodes), count($elements), 'All the book pages are displayed on the book outline page.');
+
+    // Saving a book page not as the current version shouldn't effect the book.
+    $old_title = $nodes[1]->getTitle();
+    $new_title = $this->randomGenerator->name();
+    $nodes[1]->isDefaultRevision(FALSE);
+    $nodes[1]->setNewRevision(TRUE);
+    $nodes[1]->setTitle($new_title);
+    $nodes[1]->save();
+    $this->drupalGet('admin/structure/book/' . $this->book->id());
+    $elements = $this->xpath('//table//ul[@class="dropbutton"]/li/a');
+    $this->assertEqual(count($nodes), count($elements), 'All the book pages are displayed on the book outline page.');
+    $this->assertNoText($new_title, 'The revision that is not the default revision does not appear.');
+    $this->assertText($old_title, 'The default revision title appears.');
   }
 
   /**

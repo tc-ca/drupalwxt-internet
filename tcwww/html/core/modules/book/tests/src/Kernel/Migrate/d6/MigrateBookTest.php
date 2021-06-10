@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\book\Kernel\Migrate\d6;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\migrate_drupal\Kernel\d6\MigrateDrupal6TestBase;
 use Drupal\node\Entity\Node;
 
@@ -47,6 +48,13 @@ class MigrateBookTest extends MigrateDrupal6TestBase {
 
     $this->assertIdentical('8', $nodes[8]->book['bid']);
     $this->assertIdentical('0', $nodes[8]->book['pid']);
+
+    // Access is checked when building book trees, so grant the anonymous user
+    // role 'access content' permission.
+    /** @var \Drupal\user\RoleInterface $role */
+    $role = $this->container->get('entity_type.manager')->getStorage('user_role')->load(AccountInterface::ANONYMOUS_ROLE);
+    $role->grantPermission('access content');
+    $role->save();
 
     $tree = \Drupal::service('book.manager')->bookTreeAllData(4);
     $this->assertIdentical('4', $tree['49990 Node 4 4']['link']['nid']);
