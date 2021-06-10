@@ -53,16 +53,20 @@ Cannot save unpublished versions of published content for users without manage b
 Source: patches/2918537-61-no_tests.patch
 
 
-26552 - Allow users with access to unpublished nodes to create unpublished books 
-Source: https://www.drupal.org/files/issues/2020-12-03/26552-189.patch
-
-
 2918784 - Views RSS row plugin incorrectly assumes links are relative
 Source: https://www.drupal.org/files/issues/2020-02-19/2918784-28-allow-external-url-for-rss-link.patch
 
 
 3025164 - use Entity Query to filter nodes with content moderation module enabled
 Source: https://www.drupal.org/files/issues/2020-09-25/3025164-28.patch
+
+
+26552 - Allow users with access to unpublished nodes to create unpublished books
+Source: https://www.drupal.org/files/issues/2020-12-03/26552-189.patch
+
+
+2470896 - Make Book navigation translatable
+Source: https://www.drupal.org/files/issues/2021-06-09/2470896-243.patch
 
 
 2869592 - Disabled update module shouldn't produce a status report warning

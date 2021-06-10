@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'f073c7e29a2ec15a5e3f3c6744098dbbd78840fa',
+    'reference' => '0534f634130af167960048f508ac57ca0ff7e599',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -2916,7 +2916,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'f073c7e29a2ec15a5e3f3c6744098dbbd78840fa',
+      'reference' => '0534f634130af167960048f508ac57ca0ff7e599',
     ),
     'drupalwxt/wxt' => 
     array (
