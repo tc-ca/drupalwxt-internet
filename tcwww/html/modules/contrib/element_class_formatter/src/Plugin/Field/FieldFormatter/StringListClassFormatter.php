@@ -26,6 +26,10 @@ class StringListClassFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    if ($items->isEmpty()) {
+      return [];
+    }
+
     $elements = [];
     $attributes = new Attribute();
     $class = $this->getSetting('class');

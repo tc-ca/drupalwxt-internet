@@ -30,17 +30,10 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
 
       $build['settings']['delta'] = $delta;
       $build['settings']['langcode'] = $langcode;
-      if ($entity->id()) {
-        $this->buildElement($build, $entity, $langcode);
+      $this->buildElement($build, $entity, $langcode);
 
-        // Add the entity to cache dependencies so to clear when it is updated.
-        $this->formatter()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
-      }
-      else {
-        $this->referencedEntities = NULL;
-        // This is an "auto_create" item.
-        $build['items'][$delta] = ['#markup' => $entity->label()];
-      }
+      // Add the entity to cache dependencies so to clear when it is updated.
+      $this->formatter()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
 
       $depth = 0;
     }
@@ -83,6 +76,7 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    */
   public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
+
     return [
       'current_view_mode' => $this->viewMode,
       'field_name'        => $field->getName(),

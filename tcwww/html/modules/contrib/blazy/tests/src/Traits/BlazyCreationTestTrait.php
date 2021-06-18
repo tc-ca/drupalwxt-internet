@@ -15,7 +15,7 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
 /**
  * A Trait common for Blazy tests.
  *
- * @todo: Consider using ContentTypeCreationTrait, TestFileCreationTrait.
+ * @todo Consider using ContentTypeCreationTrait, TestFileCreationTrait.
  */
 trait BlazyCreationTestTrait {
 

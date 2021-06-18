@@ -7,8 +7,9 @@
 
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Entity\ContentEntityFormInterface;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityDescriptionInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\File\Exception\FileException;
@@ -78,6 +79,84 @@ function lightning_core_config_schema_info_alter(array &$definitions) {
  */
 function lightning_core_views_plugins_filter_alter(array &$plugins) {
   Override::pluginClass($plugins['bundle'], Bundle::class);
+}
+
+/**
+ * Implements hook_contextual_links_plugins_alter().
+ */
+function lightning_core_contextual_links_plugins_alter(array &$contextual_links) {
+  $module_handler = Drupal::moduleHandler();
+  $class = '\Drupal\Core\Menu\ContextualLinkDefault';
+
+  if ($module_handler->moduleExists('block_content')) {
+    $contextual_links['block_content.block_edit_latest_version'] = [
+      'title' => t('Edit'),
+      'group' => 'block_content_latest_version',
+      'route_name' => 'entity.block_content.canonical',
+      'id' => 'block_content.block_edit_latest_version',
+      'class' => $class,
+      'provider' => 'block_content',
+    ];
+  }
+  if ($module_handler->moduleExists('taxonomy')) {
+    $contextual_links['entity.taxonomy_term.latest_version_edit_form'] = [
+      'title' => t('Edit'),
+      'group' => 'taxonomy_term_latest_version',
+      'route_name' => 'entity.taxonomy_term.edit_form',
+      'weight' => 10,
+      'id' => 'entity.taxonomy_term.latest_version_edit_form',
+      'class' => $class,
+      'provider' => 'taxonomy',
+    ];
+  }
+  if ($module_handler->moduleExists('node')) {
+    $contextual_links['entity.node.latest_version_edit_form'] = [
+      'title' => t('Edit'),
+      'group' => 'node_latest_version',
+      'route_name' => 'entity.node.edit_form',
+      'id' => 'entity.node.latest_version_edit_form',
+      'class' => $class,
+      'provider' => 'node',
+    ];
+  }
+}
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function lightning_core_entity_view_alter(array &$build, EntityInterface $entity) {
+  if (isset($build['#contextual_links'])) {
+    $entity_type_id = $entity->getEntityTypeId();
+
+    $links = [];
+    // Attach either the revision or canonical contextual link groups, but not
+    // both.
+    if ($entity instanceof ContentEntityInterface && !$entity->isDefaultRevision()) {
+      $links[$entity_type_id . '_revision'] = 'revision';
+
+      // If this is the latest revision, add an additional group of contextual
+      // links.
+      if ($entity->isLatestRevision()) {
+        $links[$entity_type_id . '_latest_version'] = 'revision';
+      }
+    }
+    else {
+      $links[$entity_type_id] = 'canonical';
+    }
+
+    foreach ($links as $group => $link_template) {
+      if ($entity->hasLinkTemplate($link_template)) {
+        $build['#contextual_links'][$group] = [
+          'route_parameters' => $entity->toUrl($link_template)->getRouteParameters(),
+        ];
+        if ($entity instanceof EntityChangedInterface) {
+          $build['#contextual_links'][$group]['metadata'] = [
+            'changed' => $entity->getChangedTime(),
+          ];
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -294,93 +373,4 @@ function lightning_core_field_config_presave(FieldConfigInterface $field) {
       // Fail silently.
     }
   }
-}
-
-/**
- * Returns the entity view display associated with a bundle and view mode.
- *
- * This is an exact copy of the deprecated entity_get_display() from Core 8.6.x
- *  except for one change: the default value of the $view_mode parameter.
- *
- * @todo Eliminate this in favor of
- *   \Drupal::service('entity_display.repository')->getViewDisplay() in Core
- *   8.8.x once that is the lowest supported version.
- *
- * @param string $entity_type
- *   The entity type.
- * @param string $bundle
- *   The bundle.
- * @param string $view_mode
- *   The view mode, or 'default' to retrieve the 'default' display object for
- *   this bundle.
- *
- * @return \Drupal\Core\Entity\Display\EntityViewDisplayInterface
- *   The entity view display associated with the view mode.
- *
- * @see \Drupal\Core\Entity\EntityStorageInterface::create()
- * @see \Drupal\Core\Entity\EntityStorageInterface::load()
- */
-function lightning_core_entity_get_display($entity_type, $bundle, $view_mode = 'default') {
-  // Try loading the display from configuration.
-  $display = EntityViewDisplay::load($entity_type . '.' . $bundle . '.' . $view_mode);
-
-  // If not found, create a fresh display object. We do not preemptively create
-  // new entity_view_display configuration entries for each existing entity type
-  // and bundle whenever a new view mode becomes available. Instead,
-  // configuration entries are only created when a display object is explicitly
-  // configured and saved.
-  if (!$display) {
-    $display = EntityViewDisplay::create([
-      'targetEntityType' => $entity_type,
-      'bundle' => $bundle,
-      'mode' => $view_mode,
-      'status' => TRUE,
-    ]);
-  }
-
-  return $display;
-}
-
-/**
- * Returns the entity form display associated with a bundle and form mode.
- *
- * This is an exact copy of the deprecated entity_get_form_display() from Core
- * 8.6.x except for one change: the default value of the $form_mode parameter.
- *
- * @todo Eliminate this in favor of
- *   \Drupal::service('entity_display.repository')->getFormDisplay() in Core
- *   8.8.x once that is the lowest supported version.
- *
- * @param string $entity_type
- *   The entity type.
- * @param string $bundle
- *   The bundle.
- * @param string $form_mode
- *   The form mode.
- *
- * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface
- *   The entity form display associated with the given form mode.
- *
- * @see \Drupal\Core\Entity\EntityStorageInterface::create()
- * @see \Drupal\Core\Entity\EntityStorageInterface::load()
- */
-function lightning_core_entity_get_form_display($entity_type, $bundle, $form_mode = 'default') {
-  // Try loading the entity from configuration.
-  $entity_form_display = EntityFormDisplay::load($entity_type . '.' . $bundle . '.' . $form_mode);
-
-  // If not found, create a fresh entity object. We do not preemptively create
-  // new entity form display configuration entries for each existing entity type
-  // and bundle whenever a new form mode becomes available. Instead,
-  // configuration entries are only created when an entity form display is
-  // explicitly configured and saved.
-  if (!$entity_form_display) {
-    $entity_form_display = EntityFormDisplay::create([
-      'targetEntityType' => $entity_type,
-      'bundle' => $bundle,
-      'mode' => $form_mode,
-      'status' => TRUE,
-    ]);
-  }
-
-  return $entity_form_display;
 }

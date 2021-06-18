@@ -86,6 +86,19 @@
   };
 
   /**
+   * Returns cross-browser window width and height.
+   *
+   * @return {Object}
+   *   Returns the window width and height.
+   */
+  dBlazy.windowSize = function () {
+    return {
+      width: this.windowWidth,
+      height: window.innerHeight
+    };
+  };
+
+  /**
    * Returns data from the current active window.
    *
    * When being resized, the browser gave no data about pixel ratio from desktop
@@ -243,7 +256,7 @@
    *   The class name.
    *
    * @return {bool}
-   *   True if of of the method is supported.
+   *   True if the method is supported.
    *
    * @todo remove for el.classList.contains() alone.
    */
@@ -254,6 +267,26 @@
     else {
       return el.className.indexOf(name) !== -1;
     }
+  };
+
+  /**
+   * A forgiving attribute wrapper with fallback.
+   *
+   * @name dBlazy.attr
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} attr
+   *   The attr name.
+   * @param {String} def
+   *   The default value.
+   *
+   * @return {String}
+   *   The attribute value, or fallback.
+   */
+  dBlazy.attr = function (el, attr, def) {
+    def = def || '';
+    return el !== null && el.hasAttribute(attr) ? el.getAttribute(attr) : def;
   };
 
   /**
@@ -269,7 +302,7 @@
    *   True if should remove.
    */
   dBlazy.setAttr = function (el, attr, remove) {
-    if (el.hasAttribute('data-' + attr)) {
+    if (el && el.hasAttribute('data-' + attr)) {
       var dataAttr = el.getAttribute('data-' + attr);
       if (attr === 'src') {
         el.src = dataAttr;
@@ -332,6 +365,55 @@
   };
 
   /**
+   * Checks if image is decoded/ completely loaded.
+   *
+   * @name dBlazy.isDecoded
+   *
+   * @param {Image} img
+   *   The Image object.
+   *
+   * @return {bool}
+   *   True if the image is loaded.
+   */
+  dBlazy.isDecoded = function (img) {
+    if ('decoded' in img) {
+      return img.decoded;
+    }
+
+    return img.complete;
+  };
+
+  /**
+   * Decodes the image.
+   *
+   * @name dBlazy.decode
+   *
+   * @param {Image} img
+   *   The Image object.
+   *
+   * @return {Promise}
+   *   The Promise object.
+   */
+  dBlazy.decode = function (img) {
+    var me = this;
+
+    if (me.isDecoded(img)) {
+      return Promise.resolve(img);
+    }
+
+    if ('decode' in img) {
+      return img.decode();
+    }
+
+    return new Promise(function (resolve, reject) {
+      img.onload = function () {
+        resolve(img);
+      };
+      img.onerror = reject();
+    });
+  };
+
+  /**
    * Updates CSS background with multi-breakpoint images.
    *
    * @name dBlazy.updateBg
@@ -376,10 +458,95 @@
   };
 
   /**
+   * A simple wrapper for [add|remove]EventListener.
+   *
+   * Made public from original bLazy library.
+   *
+   * @name dBlazy.binding
+   *
+   * @param {String} which
+   *   Whether bind or unbind.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} eventName
+   *   The event name to add.
+   * @param {Function} fn
+   *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   * @todo remove old IE references after another check.
+   */
+  dBlazy.binding = function (which, el, eventName, fn, params) {
+    if (el && typeof fn === 'function') {
+      var defaults = {capture: false, passive: true};
+      var extras;
+      if (typeof params === 'boolean') {
+        extras = params;
+      }
+      else {
+        extras = params ? this.extend(defaults, params) : defaults;
+      }
+      var bind = function (e) {
+        if (el.attachEvent) {
+          el[(which === 'bind' ? 'attach' : 'detach') + 'Event']('on' + e, fn, extras);
+        }
+        else {
+          el[(which === 'bind' ? 'add' : 'remove') + 'EventListener'](e, fn, extras);
+        }
+      };
+
+      if (eventName.indexOf(' ') > 0) {
+        this.forEach(eventName.split(' '), bind);
+      }
+      else {
+        bind(eventName);
+      }
+    }
+  };
+
+  /**
    * A simple wrapper for event delegation like jQuery.on().
    *
    * Inspired by http://stackoverflow.com/questions/30880757/
    * javascript-equivalent-to-on.
+   *
+   * @name dBlazy.onoff
+   *
+   * @param {String} which
+   *   Whether on or off.
+   * @param {Element} elm
+   *   The parent HTML element.
+   * @param {String} eventName
+   *   The event name to trigger.
+   * @param {String} childEl
+   *   Child selector to match against (class, ID, data attribute, or tag).
+   * @param {Function} callback
+   *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   */
+  dBlazy.onoff = function (which, elm, eventName, childEl, callback, params) {
+    params = params || {capture: true, passive: false};
+    var bind = function (e) {
+      var t = e.target;
+      e.delegateTarget = elm;
+      while (t && t !== this) {
+        if (dBlazy.matches(t, childEl)) {
+          callback.call(t, e);
+        }
+        t = t.parentNode;
+      }
+    };
+
+    this.binding(which === 'on' ? 'bind' : 'unbind', elm, eventName, bind, params);
+  };
+
+  /**
+   * A simple wrapper for event delegation like jQuery.on().
    *
    * @name dBlazy.on
    *
@@ -391,80 +558,67 @@
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
    */
-  dBlazy.on = function (elm, eventName, childEl, callback) {
-    elm.addEventListener(eventName, function (event) {
-      var t = event.target;
-      event.delegateTarget = elm;
-      while (t && t !== this) {
-        if (dBlazy.matches(t, childEl)) {
-          callback.call(t, event);
-        }
-        t = t.parentNode;
-      }
-    });
+  dBlazy.on = function (elm, eventName, childEl, callback, params) {
+    this.onoff('on', elm, eventName, childEl, callback, params);
+  };
+
+  /**
+   * A simple wrapper for event detachment.
+   *
+   * @name dBlazy.off
+   *
+   * @param {Element} elm
+   *   The parent HTML element.
+   * @param {String} eventName
+   *   The event name to trigger.
+   * @param {String} childEl
+   *   Child selector to match against (class, ID, data attribute, or tag).
+   * @param {Function} callback
+   *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
+   */
+  dBlazy.off = function (elm, eventName, childEl, callback, params) {
+    this.onoff('off', elm, eventName, childEl, callback, params);
   };
 
   /**
    * A simple wrapper for addEventListener.
    *
-   * Made public from original bLazy library.
-   *
    * @name dBlazy.bindEvent
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String} type
-   *   The event name to add.
+   * @param {String} eventName
+   *   The event name to remove.
    * @param {Function} fn
    *   The callback function.
-   * @param {Object} params
+   * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-   * @todo remove old IE references after another check.
    */
-  dBlazy.bindEvent = function (el, type, fn, params) {
-    var defaults = {capture: false, passive: true};
-    var extraParams = params ? this.extend(defaults, params) : defaults;
-    if (el.attachEvent) {
-      el.attachEvent('on' + type, fn, extraParams);
-    }
-    else {
-      el.addEventListener(type, fn, extraParams);
-    }
+  dBlazy.bindEvent = function (el, eventName, fn, params) {
+    this.binding('bind', el, eventName, fn, params);
   };
 
   /**
    * A simple wrapper for removeEventListener.
    *
-   * Made public from original bLazy library.
-   *
    * @name dBlazy.unbindEvent
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String} type
+   * @param {String} eventName
    *   The event name to remove.
    * @param {Function} fn
    *   The callback function.
    * @param {Object} params
    *   The optional param passed into a custom event.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-   * @todo remove old IE references after another check.
    */
-  dBlazy.unbindEvent = function (el, type, fn, params) {
-    var defaults = {capture: false, passive: true};
-    var extraParams = params ? this.extend(defaults, params) : defaults;
-    if (el.detachEvent) {
-      el.detachEvent('on' + type, fn, extraParams);
-    }
-    else {
-      el.removeEventListener(type, fn, extraParams);
-    }
+  dBlazy.unbindEvent = function (el, eventName, fn, params) {
+    this.binding('unbind', el, eventName, fn, params);
   };
 
   /**
@@ -566,6 +720,27 @@
     }
 
     me.bindEvent(el, 'animationend', animationEnd);
+  };
+
+  /**
+   * Removes common loading indicator classes.
+   *
+   * @name dBlazy.clearLoading
+   *
+   * @param {Element} el
+   *   The loading HTML element.
+   */
+  dBlazy.clearLoading = function (el) {
+    var me = this;
+    // The .b-lazy element can be attached to IMG, or DIV as CSS background.
+    // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
+    var loaders = [el, me.closest(el, '[class*="loading"]')];
+
+    this.forEach(loaders, function (loader) {
+      if (loader !== null) {
+        loader.className = loader.className.replace(/(\S+)loading/g, '');
+      }
+    });
   };
 
   /**

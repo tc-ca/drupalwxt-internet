@@ -15,9 +15,13 @@ base:
       css/blazy.css: {}
 
 filter:
+  js:
+    js/blazy.filter.js: { weight: -1.6 }
   css:
     component:
       css/components/blazy.filter.css: {}
+  dependencies:
+    - blazy/dblazy
 
 loading:
   css:
@@ -166,6 +170,7 @@ admin:
   css:
     theme:
       css/blazy.admin.css: {}
+      css/blazy.admin--fixes.css: {}
   dependencies:
     - core/jquery
     - core/jquery.once

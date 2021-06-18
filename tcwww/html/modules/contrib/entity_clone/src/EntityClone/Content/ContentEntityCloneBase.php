@@ -14,6 +14,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\entity_clone\EntityClone\EntityCloneInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\book\BookManagerInterface;
 
 /**
  * Class ContentEntityCloneBase.
@@ -86,8 +87,28 @@ class ContentEntityCloneBase implements EntityHandlerInterface, EntityCloneInter
     if (isset($properties['take_ownership']) && $properties['take_ownership'] === 1) {
       $cloned_entity->setOwnerId($this->currentUser->id());
     }
-    // Clone referenced entities.
     $cloned_entity->save();
+
+    // handle books
+    $bid = isset($entity->book) && empty($entity->book['bid']) ? 0 : $entity->book['bid'];
+    if (!empty($properties['clone_book']) && !empty($bid) && $entity->book['bid'] == $entity->id()) {
+      // this is the parent book
+      $link = [
+        'nid' => $cloned_entity->id(),
+        'bid' => $cloned_entity->id(),
+        'pid' => 0,
+        'has_children' => $entity->book['has_children'],
+        'weight' => 0,
+        'depth' => 1,
+      ];
+      $cloned_entity->book = $link;
+      $cloned_entity->save();
+
+      // clone book children
+      $this->cloneBookPages($entity, $cloned_entity, $properties);
+    }
+
+    // Clone referenced entities.
     $already_cloned[$entity->getEntityTypeId()][$entity->id()] = $cloned_entity;
     if ($cloned_entity instanceof FieldableEntityInterface && $entity instanceof FieldableEntityInterface) {
       foreach ($cloned_entity->getFieldDefinitions() as $field_id => $field_definition) {
@@ -101,7 +122,10 @@ class ContentEntityCloneBase implements EntityHandlerInterface, EntityCloneInter
       }
     }
 
-    $this->setClonedEntityLabel($entity, $cloned_entity);
+    // only change the label on single nodes, fixing the title on entire books is too cumbersome
+    if (empty($properties['clone_book'])) {
+      $this->setClonedEntityLabel($entity, $cloned_entity);
+    }
 
     // For now, check that the cloned entity has a 'setCreatedTime' method, and
     // if so, try to call it. This condition can be replaced with a more-robust
@@ -114,6 +138,62 @@ class ContentEntityCloneBase implements EntityHandlerInterface, EntityCloneInter
 
     $cloned_entity->save();
     return $cloned_entity;
+  }
+
+  /**
+   * Clone the book pages within a book.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $original_entity
+   *   The original entity.
+   * @param \Drupal\Core\Entity\EntityInterface $cloned_entity
+   *   The entity cloned from the original.
+   * @param array $properties
+   *   The properties argument containing the bid and nid map.
+   */
+  protected function cloneBookPages(EntityInterface $original_entity, EntityInterface $cloned_entity, $properties) {
+    $bid = $cloned_entity->id();
+    $map = [
+      $original_entity->id() => $cloned_entity->id(),
+    ];
+
+    $children = \Drupal::service('book.outline_storage')->loadBookChildren($original_entity->id());
+    $this->cloneBookChildren($children, $properties, $bid, $map);
+  }
+
+
+  /**
+   * Recursive method to walk the children and clone.
+   *
+   * @param array children
+   *   The current pages children.
+   * @param int bid
+   *   The book id.
+   * @param array $map
+   *   The map argument containing the old nid to new map to set the new parent properly.
+   */
+  protected function cloneBookChildren($children, $properties, $bid, &$map) {
+    foreach ($children as $nid => $child) {
+      $entity = $this->entityTypeManager->getStorage('node')->load($nid);
+      $duplicate = $entity->createDuplicate();
+      $cloned_entity = $this->cloneEntity($entity, $duplicate, $properties);
+
+      $link = [
+        'nid' => $cloned_entity->id(),
+        'bid' => $bid,
+        'pid' => !empty($map[$entity->book['pid']]) ? $map[$entity->book['pid']] : $bid,
+        'weight' => $entity->book['weight'],
+        'depth' => $entity->book['depth'],
+      ];
+      $cloned_entity->book = $link;
+      $cloned_entity->save();
+
+      $map[$entity->id()] = $cloned_entity->id();
+
+      if ($child['has_children'] == 1) {
+        $next_level = \Drupal::service('book.outline_storage')->loadBookChildren($nid);
+        $this->cloneBookChildren($next_level, $properties, $bid, $map);
+      }
+    }
   }
 
   /**

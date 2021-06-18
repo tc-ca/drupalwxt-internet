@@ -5,12 +5,12 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    decode:
+      type: boolean
+      label: 'Use decoding'
     fx:
       type: string
       label: 'Image effect'
-    native:
-      type: boolean
-      label: 'Native lazy load'
     noscript:
       type: boolean
       label: 'Add noscript'
@@ -127,6 +127,15 @@ filter_settings.blazy_filter:
     media_switch:
       type: string
       label: 'Media switcher'
+    hybrid_style:
+      type: string
+      label: '(Responsive) image style'
+    box_style:
+      type: string
+      label: 'Lightbox (Responsive) image style'
+    box_caption:
+      type: string
+      label: 'Lightbox caption'
     use_data_uri:
       type: string
       label: 'Trust data URI'

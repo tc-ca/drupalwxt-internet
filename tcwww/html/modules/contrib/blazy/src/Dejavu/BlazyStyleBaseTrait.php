@@ -109,6 +109,12 @@ trait BlazyStyleBaseTrait {
    */
   public function getFirstImage($row) {
     if (!isset($this->firstImage)) {
+      // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
+      // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
+      if (!isset($this->view->row_index)) {
+        $this->view->row_index = 0;
+      }
+
       $rendered = [];
       if ($row && $render = $this->view->rowPlugin->render($row)) {
         if (isset($render['#view']->field) && $fields = $render['#view']->field) {

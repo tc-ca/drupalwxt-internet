@@ -176,7 +176,7 @@ function blazy_libraries_get_path($name, $base_path = FALSE) {
  * @todo remove VEF/VEM from blazy:8.x-3.0 for core Media integration.
  */
 function blazy_field_formatter_info_alter(array &$info) {
-  if (blazy()->getModuleHandler()->moduleExists('video_embed_media')) {
+  if (blazy()->getModuleHandler()->moduleExists('video_embed_field')) {
     Blazy::fieldFormatterInfoAlter($info);
   }
 }

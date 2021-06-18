@@ -177,7 +177,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
-        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added manually to <strong>.media--background</strong> selector.'),
+        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added manually to <strong>.b-bg</strong> selector.'),
         '#weight'      => -98,
       ];
     }
@@ -324,7 +324,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
+        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
         '#weight'      => -100,
       ];
     }
@@ -350,11 +350,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
         // Re-use the same image style for both lightboxes.
         $form['box_style'] = [
-          '#type'    => 'select',
-          '#title'   => $this->t('Lightbox image style'),
-          '#options' => $this->getEntityAsOptions('image_style'),
-          '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-          '#weight'  => -97,
+          '#type'        => 'select',
+          '#title'       => $this->t('Lightbox image style'),
+          '#options'     => $this->getResponsiveImageOptions() + $this->getEntityAsOptions('image_style'),
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+          '#weight'      => -97,
+          '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
 
         if (!empty($definition['multimedia'])) {
@@ -461,21 +462,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
       }
 
-      $box_captions = [
-        'auto'         => $this->t('Automatic'),
-        'alt'          => $this->t('Alt text'),
-        'title'        => $this->t('Title text'),
-        'alt_title'    => $this->t('Alt and Title'),
-        'title_alt'    => $this->t('Title and Alt'),
-        'entity_title' => $this->t('Content title'),
-        'custom'       => $this->t('Custom'),
-      ];
-
       if (!empty($definition['box_captions'])) {
         $form['box_caption'] = [
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox caption'),
-          '#options'     => $box_captions,
+          '#options'     => $this->getLightboxCaptionOptions(),
           '#weight'      => -95,
           '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
@@ -538,7 +529,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#weight' => 120,
     ];
 
-    // @todo: Check if needed: 'button', 'container', 'submit'.
+    // @todo Check if needed: 'button', 'container', 'submit'.
     $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
     $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
@@ -641,6 +632,21 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];
+  }
+
+  /**
+   * Returns available lightbox captions for select options.
+   */
+  public function getLightboxCaptionOptions() {
+    return [
+      'auto'         => $this->t('Automatic'),
+      'alt'          => $this->t('Alt text'),
+      'title'        => $this->t('Title text'),
+      'alt_title'    => $this->t('Alt and Title'),
+      'title_alt'    => $this->t('Title and Alt'),
+      'entity_title' => $this->t('Content title'),
+      'custom'       => $this->t('Custom'),
+    ];
   }
 
   /**

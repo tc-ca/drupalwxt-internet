@@ -54,7 +54,17 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     // @see #2596385, or fetch the host entity.
     if (!$entity->isNew() && method_exists($entity, 'hasLinkTemplate')) {
       if ($entity->hasLinkTemplate('canonical')) {
-        $url = $entity->toUrl();
+
+        // Check if multilingual is enabled (@see #3214002).
+        if ($entity->hasTranslation($settings['current_language'])) {
+          // Load the translated url.
+          $url = $entity->getTranslation($settings['current_language'])->toUrl();
+        }
+        else {
+          // Otherwise keep the standard url.
+          $url = $entity->toUrl();
+        }
+
         $internal_path = $url->getInternalPath();
         $absolute_path = $url->setAbsolute()->toString();
       }

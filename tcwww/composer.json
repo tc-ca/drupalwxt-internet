@@ -284,6 +284,10 @@
             "drupalwxt/wxt": {
                 "3187057 - The configuration property settings.allowed_values.0.label.0 doesn't exist":
                 "https://www.drupal.org/files/issues/2021-03-18/3187057-feat-wxt-additional-update-config.patch"
+            },
+            "drupal/entity_clone": {
+                "3076356 - Book Pages Clone":
+                "https://www.drupal.org/files/issues/2021-05-27/entity_clone-book_support-3076356-7.patch"
             }
         },
         "patches-ignore": {

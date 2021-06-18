@@ -94,7 +94,7 @@ trait BlazyUnitTestTrait {
    *   The default field formatter settings.
    */
   protected function getDefaultFormatterDefinition() {
-    // @todo: Will be replaced by `form` array below.
+    // @todo Will be replaced by `form` array below.
     $deprecated = [
       'grid_form'         => TRUE,
       'image_style_form'  => TRUE,

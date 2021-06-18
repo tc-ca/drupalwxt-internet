@@ -22,7 +22,7 @@ abstract class ElementClassFormatterTestBase extends BrowserTestBase {
   use NodeCreationTrait;
   use TestFileCreationTrait;
 
-  protected $defaultTheme = 'stark';
+  protected $defaultTheme = 'classy';
 
   /**
    * {@inheritdoc}

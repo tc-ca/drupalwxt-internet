@@ -70,6 +70,7 @@
   _proto._ok = 1;
   _proto.defaults = {
     root: null,
+    decode: false,
     disconnect: false,
     error: false,
     success: false,

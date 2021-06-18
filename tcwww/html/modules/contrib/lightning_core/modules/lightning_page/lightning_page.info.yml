@@ -8,7 +8,7 @@ dependencies:
   - lightning_core:lightning_core
   - drupal:node
 
-# Information added by Drupal.org packaging script on 2021-04-09
-version: '8.x-5.6'
+# Information added by Drupal.org packaging script on 2021-06-17
+version: '8.x-5.9'
 project: 'lightning_core'
-datestamp: 1617982110
+datestamp: 1623947752

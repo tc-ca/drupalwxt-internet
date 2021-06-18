@@ -62,4 +62,14 @@ abstract class BlazyVideoBase extends FormatterBase {
     ];
   }
 
+  /**
+   * Returns the optional VEF service to avoid dependency for optional plugins.
+   */
+  protected function vefProviderManager() {
+    if (function_exists('video_embed_field_theme')) {
+      return \Drupal::service('video_embed_field.provider_manager');
+    }
+    return FALSE;
+  }
+
 }

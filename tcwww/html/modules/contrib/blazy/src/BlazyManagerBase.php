@@ -73,6 +73,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $cache;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManager
+   */
+  protected $languageManager;
+
+  /**
    * Constructs a BlazyManager object.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
@@ -99,6 +106,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // @todo remove and use DI at 2.x+ post sub-classes updates.
     $instance->setRoot($container->get('app.root'));
+    $instance->setLanguageManager($container->get('language_manager'));
     return $instance;
   }
 
@@ -112,10 +120,27 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Sets app root service.
    *
-   * @todo remove and use DI at 2.x+ post sub-classes updates.
+   * @todo remove and use DI at 3.x+ post sub-classes updates.
    */
   public function setRoot($root) {
     $this->root = $root;
+    return $this;
+  }
+
+  /**
+   * Returns the language manager service.
+   */
+  public function languageManager() {
+    return $this->languageManager;
+  }
+
+  /**
+   * Sets the language manager service.
+   *
+   * @todo remove and use DI at 3.x+ post sub-classes updates.
+   */
+  public function setLanguageManager($language_manager) {
+    $this->languageManager = $language_manager;
     return $this;
   }
 
@@ -262,19 +287,21 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * The `_fx` is a special flag such as to temporarily disable till needed.
    */
   public function getCommonSettings(array &$settings) {
-    $config                    = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
-    $config['fx']              = isset($config['fx']) ? $config['fx'] : '';
-    $config['fx']              = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
-    $settings                  = array_merge($settings, $config);
-    $settings['fx']            = isset($settings['_fx']) ? $settings['_fx'] : $settings['fx'];
-    $settings['media_switch']  = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
+    $config = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+    $config['fx'] = isset($config['fx']) ? $config['fx'] : '';
+    $config['fx'] = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
+    $settings = array_merge($settings, $config);
+    $settings['fx'] = isset($settings['_fx']) ? $settings['_fx'] : $settings['fx'];
+    $settings['media_switch'] = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
-    $settings['is_preview']    = Blazy::isPreview();
-    $settings['lightbox']      = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['namespace']     = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $settings['route_name']    = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
-    $settings['resimage']      = !empty($settings['responsive_image_style']);
-    $settings['resimage']      = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
+    $settings['is_preview'] = Blazy::isPreview();
+    $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
+    $settings['route_name'] = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
+    $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');
+    $settings['resimage'] = $settings['_resimage'] && !empty($settings['responsive_image_style']);
+    $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
+    $settings['current_language'] = $this->languageManager->getCurrentLanguage()->getId();
 
     if ($switch) {
       // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
@@ -400,17 +427,17 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
     $srcset = [];
     foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
-      $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, $initial));
+      $styled = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, $initial));
 
       // In order to avoid layout reflow, we get dimensions beforehand.
-      $srcset[$settings['width']] = round((($settings['height'] / $settings['width']) * 100), 2);
+      $srcset[$styled['width']] = round((($styled['height'] / $styled['width']) * 100), 2);
     }
 
     // Sort the srcset from small to large image width or multiplier.
     ksort($srcset);
 
     // Informs individual images that dimensions are already set once.
-    // @todo revert $settings['blazy_data']['dimensions'] = $srcset;
+    $settings['blazy_data']['dimensions'] = $srcset;
     $settings['padding_bottom'] = end($srcset);
     $settings['_dimensions'] = TRUE;
   }

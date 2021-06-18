@@ -169,6 +169,12 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
 
+    if (empty($settings['media_switch'])) {
+      foreach (['box_style', 'box_media_style', 'box_caption'] as $key) {
+        $excludes[$key] = TRUE;
+      }
+    }
+
     // Remove exluded settings.
     foreach ($excludes as $key => $value) {
       if (isset($settings[$key])) {

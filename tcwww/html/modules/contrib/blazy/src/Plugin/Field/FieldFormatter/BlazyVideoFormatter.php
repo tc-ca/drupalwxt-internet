@@ -43,13 +43,25 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
    */
   public function buildElements(array &$build, $items) {
     $settings = $build['settings'];
+    $settings['bundle'] = 'remote_video';
+    $settings['media_source'] = 'video_embed_field';
+    $vef = $this->vefProviderManager();
+
+    if (!$vef) {
+      return;
+    }
 
     foreach ($items as $delta => $item) {
       $settings['input_url'] = strip_tags($item->value);
       $settings['delta'] = $delta;
-      if (empty($settings['input_url'])) {
+
+      if (empty($settings['input_url']) || !($provider = $vef->loadProviderFromInput($settings['input_url']))) {
         continue;
       }
+
+      // Ensures thumbnail is available.
+      $provider->downloadThumbnail();
+      $settings['uri'] = $provider->getLocalThumbnailUri();
 
       $this->blazyOembed->build($settings);
 

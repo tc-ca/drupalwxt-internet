@@ -15,6 +15,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyOEmbedInterface;
 use Drupal\blazy\BlazyUtil;
+use Drupal\blazy\Form\BlazyAdminInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -30,6 +31,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   settings = {
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
+ *     "box_style" = "",
+ *     "hybrid_style" = "",
  *     "use_data_uri" = "0",
  *   },
  *   weight = 3
@@ -52,6 +55,20 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   protected $entityFieldManager;
 
   /**
+   * The blazy admin service.
+   *
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
+   */
+  protected $blazyAdmin;
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\BlazyOEmbedInterface
+   */
+  protected $blazyOembed;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -61,10 +78,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, EntityFieldManagerInterface $entity_field_manager, BlazyAdminInterface $blazy_admin, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->root = $root;
     $this->entityFieldManager = $entity_field_manager;
+    $this->blazyAdmin = $blazy_admin;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
   }
@@ -79,6 +97,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $plugin_definition,
       $container->get('app.root'),
       $container->get('entity_field.manager'),
+      $container->get('blazy.admin'),
       $container->get('blazy.oembed')
     );
   }
@@ -106,18 +125,19 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
 
-        // Set an image style based on node data properties, yet respects
-        // blazy_settings_alter which might set this earlier at buildSettings.
+        // Set an image style based on node data properties.
         // See https://www.drupal.org/project/drupal/issues/2061377,
         // https://www.drupal.org/project/drupal/issues/2822389, and
         // https://www.drupal.org/project/inline_responsive_images.
-        if (empty($item_settings['image_style'])) {
-          $item_settings['image_style'] = $node->getAttribute('data-image-style');
+        if ($image_style = $node->getAttribute('data-image-style')) {
+          $item_settings['image_style'] = $image_style;
         }
-        if (empty($item_settings['responsive_image_style'])) {
-          $item_settings['responsive_image_style'] = $node->getAttribute('data-responsive-image-style');
+
+        if ($responsive_image_style = $node->getAttribute('data-responsive-image-style')) {
+          $item_settings['responsive_image_style'] = $responsive_image_style;
         }
-        if (!empty($item_settings['responsive_image_style'])) {
+
+        if (!empty($settings['_resimage']) && !empty($item_settings['responsive_image_style'])) {
           $item_settings['resimage'] = $this->blazyManager->entityLoad(
             $item_settings['responsive_image_style'],
             'responsive_image_style'
@@ -133,8 +153,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         // Extracts image caption if available.
         $this->buildImageCaption($build, $node);
 
-        // Marks invalid/ unknown IMG or IFRAME for removal.
-        if (empty($build['settings']['uri'])) {
+        // Marks invalid, unknown, missing IMG or IFRAME for removal.
+        // Be sure to not affect external images, only strip missing local URI.
+        $uri = $build['settings']['uri'];
+        $missing = BlazyUtil::isValidUri($uri) && !is_file($uri);
+        if (empty($uri) || $missing) {
           $node->setAttribute('class', 'blazy-removed');
           continue;
         }
@@ -171,19 +194,20 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
       $all['media_switch'] = $switch = $settings['media_switch'];
 
+      if (!empty($settings[$switch])) {
+        $all[$switch] = $settings[$switch];
+      }
+
       // Builds the grids if so provided via [data-column], or [data-grid].
       if ($settings['_grid'] && !empty($elements[0])) {
         $all['grid'] = $settings['grid'];
         $all['column'] = $settings['column'];
-        if (isset($settings[$switch])) {
-          $all[$switch] = $settings[$switch];
-        }
 
         $settings['_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
       }
 
-      // Adds the attchments.
+      // Adds the attachments.
       $attachments = $this->blazyManager->attach($all);
 
       // Cleans up invalid, or moved nodes.
@@ -205,12 +229,22 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['_check_protocol'] = TRUE;
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['media_switch'] = $this->settings['media_switch'];
     $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+    $settings['_resimage'] = $this->blazyManager->getModuleHandler()->moduleExists('responsive_image');
+
+    if (isset($settings['hybrid_style']) && $style = $settings['hybrid_style']) {
+      if ($settings['_resimage']
+        && $box_style = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+        $settings['responsive_image_style'] = $style;
+      }
+      else {
+        $settings['image_style'] = $style;
+      }
+    }
 
     $this->blazyManager->getCommonSettings($settings);
 
@@ -218,37 +252,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $build = ['settings' => $settings];
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
     return array_merge($settings, $build['settings']);
-  }
-
-  /**
-   * Return valid nodes based on the allowed tags.
-   */
-  private function validNodes(\DOMDocument $dom, array $allowed_tags = []) {
-    $valid_nodes = [];
-    foreach ($allowed_tags as $allowed_tag) {
-      $nodes = $dom->getElementsByTagName($allowed_tag);
-      if ($nodes->length > 0) {
-        foreach ($nodes as $node) {
-          if ($node->hasAttribute('data-unblazy')) {
-            continue;
-          }
-
-          $valid_nodes[] = $node;
-        }
-      }
-    }
-    return $valid_nodes;
-  }
-
-  /**
-   * Removes nodes.
-   */
-  private function removeNodes($nodes) {
-    foreach ($nodes as $node) {
-      if ($node->parentNode) {
-        $node->parentNode->removeChild($node);
-      }
-    }
   }
 
   /**
@@ -295,9 +298,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $altered_html = $this->blazyManager->getRenderer()->render($output);
 
       if ($first = $grid_nodes[0]) {
+        // Checks if the IMG is managed by caption filter identified by figure.
+        if ($first->parentNode && $first->parentNode->tagName == 'figure') {
+          $first = $first->parentNode;
+        }
+
         // Create the parent grid container, and put it before the first.
         // This extra container ensures hook_blazy_build_alter() aint screw up.
-        $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+        $parent = $first->parentNode ? $first->parentNode : $first;
+        $container = $parent->insertBefore($dom->createElement('div'), $first);
         $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
 
         $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
@@ -354,6 +363,13 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     if ($item) {
       $item->alt = $node->getAttribute('alt') ?: (isset($item->alt) ? $item->alt : '');
       $item->title = $node->getAttribute('title') ?: (isset($item->title) ? $item->title : '');
+
+      // Supports hard-coded image url without file API.
+      if (!empty($item->uri) && empty($item->width)) {
+        if ($data = @getimagesize($item->uri)) {
+          list($item->width, $item->height) = $data;
+        }
+      }
     }
 
     // Responsive image with aspect ratio requires an extra container to work
@@ -396,16 +412,22 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     // otherwise we cannot see this figure, yet provide fallback.
     if ($node->parentNode && $node->parentNode->tagName === 'figure') {
       $caption = $node->parentNode->getElementsByTagName('figcaption');
-      if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
+      $item = ($caption->length > 0 && $caption->item(0)) ? $caption->item(0) : NULL;
+      if ($item && $text = $item->ownerDocument->saveXML($item)) {
+        $settings = &$build['settings'];
         $markup = Xss::filter($text, BlazyDefault::TAGS);
         $build['captions']['alt'] = ['#markup' => $markup];
 
+        if (isset($settings['box_caption']) && $settings['box_caption'] == 'inline') {
+          $settings['box_caption'] = $markup;
+        }
+
         // Mark the FIGCAPTION for deletion because the caption will be
         // rendered in the Blazy way.
-        $caption->item(0)->setAttribute('class', 'blazy-removed');
+        $item->setAttribute('class', 'blazy-removed');
 
         // Marks figures for removal as its contents are moved into grids.
-        if ($build['settings']['_grid']) {
+        if ($settings['_grid']) {
           $node->parentNode->setAttribute('class', 'blazy-removed');
         }
       }
@@ -501,7 +523,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly. Manually add width and height for SVG, and other images without image styles.</p>');
+        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.');
@@ -533,8 +555,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         'media' => $this->t('Image to iframe'),
       ],
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will hide iframe behind image till toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) <b>requires</b> a grid to build the gallery correctly. Add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.</li></ul>'),
+      '#default_value' => isset($this->settings['media_switch']) ? $this->settings['media_switch'] : '',
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.'),
     ];
 
     if (!empty($lightboxes)) {
@@ -544,6 +566,35 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       }
     }
 
+    $styles = $this->blazyAdmin->getResponsiveImageOptions() + $this->blazyAdmin->getEntityAsOptions('image_style');
+    $form['hybrid_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('(Responsive) image style'),
+      '#options' => $styles,
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['hybrid_style']) ? $this->settings['hybrid_style'] : '',
+      '#description' => $this->t('Fallback (Responsive) image style when <code>[data-image-style]</code> or <code>[data-responsive-image-style]</code> attributes are not present, see https://drupal.org/node/2061377.'),
+    ];
+
+    $form['box_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Lightbox (Responsive) image style'),
+      '#options' => $styles,
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['box_style']) ? $this->settings['box_style'] : '',
+    ];
+
+    $captions = $this->blazyAdmin->getLightboxCaptionOptions();
+    unset($captions['entity_title'], $captions['custom']);
+    $form['box_caption'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Lightbox caption'),
+      '#options' => $captions + ['inline' => $this->t('Caption filter')],
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['box_caption']) ? $this->settings['box_caption'] : '',
+      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones.'),
+    ];
+
     $form['use_data_uri'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Trust data URI'),
@@ -552,6 +603,37 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     ];
 
     return $form;
+  }
+
+  /**
+   * Removes nodes.
+   */
+  protected function removeNodes($nodes) {
+    foreach ($nodes as $node) {
+      if ($node->parentNode) {
+        $node->parentNode->removeChild($node);
+      }
+    }
+  }
+
+  /**
+   * Return valid nodes based on the allowed tags.
+   */
+  private function validNodes(\DOMDocument $dom, array $allowed_tags = []) {
+    $valid_nodes = [];
+    foreach ($allowed_tags as $allowed_tag) {
+      $nodes = $dom->getElementsByTagName($allowed_tag);
+      if ($nodes->length > 0) {
+        foreach ($nodes as $node) {
+          if ($node->hasAttribute('data-unblazy')) {
+            continue;
+          }
+
+          $valid_nodes[] = $node;
+        }
+      }
+    }
+    return $valid_nodes;
   }
 
 }

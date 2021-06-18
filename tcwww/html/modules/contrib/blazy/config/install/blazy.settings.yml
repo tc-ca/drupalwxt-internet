@@ -1,6 +1,6 @@
 admin_css: true
 fx: ''
-native: false
+decode: false
 noscript: false
 responsive_image: false
 one_pixel: true

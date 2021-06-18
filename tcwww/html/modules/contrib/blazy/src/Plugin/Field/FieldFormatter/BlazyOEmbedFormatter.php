@@ -77,12 +77,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
       // Attempts to fetch media entity.
       $media = $this->formatter->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['field_name'] => $value]);
       if ($media = reset($media)) {
-        $currentLanguage = \Drupal::languageManager()
-          ->getCurrentLanguage()
-          ->getId();
-
-        if ($media->hasTranslation($currentLanguage)) {
-          $media = $media->getTranslation($currentLanguage);
+        if ($media->hasTranslation($settings['current_language'])) {
+          $media = $media->getTranslation($settings['current_language']);
         }
 
         $data['settings'] = $settings;

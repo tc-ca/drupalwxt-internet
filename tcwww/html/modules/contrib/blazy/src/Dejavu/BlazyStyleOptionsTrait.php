@@ -98,6 +98,11 @@ trait BlazyStyleOptionsTrait {
           $options['thumb_captions'][$field] = $field_names[$field];
         }
 
+        if ($handler['field'] == 'rendered_entity') {
+          $options['images'][$field] = $field_names[$field];
+          $options['overlays'][$field] = $field_names[$field];
+        }
+
         if (in_array($handler['field'], ['nid', 'nothing', 'view_node'])) {
           $options['links'][$field] = $field_names[$field];
           $options['titles'][$field] = $field_names[$field];

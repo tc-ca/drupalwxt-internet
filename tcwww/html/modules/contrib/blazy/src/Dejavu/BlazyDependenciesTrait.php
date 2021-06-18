@@ -28,12 +28,16 @@ trait BlazyDependenciesTrait {
       }
     }
 
-    $style_id = $this->getSetting('responsive_image_style');
-    /** @var \Drupal\responsive_image\ResponsiveImageStyleInterface $style */
-    if ($style_id && $style = $this->formatter->entityLoad($style_id, 'responsive_image_style')) {
-      // Add the responsive image style as dependency.
-      $dependencies[$style->getConfigDependencyKey()][] = $style->getConfigDependencyName();
+    foreach (['box', 'responsive_image'] as $key) {
+      $style_id = $this->getSetting($key . '_style');
+
+      /** @var \Drupal\responsive_image\ResponsiveImageStyleInterface $style */
+      if ($style_id && $style = $this->formatter->entityLoad($style_id, 'responsive_image_style')) {
+        // Add the responsive image style as dependency.
+        $dependencies[$style->getConfigDependencyKey()][] = $style->getConfigDependencyName();
+      }
     }
+
     return $dependencies;
   }
 

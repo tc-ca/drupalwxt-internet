@@ -36,6 +36,7 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
     foreach ($files as $delta => $file) {
       /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $file->_referringItem;
+      $box = [];
 
       $settings['delta']     = $delta;
       $settings['file_tags'] = $file->getCacheTags();

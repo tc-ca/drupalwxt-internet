@@ -121,7 +121,7 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
 
     $style_plugin->submitOptionsForm($form, $form_state);
 
-    // @todo: Fields.
+    // @todo Fields.
     $image = [];
     $index = 0;
     $row = $view->result[$index];

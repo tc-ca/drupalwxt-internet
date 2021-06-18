@@ -1,4 +1,84 @@
 
+Blazy 8.x-2.0-dev, 2021-06-17
+-----------------------------
+- Issue #3213258 by gausarts: Remove obsolete "Native browser lazy load.
+- Reverted tests ::setup method due to causing failing tests at sub-modules.
+- Issue #3218962 by gausarts, wrd: Problem with optionset checkboxes in "Gin"
+  admin theme.
+
+Blazy 8.x-2.0-dev, 2021-06-15
+-----------------------------
+- Issue #3214002 by Anybody, gausarts, FiNeX: Media switcher output doesn'\''t
+  work with i18n.
+
+Blazy 8.x-2.0-dev, 2021-06-07
+-----------------------------
+- Issue #3214002 by gausarts, FiNeX: Media switcher output doesn'\''t work with
+  i18n.
+- Issue #3217404 by justanothermark: Incorrect URI built for sites with base
+  path.
+
+Blazy 8.x-2.0-dev, 2021-05-31
+-----------------------------
+- Added a common config entity to DRY for Slick, Splide, ElevateZoomPLus,
+  GridStack, etc.
+- Issue #3214001 by Vinay15: Label is displayed for a newly created Paragraph
+  entity instead of its preview in layout builder
+- Added rendered_entity field to support navigation with Vanilla option for the
+  new Splide module.
+
+Blazy 8.x-2.0-dev, 2021-05-11
+-----------------------------
+- Issue #3213260 by gausarts: Leverage asynchronous "decoding" HTML attribute
+  for improved performance.
+
+Blazy 8.x-2.0-dev, 2021-05-09
+-----------------------------
+- Added autoplay for local video within lightbox to save another click.
+- Fixed for fatal _responsive_image_build_source_attributes if file is missing.
+- Fixed for Blazy Filter hard-coded image url without dimensions and file API.
+- Reverted the revert as per https://drupal.org/node/3210636#comment-14097266.
+- Added BC for non-oembed such as Video Embed Field without Media migration.
+- Reverted video lightbox checks to 2.1.
+
+Blazy 8.x-2.0-dev, 2021-05-08
+-----------------------------
+- Added (Responsive) image style as fallbacks to Blazy Filter.
+
+Blazy 8.x-2.0-dev, 2021-05-05
+-----------------------------
+- Added Lightbox image style option with Responsive image to Blazy Filter.
+- Fixed for Responsive image overflow sizes within Colorbox.
+- Issue #3212194 by gausarts: Supports Responsive image for lightboxes.
+- Reverted the forgotten $settings['blazy_data']['dimensions'] = $srcset;
+
+Blazy 8.x-2.0-dev, 2021-05-04
+-----------------------------
+- Changed video_embed_media to video_embed_field to support manual or drush.
+
+Blazy 8.x-2.0-dev, 2021-05-01
+-----------------------------
+- Issue #3190087 by gausarts, playful: Blazy Filter HTML caption added via text
+  editor being stripped out.
+- Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index required
+  by by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
+
+Blazy 8.x-2.0-dev, 2021-04-30
+-----------------------------
+- Issue #3211636 by gausarts, timlie, jacklee0410: Regressions with lightbox
+  dimensions.
+- Issue #3210344 by gausarts, manarak: Broken CSS background and responsive
+  image styles with aspect ratio Fluid.
+
+Blazy 8.x-2.0-dev, 2021-04-26
+-----------------------------
+- Issue #3210636 by grathbone: Solution to supporting image-to-iframe embeds for
+  non oembed videos (Video Embed Field)
+
+Blazy 8.x-2.0-dev, 2021-04-24
+-----------------------------
+- Issue #3158152 by manarak, renguer0: Uncaught TypeError: Cannot use '\''in'\''
+
 Blazy 8.x-2.0-dev, 2021-04-14
 -----------------------------
 - Issue #3208686 by Firass Ziedan: Call to a member function getPluginId() on

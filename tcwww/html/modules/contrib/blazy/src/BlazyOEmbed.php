@@ -168,6 +168,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings['embed_url'] = $url->toString();
     if (isset($settings['media_source'])) {
       $settings['type'] = $settings['media_source'] == 'oembed:video' ? 'video' : $settings['media_source'];
+      $settings['type'] = $settings['media_source'] == 'video_embed_field' ? 'video' : $settings['type'];
     }
   }
 
@@ -218,6 +219,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     switch ($settings['media_source']) {
       case 'oembed':
       case 'oembed:video':
+      case 'video_embed_field':
         // Input url != embed url. For Youtube, /watch != /embed.
         if ($input_url = $media->getSource()->getSourceFieldValue($media)) {
           $settings['input_url'] = $input_url;

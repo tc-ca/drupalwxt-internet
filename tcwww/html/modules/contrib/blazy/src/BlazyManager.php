@@ -38,11 +38,19 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
-    $settings['uri'] = $settings['uri'] ?: Blazy::uri($build['item']);
+    $settings['uri'] = $uri = $settings['uri'] ?: Blazy::uri($build['item']);
+
+    // Prevents _responsive_image_build_source_attributes from fatal if missing.
+    // External images are invalid URI, but can still be lazyloaded.
+    // The is_file seems fine against weird characters like czech ů at php 7.4,
+    // recheck russian characters in general, and lower PHP. No worries if
+    // transliterated, though.
+    $settings['_valid'] = BlazyUtil::isValidUri($uri);
+    $settings['_missing'] = $settings['_valid'] && !is_file($uri);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
-    $content = empty($settings['uri']) ? $build['content'] : [
+    $content = (empty($uri) || $settings['_missing']) ? $build['content'] : [
       '#theme'       => 'blazy',
       '#delta'       => $settings['delta'],
       '#item'        => $build['item'],
@@ -247,6 +255,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
         ],
       ];
 
+      if (!empty($settings['decode'])) {
+        $blur['#attributes']['decoding'] = 'async';
+      }
+
       // Reset as already stored.
       unset($settings['placeholder_fx']);
       $element['#preface']['blur'] = $blur;
@@ -269,12 +281,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['background'])) {
       $srcset = $dimensions = [];
       foreach ($responsive_image['styles'] as $style) {
-        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
+        $styled = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
-        $data = $this->backgroundImage($settings, $style);
-        $srcset[$settings['width']] = $data;
-        $dimensions[$settings['width']] = $data['ratio'];
+        $data = $this->backgroundImage($styled, $style);
+        $srcset[$styled['width']] = $data;
+        $dimensions[$styled['width']] = $data['ratio'];
       }
 
       // Sort the srcset from small to large image width or multiplier.
@@ -352,7 +364,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
       if ($style) {
         $path = $style->buildUri($settings['uri']);
-        $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
+        $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($settings['uri'], $style);
 
         if (!is_file($path) && BlazyUtil::isValidUri($path)) {
           $style->createDerivative($settings['uri'], $path);
@@ -364,7 +376,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // thumbnail and main image for company profile.
     if (!empty($settings['thumbnail_uri'])) {
       $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = BlazyUtil::transformRelative($path);
+      $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($path);
     }
 
     // Provides image effect if so configured.

@@ -129,22 +129,36 @@
    *   Returns a HTMLElement object.
    */
   Drupal.theme.blazyMedia = function (settings) {
-    var elm = settings.el;
-    var media = elm.getAttribute('data-media') ? _db.parse(elm.getAttribute('data-media')) : {};
-    var img = elm.querySelector('img');
-    var alt = img !== null ? img.getAttribute('alt') : 'Video preview';
-    var pad = media ? ((media.height / media.width) * 100).toFixed(2) : 100;
-    var boxUrl = elm.getAttribute('data-box-url');
-    var href = elm.getAttribute('href');
-    var oembedUrl = elm.hasAttribute('data-oembed-url') ? elm.getAttribute('data-oembed-url') : href;
+    // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
+    var elm = settings.el || settings.element;
+    var data = _db.attr(elm, 'data-media');
+    data = data ? _db.parse(data) : {};
+    var alt = _db.attr(elm, 'alt', 'Video preview');
+    var width = data.width ? parseInt(data.width) : 0;
+    var height = data.height ? parseInt(data.height) : 0;
+    var pad = data ? ((height / width) * 100).toFixed(2) : 100;
+    var imgUrl = _db.attr(elm, 'data-box-url');
+    var href = _db.attr(elm, 'href');
+    var oembedUrl = _db.attr(elm, 'data-oembed-url', href);
+    var imgClass = settings.imgClass ? ' ' + settings.imgClass : '';
+    var idClass = data.id ? ' media--' + data.id : '';
+    var player = data.type === 'video' ? ' media--player' : '';
     var html;
 
-    html = '<div class="media-wrapper media-wrapper--inline" style="width:' + media.width + 'px">';
-    html += '<div class="media media--switch media--player media--ratio media--ratio--fluid" style="padding-bottom: ' + pad + '%">';
-    html += '<img src="' + boxUrl + '" class="media__image media__element" alt="' + Drupal.t(alt) + '"/>';
-    html += '<span class="media__icon media__icon--close"></span>';
-    html += '<span class="media__icon media__icon--play" data-url="' + oembedUrl + '"></span>';
-    html += '</div></div>';
+    html = '<div class="media' + idClass + ' media--switch' + player + ' media--ratio media--ratio--fluid" style="padding-bottom: ' + pad + '%">';
+
+    html += '<img src="' + imgUrl + '" class="media__image media__element' + imgClass + '" alt="' + Drupal.t(alt) + '" loading="lazy" decoding="async"/>';
+
+    if (player) {
+      html += '<span class="media__icon media__icon--close"></span>';
+      html += '<span class="media__icon media__icon--play" data-url="' + oembedUrl + '"></span>';
+    }
+
+    html += '</div>';
+
+    if (!settings.unwrap) {
+      html = '<div class="media-wrapper media-wrapper--inline" style="width:' + width + 'px">' + html + '</div>';
+    }
 
     return html;
   };
@@ -156,10 +170,20 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      var players = context.querySelectorAll('.media--player:not(.media--player--on)');
-      if (players.length > 0) {
-        _db.once(_db.forEach(players, blazyMedia));
+
+      // Originally identified at D7, yet might happen at D8 with AJAX.
+      // Prevents jQuery AJAX messes up where context might be an array.
+      if ('length' in context) {
+        context = context[0];
       }
+
+      var _player = '.media--player';
+      var check = context.querySelector(_player);
+      var items = check === null ? [] : context.querySelectorAll(_player + ':not(.media--player--on)');
+      if (items.length) {
+        _db.once(_db.forEach(items, blazyMedia));
+      }
+
     }
   };
 

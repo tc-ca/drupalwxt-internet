@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
+ *
+ * @todo Decouple Native, Aspect ratio, Picture post 2.3+, or 3+.
  */
 
 (function (Drupal, drupalSettings, _db, window, document) {
@@ -48,7 +50,7 @@
       var an = _db.closest(el, '[' + _dataAnimation + ']');
 
       // Clear loading classes.
-      me.clearLoading(el);
+      _db.clearLoading(el);
 
       // Reevaluate the element.
       me.reevaluate(el);
@@ -71,22 +73,6 @@
 
         _isNativeExecuted = true;
       }
-    },
-
-    clearLoading: function (el) {
-      // The .b-lazy element can be attached to IMG, or DIV as CSS background.
-      // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
-      var loaders = [
-        el,
-        _db.closest(el, '.is-loading'),
-        _db.closest(el, '[class*="loading"]')
-      ];
-
-      _db.forEach(loaders, function (loader) {
-        if (loader !== null) {
-          loader.className = loader.className.replace(/(\S+)loading/g, '');
-        }
-      });
     },
 
     isLoaded: function (el) {
@@ -187,7 +173,7 @@
      * which means too late to the party. Yet not bad for 404s below the fold.
      * This must be run before any lazy (native, bLazy or IO) kicks in.
      *
-     * @todo remove if a permanent non-client available other than Placeholder.
+     * @todo Remove if a permanent non-client available other than Placeholder.
      */
     fixMissingDataUri: function () {
       var me = this;
@@ -231,7 +217,7 @@
       var pad = _db.activeWidth(dimensions, isPicture);
 
       // Provides marker for grouping between multiple instances.
-      cn.blazyInstance = 'blazyInstance' in el ? el.blazyInstance : null;
+      cn.blazyInstance = el !== null && 'blazyInstance' in el ? el.blazyInstance : null;
       if (pad !== 'undefined') {
         cn.style.paddingBottom = pad + '%';
       }

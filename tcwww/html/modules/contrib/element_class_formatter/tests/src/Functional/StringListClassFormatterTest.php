@@ -34,6 +34,14 @@ class StringListClassFormatterTest extends ElementClassFormatterTestBase {
     $this->drupalGet($entity->toUrl());
     $assert_session = $this->assertSession();
     $assert_session->elementExists('css', 'ol.' . self::TEST_CLASS);
+
+    // Test no wrapper is printed when the field is empty.
+    $entity = EntityTest::create();
+    $entity->save();
+
+    $this->drupalGet($entity->toUrl());
+    $assert_session = $this->assertSession();
+    $assert_session->elementNotExists('css', '.field');
   }
 
 }

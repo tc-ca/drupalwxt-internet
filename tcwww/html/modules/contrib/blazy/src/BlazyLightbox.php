@@ -45,16 +45,45 @@ class BlazyLightbox {
     $gallery_id             = empty($settings['gallery_id']) ? $gallery_default : $settings['gallery_id'] . '-' . $gallery_default;
     $settings['gallery_id'] = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
     $settings['box_url']    = $valid ? BlazyUtil::transformRelative($uri) : $uri;
-    $settings['box_width']  = empty($settings['width']) ? NULL : $settings['width'];
-    $settings['box_height'] = empty($settings['height']) ? NULL : $settings['height'];
+    $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
+    $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 
     $dimensions = [
       'width' => $settings['box_width'],
       'height' => $settings['box_height'],
       'uri' => $uri,
     ];
-    if (!empty($settings['box_style']) && $valid) {
-      if ($box_style = ImageStyle::load($settings['box_style'])) {
+
+    // Might not be present from BlazyFilter.
+    $json = ['id' => $switch_css];
+    foreach (['bundle', 'type'] as $key) {
+      if (!empty($settings[$key])) {
+        $json[$key] = $settings[$key];
+      }
+    }
+
+    // Supports local and remote videos, also legacy VEF which has no bundles.
+    // See https://drupal.org/node/3210636#comment-14097266.
+    $videos = ['remote_video', 'video'];
+    $is_video = isset($json['type']) && $json['type'] == 'video';
+    $is_video = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
+
+    // The _responsive_image_build_source_attributes is fatal if missing.
+    // @todo Remove _missing check once verified pre_render not being by-passed.
+    if (!empty($settings['box_style']) && $valid && empty($settings['_missing'])) {
+      if (!empty($settings['_resimage'])
+        && $box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
+        if (!$is_video && empty($element['#lightbox_html'])) {
+          $is_resimage = TRUE;
+          $json['type'] = 'rich';
+          $element['#lightbox_html'] = [
+            '#theme' => 'responsive_image',
+            '#responsive_image_style_id' => $box_style->id(),
+            '#uri' => $uri,
+          ];
+        }
+      }
+      elseif ($box_style = ImageStyle::load($settings['box_style'])) {
         $dimensions = array_merge($dimensions, BlazyUtil::transformDimensions($box_style, $dimensions));
         $settings['box_url'] = BlazyUtil::transformRelative($uri, $box_style);
       }
@@ -67,17 +96,8 @@ class BlazyLightbox {
       $settings['box_height'] = $dimensions['height'];
     }
 
-    $json = [
-      'width'  => $settings['box_width'],
-      'height' => $settings['box_height'],
-    ];
-
-    // Might not be present from BlazyFilter.
-    foreach (['bundle', 'type'] as $key) {
-      if (!empty($settings[$key])) {
-        $json[$key] = $settings[$key];
-      }
-    }
+    $json['width'] = $settings['box_width'];
+    $json['height'] = $settings['box_height'];
 
     // This allows PhotoSwipe with videos still swipable.
     if (!empty($settings['box_media_style']) && $valid) {
@@ -88,24 +108,28 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    $videos = ['remote_video', 'video'];
-    if (isset($json['bundle']) && in_array($json['bundle'], $videos)) {
+    if ($is_video) {
       $json['width']  = 640;
       $json['height'] = 360;
 
-      // Force autoplay for media URL on lightboxes, saving another click.
       if (!empty($settings['embed_url'])) {
         $url = $settings['embed_url'];
-        $url_attributes['data-oembed-url'] = $settings['embed_url'];
 
-        // This allows PhotoSwipe with remote videos still swipable.
-        if (!empty($settings['box_media_url'])) {
-          $settings['box_url'] = $settings['box_media_url'];
+        // Force autoplay for media URL on lightboxes, saving another click.
+        // BC for non-oembed such as Video Embed Field without Media migration.
+        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
         }
+        $url_attributes['data-oembed-url'] = $url;
+      }
 
-        if ($switch == 'photobox') {
-          $url_attributes['rel'] = 'video';
-        }
+      // This allows PhotoSwipe with remote videos still swipable.
+      if (!empty($settings['box_media_url'])) {
+        $settings['box_url'] = $settings['box_media_url'];
+      }
+
+      if ($switch == 'photobox') {
+        $url_attributes['rel'] = 'video';
       }
 
       // Remote or local videos.
@@ -115,7 +139,7 @@ class BlazyLightbox {
       }
     }
 
-    if ($switch == 'colorbox') {
+    if ($switch == 'colorbox' && !empty($settings['gallery_id'])) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
@@ -128,16 +152,22 @@ class BlazyLightbox {
 
     // @todo make is flexible for regular non-media HTML.
     if (!empty($element['#lightbox_html'])) {
-      $pad = round((($json['height'] / $json['width']) * 100), 2);
-      $content = [
+      $html = [
         '#theme' => 'container',
         '#children' => $element['#lightbox_html'],
         '#attributes' => [
           'class' => ['media', 'media--ratio'],
-          'style' => 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;',
         ],
       ];
-      $json['html'] = \blazy()->getRenderer()->renderPlain($content);
+
+      if (!empty($json['height']) && !empty($json['width'])) {
+        $pad = round((($json['height'] / $json['width']) * 100), 2);
+        $html['#attributes']['style'] = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+      }
+
+      $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
+      $content = \blazy()->getRenderer()->renderPlain($content);
+      $json['html'] = trim($content);
       unset($element['#lightbox_html']);
     }
 
@@ -208,6 +238,9 @@ class BlazyLightbox {
           }
         }
         break;
+
+      default:
+        $caption = $settings['box_caption'];
     }
 
     return empty($caption)

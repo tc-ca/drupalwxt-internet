@@ -58,14 +58,43 @@
     }
 
     /**
+     * Resize the responsive image.
+     */
+    function resizeImage() {
+      var t = $(this);
+      var w = t.width();
+      var h = t.height();
+      var p = t.closest('#cboxLoadedContent');
+      var pw = p.width();
+      var ph = p.height();
+
+      if (h > ph) {
+        t.css('top', -(h - ph) / 2);
+      }
+      else if (h < ph) {
+        t.css({height: ph, width: 'auto'});
+        t.css('left', -(t.width() - pw) / 2);
+      }
+      else if (pw > w) {
+        $.colorbox.resize({
+          innerWidth: w,
+          innerHeight: h
+        });
+      }
+    }
+
+    /**
      * Resize the colorbox.
      */
     function resizeBox() {
       window.clearTimeout(cboxTimer);
 
+      var mw = drupalSettings.colorbox.maxWidth;
+      var mh = drupalSettings.colorbox.maxHeight;
+
       var o = {
-        width: media.width || drupalSettings.colorbox.maxWidth,
-        height: media.height || drupalSettings.colorbox.maxHeight
+        width: media.width || mw,
+        height: media.height || mh
       };
 
       cboxTimer = window.setTimeout(function () {
@@ -73,6 +102,28 @@
           var $container = $('#cboxLoadedContent');
           var $iframe = $('.cboxIframe', $container);
           var $media = $('.media--ratio', $container);
+          var $picture = $container.find('picture img');
+          var $resimage = $container.find('img[srcset]');
+          var isResimage = $resimage.length || $picture.length;
+
+          if (isResimage) {
+            var $img = $picture.length ? $picture : $resimage;
+            window.setTimeout(function () {
+              $img.each(function () {
+                if (this.complete) {
+                  resizeImage.call(this);
+                }
+                else {
+                  $(this).one('load', resizeImage);
+                }
+              });
+            }, 101);
+
+            o = {
+              width: mw || media.width,
+              height: mh || media.height
+            };
+          }
 
           if (!$iframe.length && $media.length) {
             Drupal.attachBehaviors($media[0]);
@@ -85,16 +136,16 @@
               $iframe.attr('width', o.width).attr('height', o.height).addClass('media__element');
               $container.css({paddingBottom: (o.height / o.width) * 100 + '%', height: 0});
             }
-
-            $.colorbox.resize({
-              innerWidth: o.width,
-              innerHeight: o.height
-            });
           }
           else {
             $container.removeClass('media media--ratio');
             $container.css({paddingBottom: '', height: o.height}).removeClass('media__element');
           }
+
+          $.colorbox.resize({
+            innerWidth: o.width,
+            innerHeight: o.height
+          });
         }
       }, 10);
     }

@@ -113,59 +113,57 @@
     };
   })(_proto.lazyLoad);
 
-  _proto.promise = function (el, isBg) {
-    var me = this;
-
-    return new Promise(function (resolve, reject) {
-      var img = new Image();
-
-      // Preload `img` to have correct event handlers.
-      img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
-      if (el.hasAttribute(_dataSrcset)) {
-        img.srcset = el.getAttribute(_dataSrcset);
-      }
-
-      // Applies attributes regardless, will re-observe if any error.
-      var applyAttrs = function () {
-        if (isBg) {
-          me.setBg(el);
-        }
-        else {
-          _db.setAttrs(el, _imgSources, false);
-        }
-      };
-
-      // Handle onload event.
-      img.onload = function () {
-        applyAttrs();
-        resolve(me._ok);
-      };
-
-      // Handle onerror event.
-      img.onerror = function () {
-        applyAttrs();
-        reject(me._er);
-      };
-    });
-  };
-
   _proto.setImage = function (el, isBg) {
     var me = this;
+    var img = new Image();
+    var isResimage = el.hasAttribute(_dataSrcset);
 
-    return me.promise(el, isBg)
-      .then(function (status) {
-        me.loaded(el, status);
+    // Applies attributes regardless, will re-observe if any error.
+    var applyAttrs = function () {
+      if (isBg) {
+        me.setBg(el);
+      }
+      else {
+        _db.setAttrs(el, _imgSources, false);
+      }
+    };
+
+    var load = function (ok) {
+      applyAttrs();
+
+      // Image decode fails with Responsive image, assumes ok, no side effects.
+      me.loaded(el, ok ? me._ok : me._er);
+      if (ok) {
         _db.removeAttrs(el, isBg ? _bgSources : _imgSources);
-      })
-      .catch(function (status) {
-        me.loaded(el, status);
+      }
+    };
 
-        el.removeAttribute('data-bio-hit');
+    _db.decode(img)
+      .then(function () {
+        load(true);
+      })
+      .catch(function () {
+        load(isResimage);
+
+        // Allows to re-observe.
+        if (!isResimage) {
+          el.removeAttribute('data-bio-hit');
+        }
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
         _db.trigger(el, 'bio.finally', {options: me.options});
       });
+
+    // Preload `img` to have correct event handlers.
+    if ('decode' in img) {
+      img.decoding = 'async';
+    }
+    img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
+    if (isResimage) {
+      img.srcset = el.getAttribute(_dataSrcset);
+    }
+
   };
 
   _proto.setBg = function (el) {

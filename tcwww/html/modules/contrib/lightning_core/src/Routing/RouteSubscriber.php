@@ -56,6 +56,28 @@ class RouteSubscriber extends RouteSubscriberBase {
       // A customized form display under 'Manage display'.
       $this->setBundleAsTitle("entity.entity_form_display.$id.form_mode", $collection);
     }
+
+    $this->setLoadLatestRevision('editor.field_untransformed_text', $collection);
+    $this->setLoadLatestRevision('image.upload', $collection);
+    $this->setLoadLatestRevision('image.info', $collection);
+    $this->setLoadLatestRevision('quickedit.field_form', $collection);
+  }
+
+  /**
+   * Modifies an entity-aware route such that it can load the latest revision.
+   *
+   * @param string $route_name
+   *   The route name.
+   * @param \Symfony\Component\Routing\RouteCollection $collection
+   *   The complete route collection containing the route to alter.
+   */
+  private function setLoadLatestRevision($route_name, RouteCollection $collection) {
+    $route = $collection->get($route_name);
+    if ($route) {
+      $parameters = $route->getOption('parameters');
+      $parameters['entity']['load_latest_revision'] = TRUE;
+      $route->setOption('parameters', $parameters);
+    }
   }
 
   /**

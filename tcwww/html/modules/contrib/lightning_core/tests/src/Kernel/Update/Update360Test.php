@@ -28,7 +28,7 @@ class Update360Test extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installConfig('user');
     $this->installEntitySchema('user');
@@ -37,22 +37,38 @@ class Update360Test extends KernelTestBase {
   /**
    * Tests optional updates targeting Lightning Core 3.6.0.
    */
-  public function test() {
+  public function testUpdate(): void {
     $this->assertFalse($this->container->get('module_handler')->moduleExists('image'));
     $this->assertNull(FieldConfig::loadByName('user', 'user', 'user_picture'));
-    $this->assertTrue(lightning_core_entity_get_display('user', 'user', 'compact')->isNew());
+    $this->assertTrue($this->getCompactDisplay()->isNew());
 
-    $this->container->get('class_resolver')
-      ->getInstanceFromDefinition(Update360::class)
-      ->enableUserPictures();
+    Update360::create($this->container)->enableUserPictures();
+    // The update installed a module, which means the container has been reset.
+    $this->container = $this->container->get('kernel')->getContainer();
 
     $this->assertTrue($this->container->get('module_handler')->moduleExists('image'));
     $this->assertInstanceOf(FieldConfig::class, FieldConfig::loadByName('user', 'user', 'user_picture'));
 
-    $display = lightning_core_entity_get_display('user', 'user', 'compact');
+    $display = $this->getCompactDisplay();
     $this->assertFalse($display->isNew());
-    $this->assertSame('array', gettype($display->getComponent('name')));
-    $this->assertSame('array', gettype($display->getComponent('user_picture')));
+    $this->assertIsArray($display->getComponent('name'));
+    $this->assertIsArray($display->getComponent('user_picture'));
+  }
+
+  /**
+   * Returns the 'compact' entity view display for user accounts.
+   *
+   * @return \Drupal\Core\Entity\Display\EntityViewDisplayInterface
+   *   The 'compact' entity view display.
+   */
+  private function getCompactDisplay() {
+    // Since the update installs a module, the container will be rebuilt. We
+    // need to access the container through the kernel, which guarantees we will
+    // always get the most up-to-date container.
+    return $this->container->get('kernel')
+      ->getContainer()
+      ->get('entity_display.repository')
+      ->getViewDisplay('user', 'user', 'compact');
   }
 
 }

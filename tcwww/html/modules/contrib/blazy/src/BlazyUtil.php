@@ -13,6 +13,13 @@ use Drupal\image\Entity\ImageStyle;
 class BlazyUtil {
 
   /**
+   * The image style ID.
+   *
+   * @var array
+   */
+  private static $styleId;
+
+  /**
    * Generates an SVG Placeholder.
    *
    * @param string $width
@@ -65,6 +72,13 @@ class BlazyUtil {
    */
   public static function buildUri($image_url) {
     if (!UrlHelper::isExternal($image_url) && $normal_path = UrlHelper::parse($image_url)['path']) {
+      // If the request has a base path, remove it from the beginning of the
+      // normal path as it should not be included in the URI.
+      $base_path = \Drupal::request()->getBasePath();
+      if ($base_path && strpos($normal_path, $base_path) === 0) {
+        $normal_path = str_replace($base_path, '', $normal_path);
+      }
+
       $public_path = Settings::get('file_public_path', 'sites/default/files');
 
       // Only concerns for the correct URI, not image URL which is already being
@@ -88,7 +102,7 @@ class BlazyUtil {
    */
   public static function isValidUri($uri) {
     // Adds a check to pass the tests due to non-DI.
-    return Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
+    return !empty($uri) && Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
   }
 
   /**
@@ -160,24 +174,34 @@ class BlazyUtil {
    *   Whether particularly transforms once for all, or individually.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
-    $width  = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-    $uri    = $initial ? '_uri' : 'uri';
-    $width  = isset($data[$width]) ? $data[$width] : NULL;
-    $height = isset($data[$height]) ? $data[$height] : NULL;
-    $dim    = ['width' => $width, 'height' => $height];
+    $uri = $initial ? '_uri' : 'uri';
+    $key = hash('md2', ($style->id() . $data[$uri]));
 
-    // Funnily $uri is ignored at all core image effects.
-    $style->transformDimensions($dim, $data[$uri]);
+    if (!isset(static::$styleId[$key])) {
+      $width  = $initial ? '_width' : 'width';
+      $height = $initial ? '_height' : 'height';
 
-    // Sometimes they are string, cast them integer to reduce JS logic.
-    if ($dim['width'] != NULL) {
-      $dim['width'] = (int) $dim['width'];
+      $width  = isset($data[$width]) ? $data[$width] : NULL;
+      $height = isset($data[$height]) ? $data[$height] : NULL;
+      $dim    = ['width' => $width, 'height' => $height];
+
+      // Funnily $uri is ignored at all core image effects.
+      $style->transformDimensions($dim, $data[$uri]);
+
+      // Sometimes they are string, cast them integer to reduce JS logic.
+      if ($dim['width'] != NULL) {
+        $dim['width'] = (int) $dim['width'];
+      }
+      if ($dim['height'] != NULL) {
+        $dim['height'] = (int) $dim['height'];
+      }
+
+      static::$styleId[$key] = [
+        'width' => $dim['width'],
+        'height' => $dim['height'],
+      ];
     }
-    if ($dim['height'] != NULL) {
-      $dim['height'] = (int) $dim['height'];
-    }
-    return ['width' => $dim['width'], 'height' => $dim['height']];
+    return static::$styleId[$key];
   }
 
   /**

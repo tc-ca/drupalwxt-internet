@@ -109,6 +109,25 @@ class ContentEntityCloneFormBase implements EntityHandlerInterface, EntityCloneF
             '#access' => TRUE,
           ],
         ], $form);
+
+        $bid = isset($entity->book) && empty($entity->book['bid']) ? 0 : $entity->book['bid'];
+        if (!empty($bid) && $entity->id() == $bid) {
+          $form['book'] = [
+            '#type' => 'fieldset',
+            '#weight' => -5,
+          ];
+
+          $form['book']['description'] = [
+            '#type' => 'markup',
+            '#markup' => t('This is a top-level book. Select the checkbox below to clone all of the pages within the book.'),
+          ];
+
+          $form['book']['clone_book'] = [
+            '#type' => 'checkbox',
+            '#title' => t('Clone entire book including child pages'),
+            '#default_value' => 0,
+          ];
+        }
       }
     }
 

@@ -46,4 +46,11 @@
   border-radius: 0;
   border: 8px solid #37465b;
 }
+
+#cboxLoadedContent img[srcset],
+#cboxLoadedContent picture img {
+  display: block;
+  margin: auto;
+  max-height: 100%;
+}
 /* csslint ignore:end */

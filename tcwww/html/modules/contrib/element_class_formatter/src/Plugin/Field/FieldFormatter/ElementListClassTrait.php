@@ -64,6 +64,10 @@ trait ElementListClassTrait {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    if ($items->isEmpty()) {
+      return [];
+    }
+
     $elements = parent::viewElements($items, $langcode);
     $class = $this->getSetting('class');
 

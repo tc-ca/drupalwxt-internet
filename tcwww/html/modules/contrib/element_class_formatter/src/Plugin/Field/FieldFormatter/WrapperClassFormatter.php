@@ -73,6 +73,7 @@ class WrapperClassFormatter extends FormatterBase {
       'span' => 'span',
       'div' => 'div',
       'p' => 'p',
+      'strong' => 'strong',
     ];
     foreach (range(1, 5) as $level) {
       $wrapper_options['h' . $level] = 'H' . $level;
