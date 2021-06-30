@@ -131,7 +131,7 @@ class LibraryDefinitionCssForm extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $file_name = $form_state->getValue('file_name');
-    if (!preg_match('#^\w[\w-\.\/]*\.css$#i', $file_name) || strpos($file_name, '..') !== FALSE) {
+    if (!preg_match('#^\w[\w\-\.\/]*\.css$#i', $file_name) || strpos($file_name, '..') !== FALSE) {
       $form_state->setError($form['file_name'], $this->t('The file name is not correct.'));
     }
   }

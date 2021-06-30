@@ -9,3 +9,7 @@ Source: https://www.drupal.org/files/issues/2020-05-21/library_manager-add_dep_w
 Source: https://www.drupal.org/files/issues/2020-05-28/library_manager-condition_logic-3143565-2.patch
 
 
+3212130 - Cannot save js/css form due to preg_match error on php7.3
+Source: https://www.drupal.org/files/issues/2021-05-04/library_manager-php73_preg_match-3212130-2.patch
+
+

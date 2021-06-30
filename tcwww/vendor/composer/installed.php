@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
+    'pretty_version' => 'dev-develop',
+    'version' => 'dev-develop',
     'aliases' => 
     array (
     ),
-    'reference' => '8f2eb937ab93ff5f291c5075d37fd74283ac52a0',
+    'reference' => '4ed57f0278c77228893488d9ed870f2e7d2e8e80',
     'name' => 'drupalwxt/site-wxt',
   ),
   'versions' => 
@@ -2911,12 +2911,12 @@
     ),
     'drupalwxt/site-wxt' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => 'dev-develop',
+      'version' => 'dev-develop',
       'aliases' => 
       array (
       ),
-      'reference' => '8f2eb937ab93ff5f291c5075d37fd74283ac52a0',
+      'reference' => '4ed57f0278c77228893488d9ed870f2e7d2e8e80',
     ),
     'drupalwxt/wxt' => 
     array (
